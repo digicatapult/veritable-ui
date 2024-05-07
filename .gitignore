@@ -1,0 +1,15 @@
+node_modules/
+build
+src/swagger.json
+src/routes.ts
+dist
+
+.npm
+.env
+.cache
+npm-debug.log*
+*.log
+*.pid
+*.seed
+*.pid.lock
+.tsimp
