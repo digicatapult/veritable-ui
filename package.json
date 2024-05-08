@@ -1,6 +1,6 @@
 {
   "name": "veritable-ui",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "UI for Veritable",
   "main": "src/index.ts",
   "type": "commonjs",
@@ -22,7 +22,9 @@
     "db:cmd": "node ./node_modules/.bin/knex",
     "db:migrate": "npm run db:cmd -- migrate:latest",
     "db:rollback": "npm run db:cmd -- migrate:rollback",
-    "lint": "prettier -c ./src",
+    "db:seed": "npm run db:cmd -- seed:run",
+    "lint": "prettier -c ./src ./test ./seeds ./migrations",
+    "lint:fix": "npm run lint -- -w",
     "xss-scan": "xss-scan"
   },
   "dependencies": {
