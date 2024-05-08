@@ -4,6 +4,11 @@ import { singleton } from 'tsyringe'
 const envConfig = {
   PORT: envalid.port({ default: 3000 }),
   LOG_LEVEL: envalid.str({ default: 'info', devDefault: 'debug' }),
+  DB_HOST: envalid.host({ devDefault: 'localhost' }),
+  DB_NAME: envalid.str({ default: 'veritable_ui' }),
+  DB_USERNAME: envalid.str({ devDefault: 'postgres' }),
+  DB_PASSWORD: envalid.str({ devDefault: 'postgres' }),
+  DB_PORT: envalid.port({ default: 5432 }),
 }
 
 export type ENV_CONFIG = typeof envConfig
