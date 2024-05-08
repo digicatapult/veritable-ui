@@ -20,8 +20,6 @@ Followed by database migrations
 
 ```bash
 npm run db:migrate
-# seeding data
-npm run db:seed
 ```
 
 Finally to run:
@@ -31,6 +29,12 @@ npm run dev
 ```
 
 ## Seeds
+
+Seeding data
+
+```bash
+npm run db:seed
+```
 
 Creating a new seed from template (knex)
 
