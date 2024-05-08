@@ -25,4 +25,5 @@ exports.up = async function (knex) {
  */
 exports.down = async function (knex) {
   await knex.schema.dropTable('connection')
+  await knex.schema.raw('DROP TYPE ??', ['connection_status'])
 }
