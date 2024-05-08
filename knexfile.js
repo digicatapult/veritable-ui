@@ -18,7 +18,7 @@ const pgConfig = {
     tableName: 'migrations',
   },
   seeds: {
-    directory: './test/seeds/dev',
+    directory: './test/seeds/test',
   },
 }
 
