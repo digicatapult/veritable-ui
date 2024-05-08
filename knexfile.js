@@ -17,9 +17,6 @@ const pgConfig = {
   migrations: {
     tableName: 'migrations',
   },
-  seeds: {
-    directory: './seeds/',
-  },
 }
 
 module.exports = {
