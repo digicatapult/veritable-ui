@@ -6,11 +6,6 @@ import { counterMock, mockLogger, templateMock, toHTMLString } from './helpers'
 import { RootController } from '../example'
 
 describe('ExampleController', () => {
-  let expect: Chai.ExpectStatic
-  before(async () => {
-    expect = (await import('chai')).expect
-  })
-
   afterEach(() => {
     sinon.restore()
   })

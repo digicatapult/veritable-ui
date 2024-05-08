@@ -3,11 +3,6 @@ import { describe, it } from 'mocha'
 import ConnectionTemplates from '../connection'
 
 describe('ConnectionTemplates', () => {
-  let expect: Chai.ExpectStatic
-  before(async () => {
-    expect = (await import('chai')).expect
-  })
-
   describe('listPage', () => {
     it('should render with no connections', async () => {
       const templates = new ConnectionTemplates()

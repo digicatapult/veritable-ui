@@ -8,7 +8,6 @@
     "target": "ESNext",
     "module": "CommonJS",
     "moduleResolution": "node",
-    "typeRoots": ["types/*", "node_modules/@types"],
     "forceConsistentCasingInFileNames": true,
     "strict": true,
     "sourceMap": true,

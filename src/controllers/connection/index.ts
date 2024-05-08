@@ -10,7 +10,7 @@ import { HTML, HTMLController } from '../HTMLController.js'
 @injectable()
 @Route('/connection')
 @Produces('text/html')
-export class RootController extends HTMLController {
+export class ConnectionController extends HTMLController {
   constructor(
     private db: Database,
     private connectionTemplates: ConnectionTemplates,
