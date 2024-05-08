@@ -1,0 +1,15 @@
+services:
+  postgres-veritable-ui:
+    image: postgres:16.2-alpine
+    container_name: postgres-veritable-ui
+    ports:
+      - 5432:5432
+    volumes:
+      - postgres-veritable-ui:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_DB=veritable-ui
+
+volumes:
+  postgres-veritable-ui:
