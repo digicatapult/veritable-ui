@@ -2,8 +2,11 @@ import { describe, it } from 'mocha'
 
 import Counter from '../counter'
 
-describe('Counter', async () => {
-  let { expect } = await import('chai')
+describe('Counter', () => {
+  let expect: Chai.ExpectStatic
+  before(async () => {
+    expect = (await import('chai')).expect
+  })
 
   describe('get', () => {
     it('should return counter state 0 initially', async () => {

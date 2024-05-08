@@ -3,7 +3,10 @@ import { describe, it } from 'mocha'
 import ExampleTemplates from '../example'
 
 describe('RootTemplates', async () => {
-  let { expect } = await import('chai')
+  let expect: Chai.ExpectStatic
+  before(async () => {
+    expect = (await import('chai')).expect
+  })
 
   describe('Root', () => {
     it('should render root page', async () => {
