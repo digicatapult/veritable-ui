@@ -16,10 +16,30 @@ And then to building the `tsoa` routes:
 npm run tsoa:build
 ```
 
+Followed by database migrations
+
+```bash
+npm run db:migrate
+```
+
 Finally to run:
 
 ```bash
 npm run dev
+```
+
+## Seeds
+
+Seeding data
+
+```bash
+npm run db:seed
+```
+
+Creating a new seed from template (knex)
+
+```bash
+npm run db:cmd -- seed:make "<name_of_seed_file>"
 ```
 
 ## Tests
