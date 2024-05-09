@@ -1,6 +1,6 @@
 {
   "name": "veritable-ui",
-  "version": "0.1.6",
+  "version": "0.1.7",
   "description": "UI for Veritable",
   "main": "src/index.ts",
   "type": "commonjs",
@@ -17,7 +17,7 @@
     "build": "npm run tsoa:build && tsc",
     "tsoa:build": "tsoa spec-and-routes",
     "tsoa:watch": "node --watch-path=./src ./node_modules/.bin/tsoa -- spec-and-routes",
-    "dev": "npm run tsoa:watch & node --import=tsimp/import --watch src/index.ts",
+    "dev": "npm run tsoa:watch & NODE_ENV=dev node --import=tsimp/import --watch src/index.ts",
     "start": "node build/index.js",
     "db:cmd": "node ./node_modules/.bin/knex",
     "db:migrate": "npm run db:cmd -- migrate:latest",
