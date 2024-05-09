@@ -5,7 +5,7 @@ export const tablesList = ['connection'] as const
 
 const insertConnection = z.object({
   company_name: z.string(),
-  connection_id: z.string(),
+  connection_id: z.string().optional(),
   status: z.union([
     z.literal('pending'),
     z.literal('unverified'),
