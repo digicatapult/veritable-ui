@@ -29,7 +29,6 @@ body.flex-page {
 .flex-page.content {
   display: flex;
   flex-direction: column;
-  width: 100%;
   min-height: 100vh;
 }
 
@@ -37,12 +36,10 @@ body.flex-page {
   display: flex;
   flex-direction: row;
   align-items: center;
-  width: 100%;
   min-height: 5vh;
 }
 
 .content.main {
-  width: 100vw;
   min-height: 95vh;
   padding: 10px;
   background-color: blue;
@@ -54,7 +51,6 @@ body.flex-page {
     flex-direction: column;
   }
   .flex-page.side-bar {
-    width: 100%;
     height: 60px;
     flex-direction: row;
     min-height: 60px;
