@@ -2,17 +2,26 @@
   box-sizing: border-box;
 }
 
+/* some defaults by probing screenshot
+- background-color: #f4f5fb
+- accent (button/active/item) color: ##5670f1
+- sub text color: #c9cace
+- text color: #45494c
+
+*/
 body {
   margin: 0;
   padding: 0;
   display: grid;
+  background-color: #f4f5fb;
+  color: #45494c;
   font-family: system-ui, sans-serif;
+  min-height: 100vh;
 }
 
 body.flex-page {
   display: flex;
   flex-direction: row;
-  min-height: 100vh;
 }
 
 .flex-page.side-bar {
@@ -23,25 +32,46 @@ body.flex-page {
   justify-content: flex-start;
   align-items: center;
   padding: 10px;
+  background-color: white;
 }
 
 .flex-page.content {
   display: flex;
   flex-direction: column;
-  min-height: 100vh;
 }
 
 .content.header {
   display: flex;
-  flex-direction: row;
-  align-items: center;
+  flex-direction: column;
+  align-items: flex-start;
   min-height: 5vh;
+  width: 95vw; /* otherwise it fills as far as text goes, so either wrapper/container or this
+  due to column flex-grow: grows height so to void double wrap of els e.g. col/row */
+  background-color: white;
+}
+
+.header.heading {
+  text-align: center;
+  font-size: 2rem;
+  padding: 0.5rem;
+}
+
+.header.nav {
+  display: flex;
+  flex-direction: row;
+  border-top: #c9cace 1px solid;
+
+  width: 100%;
+  padding: 0.25rem;
+  font-size: 0.75rem;
+  line-height: 1.25rem;
+  color: #c9cace;
 }
 
 .content.main {
-  min-height: 95vh;
   padding: 10px;
-  background-color: blue;
+  margin: 3rem;
+  background-color: white;
 }
 
 /* For mobile view: */
@@ -70,4 +100,9 @@ body.flex-page {
   top: 0px;
   height: 100%;
   width: 100%;
+}
+
+.url-separator {
+  padding: 0 0.5rem;
+  font-size: 1rem;
 }

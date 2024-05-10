@@ -1,12 +1,13 @@
 import { Html } from '@kitajs/html'
 
-const SideBar = (): JSX.Element => (
-  <div class="flex-page side-bar">
-    <a>item 1</a>
-  </div>
-)
+type PageProps = {
+  title: string
+  heading?: string
+}
 
-export const Page = (props: Html.PropsWithChildren<{ title: string }>): JSX.Element => (
+const SideBar = (): JSX.Element => <div class="flex-page side-bar"></div>
+
+export const Page = (props: Html.PropsWithChildren<PageProps>): JSX.Element => (
   <>
     {'<!DOCTYPE html>'}
     <html lang="en">
@@ -20,8 +21,15 @@ export const Page = (props: Html.PropsWithChildren<{ title: string }>): JSX.Elem
       <body class="flex-page" hx-ext="json-enc">
         <SideBar />
         <div class="flex-page content">
-          <div class="content header">/header</div>
-          {props.children}
+          <div class="content header">
+            <h1 class="header heading">{props.heading || ''}</h1>
+            <div class="header nav">
+              <div>home icon</div>
+              <span class="url-separator">/</span>
+              <div>{props.heading || ''}</div>
+            </div>
+          </div>
+          <div class="content main">{props.children}</div>
         </div>
       </body>
     </html>
