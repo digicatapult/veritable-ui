@@ -24,7 +24,6 @@ body.flex-page {
   justify-content: flex-start;
   align-items: center;
   padding: 10px;
-  background-color: red;
 }
 
 .flex-page.content {
@@ -32,7 +31,6 @@ body.flex-page {
   flex-direction: column;
   width: 100%;
   min-height: 100vh;
-  background-color: green;
 }
 
 .content.header {
@@ -41,7 +39,6 @@ body.flex-page {
   align-items: center;
   width: 100%;
   min-height: 5vh;
-  background-color: yellow;
 }
 
 .content.main {
