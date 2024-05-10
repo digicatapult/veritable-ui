@@ -91,3 +91,5 @@ export default class Database {
     })
   }
 }
+
+container.register(Database, { useValue: new Database() })

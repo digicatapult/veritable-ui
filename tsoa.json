@@ -12,11 +12,24 @@
   },
   "spec": {
     "outputDirectory": "src",
-    "specVersion": 3
+    "specVersion": 3,
+    "securityDefinitions": {
+      "oauth2": {
+        "type": "oauth2",
+        "flows": {
+          "authorizationCode": {
+            "authorizationUrl": "http://localhost:3080/realms/veritable/protocol/openid-connect/auth",
+            "tokenUrl": "http://localhost:3080/realms/veritable/protocol/openid-connect/token",
+            "scopes": []
+          }
+        }
+      }
+    }
   },
   "routes": {
     "esm": true,
     "routesDir": "src",
-    "iocModule": "src/ioc"
+    "iocModule": "src/ioc",
+    "authenticationModule": "./src/authentication.ts"
   }
 }

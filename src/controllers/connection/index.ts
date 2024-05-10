@@ -1,4 +1,4 @@
-import { Get, Produces, Route, SuccessResponse } from 'tsoa'
+import { Get, Produces, Route, Security, SuccessResponse } from 'tsoa'
 import { inject, injectable, singleton } from 'tsyringe'
 
 import { Logger, type ILogger } from '../../logger.js'
@@ -8,6 +8,7 @@ import { HTML, HTMLController } from '../HTMLController.js'
 
 @singleton()
 @injectable()
+@Security('oauth2')
 @Route('/connection')
 @Produces('text/html')
 export class ConnectionController extends HTMLController {

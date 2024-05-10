@@ -1,6 +1,20 @@
 import * as envalid from 'envalid'
 import { singleton } from 'tsyringe'
 
+const strArrayValidator = envalid.makeValidator((input) => {
+  const arr = input
+    .split(',')
+    .map((s) => s.trim())
+    .filter((s) => !!s)
+
+  const first = arr.shift()
+  if (first === undefined) {
+    throw new Error('must provide at least one cookie signing key')
+  }
+  const res: [string, ...string[]] = [first, ...arr]
+  return res
+})
+
 const envConfig = {
   PORT: envalid.port({ default: 3000 }),
   LOG_LEVEL: envalid.str({ default: 'info', devDefault: 'debug' }),
@@ -9,6 +23,12 @@ const envConfig = {
   DB_USERNAME: envalid.str({ devDefault: 'postgres' }),
   DB_PASSWORD: envalid.str({ devDefault: 'postgres' }),
   DB_PORT: envalid.port({ default: 5432 }),
+  COOKIE_SESSION_KEYS: strArrayValidator({ devDefault: ['secret'] }),
+  PUBLIC_URL: envalid.url({ devDefault: 'http://localhost:3000' }),
+  IDP_CLIENT_ID: envalid.str({ default: 'veritable-ui' }),
+  IDP_OIDC_CONFIG_URL: envalid.url({
+    devDefault: 'http://localhost:3080/realms/veritable/.well-known/openid-configuration',
+  }),
 }
 
 export type ENV_CONFIG = typeof envConfig
