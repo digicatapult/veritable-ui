@@ -5,7 +5,15 @@ type PageProps = {
   heading?: string
 }
 
-const SideBar = (): JSX.Element => <div class="flex-page side-bar"></div>
+const SideBar = (): JSX.Element => (
+  <nav class="flex-page side-bar">
+    <img class="side-bar logo-container" src="/public/images/logo-square.svg" />
+    <a href="#" class="side-bar chat-icon disabled" />
+    <a href="#" class="side-bar category-icon disabled" />
+    <a href="#" class="side-bar folder-icon" />
+    <a href="#" class="side-bar settings-icon" />
+  </nav>
+)
 
 export const Page = (props: Html.PropsWithChildren<PageProps>): JSX.Element => (
   <>

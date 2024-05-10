@@ -7,15 +7,29 @@
 - accent (button/active/item) color: ##5670f1
 - sub text color: #c9cace
 - text color: #45494c
-
 */
+
+.content.content.header > .disabled,
+.content.content.content.main > .disabled,
+.side-bar > .disabled,
+.disabled {
+  filter: grayscale(100%) !important;
+  filter: blur(3px) !important;
+  cursor: not-allowed;
+
+  &:hover{
+    background-color: transparent;
+    filter: blur(2px) !important;
+  }
+}
+
 body {
   margin: 0;
   padding: 0;
   display: grid;
   background-color: #f4f5fb;
   color: #45494c;
-  font-family: system-ui, sans-serif;
+  font-family: system-ui, Roboto;
   min-height: 100vh;
 }
 
@@ -35,6 +49,57 @@ body.flex-page {
   background-color: white;
 }
 
+.side-bar.logo-container {
+  height: 61px;
+  width: 61px;
+  margin-bottom: 1.5rem;
+}
+
+a.side-bar, i.side-bar {
+  height: 50px;
+  width: 50px;
+  padding: 1rem;
+  text-align: center;
+  margin-bottom: 0.5rem;
+}
+
+a.side-bar.chat-icon {
+  border: 1px solid #c9cace;
+  border-radius: 10px;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-image: url("/public/images/chat.svg");
+}
+
+a.side-bar.folder-icon {
+  border: 1px solid #c9cace;
+  border-radius: 10px;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-image: url("/public/images/folder.svg");
+}
+
+a.side-bar.category-icon {
+  border: 1px solid #c9cace;
+  border-radius: 10px;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-image: url("/public/images/category.svg");
+}
+
+a.side-bar.settings-icon {
+  border: 1px solid #c9cace;
+  border-radius: 10px;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-image: url("/public/images/setting.svg");
+}
+
+a.side-bar:hover {
+  background-color: #5670f1;
+}
+
+
 .flex-page.content {
   display: flex;
   flex-direction: column;
@@ -44,9 +109,7 @@ body.flex-page {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  min-height: 5vh;
-  width: 95vw; /* otherwise it fills as far as text goes, so either wrapper/container or this
-  due to column flex-grow: grows height so to void double wrap of els e.g. col/row */
+  width: 95vw; /* due to column flex-grow: grows height so to void double wrap of els e.g. col/row */
   background-color: white;
 }
 
