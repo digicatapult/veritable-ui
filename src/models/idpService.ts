@@ -2,6 +2,7 @@ import { inject, injectable, singleton } from 'tsyringe'
 import { Env } from '../env'
 
 import { z } from 'zod'
+import { ForbiddenError } from '../authentication'
 import { Logger, type ILogger } from '../logger'
 
 const oidcConfig = z.object({
@@ -103,8 +104,7 @@ export default class IDPService {
     })
 
     if (!tokenReq.ok) {
-      // 401
-      throw new Error()
+      throw new ForbiddenError()
     }
 
     return tokenResponse.parse(await tokenReq.json())
@@ -124,8 +124,7 @@ export default class IDPService {
     })
 
     if (!tokenReq.ok) {
-      // 401
-      throw new Error()
+      throw new ForbiddenError()
     }
 
     return tokenResponse.parse(await tokenReq.json())

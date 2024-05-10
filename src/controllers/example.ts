@@ -1,4 +1,4 @@
-import { Get, Post, Produces, Route, SuccessResponse } from 'tsoa'
+import { Get, Post, Produces, Route, Security, SuccessResponse } from 'tsoa'
 import { inject, injectable, singleton } from 'tsyringe'
 
 import { Logger, type ILogger } from '../logger.js'
@@ -10,6 +10,7 @@ import { HTML, HTMLController } from './HTMLController.js'
 @injectable()
 @Route('/example')
 @Produces('text/html')
+@Security('oauth2')
 export class RootController extends HTMLController {
   constructor(
     private counter: Counter,

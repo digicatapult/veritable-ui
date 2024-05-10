@@ -8,6 +8,7 @@ import { Logger, type ILogger } from '../logger.js'
 import { HTMLController } from './HTMLController.js'
 
 import { randomBytes } from 'node:crypto'
+import { ForbiddenError } from '../authentication.js'
 import IDPService from '../models/idpService.js'
 
 function base64URLEncode(buf: Buffer) {
@@ -89,7 +90,7 @@ export class AuthController extends HTMLController {
     }
     if (state !== VERITABLE_NONCE) {
       // 401
-      throw new Error()
+      throw new ForbiddenError()
     }
 
     const { access_token, refresh_token } = await this.idp.getTokenFromCode(code, this.redirectUrl)

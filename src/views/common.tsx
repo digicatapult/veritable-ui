@@ -13,6 +13,7 @@ export const Page = (props: Html.PropsWithChildren<{ title: string }>): JSX.Elem
       <head>
         <script src="lib/htmx.org/htmx.min.js"></script>
         <script src="lib/htmx.org/ext/json-enc.js"></script>
+        <script src="public/scripts/auth-redirect.js"></script>
         <link rel="icon" type="image/ico" sizes="48x48" href="/public/images/favicon.ico" />
         <link rel="stylesheet" type="text/css" href="/public/styles/main.css" />
         <title>{Html.escapeHtml(props.title)}</title>
