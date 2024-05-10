@@ -1,20 +1,30 @@
-*,*::before,*::after {
-  box-sizing: border-box;
-}
+/* GENERICS - project wide 
 
-/* some defaults by probing screenshot
+>> some defaults by probing screenshot
 - background-color: #f4f5fb
 - accent (button/active/item) color: ##5670f1
 - sub text color: #c9cace
 - text color: #45494c
+
 */
+*,*::before,*::after {
+  box-sizing: border-box;
+}
+
+a, a:link, a:visited {
+  text-decoration: none;
+  color: #c9cace;
+
+  &:hover {
+    filter: brightness(115%); 
+  }
+}
 
 .content.content.header > .disabled,
 .content.content.content.main > .disabled,
 .side-bar > .disabled,
 .disabled {
-  filter: grayscale(100%) !important;
-  filter: blur(3px) !important;
+  filter: grayscale(100%) blur(3px) !important;
   cursor: not-allowed;
 
   &:hover{
@@ -22,6 +32,8 @@
     filter: blur(2px) !important;
   }
 }
+
+/* END OF GENERICS */
 
 body {
   margin: 0;
@@ -61,6 +73,10 @@ a.side-bar, i.side-bar {
   padding: 1rem;
   text-align: center;
   margin-bottom: 0.5rem;
+
+  &:hover {
+    background-color: #5670f1;
+  }
 }
 
 a.side-bar.chat-icon {
@@ -95,10 +111,6 @@ a.side-bar.settings-icon {
   background-image: url("/public/images/setting.svg");
 }
 
-a.side-bar:hover {
-  background-color: #5670f1;
-}
-
 
 .flex-page.content {
   display: flex;
@@ -122,7 +134,7 @@ a.side-bar:hover {
 .header.nav {
   display: flex;
   flex-direction: row;
-  border-top: #c9cace 1px solid;
+  border-top: #c9cace 0.1px solid;
 
   width: 100%;
   padding: 0.25rem;

@@ -15,6 +15,20 @@ const SideBar = (): JSX.Element => (
   </nav>
 )
 
+const ContentHeader = ({ heading = '' }: { heading: string | undefined }): JSX.Element => (
+  <div class="content header">
+    <h1 class="header heading">{heading}</h1>
+    <div class="header nav">
+      <div>H</div>
+      <span class="url-separator">/</span>
+      <a href="#">{heading}</a>
+    </div>
+  </div>
+)
+
+/**
+ * default page template: props.children = content
+ */
 export const Page = (props: Html.PropsWithChildren<PageProps>): JSX.Element => (
   <>
     {'<!DOCTYPE html>'}
@@ -29,14 +43,7 @@ export const Page = (props: Html.PropsWithChildren<PageProps>): JSX.Element => (
       <body class="flex-page" hx-ext="json-enc">
         <SideBar />
         <div class="flex-page content">
-          <div class="content header">
-            <h1 class="header heading">{props.heading || ''}</h1>
-            <div class="header nav">
-              <div>home icon</div>
-              <span class="url-separator">/</span>
-              <div>{props.heading || ''}</div>
-            </div>
-          </div>
+          <ContentHeader heading={props.heading} />
           <div class="content main">{props.children}</div>
         </div>
       </body>
