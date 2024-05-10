@@ -1,5 +1,11 @@
 import { Html } from '@kitajs/html'
 
+const SideBar = (): JSX.Element => (
+  <div class="flex-page side-bar">
+    <a>item 1</a>
+  </div>
+)
+
 export const Page = (props: Html.PropsWithChildren<{ title: string }>): JSX.Element => (
   <>
     {'<!DOCTYPE html>'}
@@ -9,9 +15,16 @@ export const Page = (props: Html.PropsWithChildren<{ title: string }>): JSX.Elem
         <script src="lib/htmx.org/ext/json-enc.js"></script>
         <link rel="icon" type="image/ico" sizes="48x48" href="/public/images/favicon.ico" />
         <link rel="stylesheet" type="text/css" href="/public/styles/main.css" />
+        <link rel="stylesheet" type="text/css" href="/public/styles/semantic.css" />
         <title>{Html.escapeHtml(props.title)}</title>
       </head>
-      <body hx-ext="json-enc">{props.children}</body>
+      <body class="flex-page" hx-ext="json-enc">
+        <SideBar />
+        <div class="flex-page content">
+          <div class="content header">/header</div>
+          {props.children}
+        </div>
+      </body>
     </html>
   </>
 )
