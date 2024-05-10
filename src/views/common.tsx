@@ -15,7 +15,6 @@ export const Page = (props: Html.PropsWithChildren<{ title: string }>): JSX.Elem
         <script src="lib/htmx.org/ext/json-enc.js"></script>
         <link rel="icon" type="image/ico" sizes="48x48" href="/public/images/favicon.ico" />
         <link rel="stylesheet" type="text/css" href="/public/styles/main.css" />
-        <link rel="stylesheet" type="text/css" href="/public/styles/semantic.css" />
         <title>{Html.escapeHtml(props.title)}</title>
       </head>
       <body class="flex-page" hx-ext="json-enc">
