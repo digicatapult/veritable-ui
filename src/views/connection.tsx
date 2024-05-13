@@ -13,7 +13,7 @@ export default class ConnectionTemplates {
 
   public listPage = (connections: connection[]) => {
     return (
-      <Page title="Veritable - Connections" heading="Connections">
+      <Page title="Veritable - Connections" heading="Connections" url="/connection">
         {connections.map((connection) => (
           <div>
             <div>{Html.escapeHtml(connection.company_name)}</div>

@@ -1,33 +1,46 @@
 import { Html } from '@kitajs/html'
 
 type PageProps = {
-  title: string
-  heading?: string
+  title?: string
+  heading: string | undefined
+  url: string
 }
 
+/**
+ * Main menu/Nav
+ * @returns JSX - Sidarbar
+ */
 const SideBar = (): JSX.Element => (
   <nav class="flex-page side-bar">
     <img class="side-bar logo-container" src="/public/images/logo-square.svg" />
-    <a href="#" class="side-bar chat-icon disabled" />
-    <a href="#" class="side-bar category-icon disabled" />
-    <a href="#" class="side-bar folder-icon" />
-    <a href="#" class="side-bar settings-icon" />
+    <a href="#category" class="side-bar category-icon disabled" />
+    <a href="/connection" class="side-bar connection-icon active" />
+    <a href="#storage" class="side-bar folder-icon disabled" />
+    <a href="#notification" class="side-bar notification-icon disabled" />
+    <a href="#settings" class="side-bar settings-icon disabled" />
   </nav>
 )
 
-const ContentHeader = ({ heading = '' }: { heading: string | undefined }): JSX.Element => (
+/**
+ * Header for content wrapper class
+ * @param param0.heading = title of current content
+ * @returns JSX
+ */
+const ContentHeader = ({ heading = '', url = '/' }: PageProps): JSX.Element => (
   <div class="content header">
     <h1 class="header heading">{heading}</h1>
     <div class="header nav">
-      <div>H</div>
+      {/* is this meant to be /connections or just host/ */}
+      <a class="nav icon" href="/" />
       <span class="url-separator">/</span>
-      <a href="#">{heading}</a>
+      <a href={url}>{heading}</a>
     </div>
   </div>
 )
 
 /**
  * default page template: props.children = content
+ * @returns JSX - default page
  */
 export const Page = (props: Html.PropsWithChildren<PageProps>): JSX.Element => (
   <>
@@ -43,7 +56,7 @@ export const Page = (props: Html.PropsWithChildren<PageProps>): JSX.Element => (
       <body class="flex-page" hx-ext="json-enc">
         <SideBar />
         <div class="flex-page content">
-          <ContentHeader heading={props.heading} />
+          <ContentHeader heading={props.heading} url={props.url} />
           <div class="content main">{props.children}</div>
         </div>
       </body>

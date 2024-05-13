@@ -1,11 +1,12 @@
-/* GENERICS - project wide 
+/* GENERICS - project wide ------------------------ 
+- TO Maybe: once enough generics - abstract to it's own file?
 
->> some defaults by probing screenshot
+>> some defaults by probing screenshots
 - background-color: #f4f5fb
-- accent (button/active/item) color: ##5670f1
+- accent (button/active/item) color: #5670f1
 - sub text color: #c9cace
 - text color: #45494c
-
+- secondary color: #FFCC91
 */
 *,*::before,*::after {
   box-sizing: border-box;
@@ -20,6 +21,10 @@ a, a:link, a:visited {
   }
 }
 
+.active {
+  background-color: #5670f1 !important;
+}
+
 .content.content.header > .disabled,
 .content.content.content.main > .disabled,
 .side-bar > .disabled,
@@ -29,11 +34,11 @@ a, a:link, a:visited {
 
   &:hover{
     background-color: transparent;
-    filter: blur(2px) !important;
+    filter: blur(1px) !important;
   }
 }
 
-/* END OF GENERICS */
+/* END OF GENERICS ------------------- */
 
 body {
   margin: 0;
@@ -79,12 +84,20 @@ a.side-bar, i.side-bar {
   }
 }
 
-a.side-bar.chat-icon {
+a.side-bar.connection-icon {
   border: 1px solid #c9cace;
   border-radius: 10px;
   background-repeat: no-repeat;
   background-position: center;
-  background-image: url("/public/images/chat.svg");
+  background-image: url("/public/images/connection.svg");
+}
+
+a.side-bar.notification-icon {
+  border: 1px solid #c9cace;
+  border-radius: 10px;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-image: url("/public/images/notificatio.svg");
 }
 
 a.side-bar.folder-icon {
@@ -143,6 +156,14 @@ a.side-bar.settings-icon {
   color: #c9cace;
 }
 
+.nav.icon {
+  width: 20px;
+  height: 20px;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-image: url("/public/images/home.svg"); 
+}
+
 .content.main {
   padding: 10px;
   margin: 3rem;
@@ -154,9 +175,17 @@ a.side-bar.settings-icon {
   body.flex-page {
     flex-direction: column;
   }
+  .content.header {
+    width: 100%;
+    background-color: transparent;
+  }
   .flex-page.side-bar {
-    height: 60px;
     flex-direction: row;
+    align-items: center;
+    width: 100%;
+    padding-top: 1rem;
+  
+    justify-content: space-between;
     min-height: 60px;
   }
 }
