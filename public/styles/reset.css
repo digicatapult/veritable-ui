@@ -1,0 +1,57 @@
+/*
+ * >> some defaults by probing screenshots - project wide 
+ * - background-color: #f4f5fb
+ * - accent (button/active/item) color: #5670f1
+ * - sub text color: #c9cace
+ * - text color: #45494c
+ * - secondary color: #FFCC91
+*/
+@font-face {
+  font-family: 'Roboto';
+    src: local('Roboto'), url('/public/fonts/Roboto-Regular.woff') format('woff');
+    font-style: normal;
+}
+
+:root {
+  --mobile-header-bg: transparent;
+  --side-bar-width: 5vw;
+  --desktop-content-width: calc(100vw - 5vw);
+  --accent-color: #5670f1;
+  --secondary-color: #FFCC91;
+  --sub-text-color: #c9cace;
+  --text-color: #45494c;
+  --bg-color: #f4f5fb;
+}
+
+
+*,*::before,*::after {
+    box-sizing: border-box;
+  }
+  
+  a, a:link, a:visited {
+    text-decoration: none;
+    color: #c9cace;
+  
+    &:hover {
+      filter: brightness(115%); 
+    }
+  }
+  
+  .active {
+    background-color: #5670f1 !important;
+  }
+  
+  .content.content.header > .disabled,
+  .content.content.content.main > .disabled,
+  .side-bar > .disabled,
+  .disabled {
+    filter: grayscale(100%) blur(3px) !important;
+    cursor: not-allowed;
+  
+    &:hover{
+      background-color: transparent;
+      filter: blur(1px) !important;
+    }
+  }
+  
+  

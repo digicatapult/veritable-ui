@@ -1,52 +1,12 @@
-/* GENERICS - project wide ------------------------ 
-- TO Maybe: once enough generics - abstract to it's own file?
-
->> some defaults by probing screenshots
-- background-color: #f4f5fb
-- accent (button/active/item) color: #5670f1
-- sub text color: #c9cace
-- text color: #45494c
-- secondary color: #FFCC91
-*/
-*,*::before,*::after {
-  box-sizing: border-box;
-}
-
-a, a:link, a:visited {
-  text-decoration: none;
-  color: #c9cace;
-
-  &:hover {
-    filter: brightness(115%); 
-  }
-}
-
-.active {
-  background-color: #5670f1 !important;
-}
-
-.content.content.header > .disabled,
-.content.content.content.main > .disabled,
-.side-bar > .disabled,
-.disabled {
-  filter: grayscale(100%) blur(3px) !important;
-  cursor: not-allowed;
-
-  &:hover{
-    background-color: transparent;
-    filter: blur(1px) !important;
-  }
-}
-
-/* END OF GENERICS ------------------- */
+@import url("/public/styles/reset.css"); /* generics/defaults */
 
 body {
   margin: 0;
   padding: 0;
   display: grid;
-  background-color: #f4f5fb;
-  color: #45494c;
-  font-family: system-ui, Roboto;
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  font-family: Roboto, system-ui;
   min-height: 100vh;
 }
 
@@ -56,14 +16,14 @@ body.flex-page {
 }
 
 .flex-page.side-bar {
-  width: 5vw;
+  width: var(--side-bar-width);
   min-height: 100vh;
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
   align-items: center;
   padding: 10px;
-  background-color: white;
+  background-color: #fff;
 }
 
 .side-bar.logo-container {
@@ -80,50 +40,16 @@ a.side-bar, i.side-bar {
   margin-bottom: 0.5rem;
 
   &:hover {
-    background-color: #5670f1;
+    background-color: var(--accent);
   }
 }
 
-a.side-bar.connection-icon {
-  border: 1px solid #c9cace;
+a.side-bar.icon {
+  border: 1px solid var(--sub-text-color);
   border-radius: 10px;
   background-repeat: no-repeat;
   background-position: center;
-  background-image: url("/public/images/connection.svg");
 }
-
-a.side-bar.notification-icon {
-  border: 1px solid #c9cace;
-  border-radius: 10px;
-  background-repeat: no-repeat;
-  background-position: center;
-  background-image: url("/public/images/notificatio.svg");
-}
-
-a.side-bar.folder-icon {
-  border: 1px solid #c9cace;
-  border-radius: 10px;
-  background-repeat: no-repeat;
-  background-position: center;
-  background-image: url("/public/images/folder.svg");
-}
-
-a.side-bar.category-icon {
-  border: 1px solid #c9cace;
-  border-radius: 10px;
-  background-repeat: no-repeat;
-  background-position: center;
-  background-image: url("/public/images/category.svg");
-}
-
-a.side-bar.settings-icon {
-  border: 1px solid #c9cace;
-  border-radius: 10px;
-  background-repeat: no-repeat;
-  background-position: center;
-  background-image: url("/public/images/setting.svg");
-}
-
 
 .flex-page.content {
   display: flex;
@@ -134,8 +60,8 @@ a.side-bar.settings-icon {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  width: 95vw; /* due to column flex-grow: grows height so to void double wrap of els e.g. col/row */
-  background-color: white;
+  width: var(--desktop-content-width); /* due to column flex-grow: grows height so to void double wrap of els e.g. col/row */
+  background-color: #fff;
 }
 
 .header.heading {
@@ -153,7 +79,7 @@ a.side-bar.settings-icon {
   padding: 0.25rem;
   font-size: 0.75rem;
   line-height: 1.25rem;
-  color: #c9cace;
+  color: var(--sub-text-color);
 }
 
 .nav.icon {
@@ -170,14 +96,14 @@ a.side-bar.settings-icon {
   background-color: white;
 }
 
-/* For mobile view: */
+/* For mobile view: TODO if more needed - new file */
 @media (max-width: 767px)  { 
   body.flex-page {
     flex-direction: column;
   }
   .content.header {
     width: 100%;
-    background-color: transparent;
+    background-color: var(--mobile-header-bg);
   }
   .flex-page.side-bar {
     flex-direction: row;

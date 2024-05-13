@@ -13,11 +13,36 @@ type PageProps = {
 const SideBar = (): JSX.Element => (
   <nav class="flex-page side-bar">
     <img class="side-bar logo-container" src="/public/images/logo-square.svg" />
-    <a href="#category" class="side-bar category-icon disabled" />
-    <a href="/connection" class="side-bar connection-icon active" />
-    <a href="#storage" class="side-bar folder-icon disabled" />
-    <a href="#notification" class="side-bar notification-icon disabled" />
-    <a href="#settings" class="side-bar settings-icon disabled" />
+    <a
+      title="categories"
+      href="#category"
+      class="side-bar icon disabled"
+      style={{ backgroundImage: 'url("/public/images/category.svg")' }}
+    />
+    <a
+      title="connections"
+      href="/connection"
+      class="side-bar icon active"
+      style={{ backgroundImage: 'url("/public/images/connection.svg")' }}
+    />
+    <a
+      title="storage"
+      href="#storage"
+      class="side-bar icon disabled"
+      style={{ backgroundImage: 'url("/public/images/folder.svg")' }}
+    />
+    <a
+      title="notifications"
+      href="#notification"
+      class="side-bar icon disabled"
+      style={{ backgroundImage: 'url("/public/images/notification.svg")' }}
+    />
+    <a
+      title="settings"
+      href="#settings"
+      class="side-bar icon disabled"
+      style={{ backgroundImage: 'url("/public/images/setting.svg")' }}
+    />
   </nav>
 )
 
@@ -31,9 +56,11 @@ const ContentHeader = (props: { heading: string; url: string }): JSX.Element => 
     <h1 class="header heading">{props.heading || 'unknown'}</h1>
     <div class="header nav">
       {/* is this meant to be /connections or just host/ */}
-      <a class="nav icon" href="/" />
+      <a title="home" class="nav icon" href="/" />
       <span class="url-separator">/</span>
-      <a href={props.url}>{props.heading || 'unknown'}</a>
+      <a title={props.heading || 'n/a'} href={props.url}>
+        {props.heading || 'unknown'}
+      </a>
     </div>
   </div>
 )
