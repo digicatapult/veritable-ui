@@ -1,3 +1,4 @@
+import 'dotenv/config'
 import * as envalid from 'envalid'
 import { singleton } from 'tsyringe'
 
@@ -29,6 +30,8 @@ const envConfig = {
   IDP_OIDC_CONFIG_URL: envalid.url({
     devDefault: 'http://localhost:3080/realms/veritable/.well-known/openid-configuration',
   }),
+  COMPANY_HOUSE_API_URL: envalid.str({ default: 'https://api.company-information.service.gov.uk' }),
+  COMPANY_PROFILE_API_KEY: envalid.str(),
 }
 
 export type ENV_CONFIG = typeof envConfig
