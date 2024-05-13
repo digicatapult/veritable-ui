@@ -1,6 +1,6 @@
 {
   "name": "veritable-ui",
-  "version": "0.1.11",
+  "version": "0.1.15",
   "description": "UI for Veritable",
   "main": "src/index.ts",
   "type": "commonjs",
@@ -45,7 +45,7 @@
     "swagger-ui-express": "^5.0.0",
     "tsoa": "^6.2.1",
     "tsyringe": "^4.8.0",
-    "zod": "^3.23.6"
+    "zod": "^3.23.8"
   },
   "devDependencies": {
     "@types/body-parser": "^1.19.5",
@@ -54,16 +54,16 @@
     "@types/cors": "^2.8.17",
     "@types/express": "^4.17.21",
     "@types/mocha": "^10.0.6",
-    "@types/node": "^20.12.10",
+    "@types/node": "^20.12.11",
     "@types/sinon": "^17.0.3",
     "@types/swagger-ui-express": "^4.1.6",
-    "chai": "^5.1.0",
+    "chai": "^5.1.1",
     "chai-jest-snapshot": "^2.0.0",
     "depcheck": "^1.4.7",
     "mocha": "^10.4.0",
     "prettier": "^3.2.5",
     "prettier-plugin-organize-imports": "^3.2.4",
-    "sinon": "^17.0.1",
+    "sinon": "^17.0.2",
     "tsimp": "^2.0.11"
   }
 }
