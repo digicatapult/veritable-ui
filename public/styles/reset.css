@@ -1,31 +1,31 @@
 *,*::before,*::after {
-    box-sizing: border-box;
-  }
+  box-sizing: border-box;
+}
   
-  a, a:link, a:visited {
-    text-decoration: none;
-    color: #c9cace;
-  
-    &:hover {
-      filter: brightness(115%); 
-    }
-  }
-  
-  .active {
-    background-color: #5670f1 !important;
-  }
-  
-  .content.content.header > .disabled,
-  .content.content.content.main > .disabled,
-  .side-bar > .disabled,
-  .disabled {
-    filter: grayscale(100%) blur(3px) !important;
-    cursor: not-allowed;
-  
-    &:hover{
-      background-color: transparent;
-      filter: blur(1px) !important;
-    }
-  }
-  
+a, a:link, a:visited {
+text-decoration: none;
+color: #c9cace;
+
+&:hover {
+    filter: brightness(115%); 
+}
+}
+
+.active {
+background-color: #5670f1 !important;
+}
+
+.content.content.header > .disabled,
+.content.content.content.main > .disabled,
+.side-bar > .disabled,
+.disabled {
+filter: grayscale(100%) blur(3px) !important;
+cursor: not-allowed;
+
+&:hover{
+    background-color: transparent;
+    filter: blur(1px) !important;
+}
+}
+
   
