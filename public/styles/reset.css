@@ -1,29 +1,3 @@
-/*
- * >> some defaults by probing screenshots - project wide 
- * - background-color: #f4f5fb
- * - accent (button/active/item) color: #5670f1
- * - sub text color: #c9cace
- * - text color: #45494c
- * - secondary color: #FFCC91
-*/
-@font-face {
-  font-family: 'Roboto';
-    src: local('Roboto'), url('/public/fonts/Roboto-Regular.woff') format('woff');
-    font-style: normal;
-}
-
-:root {
-  --mobile-header-bg: transparent;
-  --side-bar-width: 5vw;
-  --desktop-content-width: calc(100vw - 5vw);
-  --accent-color: #5670f1;
-  --secondary-color: #FFCC91;
-  --sub-text-color: #c9cace;
-  --text-color: #45494c;
-  --bg-color: #f4f5fb;
-}
-
-
 *,*::before,*::after {
     box-sizing: border-box;
   }
