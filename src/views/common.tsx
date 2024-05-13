@@ -26,14 +26,14 @@ const SideBar = (): JSX.Element => (
  * @param param0.heading = title of current content
  * @returns JSX
  */
-const ContentHeader = ({ heading = '', url = '/' }: { heading: string; url: string }): JSX.Element => (
+const ContentHeader = (props: { heading: string; url: string }): JSX.Element => (
   <div class="content header">
-    <h1 class="header heading">{heading}</h1>
+    <h1 class="header heading">{props.heading || 'unknown'}</h1>
     <div class="header nav">
       {/* is this meant to be /connections or just host/ */}
       <a class="nav icon" href="/" />
       <span class="url-separator">/</span>
-      <a href={url}>{heading}</a>
+      <a href={props.url}>{props.heading || 'unknown'}</a>
     </div>
   </div>
 )
