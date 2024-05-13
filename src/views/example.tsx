@@ -8,7 +8,7 @@ export default class ExampleTemplates {
   constructor() {}
 
   public Root = (title: string, count: number) => (
-    <Page title={title} heading='example' url='/example'>
+    <Page title={title} heading="example" url="/example">
       <this.Counter count={count} />
       <this.Button disabled={false} />
     </Page>

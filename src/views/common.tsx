@@ -2,7 +2,7 @@ import { Html } from '@kitajs/html'
 
 type PageProps = {
   title: string
-  heading: string 
+  heading: string
   url: string
 }
 
@@ -26,7 +26,7 @@ const SideBar = (): JSX.Element => (
  * @param param0.heading = title of current content
  * @returns JSX
  */
-const ContentHeader = ({ heading = '', url = '/' }: { heading: string, url: string}): JSX.Element => (
+const ContentHeader = ({ heading = '', url = '/' }: { heading: string; url: string }): JSX.Element => (
   <div class="content header">
     <h1 class="header heading">{heading}</h1>
     <div class="header nav">
