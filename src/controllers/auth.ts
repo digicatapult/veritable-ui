@@ -36,14 +36,15 @@ const tokenCookieOpts: express.CookieOptions = {
 @Produces('text/html')
 export class AuthController extends HTMLController {
   private redirectUrl: string
+  private logger: ILogger
 
   constructor(
     private env: Env,
     private idp: IDPService,
-    @inject(Logger) private logger: ILogger
+    @inject(Logger) logger: ILogger
   ) {
     super()
-    this.logger = logger.child({ controller: '/' })
+    this.logger = logger.child({ controller: '/auth' })
     this.redirectUrl = `${env.get('PUBLIC_URL')}/auth/redirect`
   }
 
@@ -57,8 +58,6 @@ export class AuthController extends HTMLController {
     if (!res) {
       throw new InternalError()
     }
-
-    this.logger.debug('HEADERS: %j', req.headers)
 
     // make random state
     const nonce = base64URLEncode(randomBytes(32))
@@ -76,6 +75,7 @@ export class AuthController extends HTMLController {
       scope: 'openid',
     }).toString()
 
+    this.logger.debug('login redirect to %s', redirect)
     res.redirect(302, redirect.toString())
   }
 
@@ -100,6 +100,9 @@ export class AuthController extends HTMLController {
     res.cookie('VERITABLE_ACCESS_TOKEN', access_token, tokenCookieOpts)
     res.cookie('VERITABLE_REFRESH_TOKEN', refresh_token, tokenCookieOpts)
 
-    res.redirect(302, VERITABLE_REDIRECT || `${this.env.get('PUBLIC_URL')}/connection`)
+    const redirect = VERITABLE_REDIRECT || `${this.env.get('PUBLIC_URL')}`
+
+    this.logger.debug('auth redirect to %s', redirect)
+    res.redirect(302, redirect)
   }
 }
