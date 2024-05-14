@@ -16,6 +16,12 @@ And then to building the `tsoa` routes:
 npm run tsoa:build
 ```
 
+Setup service dependencies
+
+```bash
+docker compose up -d
+```
+
 Followed by database migrations
 
 ```bash
