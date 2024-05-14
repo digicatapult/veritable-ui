@@ -2,7 +2,7 @@ import { inject, injectable, singleton } from 'tsyringe'
 import { Env } from '../env'
 
 import { z } from 'zod'
-import { ForbiddenError } from '../authentication'
+import { ForbiddenError } from '../errors.js'
 import { Logger, type ILogger } from '../logger'
 
 const oidcConfig = z.object({
@@ -107,7 +107,7 @@ export default class IDPService {
       throw new ForbiddenError()
     }
 
-    return tokenResponse.parse(await tokenReq.json())
+    return this.parseTokenResponse(tokenReq)
   }
 
   async getTokenFromRefresh(refreshToken: string) {
@@ -127,6 +127,15 @@ export default class IDPService {
       throw new ForbiddenError()
     }
 
-    return tokenResponse.parse(await tokenReq.json())
+    return this.parseTokenResponse(tokenReq)
+  }
+
+  async parseTokenResponse(response: Response) {
+    try {
+      return tokenResponse.parse(await response.json())
+    } catch (err) {
+      this.logger.error('Unexpected error parsing token response %s', err instanceof Error ? err.message : 'unknown')
+      throw new ForbiddenError()
+    }
   }
 }

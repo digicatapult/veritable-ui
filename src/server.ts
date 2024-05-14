@@ -1,3 +1,4 @@
+import { OauthError } from '@digicatapult/tsoa-oauth-express'
 import bodyParser from 'body-parser'
 import compression from 'compression'
 import cookieParser from 'cookie-parser'
@@ -9,8 +10,8 @@ import { SwaggerUiOptions, serve, setup } from 'swagger-ui-express'
 import { container } from 'tsyringe'
 
 import { ValidateError } from 'tsoa'
-import { ForbiddenError } from './authentication.js'
 import { Env } from './env.js'
+import { ForbiddenError, HttpError } from './errors.js'
 import { ILogger, Logger } from './logger.js'
 import { RegisterRoutes } from './routes.js'
 
@@ -50,16 +51,27 @@ export default async (): Promise<Express> => {
     res: express.Response,
     next: express.NextFunction
   ): express.Response | void {
-    if (err instanceof ForbiddenError) {
+    if (err instanceof ForbiddenError || err instanceof OauthError) {
       if (req.headers['hx-request']) {
         return res.status(401).json({
           message: 'Unauthorised',
         })
       }
 
-      return res.redirect(302, '/auth/login')
+      const redirect = new URL(`${env.get('PUBLIC_URL')}/auth/login`)
+      redirect.search = new URLSearchParams({
+        path: req.originalUrl,
+      }).toString()
+
+      return res.redirect(302, redirect.toString())
     }
-    // TODO: make errors render something pretty
+
+    if (err instanceof HttpError) {
+      return res.status(err.code).send({
+        message: err.message,
+      })
+    }
+
     if (err instanceof ValidateError) {
       logger.warn(`Caught Validation Error for ${req.path}:`, err.fields)
       return res.status(422).json({

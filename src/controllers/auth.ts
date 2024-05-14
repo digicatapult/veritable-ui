@@ -1,15 +1,14 @@
+import type * as express from 'express'
+
+import { randomBytes } from 'node:crypto'
 import { Get, Produces, Query, Request, Route, SuccessResponse } from 'tsoa'
 import { inject, injectable, singleton } from 'tsyringe'
 
-import type * as express from 'express'
-
 import { Env } from '../env.js'
+import { ForbiddenError, InternalError } from '../errors.js'
 import { Logger, type ILogger } from '../logger.js'
-import { HTMLController } from './HTMLController.js'
-
-import { randomBytes } from 'node:crypto'
-import { ForbiddenError } from '../authentication.js'
 import IDPService from '../models/idpService.js'
+import { HTMLController } from './HTMLController.js'
 
 function base64URLEncode(buf: Buffer) {
   return buf.toString('base64').replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '')
@@ -53,10 +52,10 @@ export class AuthController extends HTMLController {
    */
   @Get('/login')
   @SuccessResponse(302, 'Redirect')
-  public async login(@Request() req: express.Request): Promise<void> {
+  public async login(@Request() req: express.Request, @Query() path: string): Promise<void> {
     const { res } = req
     if (!res) {
-      throw new Error()
+      throw new InternalError()
     }
 
     this.logger.debug('HEADERS: %j', req.headers)
@@ -64,6 +63,9 @@ export class AuthController extends HTMLController {
     // make random state
     const nonce = base64URLEncode(randomBytes(32))
     res.cookie('VERITABLE_NONCE', nonce, nonceCookieOpts)
+
+    // setup for final redirect
+    res.cookie('VERITABLE_REDIRECT', path, nonceCookieOpts)
 
     const redirect = new URL(await this.idp.authorizationEndpoint)
     redirect.search = new URLSearchParams({
@@ -82,23 +84,22 @@ export class AuthController extends HTMLController {
   public async redirect(@Request() req: express.Request, @Query() state: string, @Query() code: string): Promise<void> {
     const {
       res,
-      signedCookies: { VERITABLE_NONCE },
+      signedCookies: { VERITABLE_NONCE, VERITABLE_REDIRECT },
     } = req
     if (!res) {
-      // 500
-      throw new Error()
+      throw new InternalError()
     }
     if (state !== VERITABLE_NONCE) {
-      // 401
       throw new ForbiddenError()
     }
 
     const { access_token, refresh_token } = await this.idp.getTokenFromCode(code, this.redirectUrl)
 
     res.clearCookie('VERITABLE_NONCE')
+    res.clearCookie('VERITABLE_REDIRECT')
     res.cookie('VERITABLE_ACCESS_TOKEN', access_token, tokenCookieOpts)
     res.cookie('VERITABLE_REFRESH_TOKEN', refresh_token, tokenCookieOpts)
 
-    res.redirect(302, `${this.env.get('PUBLIC_URL')}/connection`)
+    res.redirect(302, VERITABLE_REDIRECT || `${this.env.get('PUBLIC_URL')}/connection`)
   }
 }

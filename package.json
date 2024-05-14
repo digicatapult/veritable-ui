@@ -28,6 +28,7 @@
     "xss-scan": "xss-scan"
   },
   "dependencies": {
+    "@digicatapult/tsoa-oauth-express": "^0.1.0",
     "@kitajs/html": "^4.1.0",
     "@kitajs/ts-html-plugin": "^4.0.1",
     "@tsoa/runtime": "^6.2.1",
@@ -66,6 +67,7 @@
     "prettier": "^3.2.5",
     "prettier-plugin-organize-imports": "^3.2.4",
     "sinon": "^17.0.1",
-    "tsimp": "^2.0.11"
+    "tsimp": "^2.0.11",
+    "undici": "^6.16.1"
   }
 }

@@ -18,7 +18,9 @@ services:
       - KEYCLOAK_ADMIN_PASSWORD=admin
     ports:
       - 3080:8080
-    command: start-dev
+    volumes:
+      - ./docker/keycloak:/opt/keycloak/data/import
+    command: start-dev --import-realm
 
 volumes:
   postgres-veritable-ui:
