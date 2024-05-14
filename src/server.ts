@@ -42,6 +42,7 @@ export default async (): Promise<Express> => {
   app.use('/lib/htmx.org', express.static('node_modules/htmx.org/dist'))
   app.get('/api-docs', (_req, res) => res.json(swaggerJson))
   app.use('/swagger', serve, setup(undefined, options))
+  app.get('/', (_, res) => res.sendStatus(404))
 
   RegisterRoutes(app)
 
