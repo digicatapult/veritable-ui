@@ -72,6 +72,15 @@ a.side-bar.icon {
   background-position: center;
 }
 
+a.connections-table.icon {
+  padding: 1rem;
+  text-align: center;
+  margin-bottom: 0.5rem;
+  background-image: url("/public/images/filter.svg");
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
 .flex-page.content {
   display: flex;
   flex-direction: column;
@@ -95,7 +104,6 @@ a.side-bar.icon {
   color: var(--text-color-sub);
 }
 
-.icon,
 .nav.icon {
   width: 20px;
   height: 20px;

@@ -52,32 +52,30 @@ export default class ConnectionTemplates {
             <div class="connections list nav">
               <span>Connections</span>
             </div>
-            <div style="overflow-x:auto;">
-              <table class="connections list">
-                <tr>
+            <table class="connections list">
+              <tr>
+                {['Company Name', 'Verification Status', 'Actions'].map((name: string) => (
                   <th>
-                    <span>Company Name</span>
-                    <span class="icon" />
+                    <span>{name}</span>
+                    <a class="connections-table icon disabled" />
                   </th>
-                  <th>Verification Status</th>
-                  <th>Actions</th>
-                </tr>
-                {connections.map((connection) => (
-                  <tr>
-                    <td>{Html.escapeHtml(connection.company_name)}</td>
-                    <td>{this.statusToClass(Html.escapeHtml(connection.status))}</td>
-                    <td>
-                      <ButtonIcon
-                        icon='url("/public/images/dot-icon.svg")'
-                        outline={true}
-                        disabled={true}
-                        name="some action"
-                      />
-                    </td>
-                  </tr>
                 ))}
-              </table>
-            </div>
+              </tr>
+              {connections.map((connection) => (
+                <tr>
+                  <td>{Html.escapeHtml(connection.company_name)}</td>
+                  <td>{this.statusToClass(Html.escapeHtml(connection.status))}</td>
+                  <td>
+                    <ButtonIcon
+                      icon='url("/public/images/dot-icon.svg")'
+                      outline={true}
+                      disabled={true}
+                      name="some action"
+                    />
+                  </td>
+                </tr>
+              ))}
+            </table>
           </div>
         </div>
       </Page>
