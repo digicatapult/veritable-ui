@@ -18,7 +18,7 @@
   /* layout and other vars */
   --mobile-header-bg: transparent;
   --side-bar-width: 5vw;
-  --desktop-content-width: calc(100vw - 5vw);
+  --desktop-content-width: calc(100vw - var(--side-bar-width));
 }
 
 body {
@@ -43,14 +43,14 @@ body.flex-page {
   flex-direction: column;
   justify-content: flex-start;
   align-items: center;
-  padding: 10px;
+  padding: 1rem;
   background-color: #fff;
 }
 
 .side-bar.logo-container {
   height: 61px;
   width: 61px;
-  margin-bottom: 1.5rem;
+  margin-bottom: 4rem;
 }
 
 a.side-bar, i.side-bar {
@@ -196,6 +196,8 @@ a.side-bar.icon {
 
 .connections.list {
   background-color: #fff;
+  overflow-x: auto;
+  
   border-radius: 12px;
   padding: 1rem;
 }
@@ -209,6 +211,9 @@ a.side-bar.icon {
     width: 100%;
     background-color: var(--mobile-header-bg);
   }
+  .content.main {
+    width: 100%;
+  }
   .flex-page.side-bar {
     flex-direction: row;
     align-items: center;
@@ -218,14 +223,6 @@ a.side-bar.icon {
     justify-content: space-between;
     min-height: 60px;
   }
-}
-
-#counter {
-  position: relative;
-}
-
-#counter.htmx-request > span {
-  opacity: 0;
 }
 
 .spinner {

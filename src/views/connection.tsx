@@ -52,30 +52,32 @@ export default class ConnectionTemplates {
             <div class="connections list nav">
               <span>Connections</span>
             </div>
-            <table class="connections list">
-              <tr>
-                <th>
-                  <span>Company Name</span>
-                  <span class="icon" />
-                </th>
-                <th>Verification Status</th>
-                <th>Actions</th>
-              </tr>
-              {connections.map((connection) => (
+            <div style="overflow-x:auto;">
+              <table class="connections list">
                 <tr>
-                  <td>{Html.escapeHtml(connection.company_name)}</td>
-                  <td>{this.statusToClass(Html.escapeHtml(connection.status))}</td>
-                  <td>
-                    <ButtonIcon
-                      icon='url("/public/images/dot-icon.svg")'
-                      outline={true}
-                      disabled={true}
-                      name="some action"
-                    />
-                  </td>
+                  <th>
+                    <span>Company Name</span>
+                    <span class="icon" />
+                  </th>
+                  <th>Verification Status</th>
+                  <th>Actions</th>
                 </tr>
-              ))}
-            </table>
+                {connections.map((connection) => (
+                  <tr>
+                    <td>{Html.escapeHtml(connection.company_name)}</td>
+                    <td>{this.statusToClass(Html.escapeHtml(connection.status))}</td>
+                    <td>
+                      <ButtonIcon
+                        icon='url("/public/images/dot-icon.svg")'
+                        outline={true}
+                        disabled={true}
+                        name="some action"
+                      />
+                    </td>
+                  </tr>
+                ))}
+              </table>
+            </div>
           </div>
         </div>
       </Page>
