@@ -6,6 +6,17 @@ type PageProps = {
   url: string
 }
 
+type ButtonProps = {
+  name: string,
+}
+
+export const ButtonWithIcon = (props: ButtonProps): JSX.Element => (
+  <div class="button-container">
+    <span class="icon fa fa-heart" />
+    <span class="text">{props.name}</span>
+  </div>
+)
+
 /**
  * Main menu/Nav
  * @returns JSX - Sidarbar
