@@ -16,7 +16,7 @@ type ButtonProps = {
 export const ButtonIcon = (props: ButtonProps): JSX.Element => (
   <div class={`button ${props.disabled && 'disabled'} ${props.outline && 'outline'}`}>
     <div class="button icon" style={{ backgroundImage: props?.icon || 'url("/public/images/plus.svg")' }} />
-    <span class={`button text ${props.outline && 'accent'}`}>{props.name}</span>
+    <span class={`button text ${props.outline && 'accent'}`}>{props.name || 'unknown'}</span>
   </div>
 )
 
