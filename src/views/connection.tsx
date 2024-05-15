@@ -56,7 +56,7 @@ export default class ConnectionTemplates {
               <tr>
                 {['Company Name', 'Verification Status', 'Actions'].map((name: string) => (
                   <th>
-                    <span>{name}</span>
+                    <span>{name || 'unknown'}</span>
                     <a class="connections-table icon disabled" />
                   </th>
                 ))}
