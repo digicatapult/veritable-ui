@@ -10,20 +10,56 @@
       filter: brightness(115%); 
     }
   }
-  
+
   .active {
     background-color: #5670f1 !important;
   }
+
+  .warning,
+  .error,
+  .success,
+  .disconnected {
+    width: max-content;
+    border-radius: 8px;
+    font-size: 0.75rem;
+    line-height: 1rem;
+    padding: 5px;
+  }
+
+  * > .warning {
+    background-color: rgba(255, 168, 0, 0.20);
+  }
+
+  * > .error {
+    background-color: rgba(255, 0, 0, 0.20);
+  }
+
+  * > .success {
+    background-color: rgba(50, 147, 111, 0.20);
+  }
+
+  * > .disconnected {
+    background-color: rgba(54, 54, 54, 0.20);
+  }
+
+  * > .outline {
+    border: solid 1px var(--accent-color) !important;
+    background-color: transparent !important;
+    color: var(--accent-color) !important;
+  }
   
-  .content.content.header > .disabled,
-  .content.content.content.main > .disabled,
-  .side-bar > .disabled,
+  * > .button.text.accent {
+    color: var(--accent-color);
+  }
+  
+  * > .disabled,
   .disabled {
-    filter: grayscale(100%) blur(3px) !important;
-    cursor: not-allowed;
+    width: max-content;
+    cursor: not-allowed !important;
+    filter: grayscale(100%) !important;
+    color: var(--accent-color) !important;
   
     &:hover{
-      background-color: transparent;
       filter: blur(1px) !important;
     }
   }

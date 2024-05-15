@@ -16,3 +16,7 @@ export const logger = pino(
 
 export const Logger = Symbol('Logger')
 export type ILogger = typeof logger
+
+container.register<ILogger>(Logger, {
+  useValue: logger,
+})

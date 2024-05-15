@@ -10,6 +10,17 @@ services:
       - POSTGRES_PASSWORD=postgres
       - POSTGRES_USER=postgres
       - POSTGRES_DB=veritable-ui
+  keycloak:
+    image: quay.io/keycloak/keycloak:24.0.4
+    container_name: keycloak
+    environment:
+      - KEYCLOAK_ADMIN=admin
+      - KEYCLOAK_ADMIN_PASSWORD=admin
+    ports:
+      - 3080:8080
+    volumes:
+      - ./docker/keycloak:/opt/keycloak/data/import
+    command: start-dev --import-realm
 
 volumes:
   postgres-veritable-ui:

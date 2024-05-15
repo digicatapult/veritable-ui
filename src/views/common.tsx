@@ -7,13 +7,16 @@ type PageProps = {
 }
 
 type ButtonProps = {
-  name: string,
+  name: string
+  icon?: string
+  disabled?: boolean
+  outline?: boolean
 }
 
-export const ButtonWithIcon = (props: ButtonProps): JSX.Element => (
-  <div class="button-container">
-    <span class="icon fa fa-heart" />
-    <span class="text">{props.name}</span>
+export const ButtonIcon = (props: ButtonProps): JSX.Element => (
+  <div class={`button ${props.disabled && 'disabled'} ${props.outline && 'outline'}`}>
+    <div class="button icon" style={{ backgroundImage: props?.icon || 'url("/public/images/plus.svg")' }} />
+    <span class={`button text ${props.outline && 'accent'}`}>{props.name}</span>
   </div>
 )
 
@@ -87,6 +90,7 @@ export const Page = (props: Html.PropsWithChildren<PageProps>): JSX.Element => (
       <head>
         <script src="lib/htmx.org/htmx.min.js"></script>
         <script src="lib/htmx.org/ext/json-enc.js"></script>
+        <script src="public/scripts/auth-redirect.js"></script>
         <link rel="icon" type="image/ico" sizes="48x48" href="/public/images/favicon.ico" />
         <link rel="stylesheet" type="text/css" href="/public/styles/main.css" />
         <title>{Html.escapeHtml(props.title)}</title>
