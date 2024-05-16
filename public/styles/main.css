@@ -215,6 +215,9 @@ a.connections-table.icon {
   body.flex-page {
     flex-direction: column;
   }
+  .header.heading { 
+    display: none;
+  }
   .content.header {
     width: 100%;
     background-color: var(--mobile-header-bg);
@@ -224,12 +227,15 @@ a.connections-table.icon {
   }
   .flex-page.side-bar {
     flex-direction: row;
-    align-items: center;
+    align-items: space-around;
     width: 100%;
-    padding-top: 1rem;
   
     justify-content: space-between;
-    min-height: 60px;
+    min-height: auto;
+  }
+
+  .side-bar.logo-container {
+    margin: 0;
   }
 }
 

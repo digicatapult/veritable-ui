@@ -19,20 +19,18 @@ export default class ConnectionTemplates {
         return <div class="error">'Pending Your Verification'</div>
       case 'verified_them':
       case 'verified_us':
-      case 'unverified':
         return (
           <div class="warning">
             {status == 'verified_them'
               ? 'Pending Your Verification'
               : status == 'verified_us'
                 ? 'Pending Their Verification'
-                : status == 'unverified'
-                  ? 'Unverified cc @esther'
-                  : 'unlknown'}
+                : 'unlknown'}
           </div>
         )
       case 'disconnected':
-        return <div class="disconnected">Disconnected</div>
+      case 'unverified':
+        return <div class="disconnected">{status == 'disconnected' ? 'Disconnected' : 'Unverified'}</div>
       case 'verified_both':
         return <div class="success">Verified - Established Connection</div>
       default:
