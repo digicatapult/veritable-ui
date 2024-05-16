@@ -62,7 +62,7 @@ export default class ConnectionTemplates {
               {connections.map((connection) => (
                 <tr>
                   <td>{Html.escapeHtml(connection.company_name)}</td>
-                  <td>{this.statusToClass(Html.escapeHtml(connection.status))}</td>
+                  <td>{this.statusToClass(connection.status)}</td>
                   <td>
                     <ButtonIcon
                       icon='url("/public/images/dot-icon.svg")'
