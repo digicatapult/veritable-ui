@@ -25,7 +25,7 @@ export default class ConnectionTemplates {
               ? 'Pending Your Verification'
               : status == 'verified_us'
                 ? 'Pending Their Verification'
-                : 'unlknown'}
+                : 'unknown'}
           </div>
         )
       case 'disconnected':
