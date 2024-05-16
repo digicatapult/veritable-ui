@@ -1,6 +1,6 @@
 {
   "name": "veritable-ui",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "UI for Veritable",
   "main": "src/index.ts",
   "type": "commonjs",
@@ -41,7 +41,7 @@
     "htmx.org": "^1.9.12",
     "knex": "^3.1.0",
     "pg": "^8.11.5",
-    "pino": "^9.0.0",
+    "pino": "^9.1.0",
     "pino-http": "^10.1.0",
     "swagger-ui-express": "^5.0.0",
     "tsoa": "^6.2.1",
