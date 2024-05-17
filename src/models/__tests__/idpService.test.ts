@@ -8,8 +8,13 @@ import IDPService from '../idpService.js'
 
 const mockEnv: Env = {
   get: (name: string) => {
-    if (name === 'IDP_OIDC_CONFIG_URL') return 'https://keycloak.example.com/.well_known/jwks.json'
     if (name === 'IDP_CLIENT_ID') return 'veritable-ui'
+    if (name === 'IDP_PUBLIC_URL_PREFIX') return 'http://public.example.com'
+    if (name === 'IDP_INTERNAL_URL_PREFIX') return 'http://internal.example.com'
+    if (name === 'IDP_INTERNAL_URL_PREFIX') return 'http://public.example.com'
+    if (name === 'IDP_AUTH_PATH') return '/auth'
+    if (name === 'IDP_TOKEN_PATH') return '/token'
+    if (name === 'IDP_JWKS_PATH') return '/jwks'
     return ''
   },
 } as Env
@@ -35,70 +40,49 @@ describe('IDPService', () => {
 
   const originalDispatcher = getGlobalDispatcher()
   const mockAgent = new MockAgent()
-  const mockOidc = mockAgent.get(`https://keycloak.example.com`)
+  const mockOidc = mockAgent.get(`http://internal.example.com`)
   beforeEach(function () {
     setGlobalDispatcher(mockAgent)
-    mockOidc
-      .intercept({
-        path: '/.well_known/jwks.json',
-        method: 'GET',
-      })
-      .reply(200, {
-        issuer: 'ISSUER',
-        authorization_endpoint: 'AUTHORIZATION_ENDPOINT',
-        token_endpoint: 'https://keycloak.example.com/TOKEN_ENDPOINT',
-        introspection_endpoint: 'INTROSPECTION_ENDPOINT',
-        userinfo_endpoint: 'USERINFO_ENDPOINT',
-        end_session_endpoint: 'END_SESSION_ENDPOINT',
-        jwks_uri: 'JWKS_URI',
-      })
-      .persist()
   })
 
   afterEach(function () {
     setGlobalDispatcher(originalDispatcher)
   })
 
-  test('issuer', async function () {
+  test('authorizationEndpoint (INTERNAL)', async function () {
     const idpService = new IDPService(mockEnv, mockLogger)
-    const result = await idpService.issuer
-    expect(result).to.equal('ISSUER')
+    const result = await idpService.authorizationEndpoint('INTERNAL')
+    expect(result).to.equal('http://internal.example.com/auth')
   })
 
-  test('authorizationEndpoint', async function () {
+  test('tokenEndpoint (INTERNAL)', async function () {
     const idpService = new IDPService(mockEnv, mockLogger)
-    const result = await idpService.authorizationEndpoint
-    expect(result).to.equal('AUTHORIZATION_ENDPOINT')
+    const result = await idpService.tokenEndpoint('INTERNAL')
+    expect(result).to.equal('http://internal.example.com/token')
   })
 
-  test('tokenEndpoint', async function () {
+  test('jwksUri (INTERNAL)', async function () {
     const idpService = new IDPService(mockEnv, mockLogger)
-    const result = await idpService.tokenEndpoint
-    expect(result).to.equal('https://keycloak.example.com/TOKEN_ENDPOINT')
+    const result = await idpService.jwksUri('INTERNAL')
+    expect(result).to.equal('http://internal.example.com/jwks')
   })
 
-  test('introspectionEndpoint', async function () {
+  test('authorizationEndpoint (PUBLIC)', async function () {
     const idpService = new IDPService(mockEnv, mockLogger)
-    const result = await idpService.introspectionEndpoint
-    expect(result).to.equal('INTROSPECTION_ENDPOINT')
+    const result = await idpService.authorizationEndpoint('PUBLIC')
+    expect(result).to.equal('http://public.example.com/auth')
   })
 
-  test('userinfoEndpoint', async function () {
+  test('tokenEndpoint (PUBLIC)', async function () {
     const idpService = new IDPService(mockEnv, mockLogger)
-    const result = await idpService.userinfoEndpoint
-    expect(result).to.equal('USERINFO_ENDPOINT')
+    const result = await idpService.tokenEndpoint('PUBLIC')
+    expect(result).to.equal('http://public.example.com/token')
   })
 
-  test('endSessionEndpoint', async function () {
+  test('jwksUri (PUBLIC)', async function () {
     const idpService = new IDPService(mockEnv, mockLogger)
-    const result = await idpService.endSessionEndpoint
-    expect(result).to.equal('END_SESSION_ENDPOINT')
-  })
-
-  test('jwksUri', async function () {
-    const idpService = new IDPService(mockEnv, mockLogger)
-    const result = await idpService.jwksUri
-    expect(result).to.equal('JWKS_URI')
+    const result = await idpService.jwksUri('PUBLIC')
+    expect(result).to.equal('http://public.example.com/jwks')
   })
 
   describe('getTokenFromCode', function () {
@@ -106,7 +90,7 @@ describe('IDPService', () => {
       mockOidc
         .intercept({
           method: 'POST',
-          path: '/TOKEN_ENDPOINT',
+          path: '/token',
           headers: {
             'Content-Type': 'application/x-www-form-urlencoded',
           },
@@ -177,7 +161,7 @@ describe('IDPService', () => {
       mockOidc
         .intercept({
           method: 'POST',
-          path: '/TOKEN_ENDPOINT',
+          path: '/token',
           headers: {
             'Content-Type': 'application/x-www-form-urlencoded',
           },

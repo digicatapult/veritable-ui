@@ -15,8 +15,9 @@ const tokenCookieOpts: express.CookieOptions = {
 }
 
 const tokenStore: AuthOptions = {
-  jwksUri: () => idp.jwksUri,
-  getAccessToken: async (req) => req.signedCookies['VERITABLE_ACCESS_TOKEN'],
+  jwksUri: () => Promise.resolve(idp.jwksUri('INTERNAL')),
+  getAccessToken: async (req) =>
+    req.headers.authorization?.substring('bearer '.length) || req.signedCookies['VERITABLE_ACCESS_TOKEN'],
   getScopesFromToken: async (decoded) => {
     if (typeof decoded === 'string') {
       return []

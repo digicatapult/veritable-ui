@@ -772,7 +772,8 @@
       "alwaysDisplayInConsole": false,
       "clientAuthenticatorType": "client-secret",
       "redirectUris": [
-        "http://localhost:3000/auth/redirect"
+        "http://localhost:3000/auth/redirect",
+        "http://localhost:3000/swagger/oauth2-redirect.html"
       ],
       "webOrigins": [
         "http://localhost:3000"

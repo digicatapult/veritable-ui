@@ -5,17 +5,6 @@ import { z } from 'zod'
 import { ForbiddenError } from '../errors.js'
 import { Logger, type ILogger } from '../logger'
 
-const oidcConfig = z.object({
-  issuer: z.string(),
-  authorization_endpoint: z.string(),
-  token_endpoint: z.string(),
-  introspection_endpoint: z.string(),
-  userinfo_endpoint: z.string(),
-  end_session_endpoint: z.string(),
-  jwks_uri: z.string(),
-})
-type IOidcConfig = z.infer<typeof oidcConfig>
-
 const tokenResponse = z.object({
   access_token: z.string(),
   expires_in: z.number(),
@@ -27,70 +16,28 @@ const tokenResponse = z.object({
   scope: z.string(),
 })
 
+type fromNetwork = 'PUBLIC' | 'INTERNAL'
+
 @singleton()
 @injectable()
 export default class IDPService {
-  private config?: IOidcConfig
-
   constructor(
     private env: Env,
     @inject(Logger) private logger: ILogger
   ) {}
 
-  private async fetchConfig() {
-    const getConfigResponse = await fetch(this.env.get('IDP_OIDC_CONFIG_URL'))
-    if (!getConfigResponse.ok) {
-      this.logger.error('Error fetching OIDC config (%s)', getConfigResponse.statusText)
-      this.logger.trace('Error fetching OIDC config body: %s', await getConfigResponse.text())
-      return
-    }
-
-    try {
-      this.config = oidcConfig.parse(await getConfigResponse.json())
-    } catch (err) {
-      if (err instanceof Error) {
-        this.logger.error('Error parsing OIDC config: %s', err.message)
-        return
-      }
-      this.logger.error('Error parsing OIDC config: unknown')
-    }
+  authorizationEndpoint(fromNetwork: fromNetwork): string {
+    return `${this.env.get(fromNetwork === 'PUBLIC' ? 'IDP_PUBLIC_URL_PREFIX' : 'IDP_INTERNAL_URL_PREFIX')}${this.env.get('IDP_AUTH_PATH')}`
   }
-
-  private async fetchConfigValue(field: keyof IOidcConfig) {
-    if (this.config) {
-      return this.config[field]
-    }
-    await this.fetchConfig()
-    if (!this.config) {
-      throw new Error('Oidc config was not loaded')
-    }
-    return this.config[field]
+  tokenEndpoint(fromNetwork: fromNetwork): string {
+    return `${this.env.get(fromNetwork === 'PUBLIC' ? 'IDP_PUBLIC_URL_PREFIX' : 'IDP_INTERNAL_URL_PREFIX')}${this.env.get('IDP_TOKEN_PATH')}`
   }
-
-  get issuer(): Promise<string> {
-    return this.fetchConfigValue('issuer')
-  }
-  get authorizationEndpoint(): Promise<string> {
-    return this.fetchConfigValue('authorization_endpoint')
-  }
-  get tokenEndpoint(): Promise<string> {
-    return this.fetchConfigValue('token_endpoint')
-  }
-  get introspectionEndpoint(): Promise<string> {
-    return this.fetchConfigValue('introspection_endpoint')
-  }
-  get userinfoEndpoint(): Promise<string> {
-    return this.fetchConfigValue('userinfo_endpoint')
-  }
-  get endSessionEndpoint(): Promise<string> {
-    return this.fetchConfigValue('end_session_endpoint')
-  }
-  get jwksUri(): Promise<string> {
-    return this.fetchConfigValue('jwks_uri')
+  jwksUri(fromNetwork: fromNetwork): string {
+    return `${this.env.get(fromNetwork === 'PUBLIC' ? 'IDP_PUBLIC_URL_PREFIX' : 'IDP_INTERNAL_URL_PREFIX')}${this.env.get('IDP_JWKS_PATH')}`
   }
 
   async getTokenFromCode(code: string, redirectUrl: string) {
-    const tokenReq = await fetch(await this.tokenEndpoint, {
+    const tokenReq = await fetch(this.tokenEndpoint('INTERNAL'), {
       method: 'POST',
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
@@ -111,7 +58,7 @@ export default class IDPService {
   }
 
   async getTokenFromRefresh(refreshToken: string) {
-    const tokenReq = await fetch(await this.tokenEndpoint, {
+    const tokenReq = await fetch(this.tokenEndpoint('INTERNAL'), {
       method: 'POST',
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',

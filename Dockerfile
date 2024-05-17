@@ -24,6 +24,7 @@ RUN npm -g install npm@10.x.x
 COPY package*.json ./
 RUN npm ci --omit-dev
 
+COPY public ./public
 COPY --from=builder /veritable-ui/build ./build
 
 EXPOSE 80
