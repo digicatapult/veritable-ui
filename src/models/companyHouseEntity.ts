@@ -1,6 +1,7 @@
 import { injectable, singleton } from 'tsyringe'
 import { z } from 'zod'
 import { Env } from '../env'
+import { InternalError } from '../errors'
 
 const companyProfileSchema = z.object({
   company_number: z.string(),
@@ -54,7 +55,7 @@ export default class CompanyHouseEntity {
       }),
     })
     if (!response.ok) {
-      throw new Error(`Error calling CompanyHouse API`)
+      throw new InternalError(`Error calling CompanyHouse API`)
     }
 
     return response.json()
