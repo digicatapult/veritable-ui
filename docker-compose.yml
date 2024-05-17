@@ -21,23 +21,6 @@ services:
     volumes:
       - ./docker/keycloak:/opt/keycloak/data/import
     command: start-dev --import-realm
-  # veritable-ui:
-  #   container_name: veritable-ui
-  #   build:
-  #     context: './'
-  #     dockerfile: 'Dockerfile'
-  #   ports:
-  #     - 3000:3000
-  #   environment:
-  #     - DB_HOST=postgres-veritable-ui
-  #     - DB_USERNAME=postgres
-  #     - DB_PASSWORD=postgres
-  #     - COOKIE_SESSION_KEYS=secret
-  #     - PUBLIC_URL=http://localhost:3000
-  #     - IDP_CLIENT_ID=veritable-ui
-  #     - COMPANY_PROFILE_API_KEY=API_KEY
-  #     - IDP_PUBLIC_URL_PREFIX=http://localhost:3080/realms/veritable/protocol/openid-connect
-  #     - IDP_INTERNAL_URL_PREFIX=http://keycloak:8080/realms/veritable/protocol/openid-connect
 
 volumes:
   postgres-veritable-ui:
