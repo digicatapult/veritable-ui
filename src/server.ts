@@ -3,8 +3,6 @@ import bodyParser from 'body-parser'
 import compression from 'compression'
 import cookieParser from 'cookie-parser'
 import express, { Express } from 'express'
-import fs from 'fs/promises'
-import path from 'path'
 import requestLogger from 'pino-http'
 import { SwaggerUiOptions, serve, setup } from 'swagger-ui-express'
 import { container } from 'tsyringe'
@@ -14,17 +12,37 @@ import { Env } from './env.js'
 import { ForbiddenError, HttpError } from './errors.js'
 import { ILogger, Logger } from './logger.js'
 import { RegisterRoutes } from './routes.js'
+import loadApiSpec from './swagger.js'
+
+const env = container.resolve(Env)
+
+const API_SWAGGER_BG_COLOR = env.get('API_SWAGGER_BG_COLOR')
+const API_SWAGGER_TITLE = env.get('API_SWAGGER_TITLE')
+
+const customCssToInject: string = `
+  body { background-color: ${API_SWAGGER_BG_COLOR}; }
+  .swagger-ui .scheme-container { background-color: inherit; }
+  .swagger-ui .opblock .opblock-section-header { background: inherit; }
+  .topbar { display: none; }
+  .swagger-ui .btn.authorize { background-color: #f7f7f7; }
+  .swagger-ui .opblock.opblock-post { background: rgba(73,204,144,.3); }
+  .swagger-ui .opblock.opblock-get { background: rgba(97,175,254,.3); }
+  .swagger-ui .opblock.opblock-put { background: rgba(252,161,48,.3); }
+  .swagger-ui .opblock.opblock-delete { background: rgba(249,62,62,.3); }
+  .swagger-ui section.models { background-color: #f7f7f7; }
+`
 
 export default async (): Promise<Express> => {
-  const swaggerBuffer = await fs.readFile(path.join(__dirname, './swagger.json'))
-  const swaggerJson = JSON.parse(swaggerBuffer.toString('utf8'))
-
-  const env = container.resolve(Env)
   const logger = container.resolve<ILogger>(Logger)
   const app: Express = express()
 
   const options: SwaggerUiOptions = {
-    swaggerOptions: { url: '/api-docs', oauth: { usePkceWithAuthorizationCodeGrant: true } },
+    swaggerOptions: {
+      url: '/api-docs',
+      oauth: { clientId: env.get('IDP_CLIENT_ID'), usePkceWithAuthorizationCodeGrant: true },
+    },
+    customCss: customCssToInject,
+    customSiteTitle: API_SWAGGER_TITLE,
   }
 
   app.use(
@@ -40,7 +58,9 @@ export default async (): Promise<Express> => {
 
   app.use('/public', express.static('public'))
   app.use('/lib/htmx.org', express.static('node_modules/htmx.org/dist'))
-  app.get('/api-docs', (_req, res) => res.json(swaggerJson))
+
+  const apiSpec = await loadApiSpec(env)
+  app.get('/api-docs', (_req, res) => res.json(apiSpec))
   app.use('/swagger', serve, setup(undefined, options))
   app.get('/', (_, res) => res.sendStatus(404))
 

@@ -7,11 +7,11 @@ import { mockEnv, mockLogger } from './helpers'
 
 import { ForbiddenError, InternalError } from '../../errors.js'
 import IDPService from '../../models/idpService.js'
-import { AuthController } from '../auth.js'
+import { AuthController } from '../AuthController.js'
 
 const idpMock = {
-  get authorizationEndpoint() {
-    return Promise.resolve('http://www.example.com/auth')
+  authorizationEndpoint(network: string) {
+    return `http://${network}.example.com/auth`
   },
   getTokenFromCode: sinon
     .stub()
@@ -107,7 +107,7 @@ describe('AuthController', () => {
       // get the nonce that was generated
       const cookieStub = req.res.cookie
       const nonce = cookieStub.firstCall.args[1]
-      const expectedUrl = new URL('http://www.example.com/auth')
+      const expectedUrl = new URL('http://public.example.com/auth')
       expectedUrl.search = new URLSearchParams({
         response_type: 'code',
         client_id: 'veritable-ui',

@@ -1,7 +1,7 @@
 import type * as express from 'express'
 
 import { randomBytes } from 'node:crypto'
-import { Get, Produces, Query, Request, Route, SuccessResponse } from 'tsoa'
+import { Get, Hidden, Produces, Query, Request, Route, SuccessResponse } from 'tsoa'
 import { inject, injectable, singleton } from 'tsyringe'
 
 import { Env } from '../env.js'
@@ -34,6 +34,7 @@ const tokenCookieOpts: express.CookieOptions = {
 @injectable()
 @Route('/auth')
 @Produces('text/html')
+@Hidden()
 export class AuthController extends HTMLController {
   private redirectUrl: string
   private logger: ILogger
@@ -66,7 +67,7 @@ export class AuthController extends HTMLController {
     // setup for final redirect
     res.cookie('VERITABLE_REDIRECT', path, nonceCookieOpts)
 
-    const redirect = new URL(await this.idp.authorizationEndpoint)
+    const redirect = new URL(this.idp.authorizationEndpoint('PUBLIC'))
     redirect.search = new URLSearchParams({
       response_type: 'code',
       client_id: this.env.get('IDP_CLIENT_ID'),
