@@ -1,6 +1,12 @@
-import 'dotenv/config'
+import dotenv from 'dotenv'
 import * as envalid from 'envalid'
 import { singleton } from 'tsyringe'
+
+if (process.env.NODE_ENV === 'test') {
+  dotenv.config({ path: 'test/test.env' })
+} else {
+  dotenv.config()
+}
 
 const strArrayValidator = envalid.makeValidator((input) => {
   const arr = input
