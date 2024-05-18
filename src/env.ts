@@ -52,7 +52,7 @@ const envConfig = {
     default: '/certs',
   }),
   COMPANY_HOUSE_API_URL: envalid.str({ default: 'https://api.company-information.service.gov.uk' }),
-  COMPANY_PROFILE_API_KEY: envalid.str(),
+  COMPANY_PROFILE_API_KEY: envalid.str({ devDefault: 'API_KEY' }),
 }
 
 export type ENV_CONFIG = typeof envConfig
