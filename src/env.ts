@@ -42,13 +42,13 @@ const envConfig = {
   IDP_INTERNAL_URL_PREFIX: envalid.url({
     devDefault: 'http://localhost:3080/realms/veritable/protocol/openid-connect',
   }),
-  IDP_AUTH_PATH: envalid.url({
+  IDP_AUTH_PATH: envalid.str({
     default: '/auth',
   }),
-  IDP_TOKEN_PATH: envalid.url({
+  IDP_TOKEN_PATH: envalid.str({
     default: '/token',
   }),
-  IDP_JWKS_PATH: envalid.url({
+  IDP_JWKS_PATH: envalid.str({
     default: '/certs',
   }),
   COMPANY_HOUSE_API_URL: envalid.str({ default: 'https://api.company-information.service.gov.uk' }),
