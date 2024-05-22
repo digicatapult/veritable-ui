@@ -68,8 +68,14 @@ jobs:
         run: npm ci
       - name: Setup dependencies
         run: docker compose up -d
+      - name: Sleep
+        uses: kibertoad/wait-action@1.0.1
+        with:
+          time: '30s'
       - name: Run database migrations
         run: npm run db:migrate
+        env:
+          NODE_ENV: test
       - name: Run tests
         run: npm run test
 
