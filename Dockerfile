@@ -25,6 +25,8 @@ COPY package*.json ./
 RUN npm ci --omit-dev
 
 COPY public ./public
+COPY migrations ./migrations
+COPY knexfile.js ./
 COPY --from=builder /veritable-ui/build ./build
 
 EXPOSE 80
