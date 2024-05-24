@@ -9,7 +9,7 @@ exports.up = async function (knex) {
     def.string('company_number').notNullable()
 
     def.primary('id')
-    def.index('company_number', 'idx_connection_company_number')
+    def.unique('company_number', { indexName: 'unq_connection_company_number' })
   })
 
   await knex.schema.createTable('connection_invite', (def) => {

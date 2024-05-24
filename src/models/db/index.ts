@@ -68,6 +68,16 @@ export default class Database {
     return z.array(Zod[model].get).parse(await query.returning('*'))
   }
 
+  upsert = async <M extends TABLE>(
+    model: M,
+    record: Models[typeof model]['insert'],
+    conflict?: keyof Models[typeof model]['get']
+  ) => {
+    return z
+      .array(Zod[model].get)
+      .parse(await this.db[model]().insert(record).onConflict(String(conflict)).merge().returning('*'))
+  }
+
   get = async <M extends TABLE>(
     model: M,
     where?: Where<M>,

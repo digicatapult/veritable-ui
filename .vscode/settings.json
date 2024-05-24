@@ -1,5 +1,8 @@
 {
   "typescript.tsdk": "node_modules/typescript/lib",
   "typescript.enablePromptUseWorkspaceTsdk": true,
-  "svg.preview.background": "custom"
+  "svg.preview.background": "custom",
+  "cSpell.words": [
+    "Cloudagent"
+  ]
 }
