@@ -21,6 +21,44 @@ services:
     volumes:
       - ./docker/keycloak:/opt/keycloak/data/import
     command: start-dev --import-realm
+  ipfs:
+    container_name: ipfs
+    image: ipfs/kubo:release
+    volumes:
+      - ipfs:/data/ipfs
+  postgres:
+    container_name: postgres-veritable-cloudagent
+    image: postgres:16.3-alpine
+    restart: on-failure
+    volumes:
+      - postgres-veritable-cloudagent:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=postgres-veritable-cloudagent
+  veritable-cloudagent:
+    image: digicatapult/veritable-cloudagent
+    container_name: veritable-cloudagent
+    restart: always
+    depends_on:
+      ipfs:
+        condition: service_healthy
+    ports:
+      - 3001:3000
+    environment:
+      - AFJ_REST_ENDPOINT=ws://veritable-cloudagent:5003
+      - AFJ_REST_ADMIN_PORT=3000
+      - AFJ_REST_INBOUND_TRANSPORTS="ws 5003"
+      - AFJ_REST_IPFS_ORIGIN=http://ipfs:5001
+      - AFJ_REST_POSTGRES_HOST=postgres
+      - AFJ_REST_POSTGRES_PORT=5432
+      - AFJ_REST_POSTGRES_USERNAME=postgres
+      - AFJ_REST_POSTGRES_PASSWORD=postgres
+      - AFJ_REST_LABEL=vertiable-cloudagent
+      - AFJ_REST_WALLET_ID=walletId
+      - AFJ_REST_WALLET_KEY=walletKey
 
 volumes:
+  ipfs:
   postgres-veritable-ui:
+  postgres-veritable-cloudagent:
