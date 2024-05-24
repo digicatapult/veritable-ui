@@ -5,6 +5,7 @@ import { Get, Produces, Query, Route, Security, SuccessResponse } from 'tsoa'
 import { inject, injectable, singleton } from 'tsyringe'
 
 import { Env } from '../../env.js'
+import { InvalidInputError } from '../../errors.js'
 import { Logger, type ILogger } from '../../logger.js'
 import CompanyHouseEntity from '../../models/companyHouseEntity.js'
 import Database from '../../models/db/index.js'
@@ -93,21 +94,22 @@ export class NewConnectionController extends HTMLController {
     return this.html(this.newConnection.companyEmptyTextBox({ errorMessage: 'Company does not exist' }))
   }
 
-  public async processNewConnectionSubmit(params: {
-    companyName: string
-    companyAddress: string
-    companyNumber: string
-    contactEmail: string
-  }): Promise<void> {
+  public async processNewConnectionSubmit(params: { companyNumber: string; contactEmail: string }): Promise<HTML> {
+    const details = await this.companyHouseEntity.getCompanyProfileByCompanyNumber(params.companyNumber)
+
+    if (details.registered_office_is_in_dispute) {
+      throw new InvalidInputError(`Address of company number ${params.companyNumber} is in dispute`)
+    }
+
     const pin = randomInt(1e8).toString(10).padStart(8, '0')
     const [pinHash, invite] = await Promise.all([
       argon2.hash(pin, { secret: this.env.get('INVITATION_PIN_SECRET') }),
-      await this.cloudagent.createOutOfBandInvite(params),
+      await this.cloudagent.createOutOfBandInvite({ companyName: details.company_name }),
     ])
 
     await this.db.withTransaction(async (db) => {
       const [record] = await db.upsert('connection', {
-        company_name: params.companyName,
+        company_name: details.company_name,
         company_number: params.companyNumber,
         status: 'pending',
       })
@@ -124,11 +126,24 @@ export class NewConnectionController extends HTMLController {
       await this.email.sendMail('connection_invite', { to: params.contactEmail, invite: invite.invitationUrl })
       await this.email.sendMail('connection_invite_admin', {
         to: params.contactEmail,
-        address: params.companyAddress,
+        address: [
+          details.company_name,
+          details.registered_office_address.address_line_1,
+          details.registered_office_address.address_line_2,
+          details.registered_office_address.care_of,
+          details.registered_office_address.locality,
+          details.registered_office_address.po_box,
+          details.registered_office_address.postal_code,
+          details.registered_office_address.country,
+          details.registered_office_address.premises,
+          details.registered_office_address.region,
+        ]
+          .filter((x) => !!x)
+          .join('\r\n'),
         pin,
       })
     } finally {
-      return
+      return this.html('')
     }
   }
 }
