@@ -1,8 +1,9 @@
 import { Body, Get, Post, Produces, Query, Route, Security, SuccessResponse } from 'tsoa'
 import { inject, injectable, singleton } from 'tsyringe'
 
+import { email } from 'envalid'
 import { Logger, type ILogger } from '../../logger.js'
-import CompantHouseEntity, { CompanyProfile, EmailSchema } from '../../models/companyHouseEntity.js'
+import CompantHouseEntity, { CompanyProfile, emailSchema } from '../../models/companyHouseEntity.js'
 import NewConnectionTemplates, { FormStage } from '../../views/newConnection.js'
 import { HTML, HTMLController } from '../HTMLController.js'
 
@@ -93,9 +94,24 @@ export class NewConnectionController extends HTMLController {
   @SuccessResponse(200)
   @Post('/submit')
   public async submitCompanyNumber(
-    @Body() body: { companyNumber: string; email: EmailSchema; formStage: string; submitButton: string }
+    @Body() body: { companyNumber: string; email: string; formStage: string; submitButton: string }
   ): Promise<HTML> {
     // do some regex if there is a match on the whole regex return true else return false
+
+    try {
+      emailSchema.parse(email)
+    } catch (err) {
+      return this.html(
+        this.newConnection.companyFormInput({
+          targetBox: {
+            status: 'error',
+            errorMessage: 'Email is not valid',
+          },
+          formStage: 'form',
+        })
+      )
+    }
+
     let company: CompanyProfile
 
     let formStage: FormStage

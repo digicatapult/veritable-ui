@@ -4,6 +4,8 @@ import { z } from 'zod'
 import { Env } from '../env.js'
 import { InternalError } from '../errors.js'
 
+export const emailSchema = z.string()
+
 const companyProfileSchema = z.object({
   company_number: z.string(),
   // .regex(
@@ -40,8 +42,6 @@ const companyProfileSchema = z.object({
   ]),
 })
 export type CompanyProfile = z.infer<typeof companyProfileSchema>
-const emailSchema = z.string().email({message: "Please provide a valid email address"})
-export type EmailSchema = z.infer<typeof emailSchema>
 
 @singleton()
 @injectable()
