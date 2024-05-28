@@ -23,7 +23,7 @@ const companyProfileSchema = z.object({
     premises: z.string().optional(),
     region: z.string().optional(),
   }),
-  registered_office_is_in_dispute: z.boolean(),
+  registered_office_is_in_dispute: z.boolean().optional(),
   company_status: z.union([
     z.literal('active'),
     z.literal('dissolved'),
@@ -69,7 +69,7 @@ export default class CompanyHouseEntity {
     const endpoint = `${this.env.get('COMPANY_HOUSE_API_URL')}/company/${encodeURIComponent(companyNumber)}`
 
     const companyProfile = await this.makeCompanyProfileRequest(endpoint)
-
+    console.log(companyProfile)
     return companyProfileSchema.parse(companyProfile)
   }
 }

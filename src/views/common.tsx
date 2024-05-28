@@ -11,13 +11,38 @@ type ButtonProps = {
   icon?: string
   disabled?: boolean
   outline?: boolean
+  href?: string
+}
+
+type FormButtonProps = {
+  name: string
+  icon?: string
+  disabled?: boolean
+  outline?: boolean
+  value?: string
+  type?: string
+  display: string
 }
 
 export const ButtonIcon = (props: ButtonProps): JSX.Element => (
-  <div class={`button ${props.disabled && 'disabled'} ${props.outline && 'outline'}`}>
-    <div class="button icon" style={{ backgroundImage: props?.icon || 'url("/public/images/plus.svg")' }} />
-    <span class={`button text ${props.outline && 'accent'}`}>{props.name || 'unknown'}</span>
-  </div>
+  <a href={`${props.href || '#'}`}>
+    <div class={`button ${props.disabled && 'disabled'} ${props.outline && 'outline'}`}>
+      <div class="button icon" style={{ backgroundImage: props?.icon || 'url("/public/images/plus.svg")' }} />
+      <span class={`button text ${props.outline && 'accent'}`}>{props.name || 'unknown'}</span>
+    </div>
+  </a>
+)
+
+export const FormButtonIcon = (props: FormButtonProps): JSX.Element => (
+  <button
+    style={`display:${props.display}`}
+    class={`button ${props.disabled && 'disabled'} ${props.outline && 'outline'}`}
+    type={`${props.type}`}
+    name={`${props.name}`}
+    value={`${props.value}`}
+  >
+    <span class={`button text ${props.outline && 'accent'}`}>{props.value || 'unknown'}</span>
+  </button>
 )
 
 /**

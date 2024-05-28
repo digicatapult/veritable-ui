@@ -44,7 +44,7 @@ export default class ConnectionTemplates {
         <div class="main connections">
           <div class="connections header">
             <span>Connections Summary</span>
-            <ButtonIcon disabled={true} name="Add a New Connection" />
+            <ButtonIcon disabled={false} name="Add a New Connection" href="connection/new" />
           </div>
           <div class="connections list">
             <div class="connections list nav">
