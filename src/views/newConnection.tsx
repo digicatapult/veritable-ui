@@ -78,7 +78,9 @@ export default class newConnectionTemplates {
             <div id="confirmation-page" style={{ display: showConfirmation ? 'block' : 'none' }}>
               <p>Please confirm the details of the connection before sending</p>
               <p>
-              {Html.escapeHtml(`Company House Number: ${params.targetBox.status === 'success' && params.targetBox.company.company_number}`)}
+                {Html.escapeHtml(
+                  `Company House Number: ${params.targetBox.status === 'success' && params.targetBox.company.company_number}`
+                )}
               </p>
               <p>{Html.escapeHtml(`Email Address: ${params.targetBox.status === 'success' && params.email}`)}</p>
             </div>
