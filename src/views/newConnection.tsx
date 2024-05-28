@@ -73,7 +73,7 @@ export default class newConnectionTemplates {
               placeholder="Connection's Email Address"
               name="email"
               value={params.email}
-              type={`${showForm ? 'text' : 'hidden'}`}
+              type={`${showForm ? 'email' : 'hidden'}`}
             ></input>
             <div id="confirmation-page" style={{ display: showConfirmation ? 'block' : 'none' }}>
               <p>Please confirm the details of the connection before sending</p>

@@ -40,6 +40,8 @@ const companyProfileSchema = z.object({
   ]),
 })
 export type CompanyProfile = z.infer<typeof companyProfileSchema>
+const emailSchema = z.string().email({message: "Please provide a valid email address"})
+export type EmailSchema = z.infer<typeof emailSchema>
 
 @singleton()
 @injectable()
