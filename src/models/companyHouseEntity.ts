@@ -1,7 +1,8 @@
 import { injectable, singleton } from 'tsyringe'
 import { z } from 'zod'
-import { Env } from '../env'
-import { InternalError } from '../errors'
+
+import { Env } from '../env.js'
+import { InternalError } from '../errors.js'
 
 const companyProfileSchema = z.object({
   company_number: z.string(),

@@ -53,6 +53,8 @@ const envConfig = {
   }),
   COMPANY_HOUSE_API_URL: envalid.str({ default: 'https://api.company-information.service.gov.uk' }),
   COMPANY_PROFILE_API_KEY: envalid.str({ devDefault: 'API_KEY' }),
+  EMAIL_TRANSPORT: envalid.str({ default: 'STREAM', choices: ['STREAM'] }),
+  EMAIL_FROM_ADDRESS: envalid.email({ default: 'hello@veritable.com' }),
 }
 
 export type ENV_CONFIG = typeof envConfig
