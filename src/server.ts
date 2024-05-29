@@ -3,6 +3,7 @@ import bodyParser from 'body-parser'
 import compression from 'compression'
 import cookieParser from 'cookie-parser'
 import express, { Express } from 'express'
+ // @ts-ignore due to ->   Type 'typeof import("/Users/pmichelevicius/workspace/veritable-ui/node_modules/pino-http/index")' has no call signatures ERROR
 import requestLogger from 'pino-http'
 import { SwaggerUiOptions, serve, setup } from 'swagger-ui-express'
 import { container } from 'tsyringe'
@@ -46,7 +47,7 @@ export default async (): Promise<Express> => {
   }
 
   app.use(
-    requestLogger({
+    requestLogger.default({
       logger,
     })
   )

@@ -1,7 +1,7 @@
 import Html from '@kitajs/html'
 import { singleton } from 'tsyringe'
-import { CompanyProfile } from '../models/companyHouseEntity'
-import { Page } from './common'
+import { CompanyProfile } from '../models/companyHouseEntity.js'
+import { Page } from './common.js'
 
 @singleton()
 export default class newConnectionTemplates {
