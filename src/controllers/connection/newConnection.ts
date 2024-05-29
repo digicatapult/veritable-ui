@@ -2,10 +2,16 @@ import { Body, Get, Post, Produces, Query, Route, Security, SuccessResponse } fr
 import { inject, injectable, singleton } from 'tsyringe'
 
 import { Logger, type ILogger } from '../../logger.js'
-import CompantHouseEntity, { type CompanyProfile } from '../../models/companyHouseEntity.js'
+import CompantHouseEntity from '../../models/companyHouseEntity.js'
 import type { COMPANY_NUMBER, EMAIL } from '../../models/strings.js'
 import NewConnectionTemplates, { FormStage } from '../../views/newConnection'
 import { HTML, HTMLController } from '../HTMLController.js'
+
+const submitToFormStage = {
+  Back: 'form',
+  Continue: 'confirmation',
+  Submit: 'success',
+} as const
 
 @singleton()
 @injectable()
@@ -44,14 +50,22 @@ export class NewConnectionController extends HTMLController {
   }
 
   /**
-   * Returns a company from a validated company number
+   * @returns a company from a validated company number
    */
   @SuccessResponse(200)
   @Get('/verify-company')
   public async verifyCompanyForm(@Query() companyNumber: COMPANY_NUMBER): Promise<HTML> {
-    let company: CompanyProfile
     try {
-      company = await this.companyHouseEntity.getCompanyProfileByCompanyNumber(companyNumber)
+      const company = await this.companyHouseEntity.getCompanyProfileByCompanyNumber(companyNumber)
+      return this.html(
+        this.newConnection.companyFormInput({
+          targetBox: {
+            status: 'success',
+            company: company,
+          },
+          formStage: 'form',
+        })
+      )
     } catch (err) {
       return this.html(
         this.newConnection.companyFormInput({
@@ -63,16 +77,6 @@ export class NewConnectionController extends HTMLController {
         })
       )
     }
-
-    return this.html(
-      this.newConnection.companyFormInput({
-        targetBox: {
-          status: 'success',
-          company: company,
-        },
-        formStage: 'form',
-      })
-    )
   }
 
   /**
@@ -81,30 +85,28 @@ export class NewConnectionController extends HTMLController {
   @SuccessResponse(200)
   @Post('/submit')
   public async submitCompanyNumber(
-    @Body() body: { companyNumber: string; email: EMAIL; formStage: string; submitButton: string }
-  ): Promise<HTML> {
-    let company: CompanyProfile
-    let formStage: FormStage
-
-    switch (body.submitButton) {
-      case 'Back':
-        formStage = 'form'
-        break
-      case 'Continue':
-        formStage = 'confirmation'
-        break
-      case 'Submit':
-        formStage = 'success'
-        break
-      default:
-        this.setStatus(422)
-        return this.html('sorry')
-        break
+    @Body()
+    body: {
+      companyNumber: string
+      email: EMAIL
+      submitButton: 'Back' | 'Continue' | 'Submit'
     }
-    body.submitButton === 'Back' ? 'form' : 'confirmation'
+  ): Promise<HTML> {
+    const formStage: FormStage = submitToFormStage[body.submitButton]
 
     try {
-      company = await this.companyHouseEntity.getCompanyProfileByCompanyNumber(body.companyNumber)
+      const company = await this.companyHouseEntity.getCompanyProfileByCompanyNumber(body.companyNumber)
+      return this.html(
+        this.newConnection.companyFormInput({
+          targetBox: {
+            status: 'success',
+            company: company,
+          },
+          formStage: formStage,
+          email: body.email,
+          companyNumber: body.companyNumber,
+        })
+      )
     } catch (err) {
       return this.html(
         this.newConnection.companyFormInput({
@@ -116,16 +118,5 @@ export class NewConnectionController extends HTMLController {
         })
       )
     }
-    return this.html(
-      this.newConnection.companyFormInput({
-        targetBox: {
-          status: 'success',
-          company: company,
-        },
-        formStage: formStage,
-        email: body.email,
-        companyNumber: body.companyNumber,
-      })
-    )
   }
 }
