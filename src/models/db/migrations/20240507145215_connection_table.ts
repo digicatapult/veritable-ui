@@ -1,8 +1,6 @@
-/**
- * @param { import("knex").Knex } knex
- * @returns { Promise<void> }
- */
-exports.up = async function (knex) {
+import { Knex } from 'knex'
+
+export async function up(knex: Knex): Promise<void> {
   const now = () => knex.fn.now()
 
   await knex.schema.createTable('connection', (def) => {
@@ -19,11 +17,7 @@ exports.up = async function (knex) {
   })
 }
 
-/**
- * @param { import("knex").Knex } knex
- * @returns { Promise<void> }
- */
-exports.down = async function (knex) {
+export async function down(knex: Knex): Promise<void> {
   await knex.schema.dropTable('connection')
-  await knex.schema.raw('DROP TYPE ??', ['connection_status'])
+  await knex.schema.raw('DROP TYPE connection_status')
 }

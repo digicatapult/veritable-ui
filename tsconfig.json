@@ -20,6 +20,6 @@
     "outDir": "build",
     "resolveJsonModule": true
   },
-  "include": ["src", "src/swagger.json", "knexfile.ts"],
+  "include": ["src", "src/swagger.json"],
   "exclude": ["test", "**/__tests__"]
 }
