@@ -4,7 +4,7 @@ import { inject, injectable, singleton } from 'tsyringe'
 import { Logger, type ILogger } from '../../logger.js'
 import CompantHouseEntity, { type CompanyProfile } from '../../models/companyHouseEntity.js'
 import type { COMPANY_NUMBER, EMAIL } from '../../models/strings.js'
-import NewConnectionTemplates, { FormStage } from '../../views/newConnection.js'
+import NewConnectionTemplates, { FormStage } from '../../views/newConnection'
 import { HTML, HTMLController } from '../HTMLController.js'
 
 @singleton()
@@ -48,7 +48,8 @@ export class NewConnectionController extends HTMLController {
    */
   @SuccessResponse(200)
   @Get('/verify-company')
-  public async verifyCompanyForm(@Query() companyNumber: COMPANY_NUMBER, company?: CompanyProfile): Promise<HTML> {
+  public async verifyCompanyForm(@Query() companyNumber: COMPANY_NUMBER): Promise<HTML> {
+    let company: CompanyProfile
     try {
       company = await this.companyHouseEntity.getCompanyProfileByCompanyNumber(companyNumber)
     } catch (err) {
@@ -80,10 +81,11 @@ export class NewConnectionController extends HTMLController {
   @SuccessResponse(200)
   @Post('/submit')
   public async submitCompanyNumber(
-    @Body() body: { companyNumber: string; email: EMAIL; formStage: string; submitButton: string },
-    company?: CompanyProfile
+    @Body() body: { companyNumber: string; email: EMAIL; formStage: string; submitButton: string }
   ): Promise<HTML> {
+    let company: CompanyProfile
     let formStage: FormStage
+
     switch (body.submitButton) {
       case 'Back':
         formStage = 'form'
