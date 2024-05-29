@@ -1,6 +1,5 @@
 import { Readable } from 'node:stream'
-
-import pino from 'pino'
+import { pino } from 'pino'
 
 import { Env } from '../../env.js'
 

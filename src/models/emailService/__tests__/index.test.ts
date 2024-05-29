@@ -1,6 +1,7 @@
+import { expect } from 'chai'
 import { describe } from 'mocha'
 
-import pino from 'pino'
+import { pino } from 'pino'
 import sinon from 'sinon'
 
 import { Env } from '../../../env.js'
@@ -27,11 +28,6 @@ const mockTemplates = {
 }
 
 describe('EmailService', () => {
-  let expect: Chai.ExpectStatic
-  before(async () => {
-    expect = (await import('chai')).expect
-  })
-
   describe('sendMail', () => {
     it('should log message details', async () => {
       const logger = mkMockLogger()

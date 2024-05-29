@@ -4,7 +4,7 @@ import { inject, injectable, singleton } from 'tsyringe'
 import { Logger, type ILogger } from '../../logger.js'
 import CompantHouseEntity from '../../models/companyHouseEntity.js'
 import type { COMPANY_NUMBER, EMAIL } from '../../models/strings.js'
-import NewConnectionTemplates, { FormStage } from '../../views/newConnection'
+import NewConnectionTemplates, { FormStage } from '../../views/newConnection.js'
 import { HTML, HTMLController } from '../HTMLController.js'
 
 const submitToFormStage = {
