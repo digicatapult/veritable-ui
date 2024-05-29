@@ -2,12 +2,10 @@ import { expect } from 'chai'
 import { afterEach, beforeEach, describe, test } from 'mocha'
 import { MockAgent, getGlobalDispatcher, setGlobalDispatcher } from 'undici'
 
-import Pino from 'pino'
+import { pino } from 'pino'
 import { Env } from '../../env.js'
 import { ForbiddenError } from '../../errors.js'
 import IDPService from '../idpService.js'
-
-const pino = Pino.default
 
 const mockEnv: Env = {
   get: (name: string) => {

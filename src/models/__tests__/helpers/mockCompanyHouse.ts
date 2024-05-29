@@ -8,7 +8,7 @@ import {
   validCompanyNumber,
 } from '../fixtures/companyHouseFixtures.js'
 
-const env: any = container.resolve(Env)
+const env: Env = container.resolve(Env)
 
 export function withCompanyHouseMock() {
   let originalDispatcher: Dispatcher

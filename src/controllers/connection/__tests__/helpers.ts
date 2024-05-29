@@ -1,12 +1,9 @@
 import { Readable } from 'node:stream'
-
-import Pino from 'pino'
+import { pino } from 'pino'
 
 import Database from '../../../models/db/index.js'
 import { ConnectionRow } from '../../../models/db/types.js'
 import ConnectionTemplates from '../../../views/connection.js'
-
-const pino = Pino.default
 
 export const withMocks = () => {
   const templateMock = {
