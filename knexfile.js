@@ -19,7 +19,7 @@ const pgConfig = {
   },
 }
 
-module.exports = {
+export default {
   test: pgConfig,
   development: pgConfig,
   production: {
