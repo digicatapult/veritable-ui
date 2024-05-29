@@ -6,7 +6,7 @@
     "plugins": [{ "name": "@kitajs/ts-html-plugin" }],
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
-    "target": "ESNext",
+    "target": "ES2021",
     "module": "NodeNext",
     "moduleResolution": "NodeNext",
     "forceConsistentCasingInFileNames": true,
