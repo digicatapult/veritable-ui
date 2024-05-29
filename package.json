@@ -19,7 +19,7 @@
     "tsoa:watch": "node --watch-path=./src ./node_modules/.bin/tsoa -- spec-and-routes",
     "dev": "npm run tsoa:watch & NODE_ENV=dev node --import=tsimp/import --watch src/index.ts",
     "start": "node build/index.js",
-    "db:cmd": "node ./node_modules/.bin/knex",
+    "db:cmd": "node --import=tsimp/import ./node_modules/.bin/knex",
     "db:migrate": "npm run db:cmd -- migrate:latest",
     "db:rollback": "npm run db:cmd -- migrate:rollback",
     "db:seed": "npm run db:cmd -- seed:run",
