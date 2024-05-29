@@ -26,7 +26,7 @@ type FormButtonProps = {
 }
 
 export const ButtonIcon = (props: ButtonProps): JSX.Element => (
-  <a href={`${props.href || '#'}`} style={`display: ${props.display ? 'block' : 'none'}`}>
+  <a href={`${props.href || '#'}`}>
     <div class={`button ${props.disabled && 'disabled'} ${props.outline && 'outline'}`}>
       {props.showIcon && (
         <div class="button icon" style={{ backgroundImage: props?.icon || 'url("/public/images/plus.svg")' }} />
