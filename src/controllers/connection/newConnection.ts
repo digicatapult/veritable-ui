@@ -139,7 +139,7 @@ export class NewConnectionController extends HTMLController {
       throw new InvalidInputError(`Address of company number ${params.companyNumber} is in dispute`)
     }
 
-    const pin = randomInt(1e8).toString(10).padStart(8, '0')
+    const pin = randomInt(1e6).toString(10).padStart(6, '0')
     const [pinHash, invite] = await Promise.all([
       argon2.hash(pin, { secret: this.env.get('INVITATION_PIN_SECRET') }),
       await this.cloudagent.createOutOfBandInvite({ companyName: details.company_name }),
