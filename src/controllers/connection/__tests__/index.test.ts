@@ -1,6 +1,6 @@
+import { expect } from 'chai'
 import { describe, it } from 'mocha'
 import sinon from 'sinon'
-import { expect } from 'chai'
 
 import { toHTMLString, withMocks } from './helpers.js'
 

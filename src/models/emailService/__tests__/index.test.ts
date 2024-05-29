@@ -1,5 +1,5 @@
-import { describe } from 'mocha'
 import { expect } from 'chai'
+import { describe } from 'mocha'
 
 import pino from 'pino'
 import sinon from 'sinon'

@@ -1,5 +1,5 @@
-import 'reflect-metadata'
 import { use } from 'chai'
+import 'reflect-metadata'
 
 import chaiJestSnapshot from 'chai-jest-snapshot'
 

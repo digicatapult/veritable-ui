@@ -1,5 +1,5 @@
-import { afterEach, beforeEach, describe, test } from 'mocha'
 import { expect } from 'chai'
+import { afterEach, beforeEach, describe, test } from 'mocha'
 import { MockAgent, getGlobalDispatcher, setGlobalDispatcher } from 'undici'
 
 import Pino from 'pino'
