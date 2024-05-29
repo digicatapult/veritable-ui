@@ -1,7 +1,6 @@
 import { Body, Get, Post, Produces, Query, Route, Security, SuccessResponse } from 'tsoa'
 import { inject, injectable, singleton } from 'tsyringe'
 
-import { email } from 'envalid'
 import { Logger, type ILogger } from '../../logger.js'
 import CompantHouseEntity, { CompanyProfile, emailSchema } from '../../models/companyHouseEntity.js'
 import NewConnectionTemplates, { FormStage } from '../../views/newConnection.js'
@@ -99,7 +98,7 @@ export class NewConnectionController extends HTMLController {
     // do some regex if there is a match on the whole regex return true else return false
 
     try {
-      emailSchema.parse(email)
+      emailSchema.parse(body.email)
     } catch (err) {
       return this.html(
         this.newConnection.companyFormInput({
