@@ -1,4 +1,5 @@
 import { describe, it } from 'mocha'
+import { expect } from 'chai'
 import { Env } from '../../env.js'
 import CompanyHouseEntity from '../companyHouseEntity.js'
 import {
@@ -10,11 +11,6 @@ import {
 import { withCompanyHouseMock } from './helpers/mockCompanyHouse.js'
 
 describe('companyHouseEntity', () => {
-  let expect: Chai.ExpectStatic
-  before(async () => {
-    expect = (await import('chai')).expect
-  })
-
   withCompanyHouseMock()
 
   describe('getCompanyProfileByCompanyNumber', () => {

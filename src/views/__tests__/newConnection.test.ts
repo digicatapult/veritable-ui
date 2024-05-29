@@ -1,18 +1,14 @@
 import { describe, it } from 'mocha'
+import { expect } from 'chai'
 
 import {
   successResponse,
   testErrorTargetBox,
   testSuccessTargetBox,
-} from '../../models/__tests__/fixtures/companyHouseFixtures'
-import NewConnectionTemplates from '../newConnection'
+} from '../../models/__tests__/fixtures/companyHouseFixtures.js'
+import NewConnectionTemplates from '../newConnection.js'
 
 describe('NewConnectionTemplates', () => {
-  let expect: Chai.ExpectStatic
-  before(async () => {
-    expect = (await import('chai')).expect
-  })
-
   describe('show form', () => {
     it('should render Error message with text error test', async () => {
       const templates = new NewConnectionTemplates()

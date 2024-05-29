@@ -1,16 +1,12 @@
 import { describe, it } from 'mocha'
 import sinon from 'sinon'
+import { expect } from 'chai'
 
 import { toHTMLString, withMocks } from './helpers.js'
 
 import { ConnectionController } from '../index.js'
 
 describe('ConnectionController', () => {
-  let expect: Chai.ExpectStatic
-  before(async () => {
-    expect = (await import('chai')).expect
-  })
-
   afterEach(() => {
     sinon.restore()
   })

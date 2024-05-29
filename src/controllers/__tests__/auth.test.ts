@@ -1,5 +1,6 @@
 import type express from 'express'
 
+import { expect } from 'chai'
 import { describe, it } from 'mocha'
 import sinon from 'sinon'
 
@@ -29,11 +30,6 @@ const mkRequestMock = () => ({
 })
 
 describe('AuthController', () => {
-  let expect: Chai.ExpectStatic
-  before(async () => {
-    expect = (await import('chai')).expect
-  })
-
   afterEach(() => {
     sinon.restore()
   })

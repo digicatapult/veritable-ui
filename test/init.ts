@@ -1,10 +1,10 @@
 import 'reflect-metadata'
+import { use } from 'chai'
 
 import chaiJestSnapshot from 'chai-jest-snapshot'
 
 before(async function () {
-  let chai = await import('chai')
-  chai.use(chaiJestSnapshot)
+  use(chaiJestSnapshot)
   chaiJestSnapshot.resetSnapshotRegistry()
 })
 

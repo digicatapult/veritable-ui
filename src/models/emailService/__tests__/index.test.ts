@@ -1,4 +1,5 @@
 import { describe } from 'mocha'
+import { expect } from 'chai'
 
 import pino from 'pino'
 import sinon from 'sinon'
@@ -27,11 +28,6 @@ const mockTemplates = {
 }
 
 describe('EmailService', () => {
-  let expect: Chai.ExpectStatic
-  before(async () => {
-    expect = (await import('chai')).expect
-  })
-
   describe('sendMail', () => {
     it('should log message details', async () => {
       const logger = mkMockLogger()

@@ -1,7 +1,9 @@
 import { Readable } from 'node:stream'
-import { default as pino } from 'pino'
+import Pino from 'pino'
 
 import { Env } from '../../env.js'
+
+const pino = Pino.default
 
 export const mockLogger = pino({ level: 'silent' })
 

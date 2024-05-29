@@ -1,10 +1,13 @@
 import { afterEach, beforeEach, describe, test } from 'mocha'
+import { expect } from 'chai'
 import { MockAgent, getGlobalDispatcher, setGlobalDispatcher } from 'undici'
 
-import { default as pino } from 'pino'
+import Pino from 'pino'
 import { Env } from '../../env.js'
 import { ForbiddenError } from '../../errors.js'
 import IDPService from '../idpService.js'
+
+const pino = Pino.default
 
 const mockEnv: Env = {
   get: (name: string) => {
@@ -33,11 +36,6 @@ const mockTokenResponse = {
 }
 
 describe('IDPService', () => {
-  let expect: Chai.ExpectStatic
-  before(async () => {
-    expect = (await import('chai')).expect
-  })
-
   const originalDispatcher = getGlobalDispatcher()
   const mockAgent = new MockAgent()
   const mockOidc = mockAgent.get(`http://internal.example.com`)
