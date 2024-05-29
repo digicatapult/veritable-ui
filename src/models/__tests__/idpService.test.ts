@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, test } from 'mocha'
 import { MockAgent, getGlobalDispatcher, setGlobalDispatcher } from 'undici'
 
-import pino from 'pino'
+import { default as pino } from 'pino'
 import { Env } from '../../env.js'
 import { ForbiddenError } from '../../errors.js'
 import IDPService from '../idpService.js'
@@ -19,7 +19,7 @@ const mockEnv: Env = {
   },
 } as Env
 
-const mockLogger = pino.default({ level: 'silent' })
+const mockLogger = pino({ level: 'silent' })
 
 const mockTokenResponse = {
   access_token: 'access',

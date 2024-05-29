@@ -3,8 +3,7 @@ import bodyParser from 'body-parser'
 import compression from 'compression'
 import cookieParser from 'cookie-parser'
 import express, { Express } from 'express'
-// @ts-ignore due to ->   Type 'typeof import("/Users/pmichelevicius/workspace/veritable-ui/node_modules/pino-http/index")' has no call signatures ERROR
-import requestLogger from 'pino-http'
+import RequestLogger from 'pino-http'
 import { SwaggerUiOptions, serve, setup } from 'swagger-ui-express'
 import { container } from 'tsyringe'
 
@@ -15,6 +14,7 @@ import { ILogger, Logger } from './logger.js'
 import { RegisterRoutes } from './routes.js'
 import loadApiSpec from './swagger.js'
 
+const requestLogger = RequestLogger.default
 const env = container.resolve(Env)
 
 const API_SWAGGER_BG_COLOR = env.get('API_SWAGGER_BG_COLOR')
@@ -47,7 +47,7 @@ export default async (): Promise<Express> => {
   }
 
   app.use(
-    requestLogger.default({
+    requestLogger({
       logger,
     })
   )

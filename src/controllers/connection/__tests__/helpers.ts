@@ -1,6 +1,6 @@
 import { Readable } from 'node:stream'
 
-import pino from 'pino'
+import { default as pino } from 'pino'
 
 import Database from '../../../models/db/index.js'
 import { ConnectionRow } from '../../../models/db/types.js'
@@ -11,7 +11,7 @@ export const withMocks = () => {
     listPage: (connections: ConnectionRow[]) =>
       `list_${connections.map((c) => `${c.company_name}-${c.status}`).join('_')}_list`,
   } as ConnectionTemplates
-  const mockLogger = pino.default({ level: 'silent' })
+  const mockLogger = pino({ level: 'silent' })
   const dbMock = {
     get: () => Promise.resolve([{ company_name: 'foo', status: 'verified' }]),
   } as unknown as Database
