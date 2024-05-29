@@ -8,6 +8,8 @@ type PageProps = {
 
 type ButtonProps = {
   name: string
+  showIcon?: boolean
+  display?: boolean
   icon?: string
   disabled?: boolean
   outline?: boolean
@@ -16,24 +18,25 @@ type ButtonProps = {
 
 type FormButtonProps = {
   name: string
-  icon?: string
+  display: string
   disabled?: boolean
   outline?: boolean
   value?: string
   type?: string
-  display: string
 }
 
 export const ButtonIcon = (props: ButtonProps): JSX.Element => (
-  <a href={`${props.href || '#'}`}>
+  <a href={`${props.href || '#'}`} style={`display: ${props.display ? 'block' : 'none'}`}>
     <div class={`button ${props.disabled && 'disabled'} ${props.outline && 'outline'}`}>
-      <div class="button icon" style={{ backgroundImage: props?.icon || 'url("/public/images/plus.svg")' }} />
+      {props.showIcon && (
+        <div class="button icon" style={{ backgroundImage: props?.icon || 'url("/public/images/plus.svg")' }} />
+      )}
       <span class={`button text ${props.outline && 'accent'}`}>{props.name || 'unknown'}</span>
     </div>
   </a>
 )
 
-export const FormButtonIcon = (props: FormButtonProps): JSX.Element => (
+export const FormButton = (props: FormButtonProps): JSX.Element => (
   <button
     style={`display:${props.display}`}
     class={`button ${props.disabled && 'disabled'} ${props.outline && 'outline'}`}

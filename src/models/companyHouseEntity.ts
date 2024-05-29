@@ -3,16 +3,10 @@ import { z } from 'zod'
 
 import { Env } from '../env.js'
 import { InternalError } from '../errors.js'
-
-export const emailSchema = z.string()
+import { companyNumberRegex } from './strings.js'
 
 const companyProfileSchema = z.object({
-  company_number: z.string(),
-  // .regex(
-  //   new RegExp(
-  //     /^((AC|ZC|FC|GE|LP|OC|SE|SA|SZ|SF|GS|SL|SO|SC|ES|NA|NZ|NF|GN|NL|NC|R0|NI|EN|\d{2}|SG|FE)\d{5}(\d|C|R))|((RS|SO)\d{3}(\d{3}|\d{2}[WSRCZF]|\d(FI|RS|SA|IP|US|EN|AS)|CUS))|((NI|SL)\d{5}[\dA])|(OC(([\dP]{5}[CWERTB])|([\dP]{4}(OC|CU))))$/
-  //   )
-  // ),
+  company_number: z.string().regex(new RegExp(companyNumberRegex)).min(8).max(8),
   company_name: z.string(),
   registered_office_address: z.object({
     address_line_1: z.string().optional(),
@@ -69,9 +63,7 @@ export default class CompanyHouseEntity {
   */
   async getCompanyProfileByCompanyNumber(companyNumber: string): Promise<CompanyProfile> {
     const endpoint = `${this.env.get('COMPANY_HOUSE_API_URL')}/company/${encodeURIComponent(companyNumber)}`
-
     const companyProfile = await this.makeCompanyProfileRequest(endpoint)
-    console.log(companyProfile)
     return companyProfileSchema.parse(companyProfile)
   }
 }

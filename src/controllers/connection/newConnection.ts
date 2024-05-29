@@ -2,7 +2,8 @@ import { Body, Get, Post, Produces, Query, Route, Security, SuccessResponse } fr
 import { inject, injectable, singleton } from 'tsyringe'
 
 import { Logger, type ILogger } from '../../logger.js'
-import CompantHouseEntity, { CompanyProfile, emailSchema } from '../../models/companyHouseEntity.js'
+import CompantHouseEntity, { type CompanyProfile } from '../../models/companyHouseEntity.js'
+import type { COMPANY_NUMBER, EMAIL } from '../../models/strings.js'
 import NewConnectionTemplates, { FormStage } from '../../views/newConnection.js'
 import { HTML, HTMLController } from '../HTMLController.js'
 
@@ -47,21 +48,7 @@ export class NewConnectionController extends HTMLController {
    */
   @SuccessResponse(200)
   @Get('/verify-company')
-  public async verifyCompanyForm(@Query() companyNumber: string): Promise<HTML> {
-    const regex =
-      /^(((AC|CE|CS|FC|FE|GE|GS|IC|LP|NC|NF|NI|NL|NO|NP|OC|OE|PC|R0|RC|SA|SC|SE|SF|SG|SI|SL|SO|SR|SZ|ZC|\d{2})\d{6})|((IP|SP|RS)[A-Z\d]{6})|(SL\d{5}[\dA]))$/
-    if (!regex.test(`${companyNumber}`)) {
-      return this.html(
-        this.newConnection.companyFormInput({
-          targetBox: {
-            status: 'error',
-            errorMessage: 'Company number format incorrect',
-          },
-          formStage: 'form',
-        })
-      )
-    }
-    let company: CompanyProfile
+  public async verifyCompanyForm(@Query() companyNumber: COMPANY_NUMBER, company?: CompanyProfile): Promise<HTML> {
     try {
       company = await this.companyHouseEntity.getCompanyProfileByCompanyNumber(companyNumber)
     } catch (err) {
@@ -93,26 +80,9 @@ export class NewConnectionController extends HTMLController {
   @SuccessResponse(200)
   @Post('/submit')
   public async submitCompanyNumber(
-    @Body() body: { companyNumber: string; email: string; formStage: string; submitButton: string }
+    @Body() body: { companyNumber: string; email: EMAIL; formStage: string; submitButton: string },
+    company?: CompanyProfile
   ): Promise<HTML> {
-    // do some regex if there is a match on the whole regex return true else return false
-
-    try {
-      emailSchema.parse(body.email)
-    } catch (err) {
-      return this.html(
-        this.newConnection.companyFormInput({
-          targetBox: {
-            status: 'error',
-            errorMessage: 'Email is not valid',
-          },
-          formStage: 'form',
-        })
-      )
-    }
-
-    let company: CompanyProfile
-
     let formStage: FormStage
     switch (body.submitButton) {
       case 'Back':

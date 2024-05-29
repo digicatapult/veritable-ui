@@ -1,6 +1,6 @@
 import Html from '@kitajs/html'
 import { singleton } from 'tsyringe'
-import { ButtonIcon, Page } from './common'
+import { ButtonIcon, Page } from './common.js'
 
 type ConnectionStatus = 'pending' | 'unverified' | 'verified_them' | 'verified_us' | 'verified_both' | 'disconnected'
 
@@ -44,7 +44,7 @@ export default class ConnectionTemplates {
         <div class="main connections">
           <div class="connections header">
             <span>Connections Summary</span>
-            <ButtonIcon disabled={false} name="Add a New Connection" href="connection/new" />
+            <ButtonIcon disabled={false} name="Add a New Connection" href="connection/new" showIcon={true} />
           </div>
           <div class="connections list">
             <div class="connections list nav">
@@ -69,6 +69,7 @@ export default class ConnectionTemplates {
                       outline={true}
                       disabled={true}
                       name="some action"
+                      showIcon={true}
                     />
                   </td>
                 </tr>

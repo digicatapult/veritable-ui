@@ -1,7 +1,8 @@
 import Html from '@kitajs/html'
 import { singleton } from 'tsyringe'
-import { CompanyProfile } from '../models/companyHouseEntity'
-import { FormButtonIcon, Page } from './common'
+import { CompanyProfile } from '../models/companyHouseEntity.js'
+import { COMPANY_NUMBER, EMAIL, companyNumberRegex } from '../models/strings.js'
+import { FormButton, Page } from './common.js'
 
 export type CompanyProfileText =
   | {
@@ -33,8 +34,8 @@ export default class newConnectionTemplates {
   public companyFormInput = (params: {
     targetBox: CompanyProfileText
     formStage: FormStage
-    email?: string
-    companyNumber?: string
+    email?: EMAIL
+    companyNumber?: COMPANY_NUMBER
   }): JSX.Element => {
     const showForm = params.formStage === 'form' ? true : false
     const showConfirmation = params.formStage === 'confirmation' ? true : false
@@ -43,12 +44,11 @@ export default class newConnectionTemplates {
       <>
         <form
           id="new-connection-form"
-          class="new-connection"
           hx-post="/connection/new/submit"
           hx-swap="outerHTML"
           hx-vals={`{"formStage": "${params.formStage}"}`}
         >
-          <div class="new-connection col">
+          <div>
             <this.stepper formStage={params.formStage} />
             <input
               id="company-number-input"
@@ -60,7 +60,7 @@ export default class newConnectionTemplates {
               hx-trigger="keyup changed delay:200ms, change"
               hx-target="#text-box-target"
               hx-select="#text-box-target"
-              pattern="^(((AC|CE|CS|FC|FE|GE|GS|IC|LP|NC|NF|NI|NL|NO|NP|OC|OE|PC|R0|RC|SA|SC|SE|SF|SG|SI|SL|SO|SR|SZ|ZC|\d{2})\d{6})|((IP|SP|RS)[A-Z\d]{6})|(SL\d{5}[\dA]))$"
+              pattern={companyNumberRegex.source}
               minlength={8}
               maxlength={8}
               oninput="this.reportValidity()"
@@ -69,7 +69,6 @@ export default class newConnectionTemplates {
             ></input>
             <input
               id="email"
-              class="new-connection"
               placeholder="Connection's Email Address"
               name="email"
               value={params.email}
@@ -93,20 +92,15 @@ export default class newConnectionTemplates {
             <a class="button" href="/connection" style={{ display: showConfirmation ? 'none' : 'block' }}>
               {showForm ? 'Cancel' : 'Back To Home'}
             </a>
-            <FormButtonIcon
-              type="submit"
-              name="submitButton"
-              value="Back"
-              display={showConfirmation ? 'block' : 'none'}
-            />
-            <FormButtonIcon
+            <FormButton type="submit" name="submitButton" value="Back" display={showConfirmation ? 'block' : 'none'} />
+            <FormButton
               type="submit"
               name="submitButton"
               value={`${showForm ? 'Continue' : 'Submit'}`}
               display={showSuccess ? 'none' : 'block'}
             />
           </div>
-          <div id="text-box-target" class="new-connection col" style={{ display: showForm ? 'block' : 'none' }}>
+          <div id="text-box-target" style={{ display: showForm ? 'block' : 'none' }}>
             {params.targetBox.status === 'error' ? (
               <this.companyEmptyTextBox errorMessage={params.targetBox.errorMessage} />
             ) : (
