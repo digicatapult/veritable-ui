@@ -1,13 +1,13 @@
 import { describe, it } from 'mocha'
-import { Env } from '../../env'
-import CompanyHouseEntity from '../companyHouseEntity'
+import { Env } from '../../env.js'
+import CompanyHouseEntity from '../companyHouseEntity.js'
 import {
   invalidCompanyNumber,
   noCompanyNumber,
   successResponse,
   validCompanyNumber,
-} from './fixtures/companyHouseFixtures'
-import { withCompanyHouseMock } from './helpers/mockCompanyHouse'
+} from './fixtures/companyHouseFixtures.js'
+import { withCompanyHouseMock } from './helpers/mockCompanyHouse.js'
 
 describe('companyHouseEntity', () => {
   let expect: Chai.ExpectStatic

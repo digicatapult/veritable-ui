@@ -1,14 +1,14 @@
 import { container } from 'tsyringe'
 import { Dispatcher, MockAgent, getGlobalDispatcher, setGlobalDispatcher } from 'undici'
-import { Env } from '../../../env'
+import { Env } from '../../../env.js'
 import {
   invalidCompanyNumber,
   noCompanyNumber,
   successResponse,
   validCompanyNumber,
-} from '../fixtures/companyHouseFixtures'
+} from '../fixtures/companyHouseFixtures.js'
 
-const env = container.resolve(Env)
+const env: any = container.resolve(Env)
 
 export function withCompanyHouseMock() {
   let originalDispatcher: Dispatcher

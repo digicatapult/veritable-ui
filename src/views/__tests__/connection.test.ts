@@ -1,6 +1,6 @@
 import { describe, it } from 'mocha'
 
-import ConnectionTemplates from '../connection'
+import ConnectionTemplates from '../connection.js'
 
 describe('ConnectionTemplates', () => {
   let expect: Chai.ExpectStatic

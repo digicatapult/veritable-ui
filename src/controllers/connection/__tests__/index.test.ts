@@ -1,7 +1,7 @@
 import { describe, it } from 'mocha'
 import sinon from 'sinon'
 
-import { toHTMLString, withMocks } from './helpers'
+import { toHTMLString, withMocks } from './helpers.js'
 
 import { ConnectionController } from '../index.js'
 

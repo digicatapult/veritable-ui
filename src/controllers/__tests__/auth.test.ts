@@ -3,7 +3,7 @@ import type express from 'express'
 import { describe, it } from 'mocha'
 import sinon from 'sinon'
 
-import { mockEnv, mockLogger } from './helpers'
+import { mockEnv, mockLogger } from './helpers.js'
 
 import { ForbiddenError, InternalError } from '../../errors.js'
 import IDPService from '../../models/idpService.js'

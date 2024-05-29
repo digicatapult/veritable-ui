@@ -19,7 +19,7 @@ const mockEnv: Env = {
   },
 } as Env
 
-const mockLogger = pino({ level: 'silent' })
+const mockLogger = pino.default({ level: 'silent' })
 
 const mockTokenResponse = {
   access_token: 'access',
