@@ -3,7 +3,7 @@ import bodyParser from 'body-parser'
 import compression from 'compression'
 import cookieParser from 'cookie-parser'
 import express, { Express } from 'express'
-import RequestLogger from 'pino-http'
+import { pinoHttp as requestLogger } from 'pino-http'
 import { SwaggerUiOptions, serve, setup } from 'swagger-ui-express'
 import { container } from 'tsyringe'
 
@@ -14,7 +14,6 @@ import { ILogger, Logger } from './logger.js'
 import { RegisterRoutes } from './routes.js'
 import loadApiSpec from './swagger.js'
 
-const requestLogger = RequestLogger.default
 const env = container.resolve(Env)
 
 const API_SWAGGER_BG_COLOR = env.get('API_SWAGGER_BG_COLOR')
