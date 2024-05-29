@@ -37,7 +37,8 @@ exports.down = async function (knex) {
   await knex.schema.dropTable('connection_invite')
 
   await knex.schema.alterTable('connection', (def) => {
-    def.dropIndex('company_number', 'idx_connection_company_number')
+    def.dropUnique('company_number', 'unq_connection_company_number')
+    def.dropPrimary('id')
     def.dropColumn('company_number')
   })
 }

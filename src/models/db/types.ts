@@ -17,7 +17,7 @@ const insertConnection = z.object({
   ]),
 })
 
-const insertCOnnectionInvite = z.object({
+const insertConnectionInvite = z.object({
   connection_id: z.string(),
   oob_invite_id: z.string(),
   pin_hash: z.string(),
@@ -34,8 +34,8 @@ const Zod = {
     }),
   },
   connection_invite: {
-    insert: insertCOnnectionInvite,
-    get: insertCOnnectionInvite.extend({
+    insert: insertConnectionInvite,
+    get: insertConnectionInvite.extend({
       id: z.string(),
       created_at: z.date(),
       updated_at: z.date(),
