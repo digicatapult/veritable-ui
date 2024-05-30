@@ -1,6 +1,6 @@
-// Update with your config settings.
+import type { Knex } from 'knex'
 
-const pgConfig = {
+export const pgConfig = {
   client: 'pg',
   timezone: 'UTC',
   connection: {
@@ -19,7 +19,7 @@ const pgConfig = {
   },
 }
 
-module.exports = {
+const config: { [key: string]: Knex.Config } = {
   test: pgConfig,
   development: pgConfig,
   production: {
@@ -33,3 +33,5 @@ module.exports = {
     },
   },
 }
+
+export default config

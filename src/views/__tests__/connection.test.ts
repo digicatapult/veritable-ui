@@ -1,13 +1,9 @@
+import { expect } from 'chai'
 import { describe, it } from 'mocha'
 
-import ConnectionTemplates from '../connection'
+import ConnectionTemplates from '../connection.js'
 
 describe('ConnectionTemplates', () => {
-  let expect: Chai.ExpectStatic
-  before(async () => {
-    expect = (await import('chai')).expect
-  })
-
   describe('listPage', () => {
     it('should render with no connections', async () => {
       const templates = new ConnectionTemplates()

@@ -1,9 +1,9 @@
 import { inject, injectable, singleton } from 'tsyringe'
-import { Env } from '../env'
+import { Env } from '../env.js'
 
 import { z } from 'zod'
 import { ForbiddenError } from '../errors.js'
-import { Logger, type ILogger } from '../logger'
+import { Logger, type ILogger } from '../logger.js'
 
 const tokenResponse = z.object({
   access_token: z.string(),

@@ -1,7 +1,8 @@
 {
   "compilerOptions": {
-    "jsx": "react-jsx",
-    "jsxImportSource": "@kitajs/html",
+    "jsx": "react",
+    "jsxFactory": "Html.createElement",
+    "jsxFragmentFactory": "Html.Fragment",
     "plugins": [{ "name": "@kitajs/ts-html-plugin" }],
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,

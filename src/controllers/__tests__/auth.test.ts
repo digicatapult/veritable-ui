@@ -1,9 +1,10 @@
 import type express from 'express'
 
+import { expect } from 'chai'
 import { describe, it } from 'mocha'
 import sinon from 'sinon'
 
-import { mockEnv, mockLogger } from './helpers'
+import { mockEnv, mockLogger } from './helpers.js'
 
 import { ForbiddenError, InternalError } from '../../errors.js'
 import IDPService from '../../models/idpService.js'
@@ -29,11 +30,6 @@ const mkRequestMock = () => ({
 })
 
 describe('AuthController', () => {
-  let expect: Chai.ExpectStatic
-  before(async () => {
-    expect = (await import('chai')).expect
-  })
-
   afterEach(() => {
     sinon.restore()
   })

@@ -1,13 +1,14 @@
 import { Readable } from 'node:stream'
-
-import pino from 'pino'
+import { pino } from 'pino'
 
 import Database from '../../../models/db/index.js'
-import ConnectionTemplates from '../../../views/connection'
+import { ConnectionRow } from '../../../models/db/types.js'
+import ConnectionTemplates from '../../../views/connection.js'
 
 export const withMocks = () => {
   const templateMock = {
-    listPage: (connections) => `list_${connections.map((c) => `${c.company_name}-${c.status}`).join('_')}_list`,
+    listPage: (connections: ConnectionRow[]) =>
+      `list_${connections.map((c) => `${c.company_name}-${c.status}`).join('_')}_list`,
   } as ConnectionTemplates
   const mockLogger = pino({ level: 'silent' })
   const dbMock = {
