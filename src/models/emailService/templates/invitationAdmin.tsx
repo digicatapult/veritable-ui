@@ -4,9 +4,9 @@ import { Env } from '../../../env.js'
 
 export default {
   name: 'connection_invite_admin' as const,
-  template: async function (env: Env, params: { to: string; pin: string; address: String }): Promise<SendMailOptions> {
+  template: async function (env: Env, params: { pin: string; address: String }): Promise<SendMailOptions> {
     return {
-      to: params.to,
+      to: env.get('EMAIL_ADMIN_ADDRESS'),
       from: env.get('EMAIL_FROM_ADDRESS'),
       subject: 'Action required: process veritable invitation',
       text: `

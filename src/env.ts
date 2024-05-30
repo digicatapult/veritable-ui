@@ -55,6 +55,7 @@ const envConfig = {
   COMPANY_PROFILE_API_KEY: envalid.str(),
   EMAIL_TRANSPORT: envalid.str({ default: 'STREAM', choices: ['STREAM'] }),
   EMAIL_FROM_ADDRESS: envalid.email({ default: 'hello@veritable.com' }),
+  EMAIL_ADMIN_ADDRESS: envalid.email({ default: 'admin@veritable.com' }),
   CLOUDAGENT_ADMIN_ORIGIN: envalid.url({ devDefault: 'http://localhost:3001' }),
   INVITATION_PIN_SECRET: envalid.str({ devDefault: 'secret' }),
 }

@@ -5,7 +5,6 @@ import { Body, Get, Post, Produces, Query, Route, Security, SuccessResponse } fr
 import { inject, injectable, singleton } from 'tsyringe'
 
 import { Env } from '../../env.js'
-import { InvalidInputError } from '../../errors.js'
 import { Logger, type ILogger } from '../../logger.js'
 import CompanyHouseEntity from '../../models/companyHouseEntity.js'
 import Database from '../../models/db/index.js'
@@ -106,20 +105,8 @@ export class NewConnectionController extends HTMLController {
   ): Promise<HTML> {
     const formStage: FormStage = submitToFormStage[body.submitButton]
 
-    try {
-      const company = await this.companyHouseEntity.getCompanyProfileByCompanyNumber(body.companyNumber)
-      return this.html(
-        this.newConnection.companyFormInput({
-          targetBox: {
-            status: 'success',
-            company: company,
-          },
-          formStage: formStage,
-          email: body.email,
-          companyNumber: body.companyNumber,
-        })
-      )
-    } catch (err) {
+    const company = await this.companyHouseEntity.getCompanyProfileByCompanyNumber(body.companyNumber).catch(() => null)
+    if (!company) {
       return this.html(
         this.newConnection.companyFormInput({
           targetBox: {
@@ -130,25 +117,44 @@ export class NewConnectionController extends HTMLController {
         })
       )
     }
-  }
 
-  public async processNewConnectionSubmit(params: { companyNumber: string; contactEmail: string }): Promise<HTML> {
-    const details = await this.companyHouseEntity.getCompanyProfileByCompanyNumber(params.companyNumber)
+    const successHtml = this.html(
+      this.newConnection.companyFormInput({
+        targetBox: {
+          status: 'success',
+          company: company,
+        },
+        formStage: formStage,
+        email: body.email,
+        companyNumber: body.companyNumber,
+      })
+    )
+    if (formStage !== 'success') {
+      return successHtml
+    }
 
-    if (details.registered_office_is_in_dispute) {
-      throw new InvalidInputError(`Address of company number ${params.companyNumber} is in dispute`)
+    if (company.registered_office_is_in_dispute) {
+      return this.html(
+        this.newConnection.companyFormInput({
+          targetBox: {
+            status: 'error',
+            errorMessage: `Cannot validate company ${company.company_name} as address is currently in dispute`,
+          },
+          formStage: 'form',
+        })
+      )
     }
 
     const pin = randomInt(1e6).toString(10).padStart(6, '0')
     const [pinHash, invite] = await Promise.all([
       argon2.hash(pin, { secret: this.env.get('INVITATION_PIN_SECRET') }),
-      await this.cloudagent.createOutOfBandInvite({ companyName: details.company_name }),
+      await this.cloudagent.createOutOfBandInvite({ companyName: company.company_name }),
     ])
 
     await this.db.withTransaction(async (db) => {
       const [record] = await db.upsert('connection', {
-        company_name: details.company_name,
-        company_number: params.companyNumber,
+        company_name: company.company_name,
+        company_number: body.companyNumber,
         status: 'pending',
       })
 
@@ -161,27 +167,26 @@ export class NewConnectionController extends HTMLController {
     })
 
     try {
-      await this.email.sendMail('connection_invite', { to: params.contactEmail, invite: invite.invitationUrl })
+      await this.email.sendMail('connection_invite', { to: body.email, invite: invite.invitationUrl })
       await this.email.sendMail('connection_invite_admin', {
-        to: params.contactEmail,
         address: [
-          details.company_name,
-          details.registered_office_address.address_line_1,
-          details.registered_office_address.address_line_2,
-          details.registered_office_address.care_of,
-          details.registered_office_address.locality,
-          details.registered_office_address.po_box,
-          details.registered_office_address.postal_code,
-          details.registered_office_address.country,
-          details.registered_office_address.premises,
-          details.registered_office_address.region,
+          company.company_name,
+          company.registered_office_address.address_line_1,
+          company.registered_office_address.address_line_2,
+          company.registered_office_address.care_of,
+          company.registered_office_address.locality,
+          company.registered_office_address.po_box,
+          company.registered_office_address.postal_code,
+          company.registered_office_address.country,
+          company.registered_office_address.premises,
+          company.registered_office_address.region,
         ]
           .filter((x) => !!x)
           .join('\r\n'),
         pin,
       })
     } finally {
-      return this.html('')
+      return successHtml
     }
   }
 }
