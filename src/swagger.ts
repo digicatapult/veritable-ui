@@ -1,7 +1,11 @@
-import fs from 'node:fs/promises'
+import fs from 'fs/promises'
+import path from 'path'
+import { fileURLToPath } from 'url'
 
-import path from 'node:path'
 import { Env } from './env.js'
+
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = path.dirname(__filename)
 
 /**
  * Monkey-patch the generated swagger JSON so that when it is valid for the deployed environment
@@ -13,7 +17,7 @@ export default async function loadApiSpec(env: Env): Promise<unknown> {
   const authorizationUrl = `${env.get('IDP_PUBLIC_URL_PREFIX')}${env.get('IDP_AUTH_PATH')}`
   const tokenUrl = `${env.get('IDP_PUBLIC_URL_PREFIX')}${env.get('IDP_TOKEN_PATH')}`
 
-  const swaggerBuffer = await fs.readFile(path.join('src/swagger.json'))
+  const swaggerBuffer = await fs.readFile(path.join(__dirname, './swagger.json'))
   const swaggerJson = JSON.parse(swaggerBuffer.toString('utf8'))
   swaggerJson.info.title += `:${API_SWAGGER_HEADING}`
   swaggerJson.components.securitySchemes.oauth2.flows.authorizationCode.authorizationUrl = authorizationUrl
