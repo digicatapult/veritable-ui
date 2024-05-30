@@ -2,7 +2,7 @@ import Html from '@kitajs/html'
 import { singleton } from 'tsyringe'
 import { CompanyProfile } from '../models/companyHouseEntity.js'
 import { COMPANY_NUMBER, EMAIL, companyNumberRegex } from '../models/strings.js'
-import { FormButton, Page } from './common'
+import { FormButton, Page } from './common.js'
 
 export type CompanyProfileText =
   | {

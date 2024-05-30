@@ -3,7 +3,7 @@ import bodyParser from 'body-parser'
 import compression from 'compression'
 import cookieParser from 'cookie-parser'
 import express, { Express } from 'express'
-import requestLogger from 'pino-http'
+import { pinoHttp as requestLogger } from 'pino-http'
 import { SwaggerUiOptions, serve, setup } from 'swagger-ui-express'
 import { container } from 'tsyringe'
 

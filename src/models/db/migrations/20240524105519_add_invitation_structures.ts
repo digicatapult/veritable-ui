@@ -1,14 +1,12 @@
-/**
- * @param { import("knex").Knex } knex
- * @returns { Promise<void> }
- */
-exports.up = async function (knex) {
+import { Knex } from 'knex'
+
+export async function up(knex: Knex): Promise<void> {
   const now = () => knex.fn.now()
 
   await knex.schema.alterTable('connection', (def) => {
     def.string('company_number').notNullable()
 
-    def.primary('id')
+    def.primary(['id'])
     def.unique('company_number', { indexName: 'unq_connection_company_number' })
   })
 
@@ -29,16 +27,12 @@ exports.up = async function (knex) {
   })
 }
 
-/**
- * @param { import("knex").Knex } knex
- * @returns { Promise<void> }
- */
-exports.down = async function (knex) {
+export async function down(knex: Knex): Promise<void> {
   await knex.schema.dropTable('connection_invite')
 
   await knex.schema.alterTable('connection', (def) => {
-    def.dropUnique('company_number', 'unq_connection_company_number')
-    def.dropPrimary('id')
+    def.dropUnique(['company_number'], 'unq_connection_company_number')
+    def.dropPrimary()
     def.dropColumn('company_number')
   })
 }
