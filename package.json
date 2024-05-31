@@ -63,6 +63,7 @@
     "@types/nodemailer": "^6.4.15",
     "@types/pino-http": "^5.8.4",
     "@types/sinon": "^17.0.3",
+    "@types/supertest": "^6.0.2",
     "@types/swagger-ui-express": "^4.1.6",
     "chai": "^5.1.1",
     "chai-jest-snapshot": "^2.0.0",
