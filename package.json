@@ -1,6 +1,6 @@
 {
   "name": "veritable-ui",
-  "version": "0.3.14",
+  "version": "0.3.15",
   "description": "UI for Veritable",
   "main": "src/index.ts",
   "type": "module",
@@ -12,7 +12,8 @@
   },
   "scripts": {
     "depcheck": "depcheck",
-    "test": "NODE_ENV=test ./node_modules/.bin/mocha --config ./test/mocharc.json ./src/**/*.test.ts",
+    "test:unit": "NODE_ENV=test ./node_modules/.bin/mocha --config ./test/mocharc.json ./src/**/*.test.ts",
+    "test:integration": "NODE_ENV=test ./node_modules/.bin/mocha --config ./test/mocharc.json ./test/**/*.test.ts",
     "check": "npm run tsoa:build && tsc --noEmit",
     "build": "npm run tsoa:build && tsc",
     "tsoa:build": "tsoa spec-and-routes",
@@ -22,7 +23,7 @@
     "db:cmd": "node --import=tsimp/import ./node_modules/.bin/knex",
     "db:migrate": "npm run db:cmd -- migrate:latest --knexfile src/models/db/knexfile.ts",
     "db:rollback": "npm run db:cmd -- migrate:rollback --knexfile src/models/db/knexfile.ts",
-    "db:seed": "npm run db:cmd -- seed:run",
+    "db:seed": "npm run db:cmd -- seed:run --knexfile src/models/db/knexfile.ts",
     "lint": "prettier -c ./src ./test ./seeds",
     "lint:fix": "npm run lint -- -w",
     "xss-scan": "xss-scan"
@@ -33,6 +34,7 @@
     "@kitajs/ts-html-plugin": "^4.0.1",
     "@tsoa/runtime": "^6.2.1",
     "@types/compression": "^1.7.5",
+    "argon2": "^0.40.1",
     "body-parser": "^1.20.2",
     "compression": "^1.7.4",
     "cookie-parser": "^1.4.6",
@@ -61,6 +63,7 @@
     "@types/nodemailer": "^6.4.15",
     "@types/pino-http": "^5.8.4",
     "@types/sinon": "^17.0.3",
+    "@types/supertest": "^6.0.2",
     "@types/swagger-ui-express": "^4.1.6",
     "chai": "^5.1.1",
     "chai-jest-snapshot": "^2.0.0",
@@ -69,6 +72,7 @@
     "prettier": "^3.2.5",
     "prettier-plugin-organize-imports": "^3.2.4",
     "sinon": "^18.0.0",
+    "supertest": "^7.0.0",
     "tsimp": "^2.0.11",
     "undici": "^6.18.1"
   }

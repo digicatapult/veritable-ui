@@ -2,10 +2,9 @@ name: Release
 
 on:
   push:
-    branches: ["main"]
+    branches: ['main']
 
 jobs:
-
   preconditions:
     runs-on: ubuntu-latest
     outputs:
@@ -33,6 +32,7 @@ jobs:
   static-checks:
     name: Run Static Analysis Checks
     strategy:
+      fail-fast: false
       matrix:
         command: [lint, depcheck, xss-scan, check]
     runs-on: ubuntu-latest
@@ -56,6 +56,10 @@ jobs:
 
   tests:
     name: Run tests
+    strategy:
+      fail-fast: false
+      matrix:
+        command: ['test:unit', 'test:integration']
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -72,6 +76,8 @@ jobs:
             ${{ runner.OS }}-
       - name: Install Packages
         run: npm ci
+      - name: Build tsoa
+        run: npm run tsoa:build
       - name: Setup dependencies
         run: docker compose up -d
       - name: Sleep
@@ -83,10 +89,10 @@ jobs:
         env:
           NODE_ENV: test
       - name: Run tests
-        run: npm run test
+        run: npm run ${{ matrix.command }}
 
   check-version:
-    name: "Check version"
+    name: 'Check version'
     runs-on: ubuntu-latest
     outputs:
       is_new_version: ${{ steps.get_version.outputs.IS_NEW_VERSION }}
@@ -103,7 +109,7 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
 
   publish:
-    name: "Publish package"
+    name: 'Publish package'
     needs: [preconditions, static-checks, tests, check-version]
     runs-on: ubuntu-latest
     if: ${{ needs.check-version.outputs.is_new_version == 'true' }}
@@ -120,7 +126,7 @@ jobs:
         id: buildx
         uses: docker/setup-buildx-action@v3
         with:
-          buildkitd-flags: "--debug"
+          buildkitd-flags: '--debug'
       - name: Generate tags
         id: generate-tags
         env:
@@ -184,16 +190,16 @@ jobs:
 
       # Build github release
       - name: Build release version
-        uses: "marvinpinto/action-automatic-releases@latest"
+        uses: 'marvinpinto/action-automatic-releases@latest'
         with:
-          repo_token: "${{ secrets.GITHUB_TOKEN }}"
+          repo_token: '${{ secrets.GITHUB_TOKEN }}'
           automatic_release_tag: ${{ needs.check-version.outputs.version }}
           prerelease: false
           title: Release ${{ needs.check-version.outputs.version }}
       - name: Build release latest
-        uses: "marvinpinto/action-automatic-releases@latest"
+        uses: 'marvinpinto/action-automatic-releases@latest'
         with:
-          repo_token: "${{ secrets.GITHUB_TOKEN }}"
+          repo_token: '${{ secrets.GITHUB_TOKEN }}'
           automatic_release_tag: latest
           prerelease: false
           title: Latest Release ${{ needs.check-version.outputs.version }}

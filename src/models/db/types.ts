@@ -1,10 +1,11 @@
 import { Knex } from 'knex'
 import { z } from 'zod'
 
-export const tablesList = ['connection'] as const
+export const tablesList = ['connection', 'connection_invite'] as const
 
 const insertConnection = z.object({
   company_name: z.string(),
+  company_number: z.string(),
   connection_id: z.string().optional(),
   status: z.union([
     z.literal('pending'),
@@ -16,10 +17,25 @@ const insertConnection = z.object({
   ]),
 })
 
+const insertConnectionInvite = z.object({
+  connection_id: z.string(),
+  oob_invite_id: z.string(),
+  pin_hash: z.string(),
+  expires_at: z.date(),
+})
+
 const Zod = {
   connection: {
     insert: insertConnection,
     get: insertConnection.extend({
+      id: z.string(),
+      created_at: z.date(),
+      updated_at: z.date(),
+    }),
+  },
+  connection_invite: {
+    insert: insertConnectionInvite,
+    get: insertConnectionInvite.extend({
       id: z.string(),
       created_at: z.date(),
       updated_at: z.date(),

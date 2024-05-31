@@ -14,26 +14,21 @@ describe('companyHouseEntity', () => {
   withCompanyHouseMock()
 
   describe('getCompanyProfileByCompanyNumber', () => {
-    it('should give back a json in format of companyProfileSchema', async () => {
+    it('should return company found if valid company', async () => {
       const environment = new Env()
       const companyHouseObject = new CompanyHouseEntity(environment)
       const response = await companyHouseObject.getCompanyProfileByCompanyNumber(validCompanyNumber)
-      expect(response).deep.equal(successResponse)
+      expect(response).deep.equal({ type: 'found', company: successResponse })
     })
-    it('should give back a empty json', async () => {
+
+    it('should return notFound for 404', async () => {
       const environment = new Env()
       const companyHouseObject = new CompanyHouseEntity(environment)
-      let errorMessage: unknown
-      try {
-        await companyHouseObject.getCompanyProfileByCompanyNumber(noCompanyNumber)
-      } catch (err) {
-        errorMessage = err
-      }
-
-      expect(errorMessage).instanceOf(Error)
-      expect((errorMessage as Error).message).equals(`Error calling CompanyHouse API`)
+      const response = await companyHouseObject.getCompanyProfileByCompanyNumber(noCompanyNumber)
+      expect(response).deep.equal({ type: 'notFound' })
     })
-    it('should throw an error saying Error calling CompanyHouse API', async () => {
+
+    it('should propagate other errors', async () => {
       const environment = new Env()
       const companyHouseObject = new CompanyHouseEntity(environment)
       let errorMessage: unknown

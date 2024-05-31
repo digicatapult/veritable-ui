@@ -1,12 +1,8 @@
 import { container } from 'tsyringe'
 import { Dispatcher, MockAgent, getGlobalDispatcher, setGlobalDispatcher } from 'undici'
-import { Env } from '../../../env.js'
-import {
-  invalidCompanyNumber,
-  noCompanyNumber,
-  successResponse,
-  validCompanyNumber,
-} from '../fixtures/companyHouseFixtures.js'
+
+import { Env } from '../../src/env.js'
+import { successResponse, validCompanyNumber } from './fixtures.js'
 
 const env: Env = container.resolve(Env)
 
@@ -25,20 +21,6 @@ export function withCompanyHouseMock() {
         method: 'GET',
       })
       .reply(200, successResponse)
-
-    client
-      .intercept({
-        path: `/company/${noCompanyNumber}`,
-        method: 'GET',
-      })
-      .reply(404, {})
-
-    client
-      .intercept({
-        path: `/company/${invalidCompanyNumber}`,
-        method: 'GET',
-      })
-      .reply(500, {})
   })
   afterEach(function () {
     setGlobalDispatcher(originalDispatcher)
