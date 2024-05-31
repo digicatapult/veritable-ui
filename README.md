@@ -34,6 +34,9 @@ Finally to run:
 npm run dev
 ```
 
+When the project is up, it can be found on `http://localhost:3000/`.
+Api Docs are available on `http://localhost:3000/api-docs` and swagger `http://localhost:3000/swagger/`.
+
 ## Seeds
 
 Seeding data

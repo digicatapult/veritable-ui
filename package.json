@@ -1,6 +1,6 @@
 {
   "name": "veritable-ui",
-  "version": "0.3.14",
+  "version": "0.3.15",
   "description": "UI for Veritable",
   "main": "src/index.ts",
   "type": "module",
@@ -22,7 +22,7 @@
     "db:cmd": "node --import=tsimp/import ./node_modules/.bin/knex",
     "db:migrate": "npm run db:cmd -- migrate:latest --knexfile src/models/db/knexfile.ts",
     "db:rollback": "npm run db:cmd -- migrate:rollback --knexfile src/models/db/knexfile.ts",
-    "db:seed": "npm run db:cmd -- seed:run",
+    "db:seed": "npm run db:cmd -- seed:run --knexfile src/models/db/knexfile.ts",
     "lint": "prettier -c ./src ./test ./seeds",
     "lint:fix": "npm run lint -- -w",
     "xss-scan": "xss-scan"
