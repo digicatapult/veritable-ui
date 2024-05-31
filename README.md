@@ -50,8 +50,14 @@ npm run db:cmd -- seed:make "<name_of_seed_file>"
 
 ## Tests
 
-Tests can be run with
+Unit tests can be run with
 
 ```bash
-npm run test
+npm run test:unit
+```
+
+Integration tests can be run with
+
+```bash
+npm run test:integration
 ```
