@@ -38,14 +38,7 @@ export function withCompanyHouseMock() {
         path: `/company/${invalidCompanyNumber}`,
         method: 'GET',
       })
-      .reply(404, {
-        errors: [
-          {
-            type: 'ch:service',
-            error: 'company-profile-not-found',
-          },
-        ],
-      })
+      .reply(500, {})
   })
   afterEach(function () {
     setGlobalDispatcher(originalDispatcher)

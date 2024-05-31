@@ -17,6 +17,9 @@ export const pgConfig = {
   migrations: {
     tableName: 'migrations',
   },
+  seeds: {
+    directory: '../../../seeds',
+  },
 }
 
 const config: { [key: string]: Knex.Config } = {

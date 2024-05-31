@@ -24,6 +24,8 @@ export async function up(knex: Knex): Promise<void> {
       .foreign('connection_id', 'fk_connection_invite_connection_id_connection_id')
       .references('id')
       .inTable('connection')
+      .onDelete('cascade')
+      .onUpdate('cascade')
   })
 }
 
