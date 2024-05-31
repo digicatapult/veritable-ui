@@ -57,7 +57,7 @@ jobs:
     name: Run tests
     strategy:
       matrix:
-        command: [test:unit, test:integration]
+        command: ['test:unit', 'test:integration']
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
