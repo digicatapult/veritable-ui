@@ -32,6 +32,7 @@ jobs:
   static-checks:
     name: Run Static Analysis Checks
     strategy:
+      fail-fast: false
       matrix:
         command: [lint, depcheck, xss-scan, check]
     runs-on: ubuntu-latest
@@ -56,6 +57,7 @@ jobs:
   tests:
     name: Run tests
     strategy:
+      fail-fast: false
       matrix:
         command: ['test:unit', 'test:integration']
     runs-on: ubuntu-latest
