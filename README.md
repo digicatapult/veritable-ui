@@ -58,3 +58,5 @@ Tests can be run with
 ```bash
 npm run test
 ```
+
+Note: If you have changed what will be rendered in different components, it is likely you will have to update snapshots for tests to pass. Refer to `chai-jest-snapshot` documentation to do that.
