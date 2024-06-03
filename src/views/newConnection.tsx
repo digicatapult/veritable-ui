@@ -26,7 +26,7 @@ export default class newConnectionTemplates {
         <div class="connections header">
           <span>Invite New Connection</span>
         </div>
-        <div class="connections list ">
+        <div class="card-body ">
           <this.companyFormInput targetBox={targetBox} formStage={formStage} />
         </div>
       </Page>
@@ -140,7 +140,7 @@ export default class newConnectionTemplates {
   public companyFilledTextBox = ({ company }: { company: CompanyProfile }): JSX.Element => {
     return (
       <>
-        <span class="header small">Registered Office Address</span>
+        <span class="sub-header-bold">Registered Office Address</span>
 
         <p>{Html.escapeHtml(company.company_name)}</p>
         <p>{Html.escapeHtml(company.registered_office_address.address_line_1)}</p>
@@ -172,7 +172,7 @@ export default class newConnectionTemplates {
           <p>{Html.escapeHtml(company.registered_office_address.region)}</p>
         )}
 
-        <span class="header small">Registered Office Address</span>
+        <span class="sub-header-bold">Registered Office Address</span>
 
         <p>{Html.escapeHtml(company.company_status)}</p>
       </>
@@ -186,30 +186,24 @@ export default class newConnectionTemplates {
   public stepper = (params: { formStage: FormStage }): JSX.Element => {
     if (params.formStage === 'form') {
       return (
-        <>
-          <div class="progress-container">
-            <div class="progress-bar bar-1-3"></div>
-            <div class="progress-text">Step 1 of 3</div>
-          </div>
-        </>
+        <div class="progress-container">
+          <div class="progress-bar bar-1-3"></div>
+          <div class="progress-text">Step 1 of 3</div>
+        </div>
       )
     } else if (params.formStage === 'confirmation') {
       return (
-        <>
-          <div class="progress-container">
-            <div class="progress-bar bar-2-3"></div>
-            <div class="progress-text">Step 2 of 3</div>
-          </div>
-        </>
+        <div class="progress-container">
+          <div class="progress-bar bar-2-3"></div>
+          <div class="progress-text">Step 2 of 3</div>
+        </div>
       )
     } else if (params.formStage === 'success') {
       return (
-        <>
-          <div class="progress-container">
-            <div class="progress-bar bar-3-3"></div>
-            <div class="progress-text">Step 3 of 3</div>
-          </div>
-        </>
+        <div class="progress-container">
+          <div class="progress-bar bar-3-3"></div>
+          <div class="progress-text">Step 3 of 3</div>
+        </div>
       )
     } else {
       return <div>Stage Undefined</div>
