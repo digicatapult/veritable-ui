@@ -223,7 +223,7 @@ a.connections-table.icon {
 .card-body {
   background-color: #fff;
   overflow-x: auto;
-
+  max-width: 70%;
   border-radius: 12px;
   padding: 1rem;
   margin: 1rem 2rem 0rem 1rem;
@@ -256,6 +256,17 @@ a.connections-table.icon {
   .side-bar.logo-container {
     margin: 0;
   }
+  .flex-form-content {
+    flex-direction: column;
+  }
+  .card-body {
+    max-width: 100%;
+    margin: 1rem;
+  }
+  .centered {
+    align-items: start;
+    justify-content: start;
+  }
 }
 
 .spinner {
@@ -271,7 +282,9 @@ a.connections-table.icon {
   font-size: 1rem;
 }
 
-.new.connection {
+.new-connection-input-field {
+  min-width: 200px;
+  max-width: 230px;
   padding: 10px;
   border-radius: 7px;
   margin: 10px;
@@ -281,9 +294,30 @@ a.connections-table.icon {
   justify-content: space-evenly;
   align-items: center;
 }
-.align-vertically {
+.align-company-information {
+  display: flex;
+  justify-content: space-evenly;
+  align-items: center;
+  padding: 1rem;
+  border: 2px solid green;
+  border-radius: 7px;
+}
+.align-buttons-left {
+  display: flex;
+  min-width: 200px;
+  max-width: 40%;
+  align-items: left;
+  padding-left: 10px;
+}
+.align-buttons-left button {
+  margin-left: 10px;
+}
+.direction-column {
   display: flex;
   flex-direction: column;
+}
+.flex-form-content {
+  display: flex;
   justify-content: left;
   align-items: left;
 }
@@ -292,11 +326,6 @@ a.connections-table.icon {
 
   border-radius: 12px;
   padding: 10px 50px 10px 20px;
-}
-.small.text p {
-  padding-bottom: 10px;
-  font-size: 0.9rem;
-  margin: 0px;
 }
 .centered {
   display: flex;

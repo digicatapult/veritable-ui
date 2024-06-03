@@ -45,42 +45,37 @@ export default class newConnectionTemplates {
     return (
       <>
         <form id="new-connection-form" hx-post="/connection/new/submit" hx-swap="outerHTML">
-          <this.stepper formStage={params.formStage} />
-          <div class="align-horizontally">
-            <div>
-              <div class="align-vertically ">
-                <input
-                  id="company-number-input"
-                  name="companyNumber"
-                  class="new connection "
-                  placeholder="Company House Number"
-                  required
-                  hx-get="/connection/new/verify-company"
-                  hx-trigger="keyup changed delay:200ms, change"
-                  hx-target="#text-box-target"
-                  hx-select="#text-box-target"
-                  pattern={companyNumberRegex.source}
-                  minlength={8}
-                  maxlength={8}
-                  oninput="this.reportValidity()"
-                  value={params.companyNumber}
-                  type={`${showForm ? 'text' : 'hidden'}`}
-                ></input>
-                <input
-                  required
-                  id="email"
-                  class="new connection"
-                  placeholder="Connection's Email Address"
-                  name="email"
-                  value={params.email}
-                  type={`${showForm ? 'email' : 'hidden'}`}
-                ></input>
-              </div>
-              <div
-                id="confirmation-page"
-                class="small text centered"
-                style={{ display: showConfirmation ? 'block' : 'none' }}
-              >
+          <div class="flex-form-content">
+            <div class="direction-column">
+              <this.stepper formStage={params.formStage} />
+              <input
+                id="company-number-input"
+                name="companyNumber"
+                class="new-connection-input-field"
+                placeholder="Company House Number"
+                required
+                hx-get="/connection/new/verify-company"
+                hx-trigger="keyup changed delay:200ms, change"
+                hx-target="#text-box-target"
+                hx-select="#text-box-target"
+                pattern={companyNumberRegex.source}
+                minlength={8}
+                maxlength={8}
+                oninput="this.reportValidity()"
+                value={params.companyNumber}
+                type={`${showForm ? 'text' : 'hidden'}`}
+              ></input>
+              <input
+                required
+                id="email"
+                class="new-connection-input-field"
+                placeholder="Connection's Email Address"
+                name="email"
+                value={params.email}
+                type={`${showForm ? 'email' : 'hidden'}`}
+              ></input>
+
+              <div id="confirmation-page" class="centered" style={{ display: showConfirmation ? 'block' : 'none' }}>
                 <p>Please confirm the details of the connection before sending</p>
                 <p>
                   {Html.escapeHtml(
@@ -90,38 +85,19 @@ export default class newConnectionTemplates {
                 <p>{Html.escapeHtml(`Email Address: ${params.targetBox.status === 'success' && params.email}`)}</p>
                 <p>After clicking submit, a connection invitation will be sent to their email and postal address.</p>
               </div>
-              <div id="success-page" class="small text centered" style={{ display: showSuccess ? 'block' : 'none' }}>
+              <div id="success-page" class="centered" style={{ display: showSuccess ? 'block' : 'none' }}>
                 <p>
                   Your connection invitation has been sent. Please wait for their verification. As the post may take 2-3
                   days to arrive, please wait for their verification and keep updated by viewing the verification
                   status.
                 </p>
               </div>
-              <div class="align-horizontally ">
-                <div style={{ display: showConfirmation ? 'none' : 'block' }}>
-                  <ButtonIcon name={showForm ? 'Cancel' : 'Back To Home'} href="/connection" />
-                </div>
-
-                <FormButton
-                  type="submit"
-                  name="submitButton"
-                  value="Back"
-                  display={showConfirmation ? 'block' : 'none'}
-                />
-                <FormButton
-                  type="submit"
-                  name="submitButton"
-                  value={`${showForm ? 'Continue' : 'Submit'}`}
-                  display={showSuccess ? 'none' : 'block'}
-                />
-              </div>
             </div>
-
             <div id="text-box-target" style={{ display: showForm ? 'block' : 'none' }}>
               {params.targetBox.status === 'error' ? (
                 <this.companyEmptyTextBox errorMessage={params.targetBox.errorMessage} />
               ) : (
-                <div class="small text align-horizontally">
+                <div class="align-company-information">
                   <div>
                     <this.companyFilledTextBox company={params.targetBox.company} />
                   </div>
@@ -131,6 +107,19 @@ export default class newConnectionTemplates {
                 </div>
               )}
             </div>
+          </div>
+          <div class={showForm ? 'align-buttons-left' : 'align-horizontally'}>
+            <div style={{ display: showConfirmation ? 'none' : 'block' }}>
+              <ButtonIcon name={showForm ? 'Cancel' : 'Back To Home'} href="/connection" />
+            </div>
+
+            <FormButton type="submit" name="submitButton" value="Back" display={showConfirmation ? 'block' : 'none'} />
+            <FormButton
+              type="submit"
+              name="submitButton"
+              value={`${showForm ? 'Continue' : 'Submit'}`}
+              display={showSuccess ? 'none' : 'block'}
+            />
           </div>
         </form>
       </>
