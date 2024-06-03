@@ -180,7 +180,7 @@ export default class newConnectionTemplates {
   }
 
   public companyEmptyTextBox = ({ errorMessage }: { errorMessage: string }): JSX.Element => {
-    return <>{Html.escapeHtml(errorMessage)}</>
+    return <p>{Html.escapeHtml(errorMessage)}</p>
   }
 
   public stepper = (params: { formStage: FormStage }): JSX.Element => {

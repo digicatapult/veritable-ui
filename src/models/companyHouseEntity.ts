@@ -37,6 +37,15 @@ const companyProfileSchema = z.object({
 })
 export type CompanyProfile = z.infer<typeof companyProfileSchema>
 
+export type CompanyProfileResult =
+  | {
+      type: 'found'
+      company: CompanyProfile
+    }
+  | {
+      type: 'notFound'
+    }
+
 @singleton()
 @injectable()
 export default class CompanyHouseEntity {
@@ -51,19 +60,26 @@ export default class CompanyHouseEntity {
         Authorization: this.env.get('COMPANY_PROFILE_API_KEY'),
       }),
     })
-    if (!response.ok) {
-      throw new InternalError(`Error calling CompanyHouse API`)
+
+    if (response.ok) {
+      return response.json()
     }
 
-    return response.json()
+    if (response.status === 404) {
+      return null
+    }
+
+    throw new InternalError(`Error calling CompanyHouse API`)
   }
 
   /*
     This function will return a companyProfile object
   */
-  async getCompanyProfileByCompanyNumber(companyNumber: string): Promise<CompanyProfile> {
+  async getCompanyProfileByCompanyNumber(companyNumber: string): Promise<CompanyProfileResult> {
     const endpoint = `${this.env.get('COMPANY_HOUSE_API_URL')}/company/${encodeURIComponent(companyNumber)}`
     const companyProfile = await this.makeCompanyProfileRequest(endpoint)
-    return companyProfileSchema.parse(companyProfile)
+    return companyProfile === null
+      ? { type: 'notFound' }
+      : { type: 'found', company: companyProfileSchema.parse(companyProfile) }
   }
 }

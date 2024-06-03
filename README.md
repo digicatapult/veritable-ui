@@ -53,10 +53,16 @@ npm run db:cmd -- seed:make "<name_of_seed_file>"
 
 ## Tests
 
-Tests can be run with
+Unit tests can be run with
 
 ```bash
-npm run test
+npm run test:unit
+```
+
+Integration tests can be run with
+
+```bash
+npm run test:integration
 ```
 
 Note: If you have changed what will be rendered in different components, it is likely you will have to update snapshots for tests to pass. Refer to `chai-jest-snapshot` documentation to do that.

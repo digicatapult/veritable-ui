@@ -72,6 +72,13 @@ export default async (): Promise<Express> => {
     res: express.Response,
     next: express.NextFunction
   ): express.Response | void {
+    if (err instanceof Error) {
+      logger.debug('API error: %s', err.message)
+      logger.trace('API error: stack %j', err.stack)
+    } else {
+      logger.debug('API error: %s', err?.toString())
+    }
+
     if (err instanceof ForbiddenError || err instanceof OauthError) {
       if (req.headers['hx-request']) {
         return res.status(401).json({
