@@ -49,6 +49,16 @@ export default class ConnectionTemplates {
           <div class="connections list">
             <div class="connections list nav">
               <span>Connections</span>
+              <input
+                class="form-control"
+                type="search"
+                name="search"
+                placeholder="Search"
+                hx-post="/connection/search"
+                hx-trigger="input changed delay:500ms, search"
+                hx-target="#search-results"
+                hx-indicator=".htmx-indicator"
+              ></input>
             </div>
             <table class="connections list">
               <tr>
@@ -59,25 +69,49 @@ export default class ConnectionTemplates {
                   </th>
                 ))}
               </tr>
-              {connections.map((connection) => (
-                <tr>
-                  <td>{Html.escapeHtml(connection.company_name)}</td>
-                  <td>{this.statusToClass(connection.status)}</td>
-                  <td>
-                    <ButtonIcon
-                      icon='url("/public/images/dot-icon.svg")'
-                      outline={true}
-                      disabled={true}
-                      name="some action"
-                      showIcon={true}
-                    />
-                  </td>
-                </tr>
-              ))}
+              <tbody id="search-results">
+                {connections.map((connection) => (
+                  <tr>
+                    <td>{Html.escapeHtml(connection.company_name)}</td>
+                    <td>{this.statusToClass(connection.status)}</td>
+                    <td>
+                      <ButtonIcon
+                        icon='url("/public/images/dot-icon.svg")'
+                        outline={true}
+                        disabled={true}
+                        name="some action"
+                        showIcon={true}
+                      />
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
             </table>
           </div>
         </div>
       </Page>
+    )
+  }
+
+  public connectionTableBody = (connections: connection[]) => {
+    return (
+      <>
+        {connections.map((connection) => (
+          <tr>
+            <td>{Html.escapeHtml(connection.company_name)}</td>
+            <td>{this.statusToClass(connection.status)}</td>
+            <td>
+              <ButtonIcon
+                icon='url("/public/images/dot-icon.svg")'
+                outline={true}
+                disabled={true}
+                name="some action"
+                showIcon={true}
+              />
+            </td>
+          </tr>
+        ))}
+      </>
     )
   }
 }

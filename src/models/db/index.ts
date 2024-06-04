@@ -84,6 +84,23 @@ export default class Database {
     return z.array(Zod[model].get).parse(result)
   }
 
+  search = async <M extends TABLE>(
+    model: M,
+    term: string,
+    where?: Where<M>,
+    order?: Order<M>,
+    limit?: number
+  ): Promise<Models[typeof model]['get'][]> => {
+    let query = this.db[model]().whereRaw('LOWER(company_name) LIKE ?', [`%${term}%`])
+    query = reduceWhere(query, where)
+    if (order && order.length !== 0) {
+      query = order.reduce((acc, [key, direction]) => acc.orderBy(key, direction), query)
+    }
+    if (limit !== undefined) query = query.limit(limit)
+    const result = await query
+    return z.array(Zod[model].get).parse(result)
+  }
+
   withTransaction = (update: (db: Database) => Promise<void>) => {
     return this.client.transaction(async (trx) => {
       const decorated = new Database(trx)
