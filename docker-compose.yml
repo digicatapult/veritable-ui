@@ -11,7 +11,7 @@ services:
       - POSTGRES_USER=postgres
       - POSTGRES_DB=veritable-ui
   keycloak:
-    image: quay.io/keycloak/keycloak:24.0.4
+    image: quay.io/keycloak/keycloak:24.0.5
     container_name: keycloak
     environment:
       - KEYCLOAK_ADMIN=admin
