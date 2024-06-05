@@ -172,7 +172,7 @@ a.connections-table.icon {
   flex-direction: column;
 }
 
-.connections.list.nav,
+.connections-list-nav,
 .connections.header {
   display: flex;
   flex-direction: row;
@@ -252,7 +252,7 @@ a.connections-table.icon {
     justify-content: space-between;
     min-height: auto;
   }
-  .connections.list.nav {
+  .connections-list-nav {
     padding: 5px;
   }
 

@@ -47,7 +47,7 @@ export default class ConnectionTemplates {
             <ButtonIcon disabled={false} name="Add a New Connection" href="connection/new" showIcon={true} />
           </div>
           <div class="connections list">
-            <div class="connections list nav">
+            <div class="connections-list-nav">
               <span>Connections</span>
               <input
                 class="search-window"
@@ -56,7 +56,7 @@ export default class ConnectionTemplates {
                 value={Html.escapeHtml(search)}
                 placeholder="Search"
                 hx-get="/connection"
-                hx-trigger="keyup[this.value.length > 2] delay:500ms, search"
+                hx-trigger="input changed delay:500ms, search"
                 hx-target="#search-results"
                 hx-select="#search-results"
                 hx-swap="outerHTML"

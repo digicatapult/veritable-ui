@@ -14,40 +14,42 @@
 //   { status: 'disconnected', company_number: company_number + '7', company_name },
 // ]
 
+const variantsize = 10000
+
 export async function prepareVariants() {
   const variants10000 = []
-  for (let i = 0; i < 10000; i++) {
-    if (i < 1000) {
+  for (let i = 0; i < variantsize; i++) {
+    if (i % 7 == 0) {
       variants10000.push({
         status: 'pending',
         company_number: i.toString(),
         company_name: `Seeded company_name Name ${i.toString()}`,
       })
-    } else if (i < 2000) {
+    } else if (i % 7 == 1) {
       variants10000.push({
         status: 'unverified',
         company_number: i.toString(),
         company_name: `Unverified company_name Name ${i.toString()}`,
       })
-    } else if (i < 3000) {
+    } else if (i % 7 == 2) {
       variants10000.push({
         status: 'verified_them',
         company_number: i.toString(),
         company_name: `VER company_name Name ${i.toString()}`,
       })
-    } else if (i < 4000) {
+    } else if (i % 7 == 3) {
       variants10000.push({
         status: 'verified_us',
         company_number: i.toString(),
         company_name: `VER123 company_name Name ${i.toString()}`,
       })
-    } else if (i < 5000) {
+    } else if (i % 7 == 4) {
       variants10000.push({
         status: 'verified_both',
         company_number: i.toString(),
         company_name: `VER1553 company_name Name ${i.toString()}`,
       })
-    } else if (i < 6000) {
+    } else if (i % 7 == 5) {
       variants10000.push({
         status: 'disconnected',
         company_number: i.toString(),
