@@ -60,7 +60,7 @@ export type Models = {
 type WhereComparison<M extends TABLE> = {
   [key in keyof Models[M]['get']]: [
     Extract<key, string>,
-    '=' | '>' | '>=' | '<' | '<=' | '<>',
+    '=' | '>' | '>=' | '<' | '<=' | '<>' | 'LIKE' | 'ILIKE',
     Extract<Models[M]['get'][key], Knex.Value>,
   ]
 }

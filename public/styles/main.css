@@ -172,7 +172,7 @@ a.connections-table.icon {
   flex-direction: column;
 }
 
-.connections.list.nav,
+.connections-list-nav,
 .connections.header {
   display: flex;
   flex-direction: row;
@@ -252,6 +252,9 @@ a.connections-table.icon {
     justify-content: space-between;
     min-height: auto;
   }
+  .connections-list-nav {
+    padding: 5px;
+  }
 
   .side-bar.logo-container {
     margin: 0;
@@ -266,6 +269,9 @@ a.connections-table.icon {
   .centered {
     align-items: start;
     justify-content: start;
+  }
+  .search-window {
+    margin-left: 10px;
   }
 }
 
@@ -375,4 +381,17 @@ a.connections-table.icon {
 .progress-text {
   font-size: 12px;
   color: var(--text-color-secondary);
+}
+
+.search-window {
+  border-color: var(--text-color-sub);
+  border-radius: 5px;
+  border-width: 1px;
+  padding: 10px;
+  background-image: url('../images/search.svg');
+  background-repeat: no-repeat;
+  background-position: 10px;
+  padding-left: 40px;
+  font-size: 12px;
+  min-width: 100px;
 }

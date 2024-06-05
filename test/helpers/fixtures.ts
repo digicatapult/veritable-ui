@@ -1,5 +1,5 @@
-import { CompanyProfile } from '../../src/models/companyHouseEntity'
-import { CompanyProfileText } from '../../src/views/newConnection'
+import { CompanyProfile } from '../../src/models/companyHouseEntity.js'
+import { CompanyProfileText } from '../../src/views/newConnection.js'
 
 export const validCompanyNumber = '07964699'
 export const invalidCompanyNumber = '079646992'

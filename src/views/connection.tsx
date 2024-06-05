@@ -38,7 +38,7 @@ export default class ConnectionTemplates {
     }
   }
 
-  public listPage = (connections: connection[]) => {
+  public listPage = (connections: connection[], search: string = '') => {
     return (
       <Page title="Veritable - Connections" heading="Connections" url="/connection">
         <div class="main connections">
@@ -47,8 +47,20 @@ export default class ConnectionTemplates {
             <ButtonIcon disabled={false} name="Add a New Connection" href="connection/new" showIcon={true} />
           </div>
           <div class="connections list">
-            <div class="connections list nav">
+            <div class="connections-list-nav">
               <span>Connections</span>
+              <input
+                class="search-window"
+                type="search"
+                name="search"
+                value={Html.escapeHtml(search)}
+                placeholder="Search"
+                hx-get="/connection"
+                hx-trigger="input changed delay:500ms, search"
+                hx-target="#search-results"
+                hx-select="#search-results"
+                hx-swap="outerHTML"
+              ></input>
             </div>
             <table class="connections list">
               <tr>
@@ -59,21 +71,29 @@ export default class ConnectionTemplates {
                   </th>
                 ))}
               </tr>
-              {connections.map((connection) => (
-                <tr>
-                  <td>{Html.escapeHtml(connection.company_name)}</td>
-                  <td>{this.statusToClass(connection.status)}</td>
-                  <td>
-                    <ButtonIcon
-                      icon='url("/public/images/dot-icon.svg")'
-                      outline={true}
-                      disabled={true}
-                      name="some action"
-                      showIcon={true}
-                    />
-                  </td>
-                </tr>
-              ))}
+              <tbody id="search-results">
+                {connections.length == 0 ? (
+                  <tr>
+                    <td>No Connections for that search query. Try again or add a new connection</td>
+                  </tr>
+                ) : (
+                  connections.map((connection) => (
+                    <tr>
+                      <td>{Html.escapeHtml(connection.company_name)}</td>
+                      <td>{this.statusToClass(connection.status)}</td>
+                      <td>
+                        <ButtonIcon
+                          icon='url("/public/images/dot-icon.svg")'
+                          outline={true}
+                          disabled={true}
+                          name="some action"
+                          showIcon={true}
+                        />
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
             </table>
           </div>
         </div>
