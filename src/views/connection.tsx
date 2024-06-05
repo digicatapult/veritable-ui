@@ -72,21 +72,27 @@ export default class ConnectionTemplates {
                 ))}
               </tr>
               <tbody id="search-results">
-                {connections.map((connection) => (
+                {connections.length == 0 ? (
                   <tr>
-                    <td>{Html.escapeHtml(connection.company_name)}</td>
-                    <td>{this.statusToClass(connection.status)}</td>
-                    <td>
-                      <ButtonIcon
-                        icon='url("/public/images/dot-icon.svg")'
-                        outline={true}
-                        disabled={true}
-                        name="some action"
-                        showIcon={true}
-                      />
-                    </td>
+                    <td>No Connections for that search query. Try again or add a new connection</td>
                   </tr>
-                ))}
+                ) : (
+                  connections.map((connection) => (
+                    <tr>
+                      <td>{Html.escapeHtml(connection.company_name)}</td>
+                      <td>{this.statusToClass(connection.status)}</td>
+                      <td>
+                        <ButtonIcon
+                          icon='url("/public/images/dot-icon.svg")'
+                          outline={true}
+                          disabled={true}
+                          name="some action"
+                          showIcon={true}
+                        />
+                      </td>
+                    </tr>
+                  ))
+                )}
               </tbody>
             </table>
           </div>

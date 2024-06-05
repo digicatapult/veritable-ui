@@ -30,7 +30,7 @@ export class ConnectionController extends HTMLController {
     this.logger.debug('connections page requested')
     const query = search ? [['company_name', 'ILIKE', `%${search}%`]] : {}
     const connections = await this.db.get('connection', query, [['updated_at', 'desc']])
-
+    console.log(connections)
     this.setHeader('HX-Replace-Url', search ? `/connection?search=${encodeURIComponent(search)}` : `/connection`)
     return this.html(this.connectionTemplates.listPage(connections, search))
   }
