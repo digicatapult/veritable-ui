@@ -6,8 +6,6 @@ import Database from '../../models/db/index.js'
 import ConnectionTemplates from '../../views/connection.js'
 import { HTML, HTMLController } from '../HTMLController.js'
 
-type ConnectionStatus = 'pending' | 'unverified' | 'verified_them' | 'verified_us' | 'verified_both' | 'disconnected'
-
 @singleton()
 @injectable()
 @Security('oauth2')
