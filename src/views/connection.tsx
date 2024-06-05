@@ -38,7 +38,7 @@ export default class ConnectionTemplates {
     }
   }
 
-  public listPage = (connections: connection[]) => {
+  public listPage = (connections: connection[], search: string = '') => {
     return (
       <Page title="Veritable - Connections" heading="Connections" url="/connection">
         <div class="main connections">
@@ -50,14 +50,16 @@ export default class ConnectionTemplates {
             <div class="connections list nav">
               <span>Connections</span>
               <input
-                class="form-control"
+                class="search-window"
                 type="search"
                 name="search"
+                value={Html.escapeHtml(search)}
                 placeholder="Search"
-                hx-post="/connection/search"
-                hx-trigger="input changed delay:500ms, search"
+                hx-get="/connection"
+                hx-trigger="keyup[this.value.length > 2] delay:500ms, search"
                 hx-target="#search-results"
-                hx-indicator=".htmx-indicator"
+                hx-select="#search-results"
+                hx-swap="outerHTML"
               ></input>
             </div>
             <table class="connections list">
@@ -90,28 +92,6 @@ export default class ConnectionTemplates {
           </div>
         </div>
       </Page>
-    )
-  }
-
-  public connectionTableBody = (connections: connection[]) => {
-    return (
-      <>
-        {connections.map((connection) => (
-          <tr>
-            <td>{Html.escapeHtml(connection.company_name)}</td>
-            <td>{this.statusToClass(connection.status)}</td>
-            <td>
-              <ButtonIcon
-                icon='url("/public/images/dot-icon.svg")'
-                outline={true}
-                disabled={true}
-                name="some action"
-                showIcon={true}
-              />
-            </td>
-          </tr>
-        ))}
-      </>
     )
   }
 }

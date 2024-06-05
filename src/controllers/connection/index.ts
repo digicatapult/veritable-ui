@@ -1,4 +1,4 @@
-import { Body, Get, Post, Produces, Route, Security, SuccessResponse } from 'tsoa'
+import { Get, Produces, Query, Route, Security, SuccessResponse } from 'tsoa'
 import { inject, injectable, singleton } from 'tsyringe'
 
 import { Logger, type ILogger } from '../../logger.js'
@@ -28,22 +28,12 @@ export class ConnectionController extends HTMLController {
    */
   @SuccessResponse(200)
   @Get('/')
-  public async listConnections(): Promise<HTML> {
+  public async listConnections(@Query() search?: string): Promise<HTML> {
     this.logger.debug('connections page requested')
-    const connections = await this.db.get('connection', {}, [['updated_at', 'desc']])
-    return this.html(this.connectionTemplates.listPage(connections))
-  }
+    const query = search ? [['company_name', 'ILIKE', `%${search}%`]] : {}
+    const connections = await this.db.get('connection', query, [['updated_at', 'desc']])
 
-  /**
-   * Returns searched connections
-   */
-  @SuccessResponse(200)
-  @Post('/search')
-  public async searchConnections(@Body() body: { search: string }): Promise<HTML> {
-    const search = body['search']
-    this.logger.debug('searched connections page requested')
-    const connections = await this.db.search('connection', search.toLowerCase(), {}, [['updated_at', 'desc']])
-
-    return this.html(this.connectionTemplates.connectionTableBody(connections))
+    this.setHeader('HX-Replace-Url', search ? `/connection?search=${encodeURIComponent(search)}` : `/connection`)
+    return this.html(this.connectionTemplates.listPage(connections, search))
   }
 }
