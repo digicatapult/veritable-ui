@@ -1,7 +1,6 @@
 import { expect } from 'chai'
 import express from 'express'
 import { describe, it } from 'mocha'
-import sinon from 'sinon'
 import { container } from 'tsyringe'
 
 import Database from '../../src/models/db/index.js'
@@ -18,7 +17,6 @@ describe('NewConnectionController', () => {
 
   afterEach(async () => {
     await cleanup()
-    sinon.restore()
   })
   withCompanyHouseMock()
 

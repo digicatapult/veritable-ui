@@ -80,7 +80,7 @@ export const withNewConnectionMocks = () => {
     sendMail: () => {},
   } as unknown as EmailService
   const mockNewInvite = {
-    newInviteFormPage: (feedback: FormFeedback) => templateFake('formPage', feedback.type),
+    newInviteFormPage: (feedback: FormFeedback) => templateFake('newInvitePage', feedback.type),
     newInviteForm: ({ feedback, formStage, email, companyNumber }: any) =>
       templateFake(
         'companyFormInput',
@@ -92,7 +92,9 @@ export const withNewConnectionMocks = () => {
         companyNumber
       ),
   } as unknown as NewInviteTemplates
-  const mockFromInvite = {} as unknown as FromInviteTemplates
+  const mockFromInvite = {
+    fromInviteFormPage: (feedback: FormFeedback) => templateFake('fromInvitePage', feedback.type),
+  } as unknown as FromInviteTemplates
 
   const mockEnv = {
     get: (name: string) => {
@@ -108,7 +110,6 @@ export const withNewConnectionMocks = () => {
   } as unknown as Env
 
   return {
-    mockLogger,
     mockTransactionDb,
     mockDb,
     mockCompanyHouseEntity,
@@ -117,6 +118,17 @@ export const withNewConnectionMocks = () => {
     mockNewInvite,
     mockFromInvite,
     mockEnv,
+    mockLogger,
+    args: [
+      mockDb,
+      mockCompanyHouseEntity,
+      mockCloudagent,
+      mockEmail,
+      mockNewInvite,
+      mockFromInvite,
+      mockEnv,
+      mockLogger,
+    ] as const,
   }
 }
 

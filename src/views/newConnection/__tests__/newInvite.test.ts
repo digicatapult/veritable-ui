@@ -2,13 +2,13 @@ import { expect } from 'chai'
 import { describe, it } from 'mocha'
 
 import { NewInviteTemplates } from '../newInvite.js'
-import { successResponse, testErrorTargetBox, testSuccessTargetBox } from './fixtures.js'
+import { successResponse, testErrorTargetBox, testMessageTargetBox, testSuccessTargetBox } from './fixtures.js'
 
 describe('NewInviteTemplates', () => {
   describe('show form', () => {
     it('should render form with a error message and invalid response', async () => {
       const templates = new NewInviteTemplates()
-      const rendered = await templates.newInviteForm({ feedback: testErrorTargetBox, formStage: 'form' })
+      const rendered = await templates.newInviteForm({ feedback: testMessageTargetBox, formStage: 'form' })
       expect(rendered).to.matchSnapshot()
     })
 
@@ -36,6 +36,12 @@ describe('NewInviteTemplates', () => {
     })
 
     it('should a web page with the a form in an empty state', async () => {
+      const templates = new NewInviteTemplates()
+      const rendered = await templates.newInviteFormPage(testMessageTargetBox)
+      expect(rendered).to.matchSnapshot()
+    })
+
+    it('should a web page with the a form in an error state', async () => {
       const templates = new NewInviteTemplates()
       const rendered = await templates.newInviteFormPage(testErrorTargetBox)
       expect(rendered).to.matchSnapshot()

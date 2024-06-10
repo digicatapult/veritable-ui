@@ -14,8 +14,13 @@ export const successResponse: CompanyProfile = {
 }
 
 export const testErrorTargetBox: FormFeedback = {
+  type: 'error',
+  error: 'This is a test error message',
+}
+
+export const testMessageTargetBox: FormFeedback = {
   type: 'message',
-  message: 'This is a test error message',
+  message: 'This is a message',
 }
 
 export const testSuccessTargetBox: FormFeedback = {
