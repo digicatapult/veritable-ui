@@ -10,10 +10,6 @@ import { Logger, type ILogger } from '../logger.js'
 import IDPService from '../models/idpService.js'
 import { HTMLController } from './HTMLController.js'
 
-function base64URLEncode(buf: Buffer) {
-  return buf.toString('base64').replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '')
-}
-
 const nonceCookieOpts: express.CookieOptions = {
   sameSite: true,
   httpOnly: true,
@@ -61,7 +57,7 @@ export class AuthController extends HTMLController {
     }
 
     // make random state
-    const nonce = base64URLEncode(randomBytes(32))
+    const nonce = randomBytes(32).toString('base64url')
     res.cookie('VERITABLE_NONCE', nonce, nonceCookieOpts)
 
     // setup for final redirect

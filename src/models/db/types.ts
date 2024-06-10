@@ -15,6 +15,7 @@ const insertConnection = z.object({
     z.literal('verified_both'),
     z.literal('disconnected'),
   ]),
+  agent_connection_id: z.union([z.string(), z.null()]),
 })
 
 const insertConnectionInvite = z.object({

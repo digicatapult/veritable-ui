@@ -6,6 +6,7 @@ import { toHTMLString, withNewConnectionMocks } from './helpers.js'
 
 import { NewConnectionController } from '../newConnection.js'
 import {
+  invalidCompanyNumber,
   notFoundCompanyNumber,
   validCompanyNumber,
   validCompanyNumberInDispute,
@@ -20,32 +21,75 @@ describe('NewConnectionController', () => {
 
   describe('newConnectionForm', () => {
     it('should return rendered form template', async () => {
-      let { mockLogger, mockDb, mockCompanyHouseEntity, mockCloudagent, mockEmail, mockNewConnection, mockEnv } =
-        withNewConnectionMocks()
+      let {
+        mockLogger,
+        mockDb,
+        mockCompanyHouseEntity,
+        mockCloudagent,
+        mockEmail,
+        mockNewInvite,
+        mockFromInvite,
+        mockEnv,
+      } = withNewConnectionMocks()
       const controller = new NewConnectionController(
         mockDb,
         mockCompanyHouseEntity,
         mockCloudagent,
         mockEmail,
-        mockNewConnection,
+        mockNewInvite,
+        mockFromInvite,
         mockEnv,
         mockLogger
       )
       const result = await controller.newConnectionForm().then(toHTMLString)
-      expect(result).to.equal('formPage_error-form_formPage')
+      expect(result).to.equal('formPage_message_formPage')
     })
   })
 
   describe('verifyCompanyForm', () => {
-    it('should return rendered error when company not found', async () => {
-      let { mockLogger, mockDb, mockCompanyHouseEntity, mockCloudagent, mockEmail, mockNewConnection, mockEnv } =
-        withNewConnectionMocks()
+    it('should return form page when company number invalid', async () => {
+      let {
+        mockLogger,
+        mockDb,
+        mockCompanyHouseEntity,
+        mockCloudagent,
+        mockEmail,
+        mockNewInvite,
+        mockFromInvite,
+        mockEnv,
+      } = withNewConnectionMocks()
       const controller = new NewConnectionController(
         mockDb,
         mockCompanyHouseEntity,
         mockCloudagent,
         mockEmail,
-        mockNewConnection,
+        mockNewInvite,
+        mockFromInvite,
+        mockEnv,
+        mockLogger
+      )
+      const result = await controller.verifyCompanyForm(invalidCompanyNumber).then(toHTMLString)
+      expect(result).to.equal('formPage_message_formPage')
+    })
+
+    it('should return rendered error when company not found', async () => {
+      let {
+        mockLogger,
+        mockDb,
+        mockCompanyHouseEntity,
+        mockCloudagent,
+        mockEmail,
+        mockNewInvite,
+        mockFromInvite,
+        mockEnv,
+      } = withNewConnectionMocks()
+      const controller = new NewConnectionController(
+        mockDb,
+        mockCompanyHouseEntity,
+        mockCloudagent,
+        mockEmail,
+        mockNewInvite,
+        mockFromInvite,
         mockEnv,
         mockLogger
       )
@@ -54,14 +98,23 @@ describe('NewConnectionController', () => {
     })
 
     it('should return rendered error when company already connected', async () => {
-      let { mockLogger, mockDb, mockCompanyHouseEntity, mockCloudagent, mockEmail, mockNewConnection, mockEnv } =
-        withNewConnectionMocks()
+      let {
+        mockLogger,
+        mockDb,
+        mockCompanyHouseEntity,
+        mockCloudagent,
+        mockEmail,
+        mockNewInvite,
+        mockFromInvite,
+        mockEnv,
+      } = withNewConnectionMocks()
       const controller = new NewConnectionController(
         mockDb,
         mockCompanyHouseEntity,
         mockCloudagent,
         mockEmail,
-        mockNewConnection,
+        mockNewInvite,
+        mockFromInvite,
         mockEnv,
         mockLogger
       )
@@ -72,14 +125,23 @@ describe('NewConnectionController', () => {
     })
 
     it('should return rendered error when company registered office in dispute', async () => {
-      let { mockLogger, mockDb, mockCompanyHouseEntity, mockCloudagent, mockEmail, mockNewConnection, mockEnv } =
-        withNewConnectionMocks()
+      let {
+        mockLogger,
+        mockDb,
+        mockCompanyHouseEntity,
+        mockCloudagent,
+        mockEmail,
+        mockNewInvite,
+        mockFromInvite,
+        mockEnv,
+      } = withNewConnectionMocks()
       const controller = new NewConnectionController(
         mockDb,
         mockCompanyHouseEntity,
         mockCloudagent,
         mockEmail,
-        mockNewConnection,
+        mockNewInvite,
+        mockFromInvite,
         mockEnv,
         mockLogger
       )
@@ -90,14 +152,23 @@ describe('NewConnectionController', () => {
     })
 
     it('should return rendered error when company not active', async () => {
-      let { mockLogger, mockDb, mockCompanyHouseEntity, mockCloudagent, mockEmail, mockNewConnection, mockEnv } =
-        withNewConnectionMocks()
+      let {
+        mockLogger,
+        mockDb,
+        mockCompanyHouseEntity,
+        mockCloudagent,
+        mockEmail,
+        mockNewInvite,
+        mockFromInvite,
+        mockEnv,
+      } = withNewConnectionMocks()
       const controller = new NewConnectionController(
         mockDb,
         mockCompanyHouseEntity,
         mockCloudagent,
         mockEmail,
-        mockNewConnection,
+        mockNewInvite,
+        mockFromInvite,
         mockEnv,
         mockLogger
       )
@@ -106,40 +177,58 @@ describe('NewConnectionController', () => {
     })
 
     it('should return success form', async () => {
-      let { mockLogger, mockDb, mockCompanyHouseEntity, mockCloudagent, mockEmail, mockNewConnection, mockEnv } =
-        withNewConnectionMocks()
+      let {
+        mockLogger,
+        mockDb,
+        mockCompanyHouseEntity,
+        mockCloudagent,
+        mockEmail,
+        mockNewInvite,
+        mockFromInvite,
+        mockEnv,
+      } = withNewConnectionMocks()
       const controller = new NewConnectionController(
         mockDb,
         mockCompanyHouseEntity,
         mockCloudagent,
         mockEmail,
-        mockNewConnection,
+        mockNewInvite,
+        mockFromInvite,
         mockEnv,
         mockLogger
       )
       const result = await controller.verifyCompanyForm(validCompanyNumber).then(toHTMLString)
-      expect(result).to.equal('companyFormInput_success-NAME--form--00000001_companyFormInput')
+      expect(result).to.equal('companyFormInput_companyFound-NAME--form--00000001_companyFormInput')
     })
   })
 
-  describe('submitCompanyNumber', () => {
+  describe('submitNewInvite', () => {
     it('should return rendered error when company not found', async () => {
-      let { mockLogger, mockDb, mockCompanyHouseEntity, mockCloudagent, mockEmail, mockNewConnection, mockEnv } =
-        withNewConnectionMocks()
+      let {
+        mockLogger,
+        mockDb,
+        mockCompanyHouseEntity,
+        mockCloudagent,
+        mockEmail,
+        mockNewInvite,
+        mockFromInvite,
+        mockEnv,
+      } = withNewConnectionMocks()
       const controller = new NewConnectionController(
         mockDb,
         mockCompanyHouseEntity,
         mockCloudagent,
         mockEmail,
-        mockNewConnection,
+        mockNewInvite,
+        mockFromInvite,
         mockEnv,
         mockLogger
       )
       const result = await controller
-        .submitCompanyNumber({
+        .submitNewInvite({
           companyNumber: notFoundCompanyNumber,
           email: 'alice@example.com',
-          submitButton: 'Continue',
+          action: 'continue',
         })
         .then(toHTMLString)
       expect(result).to.equal(
@@ -148,22 +237,31 @@ describe('NewConnectionController', () => {
     })
 
     it('should return rendered error when company already connected', async () => {
-      let { mockLogger, mockDb, mockCompanyHouseEntity, mockCloudagent, mockEmail, mockNewConnection, mockEnv } =
-        withNewConnectionMocks()
+      let {
+        mockLogger,
+        mockDb,
+        mockCompanyHouseEntity,
+        mockCloudagent,
+        mockEmail,
+        mockNewInvite,
+        mockFromInvite,
+        mockEnv,
+      } = withNewConnectionMocks()
       const controller = new NewConnectionController(
         mockDb,
         mockCompanyHouseEntity,
         mockCloudagent,
         mockEmail,
-        mockNewConnection,
+        mockNewInvite,
+        mockFromInvite,
         mockEnv,
         mockLogger
       )
       const result = await controller
-        .submitCompanyNumber({
+        .submitNewInvite({
           companyNumber: validExistingCompanyNumber,
           email: 'alice@example.com',
-          submitButton: 'Continue',
+          action: 'continue',
         })
         .then(toHTMLString)
       expect(result).to.equal(
@@ -172,22 +270,31 @@ describe('NewConnectionController', () => {
     })
 
     it('should return rendered error when company registered office in dispute', async () => {
-      let { mockLogger, mockDb, mockCompanyHouseEntity, mockCloudagent, mockEmail, mockNewConnection, mockEnv } =
-        withNewConnectionMocks()
+      let {
+        mockLogger,
+        mockDb,
+        mockCompanyHouseEntity,
+        mockCloudagent,
+        mockEmail,
+        mockNewInvite,
+        mockFromInvite,
+        mockEnv,
+      } = withNewConnectionMocks()
       const controller = new NewConnectionController(
         mockDb,
         mockCompanyHouseEntity,
         mockCloudagent,
         mockEmail,
-        mockNewConnection,
+        mockNewInvite,
+        mockFromInvite,
         mockEnv,
         mockLogger
       )
       const result = await controller
-        .submitCompanyNumber({
+        .submitNewInvite({
           companyNumber: validCompanyNumberInDispute,
           email: 'alice@example.com',
-          submitButton: 'Continue',
+          action: 'continue',
         })
         .then(toHTMLString)
       expect(result).to.equal(
@@ -196,22 +303,31 @@ describe('NewConnectionController', () => {
     })
 
     it('should return rendered error when company not active', async () => {
-      let { mockLogger, mockDb, mockCompanyHouseEntity, mockCloudagent, mockEmail, mockNewConnection, mockEnv } =
-        withNewConnectionMocks()
+      let {
+        mockLogger,
+        mockDb,
+        mockCompanyHouseEntity,
+        mockCloudagent,
+        mockEmail,
+        mockNewInvite,
+        mockFromInvite,
+        mockEnv,
+      } = withNewConnectionMocks()
       const controller = new NewConnectionController(
         mockDb,
         mockCompanyHouseEntity,
         mockCloudagent,
         mockEmail,
-        mockNewConnection,
+        mockNewInvite,
+        mockFromInvite,
         mockEnv,
         mockLogger
       )
       const result = await controller
-        .submitCompanyNumber({
+        .submitNewInvite({
           companyNumber: validCompanyNumberInactive,
           email: 'alice@example.com',
-          submitButton: 'Continue',
+          action: 'continue',
         })
         .then(toHTMLString)
       expect(result).to.equal(
@@ -220,25 +336,36 @@ describe('NewConnectionController', () => {
     })
 
     it('should return confirmation form if button is not Submit', async () => {
-      let { mockLogger, mockDb, mockCompanyHouseEntity, mockCloudagent, mockEmail, mockNewConnection, mockEnv } =
-        withNewConnectionMocks()
+      let {
+        mockLogger,
+        mockDb,
+        mockCompanyHouseEntity,
+        mockCloudagent,
+        mockEmail,
+        mockNewInvite,
+        mockFromInvite,
+        mockEnv,
+      } = withNewConnectionMocks()
       const controller = new NewConnectionController(
         mockDb,
         mockCompanyHouseEntity,
         mockCloudagent,
         mockEmail,
-        mockNewConnection,
+        mockNewInvite,
+        mockFromInvite,
         mockEnv,
         mockLogger
       )
       const result = await controller
-        .submitCompanyNumber({
+        .submitNewInvite({
           companyNumber: validCompanyNumber,
           email: 'alice@example.com',
-          submitButton: 'Continue',
+          action: 'continue',
         })
         .then(toHTMLString)
-      expect(result).to.equal('companyFormInput_success-NAME--confirmation-alice@example.com-00000001_companyFormInput')
+      expect(result).to.equal(
+        'companyFormInput_companyFound-NAME--confirmation-alice@example.com-00000001_companyFormInput'
+      )
     })
 
     it('should return rendered error when unique constraint is violated', async () => {
@@ -249,7 +376,8 @@ describe('NewConnectionController', () => {
         mockCompanyHouseEntity,
         mockCloudagent,
         mockEmail,
-        mockNewConnection,
+        mockNewInvite,
+        mockFromInvite,
         mockEnv,
       } = withNewConnectionMocks()
 
@@ -262,15 +390,16 @@ describe('NewConnectionController', () => {
         mockCompanyHouseEntity,
         mockCloudagent,
         mockEmail,
-        mockNewConnection,
+        mockNewInvite,
+        mockFromInvite,
         mockEnv,
         mockLogger
       )
       const result = await controller
-        .submitCompanyNumber({
+        .submitNewInvite({
           companyNumber: validCompanyNumber,
           email: 'alice@example.com',
-          submitButton: 'Submit',
+          action: 'submit',
         })
         .then(toHTMLString)
 
@@ -280,8 +409,16 @@ describe('NewConnectionController', () => {
     })
 
     it('should return success even if email send fails', async () => {
-      let { mockLogger, mockDb, mockCompanyHouseEntity, mockCloudagent, mockEmail, mockNewConnection, mockEnv } =
-        withNewConnectionMocks()
+      let {
+        mockLogger,
+        mockDb,
+        mockCompanyHouseEntity,
+        mockCloudagent,
+        mockEmail,
+        mockNewInvite,
+        mockFromInvite,
+        mockEnv,
+      } = withNewConnectionMocks()
 
       sinon.stub(mockEmail, 'sendMail').rejects(new Error())
 
@@ -290,19 +427,20 @@ describe('NewConnectionController', () => {
         mockCompanyHouseEntity,
         mockCloudagent,
         mockEmail,
-        mockNewConnection,
+        mockNewInvite,
+        mockFromInvite,
         mockEnv,
         mockLogger
       )
       const result = await controller
-        .submitCompanyNumber({
+        .submitNewInvite({
           companyNumber: validCompanyNumber,
           email: 'alice@example.com',
-          submitButton: 'Submit',
+          action: 'submit',
         })
         .then(toHTMLString)
 
-      expect(result).to.equal('companyFormInput_success-NAME--success-alice@example.com-00000001_companyFormInput')
+      expect(result).to.equal('companyFormInput_companyFound-NAME--success-alice@example.com-00000001_companyFormInput')
     })
 
     describe('happy path assertions', function () {
@@ -319,7 +457,8 @@ describe('NewConnectionController', () => {
           mockCompanyHouseEntity,
           mockCloudagent,
           mockEmail,
-          mockNewConnection,
+          mockNewInvite,
+          mockFromInvite,
           mockEnv,
         } = withNewConnectionMocks()
 
@@ -332,15 +471,16 @@ describe('NewConnectionController', () => {
           mockCompanyHouseEntity,
           mockCloudagent,
           mockEmail,
-          mockNewConnection,
+          mockNewInvite,
+          mockFromInvite,
           mockEnv,
           mockLogger
         )
         result = await controller
-          .submitCompanyNumber({
+          .submitNewInvite({
             companyNumber: validCompanyNumber,
             email: 'alice@example.com',
-            submitButton: 'Submit',
+            action: 'submit',
           })
           .then(toHTMLString)
       })
@@ -350,7 +490,9 @@ describe('NewConnectionController', () => {
       })
 
       it('should return success form', () => {
-        expect(result).to.equal('companyFormInput_success-NAME--success-alice@example.com-00000001_companyFormInput')
+        expect(result).to.equal(
+          'companyFormInput_companyFound-NAME--success-alice@example.com-00000001_companyFormInput'
+        )
       })
 
       it('should insert two row', () => {
@@ -364,17 +506,7 @@ describe('NewConnectionController', () => {
             company_name: 'NAME',
             company_number: '00000001',
             status: 'pending',
-          },
-        ])
-      })
-
-      it('should insert correct value into connection table', () => {
-        expect(insertSpy.firstCall.args).deep.equal([
-          'connection',
-          {
-            company_name: 'NAME',
-            company_number: '00000001',
-            status: 'pending',
+            agent_connection_id: null,
           },
         ])
       })
@@ -395,9 +527,14 @@ describe('NewConnectionController', () => {
       })
 
       it('should send first email to recipient', () => {
+        const expectedInvite = { companyNumber: '07964699', inviteUrl: 'url-NAME' }
+        const expectedInviteBase64 = Buffer.from(JSON.stringify(expectedInvite), 'utf8').toString('base64url')
         expect(emailSpy.firstCall.args).deep.equal([
           'connection_invite',
-          { to: 'alice@example.com', invite: 'url-NAME' },
+          {
+            to: 'alice@example.com',
+            invite: expectedInviteBase64,
+          },
         ])
       })
 

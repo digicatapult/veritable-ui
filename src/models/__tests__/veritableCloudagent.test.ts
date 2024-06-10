@@ -1,7 +1,12 @@
 import { describe, it } from 'mocha'
 
 import { Env } from '../../env.js'
-import { invalidResponse, successResponseTransformed } from './fixtures/cloudagentFixtures.js'
+import {
+  createInviteSuccessResponse,
+  createInviteSuccessResponseTransformed,
+  invalidResponse,
+  receiveInviteSuccessResponse,
+} from './fixtures/cloudagentFixtures.js'
 import { withCloudagentMock } from './helpers/mockCloudagent.js'
 
 import { InternalError } from '../../errors.js'
@@ -15,18 +20,18 @@ describe('veritableCloudagent', () => {
 
   describe('createOutOfBandInvite', () => {
     describe('success', function () {
-      withCloudagentMock()
+      withCloudagentMock(`/v1/oob/create-invitation`, 200, createInviteSuccessResponse)
 
       it('should give back out-of-band invite', async () => {
         const environment = new Env()
         const cloudagent = new VeritableCloudagent(environment)
         const response = await cloudagent.createOutOfBandInvite({ companyName: 'Digital Catapult' })
-        expect(response).deep.equal(successResponseTransformed)
+        expect(response).deep.equal(createInviteSuccessResponseTransformed)
       })
     })
 
     describe('error (response code)', function () {
-      withCloudagentMock(400, {})
+      withCloudagentMock(`/v1/oob/create-invitation`, 400, {})
 
       it('should throw internal error', async () => {
         const environment = new Env()
@@ -43,7 +48,7 @@ describe('veritableCloudagent', () => {
     })
 
     describe('error (response invalid)', function () {
-      withCloudagentMock(200, invalidResponse)
+      withCloudagentMock(`/v1/oob/create-invitation`, 200, invalidResponse)
 
       it('should throw internal error', async () => {
         const environment = new Env()
@@ -52,6 +57,62 @@ describe('veritableCloudagent', () => {
         let error: unknown = null
         try {
           await cloudagent.createOutOfBandInvite({ companyName: 'Digital Catapult' })
+        } catch (err) {
+          error = err
+        }
+        expect(error).instanceOf(InternalError)
+      })
+    })
+  })
+
+  describe('receiveOutOfBandInvite', () => {
+    describe('success', function () {
+      withCloudagentMock('/v1/oob/receive-invitation-url', 200, receiveInviteSuccessResponse)
+
+      it('should give back out-of-band invite', async () => {
+        const environment = new Env()
+        const cloudagent = new VeritableCloudagent(environment)
+        const response = await cloudagent.receiveOutOfBandInvite({
+          companyName: 'Digital Catapult',
+          invitationUrl: 'http://example.com',
+        })
+        expect(response).deep.equal(receiveInviteSuccessResponse)
+      })
+    })
+
+    describe('error (response code)', function () {
+      withCloudagentMock('/v1/oob/receive-invitation-url', 400, {})
+
+      it('should throw internal error', async () => {
+        const environment = new Env()
+        const cloudagent = new VeritableCloudagent(environment)
+
+        let error: unknown = null
+        try {
+          await cloudagent.receiveOutOfBandInvite({
+            companyName: 'Digital Catapult',
+            invitationUrl: 'http://example.com',
+          })
+        } catch (err) {
+          error = err
+        }
+        expect(error).instanceOf(InternalError)
+      })
+    })
+
+    describe('error (response invalid)', function () {
+      withCloudagentMock('/v1/oob/receive-invitation-url', 200, invalidResponse)
+
+      it('should throw internal error', async () => {
+        const environment = new Env()
+        const cloudagent = new VeritableCloudagent(environment)
+
+        let error: unknown = null
+        try {
+          await cloudagent.receiveOutOfBandInvite({
+            companyName: 'Digital Catapult',
+            invitationUrl: 'http://example.com',
+          })
         } catch (err) {
           error = err
         }

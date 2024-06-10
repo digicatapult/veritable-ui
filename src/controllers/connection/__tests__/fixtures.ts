@@ -1,4 +1,5 @@
 export const notFoundCompanyNumber = '00000000'
+export const invalidCompanyNumber = 'XXXXXXXX'
 export const validCompanyNumber = '00000001'
 export const validExistingCompanyNumber = '00000002'
 export const validCompanyNumberInDispute = '00000003'

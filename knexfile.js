@@ -1,5 +1,3 @@
-import type { Knex } from 'knex'
-
 export const pgConfig = {
   client: 'pg',
   timezone: 'UTC',
@@ -15,6 +13,7 @@ export const pgConfig = {
     max: 10,
   },
   migrations: {
+    directory: './src/models/db/migrations',
     tableName: 'migrations',
   },
   seeds: {
@@ -22,7 +21,7 @@ export const pgConfig = {
   },
 }
 
-const config: { [key: string]: Knex.Config } = {
+const config = {
   test: pgConfig,
   development: pgConfig,
   production: {
@@ -33,6 +32,9 @@ const config: { [key: string]: Knex.Config } = {
       user: process.env.DB_USERNAME,
       password: process.env.DB_PASSWORD,
       database: process.env.DB_NAME,
+    },
+    migrations: {
+      directory: './build/models/db/migrations',
     },
   },
 }

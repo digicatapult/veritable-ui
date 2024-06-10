@@ -28,10 +28,10 @@ describe('NewConnectionController', () => {
     beforeEach(async () => {
       await cleanup()
       app = await createHttpServer()
-      response = await post(app, '/connection/new/submit', {
+      response = await post(app, '/connection/new/create-invitation', {
         companyNumber: validCompanyNumber,
         email: 'alice@example.com',
-        submitButton: 'Submit',
+        action: 'submit',
       })
     })
 

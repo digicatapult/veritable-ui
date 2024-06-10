@@ -1,9 +1,6 @@
 import { CompanyProfile } from '../../src/models/companyHouseEntity.js'
-import { CompanyProfileText } from '../../src/views/newConnection.js'
 
 export const validCompanyNumber = '07964699'
-export const invalidCompanyNumber = '079646992'
-export const noCompanyNumber = ''
 
 export const successResponse: CompanyProfile = {
   registered_office_address: {
@@ -15,14 +12,4 @@ export const successResponse: CompanyProfile = {
   registered_office_is_in_dispute: false,
   company_name: 'DIGITAL CATAPULT',
   company_number: '07964699',
-}
-
-export const testErrorTargetBox: CompanyProfileText = {
-  status: 'error',
-  errorMessage: 'This is a test error message',
-}
-
-export const testSuccessTargetBox: CompanyProfileText = {
-  status: 'success',
-  company: successResponse,
 }

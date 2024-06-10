@@ -72,6 +72,8 @@ jobs:
         run: npm ci
       - name: Build tsoa
         run: npm run tsoa:build
+      - name: touch env
+        run: touch .env
       - name: Setup dependencies
         run: docker compose up -d
       - name: Sleep

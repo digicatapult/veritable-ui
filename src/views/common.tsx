@@ -4,6 +4,7 @@ type PageProps = {
   title: string
   heading: string
   url: string
+  stylesheets?: string[]
 }
 
 type ButtonProps = {
@@ -18,33 +19,33 @@ type ButtonProps = {
 
 type FormButtonProps = {
   name: string
-  display: string
   disabled?: boolean
   outline?: boolean
   value?: string
+  text?: string
   type?: string
 }
 
 export const ButtonIcon = (props: ButtonProps): JSX.Element => (
-  <a href={`${props.href || '#'}`}>
-    <div class={`button ${props.disabled && 'disabled'} ${props.outline && 'outline'}`}>
-      {props.showIcon && (
-        <div class="button icon" style={{ backgroundImage: props?.icon || 'url("/public/images/plus.svg")' }} />
-      )}
-      <span class={`button text ${props.outline && 'accent'}`}>{props.name || 'unknown'}</span>
-    </div>
+  <a
+    class={`button ${props.disabled ? 'disabled' : ''} ${props.outline ? 'outline' : ''}`}
+    href={`${props.href || '#'}`}
+  >
+    {props.showIcon && (
+      <div class="button-icon" style={{ backgroundImage: props?.icon || 'url("/public/images/plus.svg")' }} />
+    )}
+    <span class={`button-text ${props.outline ? 'accent' : ''}`}>{props.name || 'unknown'}</span>
   </a>
 )
 
 export const FormButton = (props: FormButtonProps): JSX.Element => (
   <button
-    style={`display:${props.display}`}
-    class={`button ${props.disabled && 'disabled'} ${props.outline && 'outline'}`}
+    class={`button ${props.disabled ? 'disabled' : ''} ${props.outline ? 'outline' : ''}`}
     type={`${props.type}`}
     name={`${props.name}`}
     value={`${props.value}`}
   >
-    <span class={`button text ${props.outline && 'accent'}`}>{props.value || 'unknown'}</span>
+    <span class={`button-text ${props.outline ? 'accent' : ''}`}>{props.text || props.value || 'unknown'}</span>
   </button>
 )
 
@@ -121,6 +122,9 @@ export const Page = (props: Html.PropsWithChildren<PageProps>): JSX.Element => (
         <script src="/public/scripts/auth-redirect.js"></script>
         <link rel="icon" type="image/ico" sizes="48x48" href="/public/images/favicon.ico" />
         <link rel="stylesheet" type="text/css" href="/public/styles/main.css" />
+        {(props.stylesheets || []).map((sheetName) => (
+          <link rel="stylesheet" type="text/css" href={`/public/styles/${sheetName}`} />
+        ))}
         <title>{Html.escapeHtml(props.title)}</title>
       </head>
       <body class="flex-page" hx-ext="json-enc">

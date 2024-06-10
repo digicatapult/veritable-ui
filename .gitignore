@@ -13,3 +13,5 @@ npm-debug.log*
 *.seed
 *.pid.lock
 .tsimp
+
+.DS_Store

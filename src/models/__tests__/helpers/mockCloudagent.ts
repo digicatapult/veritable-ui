@@ -2,11 +2,10 @@ import { container } from 'tsyringe'
 import { Dispatcher, MockAgent, getGlobalDispatcher, setGlobalDispatcher } from 'undici'
 
 import { Env } from '../../../env.js'
-import { successResponse } from '../fixtures/cloudagentFixtures.js'
 
 const env = container.resolve(Env)
 
-export function withCloudagentMock(code: number = 200, responseBody: any = successResponse) {
+export function withCloudagentMock(path: string, code: number, responseBody: any) {
   let originalDispatcher: Dispatcher
   let agent: MockAgent
   beforeEach(function () {
@@ -17,7 +16,7 @@ export function withCloudagentMock(code: number = 200, responseBody: any = succe
     const client = agent.get(env.get('CLOUDAGENT_ADMIN_ORIGIN'))
     client
       .intercept({
-        path: `/oob/create-invitation`,
+        path,
         method: 'POST',
       })
       .reply(code, responseBody)
