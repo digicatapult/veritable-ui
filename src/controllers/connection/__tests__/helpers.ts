@@ -75,6 +75,16 @@ export const withNewConnectionMocks = () => {
         invitationUrl: `url-${companyName}`,
       }
     },
+    receiveOutOfBandInvite: (params: { companyName: string; invitationUrl: string }) => {
+      return {
+        outOfBandRecord: {
+          id: 'oob-record',
+        },
+        connectionRecord: {
+          id: 'oob-connection',
+        },
+      }
+    },
   } as unknown as VeritableCloudagent
   const mockEmail = {
     sendMail: () => {},
@@ -94,6 +104,14 @@ export const withNewConnectionMocks = () => {
   } as unknown as NewInviteTemplates
   const mockFromInvite = {
     fromInviteFormPage: (feedback: FormFeedback) => templateFake('fromInvitePage', feedback.type),
+    fromInviteForm: ({ feedback, formStage }: any) =>
+      templateFake(
+        'fromInviteForm',
+        feedback.type,
+        feedback.company?.company_name || '',
+        feedback.message || feedback.error || '',
+        formStage
+      ),
   } as unknown as FromInviteTemplates
 
   const mockEnv = {

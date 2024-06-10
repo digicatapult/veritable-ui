@@ -112,8 +112,12 @@ export class NewConnectionController extends HTMLController {
   @SuccessResponse(200)
   @Get('/verify-invite')
   public async verifyInviteForm(@Query() invite: BASE_64_URL | string): Promise<HTML> {
-    if (!invite.match(base64UrlRegex)) {
+    if (invite === '') {
       return this.newConnectionForm(true)
+    }
+
+    if (!invite.match(base64UrlRegex)) {
+      return this.receiveInviteErrorHtml('Invitation is not valid')
     }
 
     const inviteOrError = await this.decodeInvite(invite)
@@ -169,9 +173,9 @@ export class NewConnectionController extends HTMLController {
     ])
 
     // insert the connection
-    const dbResult = await this.insertNewConnection(company, pinHash, invite.invitation.id, body.email, null)
+    const dbResult = await this.insertNewConnection(company, pinHash, invite.invitation.id, null)
     if (dbResult.type === 'error') {
-      return dbResult.response
+      return this.newInviteErrorHtml(dbResult.error, body.email, company.company_number)
     }
 
     const wrappedInvitation: Invite = {
@@ -201,7 +205,7 @@ export class NewConnectionController extends HTMLController {
     }
   ): Promise<HTML> {
     if (!body.invite.match(base64UrlRegex)) {
-      return this.newConnectionForm(true)
+      return this.receiveInviteErrorHtml('Invitation is not valid')
     }
 
     const inviteOrError = await this.decodeInvite(body.invite)
@@ -229,11 +233,10 @@ export class NewConnectionController extends HTMLController {
       inviteOrError.company,
       pinHash,
       invite.outOfBandRecord.id,
-      null,
       invite.connectionRecord.id
     )
     if (dbResult.type === 'error') {
-      return dbResult.response
+      return this.receiveInviteErrorHtml(dbResult.error)
     }
 
     await this.sendAdminEmail(inviteOrError.company, pin)
@@ -253,6 +256,10 @@ export class NewConnectionController extends HTMLController {
         type: 'error',
         message: 'Invitation is not valid',
       }
+    }
+
+    if (!wrappedInvite.companyNumber.match(companyNumberRegex)) {
+      return { type: 'error', message: 'Invitation is not valid' }
     }
 
     const companyOrError = await this.lookupCompany(wrappedInvite.companyNumber)
@@ -308,9 +315,8 @@ export class NewConnectionController extends HTMLController {
     company: CompanyProfile,
     pinHash: string,
     invitationId: string,
-    email: string | null,
     agentConnectionId: string | null
-  ): Promise<{ type: 'success'; connectionId: string } | { type: 'error'; response: Promise<HTML> }> {
+  ): Promise<{ type: 'success'; connectionId: string } | { type: 'error'; error: string }> {
     this.logger.debug('NEW_CONNECTION: invite id %s', invitationId)
 
     try {
@@ -340,11 +346,7 @@ export class NewConnectionController extends HTMLController {
       ) {
         return {
           type: 'error',
-          response: this.newInviteErrorHtml(
-            `Connection already exists with ${company.company_name}`,
-            email ?? undefined,
-            company.company_number
-          ),
+          error: `Connection already exists with ${company.company_name}`,
         }
       }
       throw err
