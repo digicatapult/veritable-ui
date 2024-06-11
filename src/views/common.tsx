@@ -15,6 +15,7 @@ type ButtonProps = {
   disabled?: boolean
   outline?: boolean
   href?: string
+  fillButton?: boolean
 }
 
 type FormButtonProps = {
@@ -24,11 +25,12 @@ type FormButtonProps = {
   value?: string
   text?: string
   type?: string
+  fillButton?: boolean
 }
 
 export const ButtonIcon = (props: ButtonProps): JSX.Element => (
   <a
-    class={`button ${props.disabled ? 'disabled' : ''} ${props.outline ? 'outline' : ''}`}
+    class={`button ${props.disabled ? 'disabled' : ''} ${props.outline ? 'outline' : ''} ${props.fillButton ? 'button-filled' : ''}`}
     href={`${props.href || '#'}`}
   >
     {props.showIcon && (
@@ -40,7 +42,7 @@ export const ButtonIcon = (props: ButtonProps): JSX.Element => (
 
 export const FormButton = (props: FormButtonProps): JSX.Element => (
   <button
-    class={`button ${props.disabled ? 'disabled' : ''} ${props.outline ? 'outline' : ''}`}
+    class={`button ${props.disabled ? 'disabled' : ''} ${props.outline ? 'outline' : ''} ${props.fillButton ? 'button-filled' : ''}`}
     type={`${props.type}`}
     name={`${props.name}`}
     value={`${props.value}`}

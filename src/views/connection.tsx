@@ -44,7 +44,20 @@ export default class ConnectionTemplates {
         <div class="main connections">
           <div class="connections header">
             <span>Connections Summary</span>
-            <ButtonIcon disabled={false} name="Add a New Connection" href="connection/new" showIcon={true} />
+            <ButtonIcon
+              disabled={false}
+              name="Invite New Connection"
+              href="connection/new"
+              showIcon={true}
+              fillButton={true}
+            />
+            <ButtonIcon
+              disabled={false}
+              name="Add from Invitation"
+              href="connection/new?fromInvite=true"
+              showIcon={true}
+              fillButton={true}
+            />
           </div>
           <div class="connections list">
             <div class="connections-list-nav">
@@ -88,6 +101,7 @@ export default class ConnectionTemplates {
                           disabled={true}
                           name="some action"
                           showIcon={true}
+                          fillButton={true}
                         />
                       </td>
                     </tr>

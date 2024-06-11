@@ -44,12 +44,21 @@ export abstract class NewConnectionTemplates {
         {props.children}
         <this.feedback feedback={props.feedback} />
         <div id="new-invite-actions">
-          {props.actions.map((action) => {
+          {props.actions.map((action, i) => {
+            const lastIndex = props.actions.length - 1
             switch (action.type) {
               case 'link':
-                return <ButtonIcon name={action.text} href={action.href} />
+                return <ButtonIcon name={action.text} href={action.href} fillButton={i === lastIndex} />
               case 'submit':
-                return <FormButton type="submit" name="action" value={action.value} text={action.text} />
+                return (
+                  <FormButton
+                    type="submit"
+                    name="action"
+                    value={action.value}
+                    text={action.text}
+                    fillButton={i === lastIndex}
+                  />
+                )
             }
           })}
         </div>

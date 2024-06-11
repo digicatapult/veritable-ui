@@ -168,9 +168,9 @@ a.connections-table.icon {
   }
 }
 
-.button:last-child {
+.button-filled {
   background-color: var(--accent-color);
-  color: #fff
+  color: #fff;
 }
 
 .button-icon {
@@ -196,9 +196,17 @@ a.connections-table.icon {
 .connections.header {
   display: flex;
   flex-direction: row;
-  justify-content: space-between;
   color: var(--text-color);
   font-size: 1rem;
+  gap: 2ch;
+}
+
+.connections.header > .button {
+  flex-basis: 28ch;
+}
+
+.connections.header > *:first-child, .connections-list-nav > *:first-child {
+  margin-right: auto;
 }
 
 .connections.header {
