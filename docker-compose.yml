@@ -96,6 +96,7 @@ services:
       - IDP_CLIENT_ID=veritable-ui
       - IDP_PUBLIC_URL_PREFIX=http://localhost:3080/realms/veritable/protocol/openid-connect
       - IDP_INTERNAL_URL_PREFIX=http://keycloak:8080/realms/veritable/protocol/openid-connect
+      - INVITATION_FROM_COMPANY_NUMBER=07964699
       - INVITATION_PIN_SECRET=secret
   postgres-veritable-ui-bob:
     image: postgres:16.3-alpine
