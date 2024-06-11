@@ -38,3 +38,11 @@ export type EMAIL = string
 export type COMPANY_NUMBER = string
 export const companyNumberRegex =
   /^(((AC|CE|CS|FC|FE|GE|GS|IC|LP|NC|NF|NI|NL|NO|NP|OC|OE|PC|R0|RC|SA|SC|SE|SF|SG|SI|SL|SO|SR|SZ|ZC|\d{2})\d{6})|((IP|SP|RS)[A-Z\d]{6})|(SL\d{5}[\dA]))$/
+
+/**
+ * Base64 url compatible string (see rfc4648 section-5)
+ * @pattern ^[a-zA-Z0-9_\-]+$
+ * @example VGhpcyBpcyBzb21lIGV4YW1wbGUgdGV4dA
+ */
+export type BASE_64_URL = string
+export const base64UrlRegex = /^[a-zA-Z0-9_\-]+$/

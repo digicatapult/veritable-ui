@@ -404,8 +404,13 @@
       "enabled": true,
       "alwaysDisplayInConsole": false,
       "clientAuthenticatorType": "client-secret",
-      "redirectUris": ["http://localhost:3000/auth/redirect", "http://localhost:3000/swagger/oauth2-redirect.html"],
-      "webOrigins": ["http://localhost:3000"],
+      "redirectUris": [
+        "http://localhost:3000/auth/redirect",
+        "http://localhost:3000/swagger/oauth2-redirect.html",
+        "http://localhost:3001/auth/redirect",
+        "http://localhost:3001/swagger/oauth2-redirect.html"
+      ],
+      "webOrigins": ["http://localhost:3000", "http://localhost:3001"],
       "notBefore": 0,
       "bearerOnly": false,
       "consentRequired": false,

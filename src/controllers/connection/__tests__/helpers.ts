@@ -8,7 +8,9 @@ import { ConnectionRow } from '../../../models/db/types.js'
 import EmailService from '../../../models/emailService/index.js'
 import VeritableCloudagent from '../../../models/veritableCloudagent.js'
 import ConnectionTemplates from '../../../views/connection.js'
-import NewConnectionTemplates, { CompanyProfileText, FormStage } from '../../../views/newConnection.js'
+import { FormFeedback } from '../../../views/newConnection/base.js'
+import { FromInviteTemplates } from '../../../views/newConnection/fromInvite.js'
+import { NewInviteTemplates } from '../../../views/newConnection/newInvite.js'
 import { notFoundCompanyNumber, validCompanyMap, validCompanyNumber, validExistingCompanyNumber } from './fixtures.js'
 
 function templateFake(templateName: string, ...args: any[]) {
@@ -73,42 +75,78 @@ export const withNewConnectionMocks = () => {
         invitationUrl: `url-${companyName}`,
       }
     },
+    receiveOutOfBandInvite: (params: { companyName: string; invitationUrl: string }) => {
+      return {
+        outOfBandRecord: {
+          id: 'oob-record',
+        },
+        connectionRecord: {
+          id: 'oob-connection',
+        },
+      }
+    },
   } as unknown as VeritableCloudagent
   const mockEmail = {
     sendMail: () => {},
   } as unknown as EmailService
-  const mockNewConnection = {
-    formPage: (targetBox: CompanyProfileText, formStage: FormStage) =>
-      templateFake('formPage', targetBox.status, formStage),
-    companyFormInput: ({ targetBox, formStage, email, companyNumber }: any) =>
+  const mockNewInvite = {
+    newInviteFormPage: (feedback: FormFeedback) => templateFake('newInvitePage', feedback.type),
+    newInviteForm: ({ feedback, formStage, email, companyNumber }: any) =>
       templateFake(
         'companyFormInput',
-        targetBox.status,
-        targetBox.company?.company_name || '',
-        targetBox.errorMessage || '',
+        feedback.type,
+        feedback.company?.company_name || '',
+        feedback.message || feedback.error || '',
         formStage,
         email,
         companyNumber
       ),
-  } as unknown as NewConnectionTemplates
+  } as unknown as NewInviteTemplates
+  const mockFromInvite = {
+    fromInviteFormPage: (feedback: FormFeedback) => templateFake('fromInvitePage', feedback.type),
+    fromInviteForm: ({ feedback, formStage }: any) =>
+      templateFake(
+        'fromInviteForm',
+        feedback.type,
+        feedback.company?.company_name || '',
+        feedback.message || feedback.error || '',
+        formStage
+      ),
+  } as unknown as FromInviteTemplates
+
   const mockEnv = {
     get: (name: string) => {
-      if (name === 'INVITATION_PIN_SECRET') {
-        return 'secret'
+      switch (name) {
+        case 'INVITATION_PIN_SECRET':
+          return 'secret'
+        case 'INVITATION_FROM_COMPANY_NUMBER':
+          return '07964699'
+        default:
+          throw new Error()
       }
-      throw new Error()
     },
   } as unknown as Env
 
   return {
-    mockLogger,
     mockTransactionDb,
     mockDb,
     mockCompanyHouseEntity,
     mockCloudagent,
     mockEmail,
-    mockNewConnection,
+    mockNewInvite,
+    mockFromInvite,
     mockEnv,
+    mockLogger,
+    args: [
+      mockDb,
+      mockCompanyHouseEntity,
+      mockCloudagent,
+      mockEmail,
+      mockNewInvite,
+      mockFromInvite,
+      mockEnv,
+      mockLogger,
+    ] as const,
   }
 }
 

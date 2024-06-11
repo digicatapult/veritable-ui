@@ -1,4 +1,3 @@
-import { CompanyProfileText } from '../../../views/newConnection.js'
 import { CompanyProfile } from '../../companyHouseEntity.js'
 
 export const validCompanyNumber = '07964699'
@@ -15,14 +14,4 @@ export const successResponse: CompanyProfile = {
   registered_office_is_in_dispute: false,
   company_name: 'DIGITAL CATAPULT',
   company_number: '07964699',
-}
-
-export const testErrorTargetBox: CompanyProfileText = {
-  status: 'error',
-  errorMessage: 'This is a test error message',
-}
-
-export const testSuccessTargetBox: CompanyProfileText = {
-  status: 'success',
-  company: successResponse,
 }

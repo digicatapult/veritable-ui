@@ -1,15 +1,5 @@
 services:
-  postgres-veritable-ui:
-    image: postgres:16.3-alpine
-    container_name: postgres-veritable-ui
-    ports:
-      - 5432:5432
-    volumes:
-      - postgres-veritable-ui:/var/lib/postgresql/data
-    environment:
-      - POSTGRES_PASSWORD=postgres
-      - POSTGRES_USER=postgres
-      - POSTGRES_DB=veritable-ui
+  # -------------------- shared -------------------------------# 
   keycloak:
     image: quay.io/keycloak/keycloak:24.0.5
     container_name: keycloak
@@ -26,39 +16,134 @@ services:
     image: ipfs/kubo:release
     volumes:
       - ipfs:/data/ipfs
-  postgres:
-    container_name: postgres-veritable-cloudagent
+
+  # -------------------- alice -------------------------------# 
+  postgres-veritable-ui-alice:
+    image: postgres:16.3-alpine
+    container_name: postgres-veritable-ui-alice
+    ports:
+      - 5432:5432
+    volumes:
+      - postgres-veritable-ui-alice:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_DB=veritable-ui
+  postgres-veritable-cloudagent-alice:
+    container_name: postgres-veritable-cloudagent-alice
     image: postgres:16.3-alpine
     restart: on-failure
     volumes:
-      - postgres-veritable-cloudagent:/var/lib/postgresql/data
+      - postgres-veritable-cloudagent-alice:/var/lib/postgresql/data
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
       - POSTGRES_DB=postgres-veritable-cloudagent
-  veritable-cloudagent:
+  veritable-cloudagent-alice:
     image: digicatapult/veritable-cloudagent
-    container_name: veritable-cloudagent
+    container_name: veritable-cloudagent-alice
     restart: always
     depends_on:
       ipfs:
         condition: service_healthy
     ports:
-      - 3001:3000
+      - 3100:3000
+    command: --inbound-transport http 5002 ws 5003 --outbound-transport http ws
     environment:
-      - AFJ_REST_ENDPOINT=ws://veritable-cloudagent:5003
+      # - AFJ_REST_INBOUND_TRANSPORT="http 5002 ws 5003"
+      # - AFJ_REST_OUTBOUND_TRANSPORT="http ws"
+      - AFJ_REST_ENDPOINT=ws://veritable-cloudagent-alice:5003
       - AFJ_REST_ADMIN_PORT=3000
-      - AFJ_REST_INBOUND_TRANSPORTS="ws 5003"
       - AFJ_REST_IPFS_ORIGIN=http://ipfs:5001
-      - AFJ_REST_POSTGRES_HOST=postgres
+      - AFJ_REST_POSTGRES_HOST=postgres-veritable-cloudagent-alice
       - AFJ_REST_POSTGRES_PORT=5432
       - AFJ_REST_POSTGRES_USERNAME=postgres
       - AFJ_REST_POSTGRES_PASSWORD=postgres
       - AFJ_REST_LABEL=vertiable-cloudagent
-      - AFJ_REST_WALLET_ID=walletId
-      - AFJ_REST_WALLET_KEY=walletKey
+      - AFJ_REST_WALLET_ID=alice
+      - AFJ_REST_WALLET_KEY=alice-key
+
+  # -------------------- bob -------------------------------#
+  veritable-ui-bob:
+    container_name: veritable-ui-bob
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: no
+    depends_on:
+      - postgres-veritable-ui-bob
+      - veritable-cloudagent-bob
+    ports: 
+      - 3001:3000
+    command: > 
+      sh -c "
+        npm i -g pino-colada
+        node ./node_modules/.bin/knex migrate:latest
+        npm start | pino-colada"
+    env_file:
+      - docker/test.env
+      - .env
+    environment:
+      - NODE_ENV=production
+      - LOG_LEVEL=trace
+      - DB_HOST=postgres-veritable-ui-bob
+      - DB_NAME=veritable-ui
+      - PUBLIC_URL=http://localhost:3001
+      - CLOUDAGENT_ADMIN_ORIGIN=http://veritable-cloudagent-bob:3000
+      - COOKIE_SESSION_KEYS=secret
+      - DB_PASSWORD=postgres
+      - DB_USERNAME=postgres
+      - IDP_CLIENT_ID=veritable-ui
+      - IDP_PUBLIC_URL_PREFIX=http://localhost:3080/realms/veritable/protocol/openid-connect
+      - IDP_INTERNAL_URL_PREFIX=http://keycloak:8080/realms/veritable/protocol/openid-connect
+      - INVITATION_FROM_COMPANY_NUMBER=07964699
+      - INVITATION_PIN_SECRET=secret
+  postgres-veritable-ui-bob:
+    image: postgres:16.3-alpine
+    container_name: postgres-veritable-ui-bob
+    volumes:
+      - postgres-veritable-ui-bob:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_DB=veritable-ui
+  postgres-veritable-cloudagent-bob:
+    container_name: postgres-veritable-cloudagent-bob
+    image: postgres:16.3-alpine
+    restart: on-failure
+    volumes:
+      - postgres-veritable-cloudagent-bob:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=postgres-veritable-cloudagent
+  veritable-cloudagent-bob:
+    image: digicatapult/veritable-cloudagent
+    container_name: veritable-cloudagent-bob
+    restart: always
+    depends_on:
+      ipfs:
+        condition: service_healthy
+    ports:
+      - 3101:3000
+    command: --inbound-transport http 5002 ws 5003 --outbound-transport http ws
+    environment:
+      # - AFJ_REST_INBOUND_TRANSPORT="http 5002 ws 5003"
+      # - AFJ_REST_OUTBOUND_TRANSPORT="http ws"
+      - AFJ_REST_ENDPOINT=ws://veritable-cloudagent-bob:5003
+      - AFJ_REST_ADMIN_PORT=3000
+      - AFJ_REST_IPFS_ORIGIN=http://ipfs:5001
+      - AFJ_REST_POSTGRES_HOST=postgres-veritable-cloudagent-bob
+      - AFJ_REST_POSTGRES_PORT=5432
+      - AFJ_REST_POSTGRES_USERNAME=postgres
+      - AFJ_REST_POSTGRES_PASSWORD=postgres
+      - AFJ_REST_LABEL=vertiable-cloudagent
+      - AFJ_REST_WALLET_ID=bob
+      - AFJ_REST_WALLET_KEY=bob-key
 
 volumes:
   ipfs:
-  postgres-veritable-ui:
-  postgres-veritable-cloudagent:
+  postgres-veritable-ui-alice:
+  postgres-veritable-ui-bob:
+  postgres-veritable-cloudagent-alice:
+  postgres-veritable-cloudagent-bob:

@@ -4,11 +4,17 @@
   
   a, a:link, a:visited {
     text-decoration: none;
-    color: #c9cace;
-  
+      
     &:hover {
       filter: brightness(115%); 
     }
+  }
+
+  input, button {
+    font-family: inherit;
+    color: inherit;
+    font-size: inherit;
+    font-weight: inherit;
   }
 
   .active {

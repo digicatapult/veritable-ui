@@ -1,4 +1,5 @@
 export const notFoundCompanyNumber = '00000000'
+export const invalidCompanyNumber = 'XXXXXXXX'
 export const validCompanyNumber = '00000001'
 export const validExistingCompanyNumber = '00000002'
 export const validCompanyNumberInDispute = '00000003'
@@ -48,3 +49,22 @@ export const validCompanyMap: Record<string, typeof validCompany> = {
   [validCompanyNumberInDispute]: validCompanyInDispute,
   [validCompanyNumberInactive]: validCompanyInactive,
 }
+
+const buildBase64Invite = (companyNumber: string) =>
+  Buffer.from(
+    JSON.stringify({
+      companyNumber,
+      inviteUrl: 'http://example.com',
+    }),
+    'utf8'
+  ).toString('base64url')
+
+export const invalidBase64Invite = '!@£$%^&*()'
+export const invalidInvite = Buffer.from(JSON.stringify({}), 'utf8').toString('base64url')
+
+export const invalidCompanyNumberInvite = buildBase64Invite(invalidCompanyNumber)
+export const notFoundCompanyNumberInvite = buildBase64Invite(notFoundCompanyNumber)
+export const validExistingCompanyNumberInvite = buildBase64Invite(validExistingCompanyNumber)
+export const validCompanyNumberInDisputeInvite = buildBase64Invite(validCompanyNumberInDispute)
+export const validCompanyNumberInactiveInvite = buildBase64Invite(validCompanyNumberInactive)
+export const validCompanyNumberInvite = buildBase64Invite(validCompanyNumber)
