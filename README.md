@@ -16,7 +16,7 @@ And then to building the `tsoa` routes:
 npm run tsoa:build
 ```
 
-Setup service dependencies
+To setup service dependencies make sure there's at a minimum an empty `.env` file in the root directory of this repository and then run:
 
 ```bash
 docker compose up -d
