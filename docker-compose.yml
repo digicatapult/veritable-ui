@@ -65,7 +65,7 @@ services:
 
   # -------------------- bob -------------------------------#
   veritable-ui-bob:
-    # container_name: veritable-ui-bob
+    container_name: veritable-ui-bob
     build:
       context: .
       dockerfile: Dockerfile

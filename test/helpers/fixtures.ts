@@ -1,6 +1,7 @@
 import { CompanyProfile } from '../../src/models/companyHouseEntity.js'
 
 export const validCompanyNumber = '07964699'
+export const validCompanyName = 'DIGITAL CATAPULT'
 
 export const successResponse: CompanyProfile = {
   registered_office_address: {
@@ -10,6 +11,6 @@ export const successResponse: CompanyProfile = {
   },
   company_status: 'active',
   registered_office_is_in_dispute: false,
-  company_name: 'DIGITAL CATAPULT',
-  company_number: '07964699',
+  company_name: validCompanyName,
+  company_number: validCompanyNumber,
 }
