@@ -1,9 +1,9 @@
 ignores: [
   '@kitajs/html',
   '@kitajs/ts-html-plugin',
-  'tsimp',
   'htmx.org',
   'prettier-plugin-organize-imports',
   'reflect-metadata',
   'pg',
+  'tsx',
 ]
