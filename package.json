@@ -1,6 +1,6 @@
 {
   "name": "veritable-ui",
-  "version": "0.4.3",
+  "version": "0.4.4",
   "description": "UI for Veritable",
   "main": "src/index.ts",
   "type": "module",
@@ -48,7 +48,7 @@
     "pino": "^9.2.0",
     "pino-http": "^10.1.0",
     "swagger-ui-express": "^5.0.1",
-    "tsoa": "^6.3.0",
+    "tsoa": "^6.3.1",
     "tsyringe": "^4.8.0",
     "zod": "^3.23.8"
   },
