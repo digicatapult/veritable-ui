@@ -7,6 +7,7 @@ type ConnectionStatus = 'pending' | 'unverified' | 'verified_them' | 'verified_u
 interface connection {
   company_name: string
   status: ConnectionStatus
+  id: string
 }
 
 @singleton()
@@ -93,7 +94,20 @@ export default class ConnectionTemplates {
                   connections.map((connection) => (
                     <tr>
                       <td>{Html.escapeHtml(connection.company_name)}</td>
-                      <td>{this.statusToClass(connection.status)}</td>
+
+                      {/**  
+                       * VR-134: dynamic status updates
+                       * - htmx poll for status only
+                       * - create api endpoints for polling status only
+                        <td>{this.statusToClass(connection.status)}</td>
+                       * 
+                      */}
+                      <td
+                        hx-include={connection.id}
+                        hx-get="/connection/status"
+                        hx-trigger="load every 2s"
+                        hx-swap="innerHTML"
+                      />
                       <td>
                         <ButtonIcon
                           icon='url("/public/images/dot-icon.svg")'

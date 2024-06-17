@@ -16,7 +16,7 @@ And then to building the `tsoa` routes:
 npm run tsoa:build
 ```
 
-To setup service dependencies make sure there's at a minimum an empty `.env` file in the root directory of this repository and then run:
+To setup service dependencies make sure there's at a minimum an empty `.env` along with `COMPANY_PROFILE_API_KEY` key. It can be any string ->`COMPANY_PROFILE_API_KEY=a`. `.env` file must be in the root directory of this repository and then run:
 
 ```bash
 docker compose up -d
