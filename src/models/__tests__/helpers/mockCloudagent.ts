@@ -5,7 +5,7 @@ import { Env } from '../../../env.js'
 
 const env = container.resolve(Env)
 
-export function withCloudagentMock(path: string, code: number, responseBody: any) {
+export function withCloudagentMock(method: 'GET' | 'POST' | 'DELETE', path: string, code: number, responseBody: any) {
   let originalDispatcher: Dispatcher
   let agent: MockAgent
   beforeEach(function () {
@@ -17,7 +17,7 @@ export function withCloudagentMock(path: string, code: number, responseBody: any
     client
       .intercept({
         path,
-        method: 'POST',
+        method,
       })
       .reply(code, responseBody)
   })

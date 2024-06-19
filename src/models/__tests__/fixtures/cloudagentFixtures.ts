@@ -14,6 +14,14 @@ export const receiveInviteSuccessResponse = {
   },
 }
 
+export const getConnectionsSuccessResponse = [
+  {
+    id: 'connection-id',
+    state: 'completed',
+    outOfBandId: 'oob-id',
+  },
+]
+
 export const invalidResponse = {}
 
 export const mockLogger = pino({ level: 'silent' })
