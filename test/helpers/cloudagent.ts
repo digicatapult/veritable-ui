@@ -47,3 +47,24 @@ export function withBobCloudAgentInvite(context: { invite: string }) {
 
   afterEach(async () => await cleanupShared(agent))
 }
+
+export function withBobCloudagentAcceptInvite(context: { inviteUrl: string }) {
+  let agent = new VeritableCloudagent(
+    {
+      get(name) {
+        if (name === 'CLOUDAGENT_ADMIN_ORIGIN') {
+          return 'http://localhost:3101'
+        }
+        throw new Error('Unexpected env variable request')
+      },
+    } as Env,
+    mockLogger
+  )
+
+  beforeEach(async function () {
+    await cleanupShared(agent)
+    await agent.receiveOutOfBandInvite({ companyName: validCompanyName, invitationUrl: context.inviteUrl })
+  })
+
+  afterEach(async () => await cleanupShared(agent))
+}
