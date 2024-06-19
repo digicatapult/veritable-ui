@@ -16,7 +16,7 @@ export default class ConnectionTemplates {
   private statusToClass = (status: string | ConnectionStatus): JSX.Element => {
     switch (status) {
       case 'pending':
-        return <div class="error">'Pending Your Verification'</div>
+        return <div class="error">Pending</div>
       case 'verified_them':
       case 'verified_us':
         return (

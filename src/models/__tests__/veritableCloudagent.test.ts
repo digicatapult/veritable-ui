@@ -3,8 +3,8 @@ import { describe, it } from 'mocha'
 import { Env } from '../../env.js'
 import {
   createInviteSuccessResponse,
-  createInviteSuccessResponseTransformed,
   invalidResponse,
+  mockLogger,
   receiveInviteSuccessResponse,
 } from './fixtures/cloudagentFixtures.js'
 import { withCloudagentMock } from './helpers/mockCloudagent.js'
@@ -24,9 +24,9 @@ describe('veritableCloudagent', () => {
 
       it('should give back out-of-band invite', async () => {
         const environment = new Env()
-        const cloudagent = new VeritableCloudagent(environment)
+        const cloudagent = new VeritableCloudagent(environment, mockLogger)
         const response = await cloudagent.createOutOfBandInvite({ companyName: 'Digital Catapult' })
-        expect(response).deep.equal(createInviteSuccessResponseTransformed)
+        expect(response).deep.equal(createInviteSuccessResponse)
       })
     })
 
@@ -35,7 +35,7 @@ describe('veritableCloudagent', () => {
 
       it('should throw internal error', async () => {
         const environment = new Env()
-        const cloudagent = new VeritableCloudagent(environment)
+        const cloudagent = new VeritableCloudagent(environment, mockLogger)
 
         let error: unknown = null
         try {
@@ -52,7 +52,7 @@ describe('veritableCloudagent', () => {
 
       it('should throw internal error', async () => {
         const environment = new Env()
-        const cloudagent = new VeritableCloudagent(environment)
+        const cloudagent = new VeritableCloudagent(environment, mockLogger)
 
         let error: unknown = null
         try {
@@ -71,7 +71,7 @@ describe('veritableCloudagent', () => {
 
       it('should give back out-of-band invite', async () => {
         const environment = new Env()
-        const cloudagent = new VeritableCloudagent(environment)
+        const cloudagent = new VeritableCloudagent(environment, mockLogger)
         const response = await cloudagent.receiveOutOfBandInvite({
           companyName: 'Digital Catapult',
           invitationUrl: 'http://example.com',
@@ -85,7 +85,7 @@ describe('veritableCloudagent', () => {
 
       it('should throw internal error', async () => {
         const environment = new Env()
-        const cloudagent = new VeritableCloudagent(environment)
+        const cloudagent = new VeritableCloudagent(environment, mockLogger)
 
         let error: unknown = null
         try {
@@ -105,7 +105,7 @@ describe('veritableCloudagent', () => {
 
       it('should throw internal error', async () => {
         const environment = new Env()
-        const cloudagent = new VeritableCloudagent(environment)
+        const cloudagent = new VeritableCloudagent(environment, mockLogger)
 
         let error: unknown = null
         try {

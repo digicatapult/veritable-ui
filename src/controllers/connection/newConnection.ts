@@ -173,7 +173,7 @@ export class NewConnectionController extends HTMLController {
     ])
 
     // insert the connection
-    const dbResult = await this.insertNewConnection(company, pinHash, invite.invitation.id, null)
+    const dbResult = await this.insertNewConnection(company, pinHash, invite.invitation.outOfBandRecord.id, null)
     if (dbResult.type === 'error') {
       return this.newInviteErrorHtml(dbResult.error, body.email, company.company_number)
     }

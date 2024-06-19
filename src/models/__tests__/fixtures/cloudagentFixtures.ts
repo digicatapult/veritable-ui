@@ -1,14 +1,9 @@
+import { pino } from 'pino'
+
 export const createInviteSuccessResponse = {
   invitationUrl: 'example.com',
   invitation: {
-    '@id': 'example-id',
-  },
-}
-
-export const createInviteSuccessResponseTransformed = {
-  invitationUrl: 'example.com',
-  invitation: {
-    id: 'example-id',
+    outOfBandRecord: { id: 'example-id' },
   },
 }
 
@@ -22,3 +17,5 @@ export const receiveInviteSuccessResponse = {
 }
 
 export const invalidResponse = {}
+
+export const mockLogger = pino({ level: 'silent' })
