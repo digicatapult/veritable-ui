@@ -41,7 +41,14 @@ export default class ConnectionTemplates {
   public listPage = (connections: connection[], search: string = '') => {
     return (
       <Page title="Veritable - Connections" heading="Connections" url="/connection">
-        <div class="main connections">
+        <div
+          class="main connections"
+          hx-get="/connection"
+          hx-trigger="every 10s"
+          hx-select="#search-results"
+          hx-target="#search-results"
+          hx-swap="outerHTML"
+        >
           <div class="connections header">
             <span>Connections Summary</span>
             <ButtonIcon

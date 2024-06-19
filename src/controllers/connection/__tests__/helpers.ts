@@ -75,7 +75,7 @@ export const withNewConnectionMocks = () => {
         invitationUrl: `url-${companyName}`,
       }
     },
-    receiveOutOfBandInvite: (params: { companyName: string; invitationUrl: string }) => {
+    receiveOutOfBandInvite: () => {
       return {
         outOfBandRecord: {
           id: 'oob-record',
