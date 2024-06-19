@@ -7,7 +7,6 @@ type ConnectionStatus = 'pending' | 'unverified' | 'verified_them' | 'verified_u
 interface connection {
   company_name: string
   status: ConnectionStatus
-  id: string
 }
 
 @singleton()
