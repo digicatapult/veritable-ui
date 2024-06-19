@@ -1,5 +1,5 @@
 // Currently based of statuses, variants, should cover all possible scenarios within table boundries
-const variantsize = 10000
+const variantsize = 10
 
 export async function prepareVariants() {
   const variants10000 = []

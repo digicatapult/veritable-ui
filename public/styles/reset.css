@@ -64,7 +64,7 @@
     cursor: not-allowed !important;
     color: var(--accent-color) !important;
     transition: opacity filter 0.3s !important;
-    filter: grayscale(100%) blur(1px) !important;
+    filter: grayscale(100%);
     opacity: 0.3;
   
     &:hover{
