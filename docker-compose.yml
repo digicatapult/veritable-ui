@@ -66,6 +66,7 @@ services:
   # -------------------- bob -------------------------------#
   veritable-ui-bob:
     container_name: veritable-ui-bob
+    restart: always
     build:
       context: .
       dockerfile: Dockerfile
