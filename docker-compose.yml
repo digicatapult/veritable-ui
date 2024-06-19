@@ -66,11 +66,10 @@ services:
   # -------------------- bob -------------------------------#
   veritable-ui-bob:
     container_name: veritable-ui-bob
-    restart: always
     build:
       context: .
       dockerfile: Dockerfile
-    restart: no
+    restart: always
     depends_on:
       - postgres-veritable-ui-bob
       - veritable-cloudagent-bob
