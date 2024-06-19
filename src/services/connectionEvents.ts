@@ -1,6 +1,6 @@
 import { inject, injectable, singleton } from 'tsyringe'
 
-import { ILogger, Logger } from '../logger.js'
+import { Logger, type ILogger } from '../logger.js'
 import Database from '../models/db/index.js'
 import VeritableCloudagentEvents from './veritableCloudagentEvents.js'
 

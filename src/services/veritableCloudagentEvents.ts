@@ -1,4 +1,5 @@
 import { inject, injectable, singleton } from 'tsyringe'
+import WebSocket from 'ws'
 import { z } from 'zod'
 
 import { Env } from '../env.js'
@@ -54,10 +55,15 @@ export default class VeritableCloudagentEvents extends IndexedAsyncEventEmitter<
     return this.internalStatus
   }
 
-  public start = () => {
+  public start = (): Promise<void> => {
     if (this.socket) {
       throw new Error('WebSocket already started')
     }
+
+    let resolve: () => void
+    const returnedPromise = new Promise<void>((res) => {
+      resolve = res
+    })
 
     const socket = new WebSocket(this.env.get('CLOUDAGENT_ADMIN_WS_ORIGIN'))
     socket.addEventListener('open', async () => {
@@ -65,11 +71,11 @@ export default class VeritableCloudagentEvents extends IndexedAsyncEventEmitter<
       this.internalStatus = 'CONNECTED'
       const connectionSeen = new Set<string>()
 
-      socket.addEventListener('message', (ev: MessageEvent<string>) => {
+      socket.addEventListener('message', (ev: WebSocket.MessageEvent) => {
         this.logger.debug('WebSocket Message Received')
         let data: WebSocketEvent
         try {
-          data = eventParser.parse(JSON.parse(ev.data))
+          data = eventParser.parse(JSON.parse(ev.data.toString()))
         } catch (err) {
           this.logger.warn('Unusable event received %o', ev.data)
           return
@@ -99,11 +105,15 @@ export default class VeritableCloudagentEvents extends IndexedAsyncEventEmitter<
           })
         }
       }
+
+      resolve()
     })
 
     socket.addEventListener('close', this.closeHandler)
 
     this.socket = socket
+
+    return returnedPromise
   }
 
   public stop = () => {
@@ -112,6 +122,7 @@ export default class VeritableCloudagentEvents extends IndexedAsyncEventEmitter<
     if (this.socket) {
       this.socket.removeEventListener('close', this.closeHandler)
       this.socket.close()
+      this.socket = undefined
       return
     }
 

@@ -7,9 +7,7 @@ import { Logger, type ILogger } from '../logger.js'
 
 const oobParser = z.object({
   invitationUrl: z.string(),
-  invitation: z.object({
-    outOfBandRecord: z.object({ id: z.string() }),
-  }),
+  outOfBandRecord: z.object({ id: z.string() }),
 })
 type OutOfBandInvite = z.infer<typeof oobParser>
 
@@ -42,6 +40,8 @@ export type Connection = z.infer<typeof connectionParser>
 
 const connectionListParser = z.array(connectionParser)
 
+type parserFn<O> = (res: Response) => O | Promise<O>
+
 @singleton()
 @injectable()
 export default class VeritableCloudagent {
@@ -59,7 +59,7 @@ export default class VeritableCloudagent {
         multiUseInvitation: false,
         autoAcceptConnection: true,
       },
-      oobParser
+      this.buildParser(oobParser)
     )
   }
 
@@ -76,22 +76,31 @@ export default class VeritableCloudagent {
         reuseConnection: true,
         invitationUrl: params.invitationUrl,
       },
-      receiveUrlParser
+      this.buildParser(receiveUrlParser)
     )
   }
 
   public async getConnections(): Promise<Connection[]> {
-    return this.getRequest('/v1/connections', connectionListParser)
+    return this.getRequest('/v1/connections', this.buildParser(connectionListParser))
   }
 
-  private async getRequest<O, I>(path: string, parser: z.ZodType<O, z.ZodTypeDef, I>): Promise<O> {
+  public async deleteConnection(id: string): Promise<void> {
+    return this.deleteRequest(`/v1/connections/${id}`, () => {})
+  }
+
+  private async getRequest<O>(path: string, parse: parserFn<O>): Promise<O> {
+    return this.noBodyRequest('GET', path, parse)
+  }
+
+  private async deleteRequest<O>(path: string, parse: parserFn<O>): Promise<O> {
+    return this.noBodyRequest('DELETE', path, parse)
+  }
+
+  private async noBodyRequest<O>(method: 'GET' | 'DELETE', path: string, parse: parserFn<O>): Promise<O> {
     const url = `${this.env.get('CLOUDAGENT_ADMIN_ORIGIN')}${path}`
 
     const response = await fetch(url, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      method,
     })
 
     if (!response.ok) {
@@ -99,7 +108,7 @@ export default class VeritableCloudagent {
     }
 
     try {
-      return parser.parse(await response.json())
+      return await parse(response)
     } catch (err) {
       if (err instanceof Error) {
         throw new InternalError(`Error parsing response from calling GET ${path}: ${err.name} - ${err.message}`)
@@ -108,15 +117,20 @@ export default class VeritableCloudagent {
     }
   }
 
-  private async postRequest<O, I>(
+  private async postRequest<O>(path: string, body: Record<string, unknown>, parse: parserFn<O>): Promise<O> {
+    return this.bodyRequest('POST', path, body, parse)
+  }
+
+  private async bodyRequest<O>(
+    method: 'POST' | 'PUT',
     path: string,
     body: Record<string, unknown>,
-    parser: z.ZodType<O, z.ZodTypeDef, I>
+    parse: parserFn<O>
   ): Promise<O> {
     const url = `${this.env.get('CLOUDAGENT_ADMIN_ORIGIN')}${path}`
 
     const response = await fetch(url, {
-      method: 'POST',
+      method,
       headers: {
         'Content-Type': 'application/json',
       },
@@ -128,8 +142,7 @@ export default class VeritableCloudagent {
     }
 
     try {
-      const asJson = await response.json()
-      return parser.parse(asJson)
+      return await parse(response)
     } catch (err) {
       if (err instanceof Error) {
         throw new InternalError(`Error parsing response from calling POST ${path}: ${err.name} - ${err.message}`)
@@ -137,4 +150,11 @@ export default class VeritableCloudagent {
       throw new InternalError(`Unknown error parsing response to calling POST ${path}`)
     }
   }
+
+  private buildParser =
+    <I, O>(parser: z.ZodType<O, z.ZodTypeDef, I>) =>
+    async (response: Response) => {
+      const asJson = await response.json()
+      return parser.parse(asJson)
+    }
 }
