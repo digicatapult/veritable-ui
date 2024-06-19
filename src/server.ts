@@ -34,12 +34,14 @@ const customCssToInject: string = `
   .swagger-ui section.models { background-color: #f7f7f7; }
 `
 
-export default async () => {
+export default async (startEvents: boolean = true) => {
   const logger = container.resolve<ILogger>(Logger)
 
   container.resolve(ConnectionEvents).start()
   const cloudagentEvents = container.resolve(VeritableCloudagentEvents)
-  await cloudagentEvents.start()
+  if (startEvents) {
+    await cloudagentEvents.start()
+  }
 
   const app: Express = express()
 

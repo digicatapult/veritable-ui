@@ -69,7 +69,7 @@ describe('NewConnectionController', () => {
     beforeEach(async () => {
       await cleanup()
       await cleanupCloudagent()
-      server = await createHttpServer()
+      server = await createHttpServer(false)
       response = await post(server.app, '/connection/new/receive-invitation', {
         invite: context.invite,
         action: 'createConnection',
@@ -78,7 +78,6 @@ describe('NewConnectionController', () => {
 
     afterEach(async () => {
       await cleanupCloudagent()
-      server.cloudagentEvents.stop()
     })
 
     it('should return success', async () => {
@@ -91,19 +90,41 @@ describe('NewConnectionController', () => {
       expect(connectionRows[0]).to.deep.contain({
         company_name: 'DIGITAL CATAPULT',
         company_number: '07964699',
+        status: 'pending',
       })
 
       const invites = await db.get('connection_invite', { connection_id: connectionRows[0].id })
       expect(invites.length).to.equal(1)
     })
+  })
+
+  describe('connection complete (happy path)', function () {
+    const context: { invite: string } = { invite: '' }
+
+    withBobCloudAgentInvite(context)
+
+    beforeEach(async () => {
+      await cleanup()
+      await cleanupCloudagent()
+      server = await createHttpServer(true)
+      await post(server.app, '/connection/new/receive-invitation', {
+        invite: context.invite,
+        action: 'createConnection',
+      })
+    })
+
+    afterEach(async () => {
+      await cleanupCloudagent()
+      server.cloudagentEvents.stop()
+    })
 
     it('should update connection to unverified once connection is established', async () => {
-      for (let i = 0; i < 10; i++) {
+      for (let i = 0; i < 100; i++) {
         const [connection] = await db.get('connection')
         if (connection.status === 'unverified') {
           return
         }
-        await delay(100)
+        await delay(10)
       }
       expect.fail('Expected connection to update to state unverified')
     })
