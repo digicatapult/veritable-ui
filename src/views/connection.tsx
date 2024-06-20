@@ -40,7 +40,7 @@ export default class ConnectionTemplates {
 
   public listPage = (connections: connection[], search: string = '') => {
     return (
-      <Page title="Veritable - Connections" heading="Connections" url="/connection">
+      <Page title="Veritable - Connections" heading="Connections" headerLinks={[{ name: 'Connections', url: '#' }]}>
         <div
           class="main connections"
           hx-get="/connection"

@@ -16,7 +16,10 @@ export class FromInviteTemplates extends NewConnectionTemplates {
       <Page
         title="Veritable - New Connection"
         heading="New Connection"
-        url="/connection/new"
+        headerLinks={[
+          { name: 'Connections', url: '/connection' },
+          { name: 'Add from Invitation', url: '/connection/new?fromInvite=true' },
+        ]}
         stylesheets={['new-invite.css']}
       >
         <div class="connections header">

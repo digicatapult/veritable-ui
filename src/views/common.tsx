@@ -1,9 +1,11 @@
 import { Html } from '@kitajs/html'
 
+type HeaderLink = { name: string; url: string }
+
 type PageProps = {
   title: string
   heading: string
-  url: string
+  headerLinks: HeaderLink[]
   stylesheets?: string[]
 }
 
@@ -96,16 +98,20 @@ const SideBar = (): JSX.Element => (
  * @param param0.heading = title of current content
  * @returns JSX
  */
-const ContentHeader = (props: { heading: string; url: string }): JSX.Element => (
+const ContentHeader = (props: { heading: string; headerLinks: HeaderLink[] }): JSX.Element => (
   <div class="content header">
     <h1 class="header heading">{props.heading || 'unknown'}</h1>
     <div class="header nav">
       {/* is this meant to be /connections or just host/ */}
       <a title="home" class="nav icon" href="/" />
-      <span class="url-separator">/</span>
-      <a title={props.heading || 'n/a'} href={props.url}>
-        {props.heading || 'unknown'}
-      </a>
+      {...props.headerLinks.map(({ name, url }) => (
+        <>
+          <span class="url-separator">/</span>
+          <a title={name} href={url}>
+            {Html.escapeHtml(name)}
+          </a>
+        </>
+      ))}
     </div>
   </div>
 )
@@ -132,7 +138,7 @@ export const Page = (props: Html.PropsWithChildren<PageProps>): JSX.Element => (
       <body class="flex-page" hx-ext="json-enc">
         <SideBar />
         <div class="flex-page content">
-          <ContentHeader heading={props.heading} url={props.url} />
+          <ContentHeader heading={props.heading} headerLinks={props.headerLinks} />
           <div class="content main">{props.children}</div>
         </div>
       </body>
