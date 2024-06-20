@@ -71,7 +71,7 @@ export default async (startEvents: boolean = true) => {
   const apiSpec = await loadApiSpec(env)
   app.get('/api-docs', (_req, res) => res.json(apiSpec))
   app.use('/swagger', serve, setup(undefined, options))
-  app.get('/', (_, res) => res.sendStatus(404))
+  app.get('/', (_, res) => res.redirect('/connection'))
 
   RegisterRoutes(app)
 
