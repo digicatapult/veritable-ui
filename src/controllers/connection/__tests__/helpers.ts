@@ -69,9 +69,7 @@ export const withNewConnectionMocks = () => {
   const mockCloudagent = {
     createOutOfBandInvite: ({ companyName }: { companyName: string }) => {
       return {
-        invitation: {
-          id: `id-${companyName}`,
-        },
+        outOfBandRecord: { id: `id-${companyName}` },
         invitationUrl: `url-${companyName}`,
       }
     },

@@ -69,7 +69,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    restart: no
+    restart: always
     depends_on:
       - postgres-veritable-ui-bob
       - veritable-cloudagent-bob
@@ -90,6 +90,7 @@ services:
       - DB_NAME=veritable-ui
       - PUBLIC_URL=http://localhost:3001
       - CLOUDAGENT_ADMIN_ORIGIN=http://veritable-cloudagent-bob:3000
+      - CLOUDAGENT_ADMIN_WS_ORIGIN=ws://veritable-cloudagent-bob:3000
       - COOKIE_SESSION_KEYS=secret
       - DB_PASSWORD=postgres
       - DB_USERNAME=postgres

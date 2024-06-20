@@ -12,6 +12,8 @@ import { Env } from './env.js'
 import { ForbiddenError, HttpError } from './errors.js'
 import { ILogger, Logger } from './logger.js'
 import { RegisterRoutes } from './routes.js'
+import ConnectionEvents from './services/connectionEvents.js'
+import VeritableCloudagentEvents from './services/veritableCloudagentEvents.js'
 import loadApiSpec from './swagger.js'
 
 const env = container.resolve(Env)
@@ -32,8 +34,15 @@ const customCssToInject: string = `
   .swagger-ui section.models { background-color: #f7f7f7; }
 `
 
-export default async (): Promise<Express> => {
+export default async (startEvents: boolean = true) => {
   const logger = container.resolve<ILogger>(Logger)
+
+  container.resolve(ConnectionEvents).start()
+  const cloudagentEvents = container.resolve(VeritableCloudagentEvents)
+  if (startEvents) {
+    await cloudagentEvents.start()
+  }
+
   const app: Express = express()
 
   const options: SwaggerUiOptions = {
@@ -116,5 +125,5 @@ export default async (): Promise<Express> => {
     next()
   })
 
-  return app
+  return { app, cloudagentEvents }
 }
