@@ -48,6 +48,7 @@ export default class ConnectionTemplates {
           hx-select="#search-results"
           hx-target="#search-results"
           hx-swap="outerHTML"
+          hx-include="#connection-search-input"
         >
           <div class="connections header">
             <span>Connections Summary</span>
@@ -70,6 +71,7 @@ export default class ConnectionTemplates {
             <div class="connections-list-nav">
               <span>Connections</span>
               <input
+                id="connection-search-input"
                 class="search-window"
                 type="search"
                 name="search"
@@ -83,14 +85,14 @@ export default class ConnectionTemplates {
               ></input>
             </div>
             <table class="connections list">
-              <tr>
+              <thead>
                 {['Company Name', 'Verification Status', 'Actions'].map((name: string) => (
                   <th>
                     <span>{name || 'unknown'}</span>
                     <a class="connections-table icon disabled" />
                   </th>
                 ))}
-              </tr>
+              </thead>
               <tbody id="search-results">
                 {connections.length == 0 ? (
                   <tr>
