@@ -130,6 +130,7 @@ export const Page = (props: Html.PropsWithChildren<PageProps>): JSX.Element => (
         <script src="/public/scripts/auth-redirect.js"></script>
         <link rel="icon" type="image/ico" sizes="48x48" href="/public/images/favicon.ico" />
         <link rel="stylesheet" type="text/css" href="/public/styles/main.css" />
+        <link rel="stylesheet" type="text/css" href="/public/styles/mpa.css" />
         {(props.stylesheets || []).map((sheetName) => (
           <link rel="stylesheet" type="text/css" href={`/public/styles/${sheetName}`} />
         ))}
@@ -137,10 +138,10 @@ export const Page = (props: Html.PropsWithChildren<PageProps>): JSX.Element => (
       </head>
       <body class="flex-page" hx-ext="json-enc">
         <SideBar />
-        <div class="flex-page content">
+        <main class="flex-page content">
           <ContentHeader heading={props.heading} headerLinks={props.headerLinks} />
           <div class="content main">{props.children}</div>
-        </div>
+        </main>
       </body>
     </html>
   </>

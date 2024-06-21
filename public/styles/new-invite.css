@@ -26,7 +26,7 @@
   border: 2px solid var(--feedback-accent);
   border-radius: 7px;
   line-height: normal;
-  gap: 6px;  
+  gap: 6px;
   width: 100%;
   max-width: 40ch;
   min-height: 10rem;

@@ -1,76 +1,103 @@
-*,*::before,*::after {
-    box-sizing: border-box;
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+a,
+a:link,
+a:visited {
+  text-decoration: none;
+
+  &:hover {
+    filter: brightness(115%);
   }
-  
-  a, a:link, a:visited {
-    text-decoration: none;
-      
-    &:hover {
-      filter: brightness(115%); 
-    }
+}
+
+input,
+button {
+  font-family: inherit;
+  color: inherit;
+  font-size: inherit;
+  font-weight: inherit;
+}
+
+.active {
+  background-color: #5670f1 !important;
+}
+
+.warning,
+.error,
+.success,
+.disconnected {
+  width: max-content;
+  border-radius: 8px;
+  font-size: 0.75rem;
+  line-height: 1rem;
+  padding: 5px;
+}
+
+* > .warning {
+  background-color: rgba(255, 168, 0, 0.2);
+}
+
+* > .error {
+  background-color: rgba(255, 0, 0, 0.2);
+}
+
+* > .success {
+  background-color: rgba(50, 147, 111, 0.2);
+}
+
+* > .disconnected {
+  background-color: rgba(54, 54, 54, 0.2);
+}
+
+* > .outline {
+  border: solid 1px var(--accent-color) !important;
+  background-color: transparent !important;
+  color: var(--accent-color) !important;
+}
+
+* > .button.text.accent {
+  color: var(--accent-color);
+}
+
+* > .disabled,
+.disabled {
+  width: max-content;
+  cursor: not-allowed !important;
+  color: var(--accent-color) !important;
+  transition: opacity filter 0.3s !important;
+  filter: grayscale(100%);
+  opacity: 0.3;
+
+  &:hover {
+    filter: blur(3px) !important;
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
   }
 
-  input, button {
-    font-family: inherit;
-    color: inherit;
-    font-size: inherit;
-    font-weight: inherit;
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 
-  .active {
-    background-color: #5670f1 !important;
+  /* leave these as separate rules as not all browsers support them */
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
-
-  .warning,
-  .error,
-  .success,
-  .disconnected {
-    width: max-content;
-    border-radius: 8px;
-    font-size: 0.75rem;
-    line-height: 1rem;
-    padding: 5px;
-  }
-
-  * > .warning {
-    background-color: rgba(255, 168, 0, 0.20);
-  }
-
-  * > .error {
-    background-color: rgba(255, 0, 0, 0.20);
-  }
-
-  * > .success {
-    background-color: rgba(50, 147, 111, 0.20);
-  }
-
-  * > .disconnected {
-    background-color: rgba(54, 54, 54, 0.20);
-  }
-
-  * > .outline {
-    border: solid 1px var(--accent-color) !important;
-    background-color: transparent !important;
-    color: var(--accent-color) !important;
-  }
-  
-  * > .button.text.accent {
-    color: var(--accent-color);
-  }
-  
-  * > .disabled,
-  .disabled {
-    width: max-content;
-    cursor: not-allowed !important;
-    color: var(--accent-color) !important;
-    transition: opacity filter 0.3s !important;
-    filter: grayscale(100%);
-    opacity: 0.3;
-  
-    &:hover{
-      filter: blur(3px) !important;
-      opacity: 1;
-    }
-  }
-  
-  
+}

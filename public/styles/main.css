@@ -24,7 +24,7 @@
   --bg-color: #f4f5fb;
   --secondary-color: #ffcc91;
   --accent-color: #5670f1;
-  --border-black: #CFD3D4;
+  --border-black: #cfd3d4;
 
   --neutral-accent: var(--accent-color);
   --negative-accent: #f57e77;
@@ -146,6 +146,42 @@ a.connections-table.icon {
 
 .content.main {
   padding: 1rem;
+  max-width: 2000px;
+  view-transition-name: main;
+}
+
+@keyframes slide-out {
+  0% {
+    transform: translateX(0);
+  }
+  50% {
+    transform: translateX(100vw);
+  }
+  100% {
+    transform: translateX(100vw);
+  }
+}
+
+@keyframes slide-in {
+  0% {
+    transform: translateX(100vw);
+  }
+  50% {
+    transform: translateX(100vw);
+  }
+  100% {
+    transform: translateX(0);
+  }
+}
+
+::view-transition-old(main) {
+  animation-name: slide-out;
+  animation-duration: 1s;
+}
+
+::view-transition-new(main) {
+  animation-name: slide-in;
+  animation-duration: 1s;
 }
 
 /* Connections listPage */
@@ -162,7 +198,7 @@ a.connections-table.icon {
   border: 1px solid var(--accent-color);
   color: var(--accent-color);
   background-color: transparent;
-  
+
   &:hover {
     opacity: 0.7;
   }
@@ -205,7 +241,8 @@ a.connections-table.icon {
   flex-basis: 28ch;
 }
 
-.connections.header > *:first-child, .connections-list-nav > *:first-child {
+.connections.header > *:first-child,
+.connections-list-nav > *:first-child {
   margin-right: auto;
 }
 
@@ -327,12 +364,12 @@ a.connections-table.icon {
   .side-bar.logo-container {
     margin: 0;
   }
-  
+
   .card-body {
     max-width: 100%;
     margin: 1rem;
   }
-  
+
   .search-window {
     margin-left: 10px;
   }
