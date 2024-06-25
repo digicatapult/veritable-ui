@@ -135,7 +135,7 @@ export class NewConnectionController extends HTMLController {
           type: 'companyFound',
           company: company,
         },
-        formStage: 'success',
+        formStage: 'invite',
       })
     )
   }
@@ -233,7 +233,7 @@ export class NewConnectionController extends HTMLController {
 
     // if we're not at the final submission return next stage
     const formStage: NewInviteFormStage = submitToFormStage[body.action]
-    if (formStage !== 'success' /* &&  formStage === 'pin' */) {
+    if (formStage !== 'success') {
       return this.newInviteSuccessHtml(formStage, company, body.email)
     }
 

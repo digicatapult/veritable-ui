@@ -1,10 +1,15 @@
 import Html from '@kitajs/html'
 import { singleton } from 'tsyringe'
-import { PIN_CODE, pinCodeRegex } from '../../models/strings.js'
+import { pinCodeRegex } from '../../models/strings.js'
 import { Page } from '../common.js'
 import { FormFeedback, NewConnectionTemplates } from './base.js'
 
 export type FromInviteFormStage = 'invite' | 'pin' | 'success'
+export type FormInviteProps = {
+  feedback: FormFeedback
+  formStage: FromInviteFormStage
+  invite?: string
+}
 
 @singleton()
 export class FromInviteTemplates extends NewConnectionTemplates {
@@ -33,7 +38,7 @@ export class FromInviteTemplates extends NewConnectionTemplates {
     )
   }
 
-  public fromInviteForm = (props: { formStage: FromInviteFormStage; feedback: FormFeedback }): JSX.Element => {
+  public fromInviteForm = (props: FormInviteProps): JSX.Element => {
     switch (props.formStage) {
       case 'invite':
         return <this.fromInviteInvite {...props}></this.fromInviteInvite>
@@ -44,7 +49,7 @@ export class FromInviteTemplates extends NewConnectionTemplates {
     }
   }
 
-  private fromInviteInvite = (props: { invite?: string; feedback: FormFeedback }): JSX.Element => {
+  private fromInviteInvite = (props: FormInviteProps): JSX.Element => {
     return (
       <this.newConnectionForm
         submitRoute="receive-invitation"
@@ -74,11 +79,7 @@ export class FromInviteTemplates extends NewConnectionTemplates {
     )
   }
 
-  public newInvitePin = (props: {
-    formStage: FromInviteFormStage
-    feedback: FormFeedback
-    pin?: PIN_CODE
-  }): JSX.Element => {
+  public newInvitePin = (props: FormInviteProps): JSX.Element => {
     return (
       <this.newConnectionForm
         submitRoute="pin-validation"
@@ -117,13 +118,13 @@ export class FromInviteTemplates extends NewConnectionTemplates {
               hx-trigger="keyup changed delay:200ms, change, load"
               pattern={pinCodeRegex.source}
               minlength={6}
-              value={props.pin || ''}
               maxlength={6}
+              value={(props.feedback.type === 'pinFound' && props.feedback.pin) || ''}
               type="text"
               hx-target="#new-connection-feedback"
               hx-select="#new-connection-feedback"
               hx-swap="outerHTML"
-              // oninput="this.reportValidity()"
+              oninput="this.reportValidity()"
             />
           </div>
         </div>
@@ -131,7 +132,7 @@ export class FromInviteTemplates extends NewConnectionTemplates {
     )
   }
 
-  private fromInviteSuccess = (props: { feedback: FormFeedback }): JSX.Element => {
+  private fromInviteSuccess = (props: FormInviteProps): JSX.Element => {
     return (
       <this.newConnectionForm
         submitRoute="receive-invitation"

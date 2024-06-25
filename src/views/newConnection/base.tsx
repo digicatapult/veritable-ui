@@ -83,8 +83,8 @@ export abstract class NewConnectionTemplates {
     }
   }
 
-  protected feedbackPin = ({ pin = '', company }: { company?: CompanyProfile; pin: string }): JSX.Element => {
-    return <h1>{`${JSON.stringify({ pin, company })}`}</h1>
+  protected feedbackPin = ({ pin }: { pin: string }): JSX.Element => {
+    return <h1>{`${JSON.stringify({ pin })}`}</h1>
   }
 
   protected feedbackCompanyInfo = ({ company }: { company: CompanyProfile }): JSX.Element => {
