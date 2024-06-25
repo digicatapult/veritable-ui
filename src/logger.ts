@@ -6,10 +6,15 @@ import { Env } from './env.js'
 export const Logger = Symbol('Logger')
 export type ILogger = ReturnType<typeof pino>
 
+let instance: ILogger | null = null
 container.register<ILogger>(Logger, {
   useFactory: (container) => {
+    if (instance) {
+      return instance
+    }
+
     const env = container.resolve(Env)
-    return pino(
+    instance = pino(
       {
         name: 'veritable-ui',
         timestamp: true,
@@ -17,5 +22,6 @@ container.register<ILogger>(Logger, {
       },
       process.stdout
     )
+    return instance
   },
 })
