@@ -1,11 +1,13 @@
 import Html from '@kitajs/html'
 import { CompanyProfile } from '../../models/companyHouseEntity.js'
+import { BASE_64_URL, PIN_CODE } from '../../models/strings.js'
 import { ButtonIcon, FormButton } from '../common.js'
 
 export type FormFeedback =
   | {
       type: 'companyFound'
       company: CompanyProfile
+      invite?: BASE_64_URL
     }
   | {
       type: 'message'
@@ -18,6 +20,9 @@ export type FormFeedback =
   | {
       type: 'pinFound'
       pin: string
+      companyNumber?: string
+      invite?: BASE_64_URL
+      company?: CompanyProfile
     }
 
 export type FormAction =
@@ -83,8 +88,8 @@ export abstract class NewConnectionTemplates {
     }
   }
 
-  protected feedbackPin = ({ pin }: { pin: string }): JSX.Element => {
-    return <h1>{`${JSON.stringify({ pin })}`}</h1>
+  protected feedbackPin = ({ pin, invite }: { pin?: PIN_CODE; invite?: BASE_64_URL }): JSX.Element => {
+    return <h1>{`${JSON.stringify({ pin, invite })}`}</h1>
   }
 
   protected feedbackCompanyInfo = ({ company }: { company: CompanyProfile }): JSX.Element => {

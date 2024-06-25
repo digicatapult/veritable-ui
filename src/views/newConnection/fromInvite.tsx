@@ -1,6 +1,7 @@
 import Html from '@kitajs/html'
 import { singleton } from 'tsyringe'
-import { pinCodeRegex } from '../../models/strings.js'
+import { CompanyProfile } from '../../models/companyHouseEntity.js'
+import { PIN_CODE, pinCodeRegex } from '../../models/strings.js'
 import { Page } from '../common.js'
 import { FormFeedback, NewConnectionTemplates } from './base.js'
 
@@ -9,6 +10,8 @@ export type FormInviteProps = {
   feedback: FormFeedback
   formStage: FromInviteFormStage
   invite?: string
+  pin?: PIN_CODE
+  company?: CompanyProfile
 }
 
 @singleton()
@@ -93,20 +96,17 @@ export class FromInviteTemplates extends NewConnectionTemplates {
       >
         <div class="accented-container">
           <div id="from-invite-invite-input">
-            {/*<input
-            id="from-invite-invite-input"
-            class="new-connection-input-field"
-            name="invite"
-            value={props?.invite}
-            type="hidden"
-          />
-          <input
-            id="from-invite-invite-input"
-            class="new-connection-input-field"
-            name="companyNumber"
-            value={props?.company?.company_number}
-            type="hidden"
-          />*/}
+            <input
+              name="company_number"
+              value={(props.feedback.type === 'companyFound' && props.feedback.company.company_number) || ''}
+              type="hidden"
+            />
+            <input
+              name="company_number"
+              value={(props.feedback.type === 'companyFound' && props.feedback.company.company_number) || ''}
+              type="hidden"
+            />
+
             <p>Please enter the verification code from the physical letter</p>
             <input
               id="from-invite-invite-input-pin"

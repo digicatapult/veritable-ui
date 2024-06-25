@@ -19,6 +19,7 @@ import {
   type EMAIL,
 } from '../../models/strings.js'
 import VeritableCloudagent from '../../models/veritableCloudagent.js'
+import { FormFeedback } from '../../views/newConnection/base.js'
 import { FromInviteTemplates } from '../../views/newConnection/fromInvite.js'
 import { NewInviteFormStage, NewInviteTemplates } from '../../views/newConnection/newInvite.js'
 import { HTML, HTMLController } from '../HTMLController.js'
@@ -141,44 +142,56 @@ export class NewConnectionController extends HTMLController {
   }
 
   /**
+   * submits the company number for
+   */
+  @SuccessResponse(200)
+  @Post('/verify-invite')
+  public async submitInvite(
+    @Body()
+    body: {
+      invite: BASE_64_URL | string
+    }
+  ) {
+    // TODO update state so 'pending us/yours' and enable action button
+    const decodedInvite = await this.decodeInvite(body.invite)
+    // and other udates
+    if (decodedInvite.type === 'error') {
+      return this.pinInviteErrorHtml('unable to decode invite request')
+    }
+
+    return this.html(
+      this.fromInvite.fromInviteForm({
+        feedback: {
+          type: 'companyFound',
+          company: decodedInvite.company,
+        },
+        formStage: 'pin',
+      })
+    )
+  }
+
+  /**
    * physical validation, currently the plan is that @pin
    * is generated as part invitation response to the requester (Bob)
    * and sent along invitation
    */
   @SuccessResponse(200)
   @Get('/verify-pin')
-  public async verifyPin(@Query() pin: string, @Query() companyName: string): Promise<HTML> {
+  public async verifyPin(@Query() pin: string): Promise<HTML> {
     const [pinHash] = await Promise.all([
       argon2.hash(pin, { secret: Buffer.from(this.env.get('INVITATION_PIN_SECRET'), 'utf8') }),
-      this.cloudagent.createOutOfBandInvite({ companyName }),
     ])
 
     this.logger.debug(`pin hash - ${pinHash}`)
     const connectionInvite = await this.db.get('connection_invite', { pin_hash: pinHash }).then((res) => res[0])
 
     if (!connectionInvite?.pin_hash || connectionInvite.pin_hash !== pinHash) {
-      return this.html(
-        this.fromInvite.newInvitePin({
-          feedback: {
-            type: 'error',
-            error: `Database pin validation has failed. ${pinHash},`,
-          },
-          formStage: 'pin',
-        })
-      )
+      return this.pinInviteErrorHtml(`invalid pin. ${pinHash}`, pin)
     }
 
     this.logger.debug('%o', connectionInvite)
 
-    return this.html(
-      this.fromInvite.newInvitePin({
-        feedback: {
-          pin,
-          type: 'pinFound',
-        },
-        formStage: 'success',
-      })
-    )
+    return this.pinInviteSuccessHtml({ type: 'pinFound', pin })
   }
 
   /**
@@ -208,7 +221,9 @@ export class NewConnectionController extends HTMLController {
       this.logger.debug('handle invitation')
     }
 
-    return this.html(JSON.stringify({ msg: 'success', decodedInvite, body }))
+    const { pin, invite, companyNumber } = body
+
+    return this.pinInviteSuccessHtml({ type: 'pinFound', pin, invite, companyNumber })
   }
 
   /**
@@ -316,7 +331,7 @@ export class NewConnectionController extends HTMLController {
     await this.sendAdminEmail(inviteOrError.company, pin)
 
     this.logger.debug('NEW_CONNECTION: complete: %s', dbResult.connectionId)
-    return this.receiveInviteSuccessHtml(inviteOrError.company)
+    return this.receiveInviteSuccessHtml(inviteOrError.company, inviteOrError.inviteUrl)
   }
 
   private async decodeInvite(
@@ -468,7 +483,7 @@ export class NewConnectionController extends HTMLController {
       this.newInvite.newInviteForm({
         feedback: {
           type: 'companyFound',
-          company: company,
+          company,
         },
         formStage: formStage,
         email: email,
@@ -477,26 +492,49 @@ export class NewConnectionController extends HTMLController {
     )
   }
 
-  private newInviteErrorHtml(message: string, email?: string, companyNumber?: string) {
+  private newInviteErrorHtml(error: string, email?: string, companyNumber?: string) {
     return this.html(
       this.newInvite.newInviteForm({
         feedback: {
           type: 'error',
-          error: message,
+          error,
         },
         formStage: 'form',
-        email: email,
-        companyNumber: companyNumber,
+        email,
+        companyNumber,
       })
     )
   }
 
-  private receiveInviteSuccessHtml(company: CompanyProfile) {
+  private pinInviteErrorHtml(error: string, pin?: PIN_CODE) {
+    return this.html(
+      this.fromInvite.fromInviteForm({
+        feedback: {
+          type: 'error',
+          error,
+        },
+        pin,
+        formStage: 'pin',
+      })
+    )
+  }
+
+  private pinInviteSuccessHtml(feedback: FormFeedback) {
+    return this.html(
+      this.fromInvite.fromInviteForm({
+        feedback,
+        formStage: 'success',
+      })
+    )
+  }
+
+  private receiveInviteSuccessHtml(company: CompanyProfile, invite: BASE_64_URL) {
     return this.html(
       this.fromInvite.fromInviteForm({
         feedback: {
           type: 'companyFound',
-          company: company,
+          company,
+          invite,
         },
         formStage: 'success',
       })
