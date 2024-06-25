@@ -25,6 +25,7 @@ import { HTML, HTMLController } from '../HTMLController.js'
 const submitToFormStage = {
   back: 'form',
   continue: 'confirmation',
+  pin: 'pin',
   submit: 'success',
 } as const
 
@@ -121,6 +122,7 @@ export class NewConnectionController extends HTMLController {
     }
 
     const inviteOrError = await this.decodeInvite(invite)
+
     if (inviteOrError.type === 'error') {
       return this.receiveInviteErrorHtml(inviteOrError.message)
     }
@@ -132,7 +134,54 @@ export class NewConnectionController extends HTMLController {
           type: 'companyFound',
           company: company,
         },
-        formStage: 'invite',
+        formStage: 'success',
+      })
+    )
+  }
+
+  /**
+   * physical validation, currently the plan is that @pin
+   * is generated as part invitation response to the requester (Bob)
+   * and sent along invitation
+   */
+  @SuccessResponse(200)
+  @Get('/verify-pin')
+  public async submitFromPin(@Query() pin: string, invite: BASE_64_URL | string): Promise<HTML> {
+    const decodedInvite = await this.decodeInvite(invite)
+    if (decodedInvite.type === 'error') {
+      return this.receiveInviteErrorHtml(decodedInvite.message)
+    }
+
+    const [pinHash] = await Promise.all([
+      argon2.hash(pin, { secret: Buffer.from(this.env.get('INVITATION_PIN_SECRET'), 'utf8') }),
+      this.cloudagent.createOutOfBandInvite({ companyName: decodedInvite.company.company_name }),
+    ])
+
+    this.logger.debug(`pin hash - ${pinHash}`)
+    const connectionInvite = await this.db.get('connection_invite', { pin_hash: pinHash }).then((res) => res[0])
+
+    if (!connectionInvite?.pin_hash || connectionInvite.pin_hash !== pinHash) {
+      return this.html(
+        this.fromInvite.newInvitePin({
+          pin,
+          invite,
+          feedback: {
+            type: 'error',
+            error: `Database pin validation has failed. ${pinHash},`,
+          },
+        })
+      )
+    }
+
+    this.logger.debug('%o', connectionInvite)
+
+    return this.html(
+      this.fromInvite.newInvitePin({
+        pin,
+        feedback: {
+          pin,
+          type: 'pinFound',
+        },
       })
     )
   }
@@ -159,7 +208,7 @@ export class NewConnectionController extends HTMLController {
 
     // if we're not at the final submission return next stage
     const formStage: NewInviteFormStage = submitToFormStage[body.action]
-    if (formStage !== 'success') {
+    if (formStage !== 'success' /* &&  formStage === 'pin' */) {
       return this.newInviteSuccessHtml(formStage, company, body.email)
     }
 

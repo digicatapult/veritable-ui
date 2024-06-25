@@ -15,6 +15,10 @@ export type FormFeedback =
       type: 'error'
       error: string
     }
+  | {
+      type: 'pinFound'
+      pin: string 
+    }
 
 export type FormAction =
   | {
@@ -72,9 +76,15 @@ export abstract class NewConnectionTemplates {
         return <this.feedbackMessage message={props.feedback.message} isError={false} />
       case 'companyFound':
         return <this.feedbackCompanyInfo company={props.feedback.company} />
+      case 'pinFound':
+        return <this.feedbackPin pin={props.feedback.pin} />
       case 'error':
         return <this.feedbackMessage message={props.feedback.error} isError={true} />
     }
+  }
+
+  protected feedbackPin = (props: { company?: CompanyProfile; pin: string }): JSX.Element => {
+    return <h1>{`${JSON.stringify(props)}`}</h1>
   }
 
   protected feedbackCompanyInfo = ({ company }: { company: CompanyProfile }): JSX.Element => {
