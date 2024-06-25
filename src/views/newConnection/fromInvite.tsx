@@ -1,7 +1,6 @@
 import Html from '@kitajs/html'
 import { singleton } from 'tsyringe'
-import { CompanyProfile } from '../../models/companyHouseEntity.js'
-import { BASE_64_URL, PIN_CODE, pinCodeRegex } from '../../models/strings.js'
+import { PIN_CODE, pinCodeRegex } from '../../models/strings.js'
 import { Page } from '../common.js'
 import { FormFeedback, NewConnectionTemplates } from './base.js'
 
@@ -34,12 +33,7 @@ export class FromInviteTemplates extends NewConnectionTemplates {
     )
   }
 
-  public fromInviteForm = (props: {
-    formStage: FromInviteFormStage
-    feedback: FormFeedback
-    invite?: BASE_64_URL | string
-    pin?: PIN_CODE | string
-  }): JSX.Element => {
+  public fromInviteForm = (props: { formStage: FromInviteFormStage; feedback: FormFeedback }): JSX.Element => {
     switch (props.formStage) {
       case 'invite':
         return <this.fromInviteInvite {...props}></this.fromInviteInvite>
@@ -81,10 +75,9 @@ export class FromInviteTemplates extends NewConnectionTemplates {
   }
 
   public newInvitePin = (props: {
+    formStage: FromInviteFormStage
     feedback: FormFeedback
-    invite?: BASE_64_URL | string
-    company?: CompanyProfile
-    pin?: PIN_CODE | string
+    pin?: PIN_CODE
   }): JSX.Element => {
     return (
       <this.newConnectionForm
@@ -124,11 +117,12 @@ export class FromInviteTemplates extends NewConnectionTemplates {
               hx-trigger="keyup changed delay:200ms, change, load"
               pattern={pinCodeRegex.source}
               minlength={6}
+              value={props.pin || ''}
               maxlength={6}
               type="text"
-              // hx-target="#new-connection-feedback"
-              // hx-select="#new-connection-feedback"
-              // hx-swap="outerHTML"
+              hx-target="#new-connection-feedback"
+              hx-select="#new-connection-feedback"
+              hx-swap="outerHTML"
               // oninput="this.reportValidity()"
             />
           </div>

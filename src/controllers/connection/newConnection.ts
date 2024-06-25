@@ -159,11 +159,11 @@ export class NewConnectionController extends HTMLController {
     if (!connectionInvite?.pin_hash || connectionInvite.pin_hash !== pinHash) {
       return this.html(
         this.fromInvite.newInvitePin({
-          pin,
           feedback: {
             type: 'error',
             error: `Database pin validation has failed. ${pinHash},`,
           },
+          formStage: 'pin',
         })
       )
     }
@@ -172,11 +172,11 @@ export class NewConnectionController extends HTMLController {
 
     return this.html(
       this.fromInvite.newInvitePin({
-        pin,
         feedback: {
           pin,
           type: 'pinFound',
         },
+        formStage: 'success',
       })
     )
   }
@@ -191,13 +191,24 @@ export class NewConnectionController extends HTMLController {
     body: {
       invite: BASE_64_URL | string
       pin: PIN_CODE
+      companyNumber: COMPANY_NUMBER
     }
   ): Promise<HTML> {
+    this.logger.debug('%o', body)
     const decodedInvite = await this.decodeInvite(body.invite)
+
+    //       TODO
+    // - handle form stages and verify
+    // - handle company number lookup along with invitation checks (reuse what we already have)
+    // - handle proposal (in temporary values)
+    // - confirm error/success props.feedback
+    // - update databae entities
+    // - test new routes
     if (decodedInvite.type === 'error') {
-      return this.receiveInviteErrorHtml(decodedInvite.message)
+      this.logger.debug('handle invitation')
     }
-    return this.newInviteSuccessHtml('success', {} as CompanyProfile, body.pin)
+
+    return this.html(JSON.stringify({ msg: 'success', decodedInvite, body }))
   }
 
   /**
