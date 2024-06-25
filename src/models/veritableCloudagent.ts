@@ -1,7 +1,7 @@
 import { inject, injectable, singleton } from 'tsyringe'
 import { z } from 'zod'
 
-import { Env } from '../env.js'
+import { Env, type PartialEnv } from '../env.js'
 import { InternalError } from '../errors.js'
 import { Logger, type ILogger } from '../logger.js'
 
@@ -38,7 +38,35 @@ export const connectionParser = z.object({
 })
 export type Connection = z.infer<typeof connectionParser>
 
+export const didDocumentParser = z.object({
+  id: z.string(),
+})
+export type DidDocument = z.infer<typeof didDocumentParser>
+
+export const didCreateParser = z.object({
+  didDocument: didDocumentParser,
+})
+export const didListParser = z.array(didCreateParser)
+
+export const schemaParser = z.object({
+  id: z.string(),
+  issuerId: z.string(),
+  name: z.string(),
+  version: z.string(),
+  attrNames: z.array(z.string()),
+})
+export type Schema = z.infer<typeof schemaParser>
+
+export const credentialDefinitionParser = z.object({
+  id: z.string(),
+  issuerId: z.string(),
+  schemaId: z.string(),
+})
+export type CredentialDefinition = z.infer<typeof credentialDefinitionParser>
+
 const connectionListParser = z.array(connectionParser)
+const schemaListParser = z.array(schemaParser)
+const credentialDefinitionListParser = z.array(credentialDefinitionParser)
 
 type parserFn<O> = (res: Response) => O | Promise<O>
 
@@ -46,7 +74,7 @@ type parserFn<O> = (res: Response) => O | Promise<O>
 @injectable()
 export default class VeritableCloudagent {
   constructor(
-    private env: Env,
+    @inject(Env) private env: PartialEnv<'CLOUDAGENT_ADMIN_ORIGIN'>,
     @inject(Logger) protected logger: ILogger
   ) {}
 
@@ -86,6 +114,61 @@ export default class VeritableCloudagent {
 
   public async deleteConnection(id: string): Promise<void> {
     return this.deleteRequest(`/v1/connections/${id}`, () => {})
+  }
+
+  public async createDid(method: string, options: Record<string, string>): Promise<DidDocument> {
+    return this.postRequest('/v1/dids/create', { method, options }, this.buildParser(didCreateParser)).then(
+      (res) => res.didDocument
+    )
+  }
+
+  public async getCreatedDids(filters: Partial<{ method: string }> = {}): Promise<DidDocument[]> {
+    const params = new URLSearchParams({
+      createdLocally: 'true',
+      ...filters,
+    }).toString()
+
+    return this.getRequest(`/v1/dids?${params}`, this.buildParser(didListParser)).then((dids) =>
+      dids.map((did) => did.didDocument)
+    )
+  }
+
+  public async createSchema(issuerId: string, name: string, version: string, attrNames: string[]): Promise<Schema> {
+    return this.postRequest('/v1/schemas', { issuerId, name, version, attrNames }, this.buildParser(schemaParser))
+  }
+
+  public async getCreatedSchemas(
+    filters: Partial<{ issuerId: string; schemaName: string; schemaVersion: string }> = {}
+  ): Promise<Schema[]> {
+    const params = new URLSearchParams({
+      createdLocally: 'true',
+      ...filters,
+    }).toString()
+
+    return this.getRequest(`/v1/schemas?${params}`, this.buildParser(schemaListParser))
+  }
+
+  public async createCredentialDefinition(
+    issuerId: string,
+    schemaId: string,
+    tag: string
+  ): Promise<CredentialDefinition> {
+    return this.postRequest(
+      '/v1/credential-definitions',
+      { tag, issuerId, schemaId },
+      this.buildParser(credentialDefinitionParser)
+    )
+  }
+
+  public async getCreatedCredentialDefinitions(
+    filters: Partial<{ schemaId: string; issuerId: string }> = {}
+  ): Promise<CredentialDefinition[]> {
+    const params = new URLSearchParams({
+      createdLocally: 'true',
+      ...filters,
+    }).toString()
+
+    return this.getRequest(`/v1/credential-definitions?${params}`, this.buildParser(credentialDefinitionListParser))
   }
 
   private async getRequest<O>(path: string, parse: parserFn<O>): Promise<O> {

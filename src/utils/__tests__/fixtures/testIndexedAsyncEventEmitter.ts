@@ -1,9 +1,9 @@
 import { pino } from 'pino'
 
-import { ILogger } from '../../../logger.js'
+import type { ILogger } from '../../../logger.js'
 import IndexedAsyncEventEmitter from '../../indexedAsyncEventEmitter.js'
 
-const mockLogger = pino({ level: 'silent' })
+const mockLogger: ILogger = pino({ level: 'silent' })
 
 export type EventNames = 'A' | 'B' | 'C'
 export type EventData = {

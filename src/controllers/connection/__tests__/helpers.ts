@@ -2,6 +2,7 @@ import { Readable } from 'node:stream'
 import { pino } from 'pino'
 
 import { Env } from '../../../env.js'
+import type { ILogger } from '../../../logger.js'
 import CompanyHouseEntity from '../../../models/companyHouseEntity.js'
 import Database from '../../../models/db/index.js'
 import { ConnectionRow } from '../../../models/db/types.js'
@@ -22,7 +23,7 @@ export const withConnectionMocks = () => {
     listPage: (connections: ConnectionRow[]) =>
       templateFake('list', connections[0].company_name, connections[0].status),
   } as ConnectionTemplates
-  const mockLogger = pino({ level: 'silent' })
+  const mockLogger: ILogger = pino({ level: 'silent' })
   const dbMock = {
     get: () => Promise.resolve([{ company_name: 'foo', status: 'verified' }]),
   } as unknown as Database
@@ -35,7 +36,7 @@ export const withConnectionMocks = () => {
 }
 
 export const withNewConnectionMocks = () => {
-  const mockLogger = pino({ level: 'silent' })
+  const mockLogger: ILogger = pino({ level: 'silent' })
   const mockTransactionDb = {
     insert: () => Promise.resolve([{ id: '42' }]),
   }

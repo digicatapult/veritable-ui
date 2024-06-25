@@ -6,6 +6,7 @@ import sinon from 'sinon'
 
 import { Env } from '../../../env.js'
 
+import type { ILogger } from '../../../logger.js'
 import EmailService from '../index.js'
 
 const mockEnv: Env = {
@@ -31,7 +32,7 @@ describe('EmailService', () => {
   describe('sendMail', () => {
     it('should log message details', async () => {
       const logger = mkMockLogger()
-      const emailService = new EmailService(mockEnv, mockTemplates, logger as unknown as pino.Logger)
+      const emailService = new EmailService(mockEnv, mockTemplates, logger as unknown as ILogger)
 
       await emailService.sendMail('connection_invite', { to: 'user@example.com', invite: '1234567890987654321' })
 

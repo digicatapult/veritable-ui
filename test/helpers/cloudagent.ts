@@ -4,9 +4,10 @@ import { Env } from '../../src/env.js'
 import VeritableCloudagent from '../../src/models/veritableCloudagent.js'
 
 import { container } from 'tsyringe'
+import { type ILogger } from '../../src/logger.js'
 import { validCompanyName, validCompanyNumber } from './fixtures.js'
 
-const mockLogger = pino({ level: 'silent' })
+const mockLogger: ILogger = pino({ level: 'silent' })
 
 const cleanupShared = async function (agent: VeritableCloudagent) {
   const connections = await agent.getConnections()
