@@ -1,9 +1,9 @@
 import Html from '@kitajs/html'
 import { singleton } from 'tsyringe'
-import { BASE_64_URL } from '../../models/strings.js'
+import { CompanyProfile } from '../../models/companyHouseEntity.js'
+import { BASE_64_URL, PIN_CODE, pinCodeRegex } from '../../models/strings.js'
 import { Page } from '../common.js'
 import { FormFeedback, NewConnectionTemplates } from './base.js'
-import { CompanyProfile } from '../../models/companyHouseEntity.js'
 
 export type FromInviteFormStage = 'invite' | 'pin' | 'success'
 
@@ -38,7 +38,7 @@ export class FromInviteTemplates extends NewConnectionTemplates {
     formStage: FromInviteFormStage
     feedback: FormFeedback
     invite?: BASE_64_URL | string
-    pin?: string
+    pin?: PIN_CODE | string
   }): JSX.Element => {
     switch (props.formStage) {
       case 'invite':
@@ -80,10 +80,15 @@ export class FromInviteTemplates extends NewConnectionTemplates {
     )
   }
 
-  public newInvitePin = (props: { feedback: FormFeedback; invite?: BASE_64_URL | string, company?: CompanyProfile, pin?: string }): JSX.Element => {
+  public newInvitePin = (props: {
+    feedback: FormFeedback
+    invite?: BASE_64_URL | string
+    company?: CompanyProfile
+    pin?: PIN_CODE | string
+  }): JSX.Element => {
     return (
       <this.newConnectionForm
-        submitRoute="receive-invitation"
+        submitRoute="pin-validation"
         feedback={props.feedback}
         progressStep={2}
         progressStepCount={3}
@@ -92,8 +97,9 @@ export class FromInviteTemplates extends NewConnectionTemplates {
           { type: 'submit', value: 'pin', text: 'Continue' },
         ]}
       >
-       <div id="from-invite-invite-input" class="accented-container">
-          <input
+        <div class="accented-container">
+          <div id="from-invite-invite-input">
+            {/*<input
             id="from-invite-invite-input"
             class="new-connection-input-field"
             name="invite"
@@ -106,27 +112,26 @@ export class FromInviteTemplates extends NewConnectionTemplates {
             name="companyNumber"
             value={props?.company?.company_number}
             type="hidden"
-          />
-          <input
-            id="form-invite-pin-input"
-            name="pin"
-            class="new-connection-input-field"
-            placeholder="Company House Number"
-            required
-            hx-get="/connection/new/verify-pin"
-            hx-trigger="keyup changed delay:200ms, change, load"
-            hx-target="#new-connection-feedback"
-            hx-select="#new-connection-feedback"
-            hx-swap="outerHTML"
-            minlength={8}
-            maxlength={8}
-            oninput="this.reportValidity()"
-            type="text"
-          />
-          <p>
-            Your connection invitation has been sent. Please wait for their verification. As the post may take 2-3 days
-            to arrive, please wait for their verification and keep updated by viewing the verification status.
-          </p>
+          />*/}
+            <p>Please enter the verification code from the physical letter</p>
+            <input
+              id="from-invite-invite-input-pin"
+              name="pin"
+              class="new-connection-input-field"
+              placeholder="Code"
+              required
+              hx-get="/connection/new/verify-pin"
+              hx-trigger="keyup changed delay:200ms, change, load"
+              pattern={pinCodeRegex.source}
+              minlength={6}
+              maxlength={6}
+              type="text"
+              // hx-target="#new-connection-feedback"
+              // hx-select="#new-connection-feedback"
+              // hx-swap="outerHTML"
+              // oninput="this.reportValidity()"
+            />
+          </div>
         </div>
       </this.newConnectionForm>
     )

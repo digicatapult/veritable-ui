@@ -12,6 +12,7 @@ import Database from '../../models/db/index.js'
 import EmailService from '../../models/emailService/index.js'
 import {
   BASE_64_URL,
+  PIN_CODE,
   base64UrlRegex,
   companyNumberRegex,
   type COMPANY_NUMBER,
@@ -146,15 +147,10 @@ export class NewConnectionController extends HTMLController {
    */
   @SuccessResponse(200)
   @Get('/verify-pin')
-  public async submitFromPin(@Query() pin: string, invite: BASE_64_URL | string): Promise<HTML> {
-    const decodedInvite = await this.decodeInvite(invite)
-    if (decodedInvite.type === 'error') {
-      return this.receiveInviteErrorHtml(decodedInvite.message)
-    }
-
+  public async verifyPin(@Query() pin: string, @Query() companyName: string): Promise<HTML> {
     const [pinHash] = await Promise.all([
       argon2.hash(pin, { secret: Buffer.from(this.env.get('INVITATION_PIN_SECRET'), 'utf8') }),
-      this.cloudagent.createOutOfBandInvite({ companyName: decodedInvite.company.company_name }),
+      this.cloudagent.createOutOfBandInvite({ companyName }),
     ])
 
     this.logger.debug(`pin hash - ${pinHash}`)
@@ -164,7 +160,6 @@ export class NewConnectionController extends HTMLController {
       return this.html(
         this.fromInvite.newInvitePin({
           pin,
-          invite,
           feedback: {
             type: 'error',
             error: `Database pin validation has failed. ${pinHash},`,
@@ -184,6 +179,25 @@ export class NewConnectionController extends HTMLController {
         },
       })
     )
+  }
+
+  /**
+   * submits the pin code for validation
+   */
+  @SuccessResponse(200)
+  @Post('/pin-validation')
+  public async submitPin(
+    @Body()
+    body: {
+      invite: BASE_64_URL | string
+      pin: PIN_CODE
+    }
+  ): Promise<HTML> {
+    const decodedInvite = await this.decodeInvite(body.invite)
+    if (decodedInvite.type === 'error') {
+      return this.receiveInviteErrorHtml(decodedInvite.message)
+    }
+    return this.newInviteSuccessHtml('success', {} as CompanyProfile, body.pin)
   }
 
   /**

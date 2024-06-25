@@ -17,7 +17,7 @@ export type FormFeedback =
     }
   | {
       type: 'pinFound'
-      pin: string 
+      pin: string
     }
 
 export type FormAction =
@@ -35,7 +35,7 @@ export type FormAction =
 export abstract class NewConnectionTemplates {
   protected newConnectionForm = (
     props: Html.PropsWithChildren<{
-      submitRoute: 'create-invitation' | 'receive-invitation'
+      submitRoute: 'create-invitation' | 'receive-invitation' | 'pin-validation'
       feedback: FormFeedback
       progressStep: number
       progressStepCount: number
@@ -83,8 +83,8 @@ export abstract class NewConnectionTemplates {
     }
   }
 
-  protected feedbackPin = (props: { company?: CompanyProfile; pin: string }): JSX.Element => {
-    return <h1>{`${JSON.stringify(props)}`}</h1>
+  protected feedbackPin = ({ pin = '', company }: { company?: CompanyProfile; pin: string }): JSX.Element => {
+    return <h1>{`${JSON.stringify({ pin, company })}`}</h1>
   }
 
   protected feedbackCompanyInfo = ({ company }: { company: CompanyProfile }): JSX.Element => {
