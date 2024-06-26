@@ -69,7 +69,6 @@ export default class CompanyHouseEntity {
       return null
     }
 
-    console.log(await response.json())
     throw new InternalError(`Error calling CompanyHouse API`)
   }
 

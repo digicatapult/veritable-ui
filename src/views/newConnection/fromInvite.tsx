@@ -1,6 +1,7 @@
 import Html from '@kitajs/html'
 import { singleton } from 'tsyringe'
-import { BASE_64_URL, PIN_CODE, pinCodeRegex } from '../../models/strings.js'
+import { CompanyProfile } from '../../models/companyHouseEntity.js'
+import { BASE_64_URL, pinCodeRegex } from '../../models/strings.js'
 import { Page } from '../common.js'
 import { FormFeedback, NewConnectionTemplates } from './base.js'
 
@@ -8,8 +9,9 @@ export type FromInviteFormStage = 'invite' | 'pin' | 'success'
 export type FormInviteProps = {
   feedback: FormFeedback
   formStage: FromInviteFormStage
-  pin?: PIN_CODE
+  pin?: string
   invite?: BASE_64_URL
+  company?: CompanyProfile
 }
 
 @singleton()
@@ -18,7 +20,7 @@ export class FromInviteTemplates extends NewConnectionTemplates {
     super()
   }
 
-  public fromInviteFormPage = (feedback: FormFeedback, pin?: PIN_CODE) => {
+  public fromInviteFormPage = (feedback: FormFeedback, pin?: string) => {
     return (
       <Page
         title="Veritable - New Connection"
@@ -89,11 +91,16 @@ export class FromInviteTemplates extends NewConnectionTemplates {
         progressStepCount={3}
         actions={[
           { type: 'link', text: 'Fill In Later', href: '/connection' },
-          { type: 'submit', value: 'createConnection', text: 'Continue' },
+          { type: 'submit', value: 'pin-submit', text: 'Continue' },
         ]}
       >
         <div class="accented-container">
           <p>Please enter the verification code from the physical letter</p>
+          <input
+            name="invite"
+            value={(props.feedback.type === 'success' && props.feedback.invite) || ''}
+            type="hidden"
+          />
           <input
             id="from-invite-invite-input-pin"
             name="pin"

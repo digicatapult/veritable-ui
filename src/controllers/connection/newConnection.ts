@@ -18,7 +18,6 @@ import {
   type EMAIL,
 } from '../../models/strings.js'
 import VeritableCloudagent from '../../models/veritableCloudagent.js'
-import { FormFeedback } from '../../views/newConnection/base.js'
 import { FromInviteTemplates } from '../../views/newConnection/fromInvite.js'
 import { NewInviteFormStage, NewInviteTemplates } from '../../views/newConnection/newInvite.js'
 import { HTML, HTMLController } from '../HTMLController.js'
@@ -148,7 +147,7 @@ export class NewConnectionController extends HTMLController {
   public async submitInvite(
     @Body()
     body: {
-      invite: BASE_64_URL | string
+      invite: string
     }
   ) {
     // TODO update state so 'pending us/yours' and enable action button
@@ -161,31 +160,12 @@ export class NewConnectionController extends HTMLController {
     return this.html(
       this.fromInvite.fromInviteForm({
         feedback: {
-          type: 'companyFound', // TODO inviteFound?
-          company: decodedInvite.company,
+          type: 'success', // TODO inviteFound?
+          invite: decodedInvite.inviteUrl,
         },
         formStage: 'pin',
       })
     )
-  }
-
-  /**
-   * submits the pin code for other party to validate
-   */
-  @SuccessResponse(200)
-  @Post('/pin-submission')
-  public async submitPin(
-    @Body()
-    body: {
-      pin: string
-      action: 'submitPin'
-      invite: string
-    }
-  ): Promise<HTML> {
-    this.logger.debug('%o', body)
-    // do something with the pin e.g. propose
-
-    return this.pinSuccessHtml({ type: 'success', pin: body.pin })
   }
 
   /**
@@ -244,6 +224,29 @@ export class NewConnectionController extends HTMLController {
   }
 
   /**
+   * submits the pin number for other party to check
+   */
+  @SuccessResponse(200)
+  @Post('/pin-submission')
+  public async submitPin(
+    @Body()
+    body: {
+      pin: string
+      action: 'pin-submission'
+    }
+  ): Promise<HTML> {
+    return this.html(
+      this.fromInvite.fromInviteForm({
+        feedback: {
+          type: 'success',
+          pin: body.pin,
+        },
+        formStage: 'success',
+      })
+    )
+  }
+
+  /**
    * submits the company number for
    */
   @SuccessResponse(200)
@@ -251,7 +254,8 @@ export class NewConnectionController extends HTMLController {
   public async submitFromInvite(
     @Body()
     body: {
-      invite: BASE_64_URL
+      pin?: string
+      invite: string
       action: 'createConnection'
     }
   ): Promise<HTML> {
@@ -293,7 +297,7 @@ export class NewConnectionController extends HTMLController {
     await this.sendAdminEmail(inviteOrError.company, pin)
 
     this.logger.debug('NEW_CONNECTION: complete: %s', dbResult.connectionId)
-    return this.receiveInviteSuccessHtml(inviteOrError.company)
+    return this.receiveInviteSuccessHtml(inviteOrError.inviteUrl)
   }
 
   private async decodeInvite(
@@ -407,7 +411,6 @@ export class NewConnectionController extends HTMLController {
   private async sendNewConnectionEmail(email: string, invite: { companyNumber: string; inviteUrl: string }) {
     this.logger.debug('NEW_CONNECTION: sending emails')
     const inviteBase64 = Buffer.from(JSON.stringify(invite), 'utf8').toString('base64url')
-    console.log({ inviteBase64 })
 
     try {
       await this.email.sendMail('connection_invite', {
@@ -469,21 +472,12 @@ export class NewConnectionController extends HTMLController {
     )
   }
 
-  private pinSuccessHtml(feedback: FormFeedback) {
-    return this.html(
-      this.fromInvite.fromInviteForm({
-        feedback,
-        formStage: 'success',
-      })
-    )
-  }
-
-  private receiveInviteSuccessHtml(company: CompanyProfile) {
+  private receiveInviteSuccessHtml(invite: string) {
     return this.html(
       this.fromInvite.fromInviteForm({
         feedback: {
-          type: 'companyFound',
-          company,
+          type: 'success',
+          invite,
         },
         formStage: 'pin',
       })
