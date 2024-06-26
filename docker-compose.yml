@@ -48,20 +48,13 @@ services:
         condition: service_healthy
     ports:
       - 3100:3000
-    command: --inbound-transport http 5002 ws 5003 --outbound-transport http ws
+    env_file:
+      - docker/cloudagent.env
     environment:
-      # - AFJ_REST_INBOUND_TRANSPORT="http 5002 ws 5003"
-      # - AFJ_REST_OUTBOUND_TRANSPORT="http ws"
-      - AFJ_REST_ENDPOINT=ws://veritable-cloudagent-alice:5003
-      - AFJ_REST_ADMIN_PORT=3000
-      - AFJ_REST_IPFS_ORIGIN=http://ipfs:5001
-      - AFJ_REST_POSTGRES_HOST=postgres-veritable-cloudagent-alice
-      - AFJ_REST_POSTGRES_PORT=5432
-      - AFJ_REST_POSTGRES_USERNAME=postgres
-      - AFJ_REST_POSTGRES_PASSWORD=postgres
-      - AFJ_REST_LABEL=vertiable-cloudagent
-      - AFJ_REST_WALLET_ID=alice
-      - AFJ_REST_WALLET_KEY=alice-key
+      - ENDPOINT=ws://veritable-cloudagent-alice:5003
+      - POSTGRES_HOST=postgres-veritable-cloudagent-alice
+      - WALLET_ID=alice
+      - WALLET_KEY=alice-key
 
   # -------------------- bob -------------------------------#
   veritable-ui-bob:
@@ -100,6 +93,9 @@ services:
       - IDP_INTERNAL_URL_PREFIX=http://keycloak:8080/realms/veritable/protocol/openid-connect
       - INVITATION_FROM_COMPANY_NUMBER=07964699
       - INVITATION_PIN_SECRET=secret
+      - ISSUANCE_DID_POLICY=EXISTING_OR_NEW
+      - ISSUANCE_SCHEMA_POLICY=EXISTING_OR_NEW
+      - ISSUANCE_CRED_DEF_POLICY=EXISTING_OR_NEW
   postgres-veritable-ui-bob:
     image: postgres:16.3-alpine
     container_name: postgres-veritable-ui-bob
@@ -128,20 +124,13 @@ services:
         condition: service_healthy
     ports:
       - 3101:3000
-    command: --inbound-transport http 5002 ws 5003 --outbound-transport http ws
+    env_file:
+      - docker/cloudagent.env
     environment:
-      # - AFJ_REST_INBOUND_TRANSPORT="http 5002 ws 5003"
-      # - AFJ_REST_OUTBOUND_TRANSPORT="http ws"
-      - AFJ_REST_ENDPOINT=ws://veritable-cloudagent-bob:5003
-      - AFJ_REST_ADMIN_PORT=3000
-      - AFJ_REST_IPFS_ORIGIN=http://ipfs:5001
-      - AFJ_REST_POSTGRES_HOST=postgres-veritable-cloudagent-bob
-      - AFJ_REST_POSTGRES_PORT=5432
-      - AFJ_REST_POSTGRES_USERNAME=postgres
-      - AFJ_REST_POSTGRES_PASSWORD=postgres
-      - AFJ_REST_LABEL=vertiable-cloudagent
-      - AFJ_REST_WALLET_ID=bob
-      - AFJ_REST_WALLET_KEY=bob-key
+      - ENDPOINT=ws://veritable-cloudagent-bob:5003
+      - POSTGRES_HOST=postgres-veritable-cloudagent-bob
+      - WALLET_ID=bob
+      - WALLET_KEY=bob-key
 
 volumes:
   ipfs:

@@ -3,20 +3,25 @@ import { container } from 'tsyringe'
 
 import { Env } from './env.js'
 
-const env = container.resolve(Env)
-
-export const logger = pino(
-  {
-    name: 'htmx-tsoa',
-    timestamp: true,
-    level: env.get('LOG_LEVEL'),
-  },
-  process.stdout
-)
-
 export const Logger = Symbol('Logger')
-export type ILogger = typeof logger
+export type ILogger = ReturnType<typeof pino>
 
+let instance: ILogger | null = null
 container.register<ILogger>(Logger, {
-  useValue: logger,
+  useFactory: (container) => {
+    if (instance) {
+      return instance
+    }
+
+    const env = container.resolve(Env)
+    instance = pino(
+      {
+        name: 'veritable-ui',
+        timestamp: true,
+        level: env.get('LOG_LEVEL'),
+      },
+      process.stdout
+    )
+    return instance
+  },
 })
