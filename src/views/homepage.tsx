@@ -35,7 +35,7 @@ export default class HomepageTemplates {
             <div class="category-item" onclick="location.href='#';">
               <div class="category-align-in-row">
                 <img class="category-icon" src="/public/images/settings.svg" />
-                <h1 class="category-header">Settigns</h1>
+                <h1 class="category-header">Settings</h1>
               </div>
               <p class="category-text">Manage your account preferences and profile settigns.</p>
             </div>
