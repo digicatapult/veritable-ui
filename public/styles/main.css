@@ -340,6 +340,7 @@ a.connections-table.icon {
   gap: 25px;
   width: 70%;
   height: 40rem;
+  cursor: pointer;
 }
 
 .category-item {
