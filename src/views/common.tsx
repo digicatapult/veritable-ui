@@ -62,8 +62,8 @@ const SideBar = (): JSX.Element => (
     <img class="side-bar logo-container" src="/public/images/logo-square.svg" />
     <a
       title="categories"
-      href="#category"
-      class="side-bar icon disabled"
+      href="/"
+      class="side-bar icon active"
       style={{ backgroundImage: 'url("/public/images/category.svg")' }}
     />
     <a
