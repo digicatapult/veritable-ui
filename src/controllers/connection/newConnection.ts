@@ -162,7 +162,7 @@ export class NewConnectionController extends HTMLController {
     return this.html(
       this.fromInvite.fromInviteForm({
         feedback: {
-          type: 'companyFound',
+          type: 'companyFound', // TODO inviteFound?
           company: decodedInvite.company,
         },
         formStage: 'pin',
@@ -178,18 +178,7 @@ export class NewConnectionController extends HTMLController {
   @SuccessResponse(200)
   @Get('/verify-pin')
   public async verifyPin(@Query() pin: string): Promise<HTML> {
-    const [pinHash] = await Promise.all([
-      argon2.hash(pin, { secret: Buffer.from(this.env.get('INVITATION_PIN_SECRET'), 'utf8') }),
-    ])
 
-    this.logger.debug(`pin hash - ${pinHash}`)
-    const connectionInvite = await this.db.get('connection_invite', { pin_hash: pinHash }).then((res) => res[0])
-
-    if (!connectionInvite?.pin_hash || connectionInvite.pin_hash !== pinHash) {
-      return this.pinInviteErrorHtml(`invalid pin. ${pinHash}`, pin)
-    }
-
-    this.logger.debug('%o', connectionInvite)
 
     return this.pinInviteSuccessHtml({ type: 'pinFound', pin })
   }
@@ -204,11 +193,14 @@ export class NewConnectionController extends HTMLController {
     body: {
       invite: BASE_64_URL | string
       pin: PIN_CODE
+      action: 'cancel' | 'continue'
       companyNumber: COMPANY_NUMBER
     }
   ): Promise<HTML> {
-    this.logger.debug('%o', body)
-    const decodedInvite = await this.decodeInvite(body.invite)
+    console.log('ping validatiomn')
+    /* const [pinHash] = await Promise.all([
+      argon2.hash(body.pin, { secret: Buffer.from(this.env.get('INVITATION_PIN_SECRET'), 'utf8') }),
+    ])*/
 
     //       TODO
     // - handle form stages and verify
@@ -217,13 +209,17 @@ export class NewConnectionController extends HTMLController {
     // - confirm error/success props.feedback
     // - update databae entities
     // - test new routes
+    this.logger.debug('%o', body)
+    const decodedInvite = await this.decodeInvite(body.invite)
+    
     if (decodedInvite.type === 'error') {
       this.logger.debug('handle invitation')
     }
+    console.log(body)
 
-    const { pin, invite, companyNumber } = body
+    const { pin, companyNumber } = body
 
-    return this.pinInviteSuccessHtml({ type: 'pinFound', pin, invite, companyNumber })
+    return this.pinInviteSuccessHtml({ type: 'pinFound', pin, companyNumber })
   }
 
   /**
@@ -331,7 +327,7 @@ export class NewConnectionController extends HTMLController {
     await this.sendAdminEmail(inviteOrError.company, pin)
 
     this.logger.debug('NEW_CONNECTION: complete: %s', dbResult.connectionId)
-    return this.receiveInviteSuccessHtml(inviteOrError.company, inviteOrError.inviteUrl)
+    return this.receiveInviteSuccessHtml(inviteOrError.company)
   }
 
   private async decodeInvite(
@@ -445,6 +441,7 @@ export class NewConnectionController extends HTMLController {
   private async sendNewConnectionEmail(email: string, invite: { companyNumber: string; inviteUrl: string }) {
     this.logger.debug('NEW_CONNECTION: sending emails')
     const inviteBase64 = Buffer.from(JSON.stringify(invite), 'utf8').toString('base64url')
+    console.log({ inviteBase64 })
 
     try {
       await this.email.sendMail('connection_invite', {
@@ -528,15 +525,14 @@ export class NewConnectionController extends HTMLController {
     )
   }
 
-  private receiveInviteSuccessHtml(company: CompanyProfile, invite: BASE_64_URL) {
+  private receiveInviteSuccessHtml(company: CompanyProfile) {
     return this.html(
       this.fromInvite.fromInviteForm({
         feedback: {
           type: 'companyFound',
           company,
-          invite,
         },
-        formStage: 'success',
+        formStage: 'pin',
       })
     )
   }

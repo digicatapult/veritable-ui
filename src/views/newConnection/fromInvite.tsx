@@ -20,7 +20,7 @@ export class FromInviteTemplates extends NewConnectionTemplates {
     super()
   }
 
-  public fromInviteFormPage = (feedback: FormFeedback) => {
+  public fromInviteFormPage = (feedback: FormFeedback, pin?: PIN_CODE) => {
     return (
       <Page
         title="Veritable - New Connection"
@@ -35,7 +35,7 @@ export class FromInviteTemplates extends NewConnectionTemplates {
           <span>Invite New Connection</span>
         </div>
         <div class="card-body ">
-          <this.fromInviteForm feedback={feedback} formStage="invite" />
+          <this.fromInviteForm pin={pin} feedback={feedback} formStage="pin" />
         </div>
       </Page>
     )
@@ -91,40 +91,40 @@ export class FromInviteTemplates extends NewConnectionTemplates {
         progressStepCount={3}
         actions={[
           { type: 'link', text: 'Fill In Later', href: '/connection' },
-          { type: 'submit', value: 'pin', text: 'Continue' },
+          { type: 'submit', value: 'continue', text: 'Continue' },
         ]}
       >
         <div class="accented-container">
           <div id="from-invite-invite-input">
-            <input
-              name="company_number"
-              value={(props.feedback.type === 'companyFound' && props.feedback.company.company_number) || ''}
-              type="hidden"
-            />
-            <input
-              name="company_number"
-              value={(props.feedback.type === 'companyFound' && props.feedback.company.company_number) || ''}
-              type="hidden"
-            />
-
             <p>Please enter the verification code from the physical letter</p>
+
             <input
               id="from-invite-invite-input-pin"
               name="pin"
               class="new-connection-input-field"
               placeholder="Code"
               required
-              hx-get="/connection/new/verify-pin"
+              hx-get={`/connection/new/verify-pin`}
               hx-trigger="keyup changed delay:200ms, change, load"
               pattern={pinCodeRegex.source}
               minlength={6}
               maxlength={6}
-              value={(props.feedback.type === 'pinFound' && props.feedback.pin) || ''}
-              type="text"
+              value={props.pin || ''}
+              type="number"
               hx-target="#new-connection-feedback"
               hx-select="#new-connection-feedback"
               hx-swap="outerHTML"
               oninput="this.reportValidity()"
+            />
+            <input
+              name='invite'
+              value='some-invite-url'
+              type='hidden'
+            />
+            <input
+              name='companyNumber'
+              value='07964699'
+              type='hidden'
             />
           </div>
         </div>
