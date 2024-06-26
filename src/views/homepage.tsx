@@ -37,7 +37,7 @@ export default class HomepageTemplates {
                 <img class="category-icon" src="/public/images/settings.svg" />
                 <h1 class="category-header">Settings</h1>
               </div>
-              <p class="category-text">Manage your account preferences and profile settigns.</p>
+              <p class="category-text">Manage your account preferences and profile settings.</p>
             </div>
           </div>
         </div>
