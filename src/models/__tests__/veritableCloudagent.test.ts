@@ -2,7 +2,10 @@ import { describe, it } from 'mocha'
 
 import { Env } from '../../env.js'
 import {
+  createCredentialDefinitionResponse,
+  createDidResponse,
   createInviteSuccessResponse,
+  createSchemaResponse,
   getConnectionsSuccessResponse,
   invalidResponse,
   mockLogger,
@@ -191,6 +194,333 @@ describe('veritableCloudagent', () => {
         let error: unknown = null
         try {
           await cloudagent.deleteConnection('42')
+        } catch (err) {
+          error = err
+        }
+        expect(error).instanceOf(InternalError)
+      })
+    })
+  })
+
+  describe('createDid', () => {
+    describe('success', function () {
+      withCloudagentMock('POST', `/v1/dids/create`, 200, createDidResponse)
+
+      it('should give back did', async () => {
+        const environment = new Env()
+        const cloudagent = new VeritableCloudagent(environment, mockLogger)
+        const response = await cloudagent.createDid('key', { keyType: 'ed25519' })
+        expect(response).deep.equal(createDidResponse.didDocument)
+      })
+    })
+
+    describe('error (response code)', function () {
+      withCloudagentMock('POST', `/v1/dids/create`, 400, {})
+
+      it('should throw internal error', async () => {
+        const environment = new Env()
+        const cloudagent = new VeritableCloudagent(environment, mockLogger)
+
+        let error: unknown = null
+        try {
+          await cloudagent.createDid('key', { keyType: 'ed25519' })
+        } catch (err) {
+          error = err
+        }
+        expect(error).instanceOf(InternalError)
+      })
+    })
+
+    describe('error (response invalid)', function () {
+      withCloudagentMock('POST', `/v1/dids/create`, 200, invalidResponse)
+
+      it('should throw internal error', async () => {
+        const environment = new Env()
+        const cloudagent = new VeritableCloudagent(environment, mockLogger)
+
+        let error: unknown = null
+        try {
+          await cloudagent.createDid('key', { keyType: 'ed25519' })
+        } catch (err) {
+          error = err
+        }
+        expect(error).instanceOf(InternalError)
+      })
+    })
+  })
+
+  describe('getCreatedDids', () => {
+    describe('success', function () {
+      withCloudagentMock('GET', `/v1/dids?createdLocally=true&method=key`, 200, [createDidResponse])
+
+      it('should give back did', async () => {
+        const environment = new Env()
+        const cloudagent = new VeritableCloudagent(environment, mockLogger)
+        const response = await cloudagent.getCreatedDids({ method: 'key' })
+        expect(response).deep.equal([createDidResponse.didDocument])
+      })
+    })
+
+    describe('error (response code)', function () {
+      withCloudagentMock('GET', `/v1/dids?createdLocally=true&method=key`, 400, {})
+
+      it('should throw internal error', async () => {
+        const environment = new Env()
+        const cloudagent = new VeritableCloudagent(environment, mockLogger)
+
+        let error: unknown = null
+        try {
+          await cloudagent.getCreatedDids({ method: 'key' })
+        } catch (err) {
+          error = err
+        }
+        expect(error).instanceOf(InternalError)
+      })
+    })
+
+    describe('error (response invalid)', function () {
+      withCloudagentMock('GET', `/v1/dids?createdLocally=true&method=key`, 200, invalidResponse)
+
+      it('should throw internal error', async () => {
+        const environment = new Env()
+        const cloudagent = new VeritableCloudagent(environment, mockLogger)
+
+        let error: unknown = null
+        try {
+          await cloudagent.getCreatedDids({ method: 'key' })
+        } catch (err) {
+          error = err
+        }
+        expect(error).instanceOf(InternalError)
+      })
+    })
+  })
+
+  describe('createSchema', () => {
+    describe('success', function () {
+      withCloudagentMock('POST', `/v1/schemas`, 200, createSchemaResponse)
+
+      it('should give back schema', async () => {
+        const environment = new Env()
+        const cloudagent = new VeritableCloudagent(environment, mockLogger)
+        const response = await cloudagent.createSchema('issuerId', 'name', 'version', [])
+        expect(response).deep.equal(createSchemaResponse)
+      })
+    })
+
+    describe('error (response code)', function () {
+      withCloudagentMock('POST', `/v1/schemas`, 400, {})
+
+      it('should throw internal error', async () => {
+        const environment = new Env()
+        const cloudagent = new VeritableCloudagent(environment, mockLogger)
+
+        let error: unknown = null
+        try {
+          await cloudagent.createSchema('issuerId', 'name', 'version', [])
+        } catch (err) {
+          error = err
+        }
+        expect(error).instanceOf(InternalError)
+      })
+    })
+
+    describe('error (response invalid)', function () {
+      withCloudagentMock('POST', `/v1/schemas`, 200, invalidResponse)
+
+      it('should throw internal error', async () => {
+        const environment = new Env()
+        const cloudagent = new VeritableCloudagent(environment, mockLogger)
+
+        let error: unknown = null
+        try {
+          await cloudagent.createSchema('issuerId', 'name', 'version', [])
+        } catch (err) {
+          error = err
+        }
+        expect(error).instanceOf(InternalError)
+      })
+    })
+  })
+
+  describe('getCreatedSchemas', () => {
+    describe('success', function () {
+      withCloudagentMock(
+        'GET',
+        `/v1/schemas?createdLocally=true&issuerId=issuerId&schemaName=name&schemaVersion=version`,
+        200,
+        [createSchemaResponse]
+      )
+
+      it('should give back schema', async () => {
+        const environment = new Env()
+        const cloudagent = new VeritableCloudagent(environment, mockLogger)
+        const response = await cloudagent.getCreatedSchemas({
+          issuerId: 'issuerId',
+          schemaName: 'name',
+          schemaVersion: 'version',
+        })
+        expect(response).deep.equal([createSchemaResponse])
+      })
+    })
+
+    describe('error (response code)', function () {
+      withCloudagentMock(
+        'GET',
+        `/v1/schemas?createdLocally=true&issuerId=issuerId&schemaName=name&schemaVersion=version`,
+        400,
+        {}
+      )
+
+      it('should throw internal error', async () => {
+        const environment = new Env()
+        const cloudagent = new VeritableCloudagent(environment, mockLogger)
+
+        let error: unknown = null
+        try {
+          await cloudagent.getCreatedSchemas({ issuerId: 'issuerId', schemaName: 'name', schemaVersion: 'version' })
+        } catch (err) {
+          error = err
+        }
+        expect(error).instanceOf(InternalError)
+      })
+    })
+
+    describe('error (response invalid)', function () {
+      withCloudagentMock(
+        'GET',
+        `/v1/schemas?createdLocally=true&issuerId=issuerId&schemaName=name&schemaVersion=version`,
+        200,
+        invalidResponse
+      )
+
+      it('should throw internal error', async () => {
+        const environment = new Env()
+        const cloudagent = new VeritableCloudagent(environment, mockLogger)
+
+        let error: unknown = null
+        try {
+          await cloudagent.getCreatedSchemas({ issuerId: 'issuerId', schemaName: 'name', schemaVersion: 'version' })
+        } catch (err) {
+          error = err
+        }
+        expect(error).instanceOf(InternalError)
+      })
+    })
+  })
+
+  //HERE
+
+  describe('createCredentialDefinition', () => {
+    describe('success', function () {
+      withCloudagentMock('POST', `/v1/credential-definitions`, 200, createCredentialDefinitionResponse)
+
+      it('should give back credential definition', async () => {
+        const environment = new Env()
+        const cloudagent = new VeritableCloudagent(environment, mockLogger)
+        const response = await cloudagent.createCredentialDefinition('issuerId', 'schemaId', 'tag')
+        expect(response).deep.equal(createCredentialDefinitionResponse)
+      })
+    })
+
+    describe('error (response code)', function () {
+      withCloudagentMock('POST', `/v1/schemas`, 400, {})
+
+      it('should throw internal error', async () => {
+        const environment = new Env()
+        const cloudagent = new VeritableCloudagent(environment, mockLogger)
+
+        let error: unknown = null
+        try {
+          await cloudagent.createCredentialDefinition('issuerId', 'schemaId', 'tag')
+        } catch (err) {
+          error = err
+        }
+        expect(error).instanceOf(InternalError)
+      })
+    })
+
+    describe('error (response invalid)', function () {
+      withCloudagentMock('POST', `/v1/schemas`, 200, invalidResponse)
+
+      it('should throw internal error', async () => {
+        const environment = new Env()
+        const cloudagent = new VeritableCloudagent(environment, mockLogger)
+
+        let error: unknown = null
+        try {
+          await cloudagent.createCredentialDefinition('issuerId', 'schemaId', 'tag')
+        } catch (err) {
+          error = err
+        }
+        expect(error).instanceOf(InternalError)
+      })
+    })
+  })
+
+  describe('getCreatedCredentialDefinitions', () => {
+    describe('success', function () {
+      withCloudagentMock(
+        'GET',
+        `/v1/credential-definitions?createdLocally=true&issuerId=issuerId&schemaId=schemaId`,
+        200,
+        [createCredentialDefinitionResponse]
+      )
+
+      it('should give back credential definition', async () => {
+        const environment = new Env()
+        const cloudagent = new VeritableCloudagent(environment, mockLogger)
+        const response = await cloudagent.getCreatedCredentialDefinitions({
+          issuerId: 'issuerId',
+          schemaId: 'schemaId',
+        })
+        expect(response).deep.equal([createCredentialDefinitionResponse])
+      })
+    })
+
+    describe('error (response code)', function () {
+      withCloudagentMock(
+        'GET',
+        `/v1/credential-definitions?createdLocally=true&issuerId=issuerId&schemaId=schemaId`,
+        400,
+        {}
+      )
+
+      it('should throw internal error', async () => {
+        const environment = new Env()
+        const cloudagent = new VeritableCloudagent(environment, mockLogger)
+
+        let error: unknown = null
+        try {
+          await cloudagent.getCreatedCredentialDefinitions({
+            issuerId: 'issuerId',
+            schemaId: 'schemaId',
+          })
+        } catch (err) {
+          error = err
+        }
+        expect(error).instanceOf(InternalError)
+      })
+    })
+
+    describe('error (response invalid)', function () {
+      withCloudagentMock(
+        'GET',
+        `/v1/credential-definitions?createdLocally=true&issuerId=issuerId&schemaId=schemaId`,
+        200,
+        invalidResponse
+      )
+
+      it('should throw internal error', async () => {
+        const environment = new Env()
+        const cloudagent = new VeritableCloudagent(environment, mockLogger)
+
+        let error: unknown = null
+        try {
+          await cloudagent.getCreatedCredentialDefinitions({
+            issuerId: 'issuerId',
+            schemaId: 'schemaId',
+          })
         } catch (err) {
           error = err
         }

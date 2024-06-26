@@ -2,12 +2,6 @@ import dotenv from 'dotenv'
 import * as envalid from 'envalid'
 import { singleton } from 'tsyringe'
 
-if (process.env.NODE_ENV === 'test') {
-  dotenv.config({ path: 'test/test.env' })
-} else {
-  dotenv.config()
-}
-
 const strArrayValidator = envalid.makeValidator((input) => {
   const arr = input
     .split(',')
@@ -22,7 +16,30 @@ const strArrayValidator = envalid.makeValidator((input) => {
   return res
 })
 
-const envConfig = {
+const issuanceRecordValidator = envalid.makeValidator((input) => {
+  if (input === 'CREATE_NEW') {
+    return 'CREATE_NEW' as const
+  }
+
+  if (input === 'FIND_EXISTING') {
+    return 'FIND_EXISTING' as const
+  }
+
+  if (input === 'EXISTING_OR_NEW') {
+    return 'EXISTING_OR_NEW' as const
+  }
+
+  if (input.match(/^did:/)) {
+    return input as `did:${string}`
+  }
+  if (input.match(/^ipfs:\/\//)) {
+    return input as `ipfs://${string}`
+  }
+
+  throw new Error('must supply a valid issuance policy')
+})
+
+export const envConfig = {
   PORT: envalid.port({ default: 3000 }),
   LOG_LEVEL: envalid.str({ default: 'info', devDefault: 'debug' }),
   DB_HOST: envalid.host({ devDefault: 'localhost' }),
@@ -60,20 +77,33 @@ const envConfig = {
   CLOUDAGENT_ADMIN_WS_ORIGIN: envalid.url({ devDefault: 'ws://localhost:3100' }),
   INVITATION_PIN_SECRET: envalid.str({ devDefault: 'secret' }),
   INVITATION_FROM_COMPANY_NUMBER: envalid.str({ devDefault: '07964699' }),
+  ISSUANCE_DID_POLICY: issuanceRecordValidator({ devDefault: 'EXISTING_OR_NEW' }),
+  ISSUANCE_SCHEMA_POLICY: issuanceRecordValidator({ devDefault: 'EXISTING_OR_NEW' }),
+  ISSUANCE_CRED_DEF_POLICY: issuanceRecordValidator({ devDefault: 'EXISTING_OR_NEW' }),
 }
 
 export type ENV_CONFIG = typeof envConfig
 export type ENV_KEYS = keyof ENV_CONFIG
 
+export interface PartialEnv<KS extends ENV_KEYS = ENV_KEYS> {
+  get<K extends KS>(key: K): Pick<envalid.CleanedEnv<typeof envConfig>, KS>[K]
+}
+
 @singleton()
-export class Env {
-  private vals: envalid.CleanedEnv<typeof envConfig>
+export class Env<KS extends ENV_KEYS = ENV_KEYS> implements PartialEnv<KS> {
+  private vals: Pick<envalid.CleanedEnv<typeof envConfig>, KS>
 
   constructor() {
+    if (process.env.NODE_ENV === 'test') {
+      dotenv.config({ path: 'test/test.env' })
+    } else {
+      dotenv.config()
+    }
+
     this.vals = envalid.cleanEnv(process.env, envConfig)
   }
 
-  get<K extends ENV_KEYS>(key: K) {
+  get<K extends KS>(key: K) {
     return this.vals[key]
   }
 }

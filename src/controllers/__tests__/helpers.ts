@@ -2,8 +2,9 @@ import { Readable } from 'node:stream'
 import { pino } from 'pino'
 
 import { Env } from '../../env.js'
+import type { ILogger } from '../../logger.js'
 
-export const mockLogger = pino({ level: 'silent' })
+export const mockLogger: ILogger = pino({ level: 'silent' })
 
 export const mockEnv = {
   get: (name: string) => {
