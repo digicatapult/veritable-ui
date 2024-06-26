@@ -25,7 +25,7 @@ export default class HomepageTemplates {
               </div>
               <p class="category-text">Manage and verify digital certifications securely within your network.</p>
             </div>
-            <div class="category-item" onclick="location.href='#';">
+            <div class="category-item" onclick="location.href='/connection';">
               <div class="category-align-in-row">
                 <img class="category-icon" src="/public/images/user-check.svg" />
                 <h1 class="category-header">Onboard/Refer</h1>
