@@ -5,6 +5,7 @@ import { MockAgent, getGlobalDispatcher, setGlobalDispatcher } from 'undici'
 import { pino } from 'pino'
 import { Env } from '../../env.js'
 import { ForbiddenError } from '../../errors.js'
+import type { ILogger } from '../../logger.js'
 import IDPService from '../idpService.js'
 
 const mockEnv: Env = {
@@ -20,7 +21,7 @@ const mockEnv: Env = {
   },
 } as Env
 
-const mockLogger = pino({ level: 'silent' })
+const mockLogger: ILogger = pino({ level: 'silent' })
 
 const mockTokenResponse = {
   access_token: 'access',

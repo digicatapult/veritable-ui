@@ -1,5 +1,7 @@
 import { pino } from 'pino'
 
+import type { ILogger } from '../../../logger.js'
+
 export const createInviteSuccessResponse = {
   invitationUrl: 'example.com',
   outOfBandRecord: { id: 'example-id' },
@@ -22,6 +24,26 @@ export const getConnectionsSuccessResponse = [
   },
 ]
 
+export const createDidResponse = {
+  didDocument: {
+    id: 'did-id',
+  },
+}
+
+export const createSchemaResponse = {
+  id: 'id',
+  issuerId: 'issuerId',
+  name: 'name',
+  version: 'version',
+  attrNames: ['attrName'],
+}
+
+export const createCredentialDefinitionResponse = {
+  id: 'id',
+  issuerId: 'issuerId',
+  schemaId: 'schemaId',
+}
+
 export const invalidResponse = {}
 
-export const mockLogger = pino({ level: 'silent' })
+export const mockLogger: ILogger = pino({ level: 'silent' })
