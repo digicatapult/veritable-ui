@@ -168,6 +168,12 @@
   background-image: url('../images/heart.svg');
 }
 
+#from-invite-invite-input-pin {
+  border-radius: 8px;
+  color: #abafb1;
+  background: var(--Input-defaultBackground, rgba(239, 241, 249, 0.6));
+}
+
 /* Mobile view */
 @media (max-width: 767px) {
   #new-invite-form {

@@ -12,7 +12,6 @@ import Database from '../../models/db/index.js'
 import EmailService from '../../models/emailService/index.js'
 import {
   BASE_64_URL,
-  PIN_CODE,
   base64UrlRegex,
   companyNumberRegex,
   type COMPANY_NUMBER,
@@ -156,7 +155,7 @@ export class NewConnectionController extends HTMLController {
     const decodedInvite = await this.decodeInvite(body.invite)
     // and other udates
     if (decodedInvite.type === 'error') {
-      return this.pinInviteErrorHtml('unable to decode invite request')
+      return this.newInviteErrorHtml('unable to decode invite request')
     }
 
     return this.html(
@@ -171,55 +170,22 @@ export class NewConnectionController extends HTMLController {
   }
 
   /**
-   * physical validation, currently the plan is that @pin
-   * is generated as part invitation response to the requester (Bob)
-   * and sent along invitation
+   * submits the pin code for other party to validate
    */
   @SuccessResponse(200)
-  @Get('/verify-pin')
-  public async verifyPin(@Query() pin: string): Promise<HTML> {
-
-
-    return this.pinInviteSuccessHtml({ type: 'pinFound', pin })
-  }
-
-  /**
-   * submits the pin code for validation
-   */
-  @SuccessResponse(200)
-  @Post('/pin-validation')
+  @Post('/pin-submission')
   public async submitPin(
     @Body()
     body: {
-      invite: BASE_64_URL | string
-      pin: PIN_CODE
-      action: 'cancel' | 'continue'
-      companyNumber: COMPANY_NUMBER
+      pin: string
+      action: 'submitPin'
+      invite: string
     }
   ): Promise<HTML> {
-    console.log('ping validatiomn')
-    /* const [pinHash] = await Promise.all([
-      argon2.hash(body.pin, { secret: Buffer.from(this.env.get('INVITATION_PIN_SECRET'), 'utf8') }),
-    ])*/
-
-    //       TODO
-    // - handle form stages and verify
-    // - handle company number lookup along with invitation checks (reuse what we already have)
-    // - handle proposal (in temporary values)
-    // - confirm error/success props.feedback
-    // - update databae entities
-    // - test new routes
     this.logger.debug('%o', body)
-    const decodedInvite = await this.decodeInvite(body.invite)
-    
-    if (decodedInvite.type === 'error') {
-      this.logger.debug('handle invitation')
-    }
-    console.log(body)
+    // do something with the pin e.g. propose
 
-    const { pin, companyNumber } = body
-
-    return this.pinInviteSuccessHtml({ type: 'pinFound', pin, companyNumber })
+    return this.pinSuccessHtml({ type: 'success', pin: body.pin })
   }
 
   /**
@@ -503,20 +469,7 @@ export class NewConnectionController extends HTMLController {
     )
   }
 
-  private pinInviteErrorHtml(error: string, pin?: PIN_CODE) {
-    return this.html(
-      this.fromInvite.fromInviteForm({
-        feedback: {
-          type: 'error',
-          error,
-        },
-        pin,
-        formStage: 'pin',
-      })
-    )
-  }
-
-  private pinInviteSuccessHtml(feedback: FormFeedback) {
+  private pinSuccessHtml(feedback: FormFeedback) {
     return this.html(
       this.fromInvite.fromInviteForm({
         feedback,

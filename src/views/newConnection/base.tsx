@@ -1,6 +1,5 @@
 import Html from '@kitajs/html'
 import { CompanyProfile } from '../../models/companyHouseEntity.js'
-import { PIN_CODE } from '../../models/strings.js'
 import { ButtonIcon, FormButton } from '../common.js'
 
 export type FormFeedback =
@@ -17,9 +16,8 @@ export type FormFeedback =
       error: string
     }
   | {
-      type: 'pinFound'
-      pin: string
-      companyNumber?: string
+      type: 'success'
+      [k: string]: string
     }
 
 export type FormAction =
@@ -37,7 +35,7 @@ export type FormAction =
 export abstract class NewConnectionTemplates {
   protected newConnectionForm = (
     props: Html.PropsWithChildren<{
-      submitRoute: 'create-invitation' | 'receive-invitation' | 'pin-validation'
+      submitRoute: 'create-invitation' | 'receive-invitation' | 'pin-submission'
       feedback: FormFeedback
       progressStep: number
       progressStepCount: number
@@ -78,15 +76,11 @@ export abstract class NewConnectionTemplates {
         return <this.feedbackMessage message={props.feedback.message} isError={false} />
       case 'companyFound':
         return <this.feedbackCompanyInfo company={props.feedback.company} />
-      case 'pinFound':
-        return <this.feedbackPin pin={props.feedback.pin} />
+      case 'success':
+        return <></>
       case 'error':
         return <this.feedbackMessage message={props.feedback.error} isError={true} />
     }
-  }
-
-  protected feedbackPin = ({ pin }: { pin?: PIN_CODE }): JSX.Element => {
-    return <h1>{`${JSON.stringify({ pin })}`}</h1>
   }
 
   protected feedbackCompanyInfo = ({ company }: { company: CompanyProfile }): JSX.Element => {

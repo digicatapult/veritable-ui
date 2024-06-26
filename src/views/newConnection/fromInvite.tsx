@@ -1,7 +1,6 @@
 import Html from '@kitajs/html'
 import { singleton } from 'tsyringe'
-import { CompanyProfile } from '../../models/companyHouseEntity.js'
-import { PIN_CODE, pinCodeRegex } from '../../models/strings.js'
+import { BASE_64_URL, PIN_CODE, pinCodeRegex } from '../../models/strings.js'
 import { Page } from '../common.js'
 import { FormFeedback, NewConnectionTemplates } from './base.js'
 
@@ -9,9 +8,8 @@ export type FromInviteFormStage = 'invite' | 'pin' | 'success'
 export type FormInviteProps = {
   feedback: FormFeedback
   formStage: FromInviteFormStage
-  invite?: string
   pin?: PIN_CODE
-  company?: CompanyProfile
+  invite?: BASE_64_URL
 }
 
 @singleton()
@@ -35,7 +33,7 @@ export class FromInviteTemplates extends NewConnectionTemplates {
           <span>Invite New Connection</span>
         </div>
         <div class="card-body ">
-          <this.fromInviteForm pin={pin} feedback={feedback} formStage="pin" />
+          <this.fromInviteForm pin={pin} feedback={feedback} formStage="invite" />
         </div>
       </Page>
     )
@@ -58,7 +56,7 @@ export class FromInviteTemplates extends NewConnectionTemplates {
         submitRoute="receive-invitation"
         feedback={props.feedback}
         progressStep={1}
-        progressStepCount={2}
+        progressStepCount={3}
         actions={[
           { type: 'link', text: 'Cancel', href: '/connection' },
           { type: 'submit', value: 'createConnection', text: 'Submit' },
@@ -85,48 +83,33 @@ export class FromInviteTemplates extends NewConnectionTemplates {
   public newInvitePin = (props: FormInviteProps): JSX.Element => {
     return (
       <this.newConnectionForm
-        submitRoute="pin-validation"
+        submitRoute="pin-submission"
         feedback={props.feedback}
         progressStep={2}
         progressStepCount={3}
         actions={[
           { type: 'link', text: 'Fill In Later', href: '/connection' },
-          { type: 'submit', value: 'continue', text: 'Continue' },
+          { type: 'submit', value: 'createConnection', text: 'Continue' },
         ]}
       >
         <div class="accented-container">
-          <div id="from-invite-invite-input">
-            <p>Please enter the verification code from the physical letter</p>
-
-            <input
-              id="from-invite-invite-input-pin"
-              name="pin"
-              class="new-connection-input-field"
-              placeholder="Code"
-              required
-              hx-get={`/connection/new/verify-pin`}
-              hx-trigger="keyup changed delay:200ms, change, load"
-              pattern={pinCodeRegex.source}
-              minlength={6}
-              maxlength={6}
-              value={props.pin || ''}
-              type="number"
-              hx-target="#new-connection-feedback"
-              hx-select="#new-connection-feedback"
-              hx-swap="outerHTML"
-              oninput="this.reportValidity()"
-            />
-            <input
-              name='invite'
-              value='some-invite-url'
-              type='hidden'
-            />
-            <input
-              name='companyNumber'
-              value='07964699'
-              type='hidden'
-            />
-          </div>
+          <p>Please enter the verification code from the physical letter</p>
+          <input
+            id="from-invite-invite-input-pin"
+            name="pin"
+            class="new-connection-input-field"
+            placeholder="Code"
+            required
+            hx-trigger="keyup changed delay:500ms"
+            value={props.pin || ''}
+            type="number"
+            hx-target="#new-connection-feedback"
+            hx-select="#new-connection-feedback"
+            hx-swap="outerHTML"
+            pattern={pinCodeRegex.source}
+            minlength={6}
+            maxlength={6}
+          />
         </div>
       </this.newConnectionForm>
     )
