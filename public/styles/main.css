@@ -335,11 +335,10 @@ a.connections-table.icon {
 }
 .category-container {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  grid-template-rows: 1fr 1fr;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
   gap: 25px;
   width: 70%;
-  height: 40rem;
+  height: 100%;
   cursor: pointer;
 }
 
@@ -353,6 +352,8 @@ a.connections-table.icon {
   justify-content: space-between;
   align-items: left;
   font-size: 1.5rem;
+  max-height: 500px;
+  min-height: 250px;
 }
 .center-category {
   display: flex;
@@ -421,9 +422,8 @@ a.connections-table.icon {
   .search-window {
     margin-left: 10px;
   }
-  .category-container {
-    grid-template-columns: 1fr;
-    grid-template-rows: auto;
+  .category-item {
+    min-height: auto;
   }
   .category-header {
     font-size: 1.5rem;

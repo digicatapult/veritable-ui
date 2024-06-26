@@ -8,15 +8,7 @@ export default class HomepageTemplates {
   public homepage = () => {
     return (
       <Page title="Veritable - Homepage" heading="Homepage" headerLinks={[{ name: '', url: '/' }]}>
-        <div
-          class="main connections"
-          hx-get="/"
-          hx-trigger="every 10s"
-          hx-select="#search-results"
-          hx-target="#search-results"
-          hx-swap="outerHTML"
-          hx-include="#connection-search-input"
-        ></div>
+        <div class="main connections" hx-get="/"></div>
         <div class="center-category">
           <div class="category-container">
             <div class="category-item" onclick="location.href='#';">

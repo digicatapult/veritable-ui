@@ -1,10 +1,10 @@
 import { Get, Produces, Route, Security, SuccessResponse } from 'tsoa'
 import { inject, injectable, singleton } from 'tsyringe'
 
-import { Logger, type ILogger } from '../../logger.js'
+import { Logger, type ILogger } from '../logger.js'
 
-import HomepageTemplates from '../../views/homepage.js'
-import { HTML, HTMLController } from '../HTMLController.js'
+import HomepageTemplates from '../views/homepage.js'
+import { HTML, HTMLController } from './HTMLController.js'
 
 @singleton()
 @injectable()
