@@ -148,7 +148,7 @@ export class NewConnectionController extends HTMLController {
   public async submitInvite(
     @Body()
     body: {
-      invite: string
+      invite: BASE_64_URL
     }
   ) {
     // TODO update state so 'pending us/yours' and enable action button
@@ -233,7 +233,7 @@ export class NewConnectionController extends HTMLController {
     @Body()
     body: {
       pin?: string
-      invite: string
+      invite: BASE_64_URL
       action: 'createConnection' | 'pinSubmission'
     }
   ): Promise<HTML> {
@@ -288,7 +288,7 @@ export class NewConnectionController extends HTMLController {
   }
 
   private async decodeInvite(
-    invite: string
+    invite: BASE_64_URL
   ): Promise<{ type: 'success'; inviteUrl: string; company: CompanyProfile } | { type: 'error'; message: string }> {
     let wrappedInvite: Invite
     try {
@@ -484,7 +484,7 @@ export class NewConnectionController extends HTMLController {
     )
   }
 
-  private receiveInviteSuccessHtml(invite: string) {
+  private receiveInviteSuccessHtml(invite: BASE_64_URL) {
     return this.html(
       this.fromInvite.fromInviteForm({
         feedback: {

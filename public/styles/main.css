@@ -289,7 +289,6 @@ a.connections-table.icon {
   background-color: #fff;
   overflow-x: auto;
   max-width: 1000px;
-  min-width: none;
   border-radius: 12px;
   padding: 2rem 2rem;
   margin: 1rem 2rem 0rem 1rem;
@@ -417,7 +416,6 @@ a.connections-table.icon {
 
   .card-body {
     max-width: 100%;
-    min-width: none;
     margin: 1rem;
   }
 
