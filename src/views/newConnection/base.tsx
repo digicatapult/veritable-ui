@@ -46,7 +46,7 @@ export abstract class NewConnectionTemplates {
       <form id="new-invite-form" hx-post={`/connection/new/${props.submitRoute}`} hx-select="#new-invite-form > *">
         <this.stepper stage={props.progressStep} total={props.progressStepCount} />
         {props.children}
-        <this.feedback feedback={props.feedback} />
+        {props.feedback && <this.feedback feedback={props.feedback} />}
         <div id="new-invite-actions">
           {props.actions.map((action, i) => {
             const lastIndex = props.actions.length - 1
@@ -73,7 +73,7 @@ export abstract class NewConnectionTemplates {
   protected feedback = (props: { feedback: FormFeedback }): JSX.Element => {
     switch (props.feedback.type) {
       case 'message':
-        return <this.feedbackMessage message={props.feedback.message} isError={false} />
+        return <this.feedbackMessage message={props.feedback.message} />
       case 'companyFound':
         return <this.feedbackCompanyInfo company={props.feedback.company} />
       case 'success':
@@ -122,7 +122,7 @@ export abstract class NewConnectionTemplates {
     )
   }
 
-  protected feedbackMessage = ({ message, isError }: { message: string; isError: boolean }): JSX.Element => {
+  protected feedbackMessage = ({ message, isError = false }: { message: string; isError?: boolean }): JSX.Element => {
     const messageClass = isError ? 'feedback-negative' : 'feedback-neutral'
     return (
       <div id="new-connection-feedback" class={`accented-container ${messageClass}`}>
