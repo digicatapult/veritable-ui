@@ -11,7 +11,7 @@ export default class HomepageTemplates {
         <div class="main connections" hx-get="/"></div>
         <div class="center-category">
           <div class="category-container">
-            <div class="category-item" onclick="location.href='#';">
+            <div class="category-item" onclick="location.href='/queries';">
               <div class="category-align-in-row">
                 <img class=" category-icon" src="/public/images/send.svg" />
                 <h1 class="category-header">Queries</h1>
