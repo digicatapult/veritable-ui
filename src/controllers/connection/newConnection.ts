@@ -399,8 +399,6 @@ export class NewConnectionController extends HTMLController {
     this.logger.debug('NEW_CONNECTION: sending emails')
     const inviteBase64 = Buffer.from(JSON.stringify(invite), 'utf8').toString('base64url')
 
-    console.log({ inviteBase64 })
-
     try {
       await this.email.sendMail('connection_invite', {
         to: email,
