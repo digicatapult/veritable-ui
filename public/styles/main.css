@@ -354,7 +354,8 @@ a.connections-table.icon {
   font-size: 1.5rem;
   max-height: 500px;
   min-height: 250px;
-  &:hover {
+  &:hover,
+  &:focus-visible {
     box-shadow: 10px 10px 8px rgba(0, 0, 0, 0.2);
     border: 1px solid lightgray;
   }
