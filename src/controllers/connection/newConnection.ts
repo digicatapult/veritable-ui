@@ -14,6 +14,7 @@ import {
   BASE_64_URL,
   base64UrlRegex,
   companyNumberRegex,
+  pinCodeRegex,
   type COMPANY_NUMBER,
   type EMAIL,
 } from '../../models/strings.js'
@@ -236,11 +237,15 @@ export class NewConnectionController extends HTMLController {
       action: 'createConnection' | 'pinSubmission'
     }
   ): Promise<HTML> {
+    // handle pinSubmission
     if (body.action == 'pinSubmission' && body.pin) {
-      // send over ws/or credentiaol proposal here
+      if (body.pin.length !== 6) return this.receivePinErrorHtml('pin must be 6 digit long')
+      if (!body.pin.match(pinCodeRegex)) return this.receivePinErrorHtml('pin must be all in digits')
+
       // can be abstracted in it's own method
       return this.receivePinSuccessHtml(body.pin)
     }
+
     if (!body.invite.match(base64UrlRegex)) {
       return this.receiveInviteErrorHtml('Invitation is not valid')
     }
@@ -460,10 +465,23 @@ export class NewConnectionController extends HTMLController {
     return this.html(
       this.fromInvite.fromInviteForm({
         feedback: {
-          type: 'success',
-          pin,
+          type: 'message',
+          message: 'pin has been successfully submitted for verification',
         },
+        pin,
         formStage: 'success',
+      })
+    )
+  }
+
+  private receivePinErrorHtml(error: string) {
+    return this.html(
+      this.fromInvite.fromInviteForm({
+        feedback: {
+          type: 'error',
+          error,
+        },
+        formStage: 'pin',
       })
     )
   }
@@ -472,8 +490,8 @@ export class NewConnectionController extends HTMLController {
     return this.html(
       this.fromInvite.fromInviteForm({
         feedback: {
-          type: 'success',
-          invite,
+          type: 'message',
+          message: invite,
         },
         formStage: 'pin',
       })

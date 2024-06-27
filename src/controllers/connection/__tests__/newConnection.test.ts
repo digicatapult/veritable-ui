@@ -159,7 +159,43 @@ describe('NewConnectionController', () => {
   })
 
   describe('newInvitePin', () => {
-    it('render itself.... ', () => {})
+    it('should render error if it is longer than 6 digits', async () => {
+      let { args } = withNewConnectionMocks()
+      const controller = new NewConnectionController(...args)
+      const result = await controller
+        .submitFromInvite({ invite: 'base64-string', pin: '12345678', action: 'pinSubmission' })
+        .then(toHTMLString)
+      expect(result).to.equal('fromInviteForm_error--pin must be 6 digit long-pin_fromInviteForm')
+    })
+
+    it('also should render error if it combined characters and numbers', async () => {
+      let { args } = withNewConnectionMocks()
+      const controller = new NewConnectionController(...args)
+      const result = await controller
+        .submitFromInvite({ invite: 'base64-string', pin: '12345678asdg', action: 'pinSubmission' })
+        .then(toHTMLString)
+      expect(result).to.equal('fromInviteForm_error--pin must be 6 digit long-pin_fromInviteForm')
+    })
+
+    it('should accept only numbers', async () => {
+      let { args } = withNewConnectionMocks()
+      const controller = new NewConnectionController(...args)
+      const result = await controller
+        .submitFromInvite({ invite: 'base64-string', pin: 'asdasd', action: 'pinSubmission' })
+        .then(toHTMLString)
+      expect(result).to.equal('fromInviteForm_error--pin must be all in digits-pin_fromInviteForm')
+    })
+
+    it('renders a success screen', async () => {
+      let { args } = withNewConnectionMocks()
+      const controller = new NewConnectionController(...args)
+      const result = await controller
+        .submitFromInvite({ invite: 'base64-string', pin: '123456', action: 'pinSubmission' })
+        .then(toHTMLString)
+      expect(result).to.equal(
+        'fromInviteForm_message--pin has been successfully submitted for verification-success_fromInviteForm'
+      )
+    })
   })
 
   describe('submitNewInvite', () => {

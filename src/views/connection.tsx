@@ -107,7 +107,7 @@ export default class ConnectionTemplates {
                         <ButtonIcon
                           icon='url("/public/images/dot-icon.svg")'
                           outline={true}
-                          disabled={true}
+                          disabled={connection.status === 'pending' ? false : true}
                           name="some action"
                           showIcon={true}
                           fillButton={true}
