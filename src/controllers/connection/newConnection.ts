@@ -224,29 +224,6 @@ export class NewConnectionController extends HTMLController {
   }
 
   /**
-   * submits the pin number for other party to check
-   */
-  @SuccessResponse(200)
-  @Post('/pin-submission')
-  public async submitPin(
-    @Body()
-    body: {
-      pin: string
-      action: 'pinSubmission'
-    }
-  ): Promise<HTML> {
-    return this.html(
-      this.fromInvite.fromInviteForm({
-        feedback: {
-          type: 'success',
-          pin: body.pin,
-        },
-        formStage: 'success',
-      })
-    )
-  }
-
-  /**
    * submits the company number for
    */
   @SuccessResponse(200)

@@ -158,6 +158,10 @@ describe('NewConnectionController', () => {
     })
   })
 
+  describe('newInvitePin', () => {
+    it('render itself.... ', () => {})
+  })
+
   describe('submitNewInvite', () => {
     it('should return rendered error when company not found', async () => {
       let { args } = withNewConnectionMocks()

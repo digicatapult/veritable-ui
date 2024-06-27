@@ -1,6 +1,6 @@
 #new-invite-form {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr minmax(auto 1fr);
   grid-template-rows: min-content min-content 1fr auto;
   gap: 8px 16px;
   min-height: 340px;

@@ -91,10 +91,10 @@ export class FromInviteTemplates extends NewConnectionTemplates {
         progressStepCount={3}
         actions={[
           { type: 'link', text: 'Fill In Later', href: '/connection' },
-          { type: 'submit', value: 'pin-submit', text: 'Continue' },
+          { type: 'submit', value: 'pinSubmission', text: 'Continue' },
         ]}
       >
-        <div class="accented-container">
+        <div id="new-connection-input-field" class="accented-container">
           <p>Please enter the verification code from the physical letter</p>
           <input
             name="invite"
@@ -102,17 +102,13 @@ export class FromInviteTemplates extends NewConnectionTemplates {
             type="hidden"
           />
           <input
-            id="from-invite-invite-input-pin"
+            id="from-invite-pin-input "
             name="pin"
             class="new-connection-input-field"
             placeholder="Code"
             required
-            hx-trigger="keyup changed delay:500ms"
             value={props.pin || ''}
             type="number"
-            hx-target="#new-connection-feedback"
-            hx-select="#new-connection-feedback"
-            hx-swap="outerHTML"
             pattern={pinCodeRegex.source}
             minlength={6}
             maxlength={6}
