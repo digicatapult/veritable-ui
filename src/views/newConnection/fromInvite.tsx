@@ -94,7 +94,7 @@ export class FromInviteTemplates extends NewConnectionTemplates {
           { type: 'submit', value: 'pinSubmission', text: 'Continue' },
         ]}
       >
-        <div id="new-connection-input-field" class="accented-container">
+        <div class="accented-container">
           <p>Please enter the verification code from the physical letter</p>
           <input
             name="invite"
@@ -102,7 +102,7 @@ export class FromInviteTemplates extends NewConnectionTemplates {
             type="hidden"
           />
           <input
-            id="from-invite-pin-input "
+            id="from-invite-invite-input-pin"
             name="pin"
             class="new-connection-input-field"
             placeholder="Code"
