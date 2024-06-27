@@ -108,7 +108,8 @@ export default class ConnectionTemplates {
                           icon='url("/public/images/dot-icon.svg")'
                           outline={true}
                           disabled={connection.status === 'pending' ? false : true}
-                          name="some action"
+                          href={connection.status === 'pending' ? '/connection/new?fromInvite=true' : '#'}
+                          name="verify company"
                           showIcon={true}
                           fillButton={true}
                         />
