@@ -406,7 +406,8 @@ a.connections-table.icon {
   font-size: 1.5rem;
   min-height: 500px;
   position: relative;
-  &:hover {
+  &:hover,
+  &:focus-visible {
     background-color: var(--accent-color);
     box-shadow: 10px 10px 8px rgba(0, 0, 0, 0.2);
     border: 1px solid lightslategrey;

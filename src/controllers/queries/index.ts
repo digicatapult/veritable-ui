@@ -21,12 +21,12 @@ export class QueriesController extends HTMLController {
   }
 
   /**
-   * Retrieves the homepage
+   * Retrieves the query page
    */
   @SuccessResponse(200)
   @Get('/')
-  public async homepage(): Promise<HTML> {
-    this.logger.debug('homepagepage requested')
+  public async queries(): Promise<HTML> {
+    this.logger.debug('query page requested')
 
     return this.html(this.queriesTemplates.chooseQueryPage())
   }
