@@ -232,7 +232,7 @@ export class NewConnectionController extends HTMLController {
     @Body()
     body: {
       pin: string
-      action: 'pin-submission'
+      action: 'pinSubmission'
     }
   ): Promise<HTML> {
     return this.html(
@@ -256,9 +256,14 @@ export class NewConnectionController extends HTMLController {
     body: {
       pin?: string
       invite: string
-      action: 'createConnection'
+      action: 'createConnection' | 'pinSubmission'
     }
   ): Promise<HTML> {
+    if (body.action == 'pinSubmission' && body.pin) {
+      // send over ws/or credentiaol proposal here
+      // can be abstracted in it's own method
+      return this.receivePinSuccessHtml(body.pin)
+    }
     if (!body.invite.match(base64UrlRegex)) {
       return this.receiveInviteErrorHtml('Invitation is not valid')
     }
@@ -412,6 +417,8 @@ export class NewConnectionController extends HTMLController {
     this.logger.debug('NEW_CONNECTION: sending emails')
     const inviteBase64 = Buffer.from(JSON.stringify(invite), 'utf8').toString('base64url')
 
+    console.log({ inviteBase64 })
+
     try {
       await this.email.sendMail('connection_invite', {
         to: email,
@@ -468,6 +475,18 @@ export class NewConnectionController extends HTMLController {
         formStage: 'form',
         email,
         companyNumber,
+      })
+    )
+  }
+
+  private receivePinSuccessHtml(pin: string) {
+    return this.html(
+      this.fromInvite.fromInviteForm({
+        feedback: {
+          type: 'success',
+          pin,
+        },
+        formStage: 'success',
       })
     )
   }

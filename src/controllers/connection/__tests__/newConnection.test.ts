@@ -462,7 +462,7 @@ describe('NewConnectionController', () => {
         })
         .then(toHTMLString)
 
-      expect(result).to.equal('fromInviteForm_companyFound-NAME--pin_fromInviteForm')
+      expect(result).to.equal('fromInviteForm_success---pin_fromInviteForm')
     })
 
     describe('happy path assertions', function () {
@@ -492,7 +492,7 @@ describe('NewConnectionController', () => {
       })
 
       it('should return success form', () => {
-        expect(result).to.equal('fromInviteForm_companyFound-NAME--pin_fromInviteForm')
+        expect(result).to.equal('fromInviteForm_success---pin_fromInviteForm')
       })
 
       it('should insert two row', () => {

@@ -85,13 +85,13 @@ export class FromInviteTemplates extends NewConnectionTemplates {
   public newInvitePin = (props: FormInviteProps): JSX.Element => {
     return (
       <this.newConnectionForm
-        submitRoute="pin-submission"
+        submitRoute="receive-invitation"
         feedback={props.feedback}
         progressStep={2}
         progressStepCount={3}
         actions={[
           { type: 'link', text: 'Fill In Later', href: '/connection' },
-          { type: 'submit', value: 'pin-submit', text: 'Continue' },
+          { type: 'submit', value: 'pinSubmission', text: 'Continue' },
         ]}
       >
         <div class="accented-container">
@@ -107,16 +107,13 @@ export class FromInviteTemplates extends NewConnectionTemplates {
             class="new-connection-input-field"
             placeholder="Code"
             required
-            hx-trigger="keyup changed delay:500ms"
             value={props.pin || ''}
-            type="number"
-            hx-target="#new-connection-feedback"
-            hx-select="#new-connection-feedback"
-            hx-swap="outerHTML"
+            type="text"
             pattern={pinCodeRegex.source}
+            oninput="this.reportValidity()"
             minlength={6}
             maxlength={6}
-          />
+          ></input>
         </div>
       </this.newConnectionForm>
     )
