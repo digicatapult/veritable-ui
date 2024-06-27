@@ -404,7 +404,7 @@ a.connections-table.icon {
   align-items: left;
   align-content: left;
   font-size: 1.5rem;
-  min-height: 450px;
+  min-height: 500px;
   position: relative;
   &:hover {
     background-color: var(--accent-color);
@@ -492,6 +492,6 @@ a.connections-table.icon {
     height: 100%;
   }
   .query-item {
-    min-height: auto;
+    min-height: 250px;
   }
 }
