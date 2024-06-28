@@ -46,7 +46,7 @@ export class FromInviteTemplates extends NewConnectionTemplates {
       case 'invite':
         return <this.fromInviteInvite {...props}></this.fromInviteInvite>
       case 'pin':
-        return <this.newInvitePin {...props}></this.newInvitePin>
+        return <this.fromInvitePin {...props}></this.fromInvitePin>
       case 'success':
         return <this.fromInviteSuccess {...props}></this.fromInviteSuccess>
     }
@@ -70,7 +70,7 @@ export class FromInviteTemplates extends NewConnectionTemplates {
             placeholder="Invitation Text"
             required
             hx-get="/connection/new/verify-invite"
-            hx-trigger="keyup changed delay:200ms, change, load"
+            hx-trigger="keyup changed delay:20ms, change, load"
             hx-target="#new-connection-feedback"
             hx-select="#new-connection-feedback"
             hx-swap="outerHTML"
@@ -82,7 +82,7 @@ export class FromInviteTemplates extends NewConnectionTemplates {
     )
   }
 
-  public newInvitePin = (props: FormInviteProps): JSX.Element => {
+  public fromInvitePin = (props: FormInviteProps): JSX.Element => {
     return (
       <this.newConnectionForm
         submitRoute="pin-submission"
@@ -96,11 +96,7 @@ export class FromInviteTemplates extends NewConnectionTemplates {
       >
         <div class="accented-container">
           <p>Please enter the verification code from the physical letter</p>
-          <input
-            name="invite"
-            value={(props.feedback.type === 'success' && props.feedback.invite) || ''}
-            type="hidden"
-          />
+          <input name="invite" value={props.invite || ''} type="hidden" />
           <input
             id="from-invite-invite-input-pin"
             name="pin"
@@ -108,7 +104,7 @@ export class FromInviteTemplates extends NewConnectionTemplates {
             placeholder="Code"
             required
             value={props.pin || ''}
-            type="number"
+            type="text"
             pattern={pinCodeRegex.source}
             minlength={6}
             maxlength={6}

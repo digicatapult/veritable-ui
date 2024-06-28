@@ -105,11 +105,11 @@ export default class ConnectionTemplates {
                       <td>{this.statusToClass(connection.status)}</td>
                       <td>
                         <ButtonIcon
-                          icon='url("/public/images/dot-icon.svg")'
+                          icon='url("/public/images/arrow-right-circle.svg")'
                           outline={true}
                           disabled={connection.status === 'pending' ? false : true}
                           href={connection.status === 'pending' ? '/connection/new?fromInvite=true' : '#'}
-                          name="verify company"
+                          name="Complete Verification"
                           showIcon={true}
                           fillButton={true}
                         />

@@ -11,10 +11,9 @@ import CompanyHouseEntity, { CompanyProfile } from '../../models/companyHouseEnt
 import Database from '../../models/db/index.js'
 import EmailService from '../../models/emailService/index.js'
 import {
-  BASE_64_URL,
   base64UrlRegex,
   companyNumberRegex,
-  pinCodeRegex,
+  type BASE_64_URL,
   type COMPANY_NUMBER,
   type EMAIL,
 } from '../../models/strings.js'
@@ -109,11 +108,11 @@ export class NewConnectionController extends HTMLController {
   }
 
   /**
-   * @returns a company from a validated connection invitation
+   * @returns a invite from a validated connection invitation
    */
   @SuccessResponse(200)
   @Get('/verify-invite')
-  public async verifyInviteForm(@Query() invite: BASE_64_URL | string): Promise<HTML> {
+  public async verifyInviteForm(@Query() invite: BASE_64_URL): Promise<HTML> {
     if (invite === '') {
       return this.newConnectionForm(true)
     }
@@ -127,13 +126,14 @@ export class NewConnectionController extends HTMLController {
     if (inviteOrError.type === 'error') {
       return this.receiveInviteErrorHtml(inviteOrError.message)
     }
+
     const company = inviteOrError.company
 
     return this.html(
       this.fromInvite.fromInviteForm({
         feedback: {
           type: 'companyFound',
-          company: company,
+          company,
         },
         formStage: 'invite',
       })
@@ -141,11 +141,11 @@ export class NewConnectionController extends HTMLController {
   }
 
   /**
-   * submits the company number for
+   * @returns a feedback from a validated connection invitation
    */
   @SuccessResponse(200)
   @Post('/verify-invite')
-  public async submitInvite(
+  public async verifyInvite(
     @Body()
     body: {
       invite: BASE_64_URL
@@ -161,8 +161,8 @@ export class NewConnectionController extends HTMLController {
     return this.html(
       this.fromInvite.fromInviteForm({
         feedback: {
-          type: 'success', // TODO inviteFound?
-          invite: decodedInvite.inviteUrl,
+          type: 'success',
+          message: 'Please enter a 6 digit PIN code',
         },
         formStage: 'pin',
       })
@@ -233,24 +233,21 @@ export class NewConnectionController extends HTMLController {
     @Body()
     body: {
       pin?: string
-      invite: BASE_64_URL
+      invite?: BASE_64_URL
       action: 'createConnection' | 'pinSubmission'
     }
   ): Promise<HTML> {
     // handle pinSubmission
     if (body.action == 'pinSubmission' && body.pin) {
-      if (body.pin.length !== 6) return this.receivePinErrorHtml('pin must be 6 digit long')
-      if (!body.pin.match(pinCodeRegex)) return this.receivePinErrorHtml('pin must be all in digits')
-
       // can be abstracted in it's own method
       return this.receivePinSuccessHtml(body.pin)
     }
 
-    if (!body.invite.match(base64UrlRegex)) {
+    if (body.invite && !body.invite.match(base64UrlRegex)) {
       return this.receiveInviteErrorHtml('Invitation is not valid')
     }
 
-    const inviteOrError = await this.decodeInvite(body.invite)
+    const inviteOrError = await this.decodeInvite(body.invite || '')
     if (inviteOrError.type === 'error') {
       return this.receiveInviteErrorHtml(inviteOrError.message)
     }
@@ -472,25 +469,14 @@ export class NewConnectionController extends HTMLController {
     )
   }
 
-  private receivePinErrorHtml(error: string) {
+  private receiveInviteSuccessHtml(invite: string) {
     return this.html(
       this.fromInvite.fromInviteForm({
         feedback: {
-          type: 'error',
-          error,
+          type: 'success',
+          message: 'In order to perform a second step of verification. Please enter a 6 digit PIN code',
         },
-        formStage: 'pin',
-      })
-    )
-  }
-
-  private receiveInviteSuccessHtml(invite: BASE_64_URL) {
-    return this.html(
-      this.fromInvite.fromInviteForm({
-        feedback: {
-          type: 'message',
-          message: invite,
-        },
+        invite: Buffer.from(JSON.stringify(invite), 'utf8').toString('base64url'),
         formStage: 'pin',
       })
     )
