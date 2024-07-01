@@ -211,8 +211,9 @@ a.connections-table.icon {
 }
 
 .button-icon {
-  width: 14px;
-  height: 14px;
+  width: 16px;
+  height: 16px;
+  background-size: cover;
   background-repeat: no-repeat;
   background-position: center;
   background-color: transparent;

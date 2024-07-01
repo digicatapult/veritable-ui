@@ -239,7 +239,7 @@ export class NewConnectionController extends HTMLController {
   ): Promise<HTML> {
     // handle pinSubmission
     if (body.action == 'pinSubmission' && body.pin) {
-      // can be abstracted in it's own method
+      this.logger.info(`pin code [${body.pin}] has been submitted.`)
       return this.receivePinSuccessHtml(body.pin)
     }
 
@@ -460,8 +460,8 @@ export class NewConnectionController extends HTMLController {
     return this.html(
       this.fromInvite.fromInviteForm({
         feedback: {
-          type: 'message',
-          message: 'pin has been successfully submitted for verification',
+          type: 'success',
+          message: 'PIN code has been submitted.',
         },
         pin,
         formStage: 'success',

@@ -78,6 +78,7 @@ export default class CompanyHouseEntity {
   async getCompanyProfileByCompanyNumber(companyNumber: string): Promise<CompanyProfileResult> {
     const endpoint = `${this.env.get('COMPANY_HOUSE_API_URL')}/company/${encodeURIComponent(companyNumber)}`
     const companyProfile = await this.makeCompanyProfileRequest(endpoint)
+    console.log({ companyProfile })
     return companyProfile === null
       ? { type: 'notFound' }
       : { type: 'found', company: companyProfileSchema.parse(companyProfile) }

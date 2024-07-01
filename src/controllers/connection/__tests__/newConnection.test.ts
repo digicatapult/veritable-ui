@@ -165,9 +165,7 @@ describe('NewConnectionController', () => {
       const result = await controller
         .submitFromInvite({ invite: 'base64-string', pin: '12345678', action: 'pinSubmission' })
         .then(toHTMLString)
-      expect(result).to.equal(
-        'fromInviteForm_message--pin has been successfully submitted for verification-success_fromInviteForm'
-      )
+      expect(result).to.equal('fromInviteForm_success--PIN code has been submitted.-success_fromInviteForm')
     })
 
     it('also should render error if it combined characters and numbers', async () => {
@@ -176,9 +174,7 @@ describe('NewConnectionController', () => {
       const result = await controller
         .submitFromInvite({ invite: 'base64-string', pin: '12345678asdg', action: 'pinSubmission' })
         .then(toHTMLString)
-      expect(result).to.equal(
-        'fromInviteForm_message--pin has been successfully submitted for verification-success_fromInviteForm'
-      )
+      expect(result).to.equal('fromInviteForm_success--PIN code has been submitted.-success_fromInviteForm')
     })
 
     it('should accept only numbers', async () => {
@@ -187,9 +183,7 @@ describe('NewConnectionController', () => {
       const result = await controller
         .submitFromInvite({ invite: 'base64-string', pin: 'asdasd', action: 'pinSubmission' })
         .then(toHTMLString)
-      expect(result).to.equal(
-        'fromInviteForm_message--pin has been successfully submitted for verification-success_fromInviteForm'
-      )
+      expect(result).to.equal('fromInviteForm_success--PIN code has been submitted.-success_fromInviteForm')
     })
 
     it('renders a success screen', async () => {
@@ -198,9 +192,7 @@ describe('NewConnectionController', () => {
       const result = await controller
         .submitFromInvite({ invite: 'base64-string', pin: '123456', action: 'pinSubmission' })
         .then(toHTMLString)
-      expect(result).to.equal(
-        'fromInviteForm_message--pin has been successfully submitted for verification-success_fromInviteForm'
-      )
+      expect(result).to.equal('fromInviteForm_success--PIN code has been submitted.-success_fromInviteForm')
     })
   })
 
