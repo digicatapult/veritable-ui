@@ -64,9 +64,74 @@ export const credentialDefinitionParser = z.object({
 })
 export type CredentialDefinition = z.infer<typeof credentialDefinitionParser>
 
+export const credentialParser = z.object({
+  id: z.string(),
+  connectionId: z.string(),
+  protocolVersion: z.string(),
+  role: z.union([z.literal('issuer'), z.literal('holder')]),
+  state: z.union([
+    z.literal('proposal-sent'),
+    z.literal('proposal-received'),
+    z.literal('offer-sent'),
+    z.literal('offer-received'),
+    z.literal('declined'),
+    z.literal('request-sent'),
+    z.literal('request-received'),
+    z.literal('credential-issued'),
+    z.literal('credential-received'),
+    z.literal('done'),
+    z.literal('abandoned'),
+  ]),
+})
+export type Credential = z.infer<typeof credentialParser>
+
+export const credentialAttributeParser = z.object({
+  'mime-type': z.string(),
+  name: z.string(),
+  value: z.string(),
+})
+export const anoncredsFormatParser = z.object({
+  anoncreds: z.object({
+    schema_id: z.string().optional(),
+    cred_def_id: z.string().optional(),
+    schema_name: z.string().optional(),
+    schema_version: z.string().optional(),
+  }),
+})
+
+export const credentialFormatDataParser = z.object({
+  proposalAttributes: z.array(credentialAttributeParser).optional(),
+  offerAttributes: z.array(credentialAttributeParser).optional(),
+  proposal: anoncredsFormatParser.optional(),
+  offer: anoncredsFormatParser.optional(),
+})
+export type CredentialFormatData = z.infer<typeof credentialFormatDataParser>
+
 const connectionListParser = z.array(connectionParser)
+const credentialListParser = z.array(credentialParser)
 const schemaListParser = z.array(schemaParser)
 const credentialDefinitionListParser = z.array(credentialDefinitionParser)
+
+export type CredentialProposalInput = {
+  schemaIssuerId?: string
+  schemaId?: string
+  schemaName?: string
+  schemaVersion?: string
+  credentialDefinitionId?: string
+  issuerId?: string
+  attributes?: {
+    name: string
+    value: string
+    mimeType?: string
+  }[]
+}
+export type CredentialProposalAcceptInput = {
+  credentialDefinitionId?: string
+  attributes?: {
+    name: string
+    value: string
+  }[]
+}
 
 type parserFn<O> = (res: Response) => O | Promise<O>
 
@@ -148,6 +213,10 @@ export default class VeritableCloudagent {
     return this.getRequest(`/v1/schemas?${params}`, this.buildParser(schemaListParser))
   }
 
+  public async getSchemaById(schemaId: string): Promise<Schema> {
+    return this.getRequest(`/v1/schemas/${encodeURIComponent(schemaId)}`, this.buildParser(schemaParser))
+  }
+
   public async createCredentialDefinition(
     issuerId: string,
     schemaId: string,
@@ -169,6 +238,59 @@ export default class VeritableCloudagent {
     }).toString()
 
     return this.getRequest(`/v1/credential-definitions?${params}`, this.buildParser(credentialDefinitionListParser))
+  }
+
+  public async getCredentialDefinitionById(credentialDefinitionId: string): Promise<CredentialDefinition> {
+    return this.getRequest(
+      `/v1/credential-definitions/${encodeURIComponent(credentialDefinitionId)}`,
+      this.buildParser(credentialDefinitionParser)
+    )
+  }
+
+  public async getCredentials(): Promise<Credential[]> {
+    return this.getRequest('/v1/credentials', this.buildParser(credentialListParser))
+  }
+
+  public async getCredentialFormatData(credentialId: string): Promise<CredentialFormatData> {
+    return this.getRequest(`/v1/credentials/${credentialId}/format-data`, this.buildParser(credentialFormatDataParser))
+  }
+
+  public async proposeCredential(connectionId: string, proposal: CredentialProposalInput): Promise<Credential> {
+    const body = {
+      protocolVersion: 'v2',
+      credentialFormats: {
+        anoncreds: {
+          ...proposal,
+        },
+      },
+      connectionId,
+    }
+
+    return this.postRequest('/v1/credentials/propose-credential', body, this.buildParser(credentialParser))
+  }
+
+  public async acceptProposal(credentialId: string, proposal: CredentialProposalAcceptInput): Promise<Credential> {
+    const body = {
+      credentialFormats: {
+        anoncreds: {
+          ...proposal,
+        },
+      },
+    }
+
+    return this.postRequest(`/v1/credentials/${credentialId}/accept-proposal`, body, this.buildParser(credentialParser))
+  }
+
+  public async acceptCredentialOffer(credentialId: string): Promise<Credential> {
+    return this.postRequest(`/v1/credentials/${credentialId}/accept-offer`, {}, this.buildParser(credentialParser))
+  }
+
+  public async acceptCredentialRequest(credentialId: string): Promise<Credential> {
+    return this.postRequest(`/v1/credentials/${credentialId}/accept-request`, {}, this.buildParser(credentialParser))
+  }
+
+  public async acceptCredential(credentialId: string): Promise<Credential> {
+    return this.postRequest(`/v1/credentials/${credentialId}/accept-credential`, {}, this.buildParser(credentialParser))
   }
 
   private async getRequest<O>(path: string, parse: parserFn<O>): Promise<O> {

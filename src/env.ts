@@ -39,6 +39,14 @@ const issuanceRecordValidator = envalid.makeValidator((input) => {
   throw new Error('must supply a valid issuance policy')
 })
 
+const pinSecretValidator = envalid.makeValidator((input) => {
+  if (!input) {
+    throw new Error('Invalid pin secret value')
+  }
+
+  return Buffer.from(input, 'utf8')
+})
+
 export const envConfig = {
   PORT: envalid.port({ default: 3000 }),
   LOG_LEVEL: envalid.str({ default: 'info', devDefault: 'debug' }),
@@ -75,7 +83,7 @@ export const envConfig = {
   EMAIL_ADMIN_ADDRESS: envalid.email({ default: 'admin@veritable.com' }),
   CLOUDAGENT_ADMIN_ORIGIN: envalid.url({ devDefault: 'http://localhost:3100' }),
   CLOUDAGENT_ADMIN_WS_ORIGIN: envalid.url({ devDefault: 'ws://localhost:3100' }),
-  INVITATION_PIN_SECRET: envalid.str({ devDefault: 'secret' }),
+  INVITATION_PIN_SECRET: pinSecretValidator({ devDefault: Buffer.from('secret', 'utf8') }),
   INVITATION_FROM_COMPANY_NUMBER: envalid.str({ devDefault: '07964699' }),
   ISSUANCE_DID_POLICY: issuanceRecordValidator({ devDefault: 'EXISTING_OR_NEW' }),
   ISSUANCE_SCHEMA_POLICY: issuanceRecordValidator({ devDefault: 'EXISTING_OR_NEW' }),
