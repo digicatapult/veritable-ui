@@ -15,10 +15,6 @@ export type FormFeedback =
       type: 'error'
       error: string
     }
-  | {
-      type: 'success'
-      message: string
-    }
 
 export type FormAction =
   | {
@@ -76,8 +72,6 @@ export abstract class NewConnectionTemplates {
         return <this.feedbackMessage message={props.feedback.message} />
       case 'companyFound':
         return <this.feedbackCompanyInfo company={props.feedback.company} />
-      case 'success':
-        return <this.feedbackMessage message={props.feedback.message} />
       case 'error':
         return <this.feedbackMessage message={props.feedback.error} isError={true} />
     }

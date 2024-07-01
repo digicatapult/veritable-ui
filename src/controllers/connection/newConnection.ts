@@ -112,7 +112,7 @@ export class NewConnectionController extends HTMLController {
    */
   @SuccessResponse(200)
   @Get('/verify-invite')
-  public async verifyInviteForm(@Query() invite: BASE_64_URL): Promise<HTML> {
+  public async verifyInviteForm(@Query() invite: BASE_64_URL | string): Promise<HTML> {
     if (invite === '') {
       return this.newConnectionForm(true)
     }
@@ -136,35 +136,6 @@ export class NewConnectionController extends HTMLController {
           company,
         },
         formStage: 'invite',
-      })
-    )
-  }
-
-  /**
-   * @returns a feedback from a validated connection invitation
-   */
-  @SuccessResponse(200)
-  @Post('/verify-invite')
-  public async verifyInvite(
-    @Body()
-    body: {
-      invite: BASE_64_URL
-    }
-  ) {
-    // TODO update state so 'pending us/yours' and enable action button
-    const decodedInvite = await this.decodeInvite(body.invite)
-    // and other udates
-    if (decodedInvite.type === 'error') {
-      return this.newInviteErrorHtml('unable to decode invite request')
-    }
-
-    return this.html(
-      this.fromInvite.fromInviteForm({
-        feedback: {
-          type: 'success',
-          message: 'Please enter a 6 digit PIN code',
-        },
-        formStage: 'pin',
       })
     )
   }
@@ -231,16 +202,25 @@ export class NewConnectionController extends HTMLController {
   @Post('/receive-invitation')
   public async submitFromInvite(
     @Body()
-    body: {
-      pin?: string
-      invite?: BASE_64_URL
-      action: 'createConnection' | 'pinSubmission'
-    }
+    body:
+      | {
+          invite: BASE_64_URL
+          action: 'createConnection'
+        }
+      | {
+          invite: BASE_64_URL
+          pin: string
+          action: 'pinSubmission'
+        }
   ): Promise<HTML> {
     // handle pinSubmission
     if (body.action == 'pinSubmission' && body.pin) {
       this.logger.info(`pin code [${body.pin}] has been submitted.`)
       return this.receivePinSuccessHtml(body.pin)
+    }
+
+    if (body.action !== 'createConnection') {
+      return this.receiveInviteErrorHtml('Invalid action supplied with invitation')
     }
 
     if (body.invite && !body.invite.match(base64UrlRegex)) {
@@ -460,8 +440,8 @@ export class NewConnectionController extends HTMLController {
     return this.html(
       this.fromInvite.fromInviteForm({
         feedback: {
-          type: 'success',
-          message: 'PIN code has been submitted.',
+          type: 'message',
+          message: 'PIN code has been submitted for other party to verify.',
         },
         pin,
         formStage: 'success',
@@ -473,8 +453,8 @@ export class NewConnectionController extends HTMLController {
     return this.html(
       this.fromInvite.fromInviteForm({
         feedback: {
-          type: 'success',
-          message: 'In order to perform a second step of verification. Please enter a 6 digit PIN code',
+          type: 'message',
+          message: 'This is a second step of verification. Please enter a 6 digit code.',
         },
         invite: Buffer.from(JSON.stringify(invite), 'utf8').toString('base64url'),
         formStage: 'pin',
