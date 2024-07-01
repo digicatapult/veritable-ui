@@ -29,6 +29,16 @@ export type DATE = string
 export type EMAIL = string
 
 /**
+ * Pin Code format
+ * @pattern ^[1-9][0-9]{5}$
+ * @minLength 6
+ * @maxLength 6
+ * @example 123456
+ */
+export type PIN_CODE = string
+export const pinCodeRegex = /^[1-9][0-9]{5}$/
+
+/**
  * Company number format
  * @pattern ^(((AC|CE|CS|FC|FE|GE|GS|IC|LP|NC|NF|NI|NL|NO|NP|OC|OE|PC|R0|RC|SA|SC|SE|SF|SG|SI|SL|SO|SR|SZ|ZC|\d{2})\d{6})|((IP|SP|RS)[A-Z\d]{6})|(SL\d{5}[\dA]))$
  * @minLength 8

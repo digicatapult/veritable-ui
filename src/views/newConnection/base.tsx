@@ -31,7 +31,7 @@ export type FormAction =
 export abstract class NewConnectionTemplates {
   protected newConnectionForm = (
     props: Html.PropsWithChildren<{
-      submitRoute: 'create-invitation' | 'receive-invitation'
+      submitRoute: 'create-invitation' | 'receive-invitation' | 'pin-submission'
       feedback: FormFeedback
       progressStep: number
       progressStepCount: number
@@ -69,7 +69,7 @@ export abstract class NewConnectionTemplates {
   protected feedback = (props: { feedback: FormFeedback }): JSX.Element => {
     switch (props.feedback.type) {
       case 'message':
-        return <this.feedbackMessage message={props.feedback.message} isError={false} />
+        return <this.feedbackMessage message={props.feedback.message} />
       case 'companyFound':
         return <this.feedbackCompanyInfo company={props.feedback.company} />
       case 'error':
@@ -116,7 +116,7 @@ export abstract class NewConnectionTemplates {
     )
   }
 
-  protected feedbackMessage = ({ message, isError }: { message: string; isError: boolean }): JSX.Element => {
+  protected feedbackMessage = ({ message, isError = false }: { message: string; isError?: boolean }): JSX.Element => {
     const messageClass = isError ? 'feedback-negative' : 'feedback-neutral'
     return (
       <div id="new-connection-feedback" class={`accented-container ${messageClass}`}>

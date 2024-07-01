@@ -158,6 +158,52 @@ describe('NewConnectionController', () => {
     })
   })
 
+  describe('fromInvitePin', () => {
+    it('should render error if it is longer than 6 digits', async () => {
+      let { args } = withNewConnectionMocks()
+      const controller = new NewConnectionController(...args)
+      const result = await controller
+        .submitFromInvite({ invite: 'invite', pin: '12345678', action: 'pinSubmission' })
+        .then(toHTMLString)
+      expect(result).to.equal(
+        'fromInviteForm_message--PIN code has been submitted for other party to verify.-success_fromInviteForm'
+      )
+    })
+
+    it('also should render error if it combined characters and numbers', async () => {
+      let { args } = withNewConnectionMocks()
+      const controller = new NewConnectionController(...args)
+      const result = await controller
+        .submitFromInvite({ invite: 'invite', pin: '12345678asdg', action: 'pinSubmission' })
+        .then(toHTMLString)
+      expect(result).to.equal(
+        'fromInviteForm_message--PIN code has been submitted for other party to verify.-success_fromInviteForm'
+      )
+    })
+
+    it('should accept only numbers', async () => {
+      let { args } = withNewConnectionMocks()
+      const controller = new NewConnectionController(...args)
+      const result = await controller
+        .submitFromInvite({ invite: 'invite', pin: 'asdasd', action: 'pinSubmission' })
+        .then(toHTMLString)
+      expect(result).to.equal(
+        'fromInviteForm_message--PIN code has been submitted for other party to verify.-success_fromInviteForm'
+      )
+    })
+
+    it('renders a success screen', async () => {
+      let { args } = withNewConnectionMocks()
+      const controller = new NewConnectionController(...args)
+      const result = await controller
+        .submitFromInvite({ invite: 'invite', pin: '123456', action: 'pinSubmission' })
+        .then(toHTMLString)
+      expect(result).to.equal(
+        'fromInviteForm_message--PIN code has been submitted for other party to verify.-success_fromInviteForm'
+      )
+    })
+  })
+
   describe('submitNewInvite', () => {
     it('should return rendered error when company not found', async () => {
       let { args } = withNewConnectionMocks()
@@ -462,7 +508,9 @@ describe('NewConnectionController', () => {
         })
         .then(toHTMLString)
 
-      expect(result).to.equal('fromInviteForm_companyFound-NAME--success_fromInviteForm')
+      expect(result).to.equal(
+        'fromInviteForm_message--This is a second step of verification. Please enter a 6 digit code.-pin_fromInviteForm'
+      )
     })
 
     describe('happy path assertions', function () {
@@ -492,7 +540,9 @@ describe('NewConnectionController', () => {
       })
 
       it('should return success form', () => {
-        expect(result).to.equal('fromInviteForm_companyFound-NAME--success_fromInviteForm')
+        expect(result).to.equal(
+          'fromInviteForm_message--This is a second step of verification. Please enter a 6 digit code.-pin_fromInviteForm'
+        )
       })
 
       it('should insert two row', () => {
