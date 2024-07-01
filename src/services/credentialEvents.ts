@@ -35,6 +35,11 @@ export default class CredentialEvents {
       ? await this.cloudagent.getSchemaById(formatData.offer?.anoncreds.schema_id)
       : undefined
 
+    if (record.protocolVersion !== 'v2') {
+      this.logger.warn('Credential state change on non v2 credential %s', record.id)
+      return
+    }
+
     if (this.isCompanyDetailsProposal(record, formatData)) {
       await this.handleProposalReceived(record, formatData)
       return

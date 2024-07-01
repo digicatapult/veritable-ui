@@ -116,6 +116,15 @@ export default class VeritableCloudagentEvents extends IndexedAsyncEventEmitter<
         }
       }
 
+      for (const credential of await this.veritable.getCredentials()) {
+        if (!credentialSeen.has(credential.id)) {
+          this.emitIndexed('CredentialStateChanged', credential.id, {
+            type: 'CredentialStateChanged',
+            payload: { credentialRecord: credential },
+          })
+        }
+      }
+
       resolve()
     })
 
