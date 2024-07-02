@@ -231,7 +231,7 @@ a.connections-table.icon {
   flex-direction: column;
 }
 
-.connections-list-nav,
+.list-nav,
 .list-page-header {
   display: flex;
   flex-direction: row;
@@ -245,7 +245,7 @@ a.connections-table.icon {
 }
 
 .list-page-header > *:first-child,
-.connections-list-nav > *:first-child {
+.list-nav > *:first-child {
   margin-right: auto;
 }
 
@@ -255,7 +255,7 @@ a.connections-table.icon {
   padding-bottom: 1rem;
 }
 
-.connections.list table {
+.list-page table {
   width: 100%;
   border-radius: 0px;
   background-color: #fff;
@@ -264,7 +264,7 @@ a.connections-table.icon {
   border-bottom: 1px solid var(--text-color-sub);
 }
 
-.connections.list th {
+.list-page th {
   text-align: left;
   color: var(--text-color);
   padding: 1rem 0;
@@ -274,14 +274,14 @@ a.connections-table.icon {
   border-bottom: 1px solid var(--text-color-sub);
 }
 
-.connections.list td {
+.list-page td {
   text-align: left;
   height: 3rem;
   color: var(--text-color-secondary);
   font-size: 0.7rem;
 }
 
-.connections.list {
+.list-page {
   background-color: #fff;
   overflow-x: auto;
 
@@ -471,7 +471,7 @@ a.connections-table.icon {
     justify-content: space-between;
     min-height: auto;
   }
-  .connections-list-nav {
+  .list-nav {
     padding: 5px;
   }
 

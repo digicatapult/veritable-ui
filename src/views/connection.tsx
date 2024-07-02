@@ -67,8 +67,8 @@ export default class ConnectionTemplates {
               fillButton={true}
             />
           </div>
-          <div class="connections list">
-            <div class="connections-list-nav">
+          <div class="list-page">
+            <div class="list-nav">
               <span>Connections</span>
               <input
                 id="connection-search-input"

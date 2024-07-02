@@ -60,8 +60,8 @@ export default class QueryListTemplates {
             <span>Query Management</span>
             <ButtonIcon disabled={false} name="Query Request" href="/queries/new" showIcon={true} fillButton={true} />
           </div>
-          <div class="connections list">
-            <div class="connections-list-nav">
+          <div class="list-page ">
+            <div class="list-nav">
               <span>Query Management</span>
               <input
                 id="queries-search-input"
