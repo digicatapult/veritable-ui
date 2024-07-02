@@ -2,12 +2,12 @@ import Html from '@kitajs/html'
 import { singleton } from 'tsyringe'
 import { ButtonIcon, Page } from './common.js'
 
-type QueryStatus = 'Resolved' | 'Pending Your Input' | 'Pending Their Input'
+type QueryStatus = 'resolved' | 'pending_your_input' | 'pending_their_input'
 
-interface query {
+interface Query {
   company_name: string
   query_type: string
-  direction: 'Sent' | 'Received'
+  direction: 'sent' | 'received'
   updated_at: Date
   status: QueryStatus
 }
@@ -17,18 +17,18 @@ export default class QueryListTemplates {
 
   private statusToClass = (status: string | QueryStatus): JSX.Element => {
     switch (status) {
-      case 'Pending Your Input':
+      case 'pending_your_input':
         return <div class="warning">Pending Your Input</div>
-      case 'Pending Their Input':
+      case 'pending_their_input':
         return <div class="disconnected">Pending Their Input</div>
-      case 'Resolved':
+      case 'resolved':
         return <div class="success">Resolved</div>
       default:
         return <div class="error">unknown</div>
     }
   }
 
-  public listPage = (queries: query[], search: string = '') => {
+  public listPage = (queries: Query[], search: string = '') => {
     return (
       <Page
         title="Veritable - Queries"
@@ -97,7 +97,7 @@ export default class QueryListTemplates {
                     <tr>
                       <td>{Html.escapeHtml(query.company_name)}</td>
                       <td>{Html.escapeHtml(query.query_type)}</td>
-                      <td>{Html.escapeHtml(query.direction)}</td>
+                      <td class="capitalize">{Html.escapeHtml(query.direction)}</td>
                       <td>{Html.escapeHtml(query.updated_at)}</td>
                       <td>{this.statusToClass(query.status)}</td>
 

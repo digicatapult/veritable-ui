@@ -42,7 +42,7 @@ export class QueriesController extends HTMLController {
   public async queryManagement(@Query() search?: string): Promise<HTML> {
     this.logger.debug('query management page requested')
     const query = search ? [['company_name', 'ILIKE', `%${search}%`]] : {}
-    const queries = await this.db.get('queries', query, [['updated_at', 'desc']])
+    const queries = await this.db.get('query', query, [['updated_at', 'desc']])
 
     this.setHeader(
       'HX-Replace-Url',

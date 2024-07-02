@@ -69,29 +69,26 @@ export async function queryVariants(connections) {
     if (i % 3 == 0) {
       queryVariants.push({
         connection_id: connection.id,
-        company_name: connection.company_name,
-        direction: 'Sent',
+        direction: 'sent',
         query_type: 'Type A',
-        status: 'Pending Your Input',
-        action_items: 'View Details',
+        status: 'pending_your_input',
+        action_items: 'view_details',
       })
     } else if (i % 3 == 1) {
       queryVariants.push({
         connection_id: connection.id,
-        company_name: connection.company_name,
-        direction: 'Received',
+        direction: 'received',
         query_type: 'Type B',
-        status: 'Resolved',
-        action_items: 'View Details',
+        status: 'resolved',
+        action_items: 'view_details',
       })
     } else if (i % 3 == 2) {
       queryVariants.push({
         connection_id: connection.id,
-        company_name: connection.company_name,
-        direction: 'Sent',
+        direction: 'sent',
         query_type: 'Type A',
-        status: 'Pending Their Input',
-        action_items: 'View Details',
+        status: 'pending_their_input',
+        action_items: 'view_details',
       })
     }
   }
@@ -104,11 +101,11 @@ export async function queryVariants(connections) {
  */
 export async function seed(knex) {
   // Deletes ALL existing entries
-  await knex('queries').del()
+  await knex('query').del()
   await knex('connection').del()
   const variants10000 = await prepareVariants()
   await knex('connection').insert(variants10000)
   const firstTenConnections = await knex('connection').orderBy('created_at', 'asc').limit(10)
   const variants = await queryVariants(firstTenConnections)
-  await knex('queries').insert(variants)
+  await knex('query').insert(variants)
 }

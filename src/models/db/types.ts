@@ -1,7 +1,7 @@
 import { Knex } from 'knex'
 import { z } from 'zod'
 
-export const tablesList = ['connection', 'connection_invite', 'queries'] as const
+export const tablesList = ['connection', 'connection_invite', 'query'] as const
 
 const insertConnection = z.object({
   company_name: z.string(),
@@ -28,9 +28,9 @@ const insertQuery = z.object({
   connection_id: z.string(),
   company_name: z.string(),
   query_type: z.string(),
-  direction: z.enum(['Sent', 'Received']), //maybe should type check or sth
-  status: z.enum(['Resolved', 'Pending Your Input', 'Pending Their Input']),
-  action_items: z.enum(['View Details', 'Respond']),
+  direction: z.enum(['sent', 'received']),
+  status: z.enum(['resolved', 'pending_your_input', 'pending_their_input']),
+  action_items: z.enum(['view_details', 'respond']),
   created_at: z.date(),
   updated_at: z.date(),
 })
@@ -52,7 +52,7 @@ const Zod = {
       updated_at: z.date(),
     }),
   },
-  queries: {
+  query: {
     insert: insertQuery,
     get: insertQuery.extend({
       id: z.string(),
@@ -63,11 +63,11 @@ const Zod = {
 }
 
 const { connection } = Zod
-const { queries } = Zod
+const { query } = Zod
 
 export type InsertConnection = z.infer<typeof connection.insert>
 export type ConnectionRow = z.infer<typeof connection.get>
-export type QueryRow = z.infer<typeof queries.get>
+export type QueryRow = z.infer<typeof query.get>
 
 export type TABLES_TUPLE = typeof tablesList
 export type TABLE = TABLES_TUPLE[number]
