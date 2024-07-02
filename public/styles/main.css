@@ -447,9 +447,6 @@ a.connections-table.icon {
   margin-top: 1rem;
   margin-bottom: 0rem;
 }
-.capitalize {
-  text-transform: capitalize;
-}
 
 /* Mobile view */
 @media (max-width: 767px) {
