@@ -11,9 +11,9 @@ import CompanyHouseEntity, { CompanyProfile } from '../../models/companyHouseEnt
 import Database from '../../models/db/index.js'
 import EmailService from '../../models/emailService/index.js'
 import {
-  BASE_64_URL,
   base64UrlRegex,
   companyNumberRegex,
+  type BASE_64_URL,
   type COMPANY_NUMBER,
   type EMAIL,
 } from '../../models/strings.js'
@@ -25,6 +25,7 @@ import { HTML, HTMLController } from '../HTMLController.js'
 const submitToFormStage = {
   back: 'form',
   continue: 'confirmation',
+  pin: 'pin',
   submit: 'success',
 } as const
 
@@ -107,7 +108,7 @@ export class NewConnectionController extends HTMLController {
   }
 
   /**
-   * @returns a company from a validated connection invitation
+   * @returns a invite from a validated connection invitation
    */
   @SuccessResponse(200)
   @Get('/verify-invite')
@@ -121,16 +122,18 @@ export class NewConnectionController extends HTMLController {
     }
 
     const inviteOrError = await this.decodeInvite(invite)
+
     if (inviteOrError.type === 'error') {
       return this.receiveInviteErrorHtml(inviteOrError.message)
     }
+
     const company = inviteOrError.company
 
     return this.html(
       this.fromInvite.fromInviteForm({
         feedback: {
           type: 'companyFound',
-          company: company,
+          company,
         },
         formStage: 'invite',
       })
@@ -199,16 +202,32 @@ export class NewConnectionController extends HTMLController {
   @Post('/receive-invitation')
   public async submitFromInvite(
     @Body()
-    body: {
-      invite: BASE_64_URL
-      action: 'createConnection'
-    }
+    body:
+      | {
+          invite: BASE_64_URL
+          action: 'createConnection'
+        }
+      | {
+          invite: BASE_64_URL
+          pin: string
+          action: 'pinSubmission'
+        }
   ): Promise<HTML> {
-    if (!body.invite.match(base64UrlRegex)) {
+    // handle pinSubmission
+    if (body.action === 'pinSubmission' && body.pin) {
+      this.logger.info(`pin code [${body.pin}] has been submitted.`)
+      return this.receivePinSuccessHtml(body.pin)
+    }
+
+    if (body.action !== 'createConnection') {
+      return this.receiveInviteErrorHtml('Invalid action supplied with invitation')
+    }
+
+    if (body.invite && !body.invite.match(base64UrlRegex)) {
       return this.receiveInviteErrorHtml('Invitation is not valid')
     }
 
-    const inviteOrError = await this.decodeInvite(body.invite)
+    const inviteOrError = await this.decodeInvite(body.invite || '')
     if (inviteOrError.type === 'error') {
       return this.receiveInviteErrorHtml(inviteOrError.message)
     }
@@ -242,11 +261,11 @@ export class NewConnectionController extends HTMLController {
     await this.sendAdminEmail(inviteOrError.company, pin)
 
     this.logger.debug('NEW_CONNECTION: complete: %s', dbResult.connectionId)
-    return this.receiveInviteSuccessHtml(inviteOrError.company)
+    return this.receiveInviteSuccessHtml(inviteOrError.inviteUrl)
   }
 
   private async decodeInvite(
-    invite: string
+    invite: BASE_64_URL
   ): Promise<{ type: 'success'; inviteUrl: string; company: CompanyProfile } | { type: 'error'; message: string }> {
     let wrappedInvite: Invite
     try {
@@ -394,7 +413,7 @@ export class NewConnectionController extends HTMLController {
       this.newInvite.newInviteForm({
         feedback: {
           type: 'companyFound',
-          company: company,
+          company,
         },
         formStage: formStage,
         email: email,
@@ -403,28 +422,42 @@ export class NewConnectionController extends HTMLController {
     )
   }
 
-  private newInviteErrorHtml(message: string, email?: string, companyNumber?: string) {
+  private newInviteErrorHtml(error: string, email?: string, companyNumber?: string) {
     return this.html(
       this.newInvite.newInviteForm({
         feedback: {
           type: 'error',
-          error: message,
+          error,
         },
         formStage: 'form',
-        email: email,
-        companyNumber: companyNumber,
+        email,
+        companyNumber,
       })
     )
   }
 
-  private receiveInviteSuccessHtml(company: CompanyProfile) {
+  private receivePinSuccessHtml(pin: string) {
     return this.html(
       this.fromInvite.fromInviteForm({
         feedback: {
-          type: 'companyFound',
-          company: company,
+          type: 'message',
+          message: 'PIN code has been submitted for other party to verify.',
         },
+        pin,
         formStage: 'success',
+      })
+    )
+  }
+
+  private receiveInviteSuccessHtml(invite: string) {
+    return this.html(
+      this.fromInvite.fromInviteForm({
+        feedback: {
+          type: 'message',
+          message: 'This is a second step of verification. Please enter a 6 digit code.',
+        },
+        invite: Buffer.from(JSON.stringify(invite), 'utf8').toString('base64url'),
+        formStage: 'pin',
       })
     )
   }

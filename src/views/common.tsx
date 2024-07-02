@@ -57,41 +57,43 @@ export const FormButton = (props: FormButtonProps): JSX.Element => (
  * Main menu/Nav
  * @returns JSX - Sidarbar
  */
-const SideBar = (): JSX.Element => (
-  <nav class="flex-page side-bar">
-    <img class="side-bar logo-container" src="/public/images/logo-square.svg" />
-    <a
-      title="categories"
-      href="/"
-      class="side-bar icon active"
-      style={{ backgroundImage: 'url("/public/images/category.svg")' }}
-    />
-    <a
-      title="connections"
-      href="/connection"
-      class="side-bar icon active"
-      style={{ backgroundImage: 'url("/public/images/connection.svg")' }}
-    />
-    <a
-      title="storage"
-      href="#storage"
-      class="side-bar icon disabled"
-      style={{ backgroundImage: 'url("/public/images/folder.svg")' }}
-    />
-    <a
-      title="notifications"
-      href="#notification"
-      class="side-bar icon disabled"
-      style={{ backgroundImage: 'url("/public/images/notification.svg")' }}
-    />
-    <a
-      title="settings"
-      href="#settings"
-      class="side-bar icon disabled"
-      style={{ backgroundImage: 'url("/public/images/setting.svg")' }}
-    />
-  </nav>
-)
+const SideBar = (): JSX.Element => {
+  return (
+    <nav class="flex-page side-bar">
+      <img class="side-bar logo-container" src="/public/images/logo-square.svg" />
+      <a
+        title="categories"
+        href="/"
+        class="side-bar icon"
+        style={{ backgroundImage: 'url("/public/images/category.svg")' }}
+      />
+      <a
+        title="connections"
+        href="/connection"
+        class="side-bar icon active"
+        style={{ backgroundImage: 'url("/public/images/connection.svg")' }}
+      />
+      <a
+        title="storage"
+        href="#storage"
+        class="side-bar icon disabled"
+        style={{ backgroundImage: 'url("/public/images/folder.svg")' }}
+      />
+      <a
+        title="notifications"
+        href="#notification"
+        class="side-bar icon disabled"
+        style={{ backgroundImage: 'url("/public/images/notification.svg")' }}
+      />
+      <a
+        title="settings"
+        href="#settings"
+        class="side-bar icon disabled"
+        style={{ backgroundImage: 'url("/public/images/setting.svg")' }}
+      />
+    </nav>
+  )
+}
 
 /**
  * Header for content wrapper class
