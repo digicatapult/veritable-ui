@@ -10,10 +10,13 @@ export default class QueriesTemplates {
       <Page
         title="Veritable - Queries"
         heading="Queries"
-        headerLinks={[{ name: 'Queries', url: '/queries' }]}
+        headerLinks={[
+          { name: 'Query Management', url: '/query-management' },
+          { name: 'Queries', url: '/query-management/queries' },
+        ]}
         stylesheets={['new-invite.css']}
       >
-        <div class="main connections" hx-get="/queries"></div>
+        <div class="main connections" hx-get="/query-management/queries"></div>
         <div>
           <h1 class="query-page-header">Queries</h1>
           <hr class="divider"></hr>
