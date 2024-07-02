@@ -3,6 +3,7 @@ import { describe, it } from 'mocha'
 import QueryListTemplates from '../queriesList.js'
 
 describe('ConnectionTemplates', () => {
+  const sampleDate = new Date(2024, 6, 4, 10, 30, 0, 0)
   describe('listPage', () => {
     it('should render with no connections', async () => {
       const templates = new QueryListTemplates()
@@ -16,7 +17,7 @@ describe('ConnectionTemplates', () => {
           company_name: 'Company A',
           status: 'resolved',
           query_type: 'Type A',
-          updated_at: new Date(),
+          updated_at: sampleDate,
         },
       ])
       expect(rendered).to.matchSnapshot()
@@ -28,7 +29,7 @@ describe('ConnectionTemplates', () => {
           company_name: '<div>I own you</div>',
           status: 'resolved',
           query_type: 'Type A',
-          updated_at: new Date(),
+          updated_at: sampleDate,
         },
       ])
       expect(rendered).to.matchSnapshot()
@@ -40,37 +41,37 @@ describe('ConnectionTemplates', () => {
           company_name: 'Company A',
           status: 'resolved',
           query_type: 'Type A',
-          updated_at: new Date(),
+          updated_at: sampleDate,
         },
         {
           company_name: 'Company B',
           status: 'resolved',
           query_type: 'Type A',
-          updated_at: new Date(),
+          updated_at: sampleDate,
         },
         {
           company_name: 'Company C',
           status: 'resolved',
           query_type: 'Type A',
-          updated_at: new Date(),
+          updated_at: sampleDate,
         },
         {
           company_name: 'Company D',
           status: 'resolved',
           query_type: 'Type A',
-          updated_at: new Date(),
+          updated_at: sampleDate,
         },
         {
           company_name: 'Company E',
           status: 'resolved',
           query_type: 'Type A',
-          updated_at: new Date(),
+          updated_at: sampleDate,
         },
         {
           company_name: 'Company F',
           status: 'resolved',
           query_type: 'Type A',
-          updated_at: new Date(),
+          updated_at: sampleDate,
         },
       ])
       expect(rendered).to.matchSnapshot()
