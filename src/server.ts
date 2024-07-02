@@ -13,7 +13,7 @@ import { ForbiddenError, HttpError } from './errors.js'
 import { ILogger, Logger } from './logger.js'
 import { RegisterRoutes } from './routes.js'
 import ConnectionEvents from './services/connectionEvents.js'
-import CredentialEvents from './services/credentialEvents.js'
+import CredentialEvents from './services/credentialEvents/index.js'
 import VeritableCloudagentEvents from './services/veritableCloudagentEvents.js'
 import loadApiSpec from './swagger.js'
 
