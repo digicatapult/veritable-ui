@@ -42,7 +42,7 @@ export default class ConnectionTemplates {
     return (
       <Page title="Veritable - Connections" heading="Connections" headerLinks={[{ name: 'Connections', url: '#' }]}>
         <div
-          class="main connections"
+          class="main-list-page"
           hx-get="/connection"
           hx-trigger="every 10s"
           hx-select="#search-results"
@@ -50,7 +50,7 @@ export default class ConnectionTemplates {
           hx-swap="outerHTML"
           hx-include="#connection-search-input"
         >
-          <div class="connections header">
+          <div class="list-page-header">
             <span>Connections Summary</span>
             <ButtonIcon
               disabled={false}

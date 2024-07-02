@@ -226,13 +226,13 @@ a.connections-table.icon {
   vertical-align: middle;
 }
 
-.main.connections {
+.main-list-page {
   display: flex;
   flex-direction: column;
 }
 
 .connections-list-nav,
-.connections.header {
+.list-page-header {
   display: flex;
   flex-direction: row;
   color: var(--text-color);
@@ -240,16 +240,16 @@ a.connections-table.icon {
   gap: 2ch;
 }
 
-.connections.header > .button {
+.list-page-header > .button {
   flex-basis: 28ch;
 }
 
-.connections.header > *:first-child,
+.list-page-header > *:first-child,
 .connections-list-nav > *:first-child {
   margin-right: auto;
 }
 
-.connections.header {
+.list-page-header {
   background-color: var(--bg-color);
   padding-top: 0.5rem;
   padding-bottom: 1rem;

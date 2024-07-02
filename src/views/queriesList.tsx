@@ -48,15 +48,15 @@ export default class QueryListTemplates {
         headerLinks={[{ name: 'Query Management', url: '/queries' }]}
       >
         <div
-          class="main connections"
+          class="main-list-page"
           hx-get="/queries"
           hx-trigger="every 10s"
           hx-select="#search-results"
           hx-target="#search-results"
           hx-swap="outerHTML"
-          hx-include="#connection-search-input"
+          hx-include="#queries-search-input"
         >
-          <div class="connections header">
+          <div class="list-page-header">
             <span>Query Management</span>
             <ButtonIcon disabled={false} name="Query Request" href="/queries/new" showIcon={true} fillButton={true} />
           </div>
@@ -64,7 +64,7 @@ export default class QueryListTemplates {
             <div class="connections-list-nav">
               <span>Query Management</span>
               <input
-                id="connection-search-input"
+                id="queries-search-input"
                 class="search-window"
                 type="search"
                 name="search"
