@@ -1,6 +1,6 @@
 import { expect } from 'chai'
 import { describe, it } from 'mocha'
-import QueriesTemplates from '../queries'
+import QueriesTemplates from '../queries.js'
 describe('ConnectionTemplates', () => {
   describe('listPage', () => {
     it('should render with no connections', async () => {
