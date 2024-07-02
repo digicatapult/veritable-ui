@@ -84,12 +84,12 @@ export default class ConnectionTemplates {
                 hx-swap="outerHTML"
               ></input>
             </div>
-            <table class="connections list">
+            <table class="list-page">
               <thead>
                 {['Company Name', 'Verification Status', 'Actions'].map((name: string) => (
                   <th>
                     <span>{name || 'unknown'}</span>
-                    <a class="connections-table icon disabled" />
+                    <a class="list-table icon disabled" />
                   </th>
                 ))}
               </thead>

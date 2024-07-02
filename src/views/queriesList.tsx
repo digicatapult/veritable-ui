@@ -77,7 +77,7 @@ export default class QueryListTemplates {
                 hx-swap="outerHTML"
               ></input>
             </div>
-            <table class="connections list">
+            <table class="list-page">
               <thead>
                 {[
                   'Company Name',
@@ -89,7 +89,7 @@ export default class QueryListTemplates {
                 ].map((name: string) => (
                   <th>
                     <span>{name || 'unknown'}</span>
-                    <a class="connections-table icon disabled" />
+                    <a class="list-table icon disabled" />
                   </th>
                 ))}
               </thead>
