@@ -214,7 +214,7 @@ export class NewConnectionController extends HTMLController {
         }
   ): Promise<HTML> {
     // handle pinSubmission
-    if (body.action == 'pinSubmission' && body.pin) {
+    if (body.action === 'pinSubmission' && body.pin) {
       this.logger.info(`pin code [${body.pin}] has been submitted.`)
       return this.receivePinSuccessHtml(body.pin)
     }

@@ -199,6 +199,7 @@ a.connections-table.icon {
   color: var(--accent-color);
   background-color: transparent;
   width: max-content;
+  max-width: 300px;
 
   &:hover {
     opacity: 0.7;
