@@ -7,7 +7,6 @@ type QueryStatus = 'resolved' | 'pending_your_input' | 'pending_their_input'
 interface Query {
   company_name: string
   query_type: string
-  direction: 'sent' | 'received'
   updated_at: Date
   status: QueryStatus
 }
@@ -28,16 +27,29 @@ export default class QueryListTemplates {
     }
   }
 
+  private direction = (status: string | QueryStatus): JSX.Element => {
+    switch (status) {
+      case 'pending_your_input':
+        return <p>Received</p>
+      case 'pending_their_input':
+        return <p>Sent</p>
+      case 'resolved':
+        return <p>Received</p>
+      default:
+        return <p>not sure</p>
+    }
+  }
+
   public listPage = (queries: Query[], search: string = '') => {
     return (
       <Page
         title="Veritable - Queries"
         heading="Query Management"
-        headerLinks={[{ name: 'Query Management', url: '/query-management' }]}
+        headerLinks={[{ name: 'Query Management', url: '/queries' }]}
       >
         <div
           class="main connections"
-          hx-get="/query-management"
+          hx-get="/queries"
           hx-trigger="every 10s"
           hx-select="#search-results"
           hx-target="#search-results"
@@ -46,13 +58,7 @@ export default class QueryListTemplates {
         >
           <div class="connections header">
             <span>Query Management</span>
-            <ButtonIcon
-              disabled={false}
-              name="Query Request"
-              href="/query-management/queries"
-              showIcon={true}
-              fillButton={true}
-            />
+            <ButtonIcon disabled={false} name="Query Request" href="/queries/new" showIcon={true} fillButton={true} />
           </div>
           <div class="connections list">
             <div class="connections-list-nav">
@@ -64,7 +70,7 @@ export default class QueryListTemplates {
                 name="search"
                 value={Html.escapeHtml(search)}
                 placeholder="Search"
-                hx-get="/query-management"
+                hx-get="/queries"
                 hx-trigger="input changed delay:500ms, search"
                 hx-target="#search-results"
                 hx-select="#search-results"
@@ -97,7 +103,7 @@ export default class QueryListTemplates {
                     <tr>
                       <td>{Html.escapeHtml(query.company_name)}</td>
                       <td>{Html.escapeHtml(query.query_type)}</td>
-                      <td class="capitalize">{Html.escapeHtml(query.direction)}</td>
+                      <td>{this.direction(query.status)}</td>
                       <td>{Html.escapeHtml(query.updated_at)}</td>
                       <td>{this.statusToClass(query.status)}</td>
 

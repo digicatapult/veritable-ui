@@ -69,26 +69,20 @@ export async function queryVariants(connections) {
     if (i % 3 == 0) {
       queryVariants.push({
         connection_id: connection.id,
-        direction: 'sent',
         query_type: 'Type A',
         status: 'pending_your_input',
-        action_items: 'view_details',
       })
     } else if (i % 3 == 1) {
       queryVariants.push({
         connection_id: connection.id,
-        direction: 'received',
         query_type: 'Type B',
         status: 'resolved',
-        action_items: 'view_details',
       })
     } else if (i % 3 == 2) {
       queryVariants.push({
         connection_id: connection.id,
-        direction: 'sent',
         query_type: 'Type A',
         status: 'pending_their_input',
-        action_items: 'view_details',
       })
     }
   }

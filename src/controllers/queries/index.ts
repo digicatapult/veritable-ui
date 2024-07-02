@@ -11,7 +11,7 @@ import { HTML, HTMLController } from '../HTMLController.js'
 @singleton()
 @injectable()
 @Security('oauth2')
-@Route('/query-management')
+@Route('/queries')
 @Produces('text/html')
 export class QueriesController extends HTMLController {
   constructor(
@@ -28,7 +28,7 @@ export class QueriesController extends HTMLController {
    * Retrieves the query page
    */
   @SuccessResponse(200)
-  @Get('/queries')
+  @Get('/new')
   public async queries(): Promise<HTML> {
     this.logger.debug('query page requested')
 
@@ -44,10 +44,7 @@ export class QueriesController extends HTMLController {
     const query = search ? [['company_name', 'ILIKE', `%${search}%`]] : {}
     const queries = await this.db.get('query', query, [['updated_at', 'desc']])
 
-    this.setHeader(
-      'HX-Replace-Url',
-      search ? `/query-management?search=${encodeURIComponent(search)}` : `/query-management`
-    )
+    this.setHeader('HX-Replace-Url', search ? `/queries?search=${encodeURIComponent(search)}` : `/queries`)
     return this.html(this.queryManagementTemplates.listPage(queries, search))
   }
 }

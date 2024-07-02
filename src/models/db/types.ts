@@ -28,9 +28,7 @@ const insertQuery = z.object({
   connection_id: z.string(),
   company_name: z.string(),
   query_type: z.string(),
-  direction: z.enum(['sent', 'received']),
   status: z.enum(['resolved', 'pending_your_input', 'pending_their_input']),
-  action_items: z.enum(['view_details', 'respond']),
   created_at: z.date(),
   updated_at: z.date(),
 })

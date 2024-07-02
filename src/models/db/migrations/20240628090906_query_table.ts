@@ -8,22 +8,11 @@ export async function up(knex: Knex): Promise<void> {
     def.uuid('connection_id').notNullable()
     def.string('query_type').notNullable()
     def
-      .enum('direction', ['sent', 'received'], {
-        useNative: true,
-        enumName: 'query_direction',
-      })
-      .notNullable()
-    def
       .enum('status', ['resolved', 'pending_your_input', 'pending_their_input'], {
         useNative: true,
         enumName: 'query_status',
       })
       .notNullable()
-    def
-      .enum('action_items', ['view_details', 'respond'], {
-        useNative: true,
-        enumName: 'query_action_items',
-      })
       .notNullable()
     def.datetime('created_at').notNullable().defaultTo(now())
     def.datetime('updated_at').notNullable().defaultTo(now())
