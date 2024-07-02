@@ -1,9 +1,18 @@
 import Html from '@kitajs/html'
 import { singleton } from 'tsyringe'
+import { CompanyProfile } from '../../models/companyHouseEntity.js'
+import { BASE_64_URL, pinCodeRegex } from '../../models/strings.js'
 import { Page } from '../common.js'
 import { FormFeedback, NewConnectionTemplates } from './base.js'
 
-export type FromInviteFormStage = 'invite' | 'success'
+export type FromInviteFormStage = 'invite' | 'pin' | 'success'
+export type FormInviteProps = {
+  feedback: FormFeedback
+  formStage: FromInviteFormStage
+  pin?: string
+  invite?: BASE_64_URL
+  company?: CompanyProfile
+}
 
 @singleton()
 export class FromInviteTemplates extends NewConnectionTemplates {
@@ -11,7 +20,7 @@ export class FromInviteTemplates extends NewConnectionTemplates {
     super()
   }
 
-  public fromInviteFormPage = (feedback: FormFeedback) => {
+  public fromInviteFormPage = (feedback: FormFeedback, pin?: string) => {
     return (
       <Page
         title="Veritable - New Connection"
@@ -26,28 +35,30 @@ export class FromInviteTemplates extends NewConnectionTemplates {
           <span>Invite New Connection</span>
         </div>
         <div class="card-body ">
-          <this.fromInviteForm feedback={feedback} formStage="invite" />
+          <this.fromInviteForm pin={pin} feedback={feedback} formStage="invite" />
         </div>
       </Page>
     )
   }
 
-  public fromInviteForm = (props: { formStage: FromInviteFormStage; feedback: FormFeedback }): JSX.Element => {
+  public fromInviteForm = (props: FormInviteProps): JSX.Element => {
     switch (props.formStage) {
       case 'invite':
         return <this.fromInviteInvite {...props}></this.fromInviteInvite>
+      case 'pin':
+        return <this.fromInvitePin {...props}></this.fromInvitePin>
       case 'success':
         return <this.fromInviteSuccess {...props}></this.fromInviteSuccess>
     }
   }
 
-  private fromInviteInvite = (props: { invite?: string; feedback: FormFeedback }): JSX.Element => {
+  private fromInviteInvite = (props: FormInviteProps): JSX.Element => {
     return (
       <this.newConnectionForm
         submitRoute="receive-invitation"
         feedback={props.feedback}
         progressStep={1}
-        progressStepCount={2}
+        progressStepCount={3}
         actions={[
           { type: 'link', text: 'Cancel', href: '/connection' },
           { type: 'submit', value: 'createConnection', text: 'Submit' },
@@ -59,7 +70,7 @@ export class FromInviteTemplates extends NewConnectionTemplates {
             placeholder="Invitation Text"
             required
             hx-get="/connection/new/verify-invite"
-            hx-trigger="keyup changed delay:200ms, change, load"
+            hx-trigger="keyup changed delay:20ms, change, load"
             hx-target="#new-connection-feedback"
             hx-select="#new-connection-feedback"
             hx-swap="outerHTML"
@@ -71,13 +82,45 @@ export class FromInviteTemplates extends NewConnectionTemplates {
     )
   }
 
-  private fromInviteSuccess = (props: { feedback: FormFeedback }): JSX.Element => {
+  public fromInvitePin = (props: FormInviteProps): JSX.Element => {
+    return (
+      <this.newConnectionForm
+        submitRoute="pin-submission"
+        feedback={props.feedback}
+        progressStep={2}
+        progressStepCount={3}
+        actions={[
+          { type: 'link', text: 'Fill In Later', href: '/connection' },
+          { type: 'submit', value: 'pinSubmission', text: 'Continue' },
+        ]}
+      >
+        <div class="accented-container">
+          <p>Please enter the verification code from the physical letter</p>
+          <input name="invite" value={props.invite || ''} type="hidden" />
+          <input
+            id="from-invite-invite-input-pin"
+            name="pin"
+            class="new-connection-input-field"
+            placeholder="Code"
+            required
+            value={props.pin || ''}
+            type="text"
+            pattern={pinCodeRegex.source}
+            minlength={6}
+            maxlength={6}
+          />
+        </div>
+      </this.newConnectionForm>
+    )
+  }
+
+  private fromInviteSuccess = (props: FormInviteProps): JSX.Element => {
     return (
       <this.newConnectionForm
         submitRoute="receive-invitation"
         feedback={props.feedback}
-        progressStep={2}
-        progressStepCount={2}
+        progressStep={3}
+        progressStepCount={3}
         actions={[{ type: 'link', text: 'Back To Home', href: '/connection' }]}
       >
         <div id="new-invite-confirmation-text">
