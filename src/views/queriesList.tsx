@@ -105,7 +105,7 @@ export default class QueryListTemplates {
                       <td>{Html.escapeHtml(query.query_type)}</td>
                       <td>{this.direction(query.status)}</td>
                       <td>
-                        <time>{new Date(query.updated_at).toISOString()}</time>
+                        <time>{Html.escapeHtml(new Date(query.updated_at).toISOString())}</time>
                       </td>
                       <td>{this.statusToClass(query.status)}</td>
 
