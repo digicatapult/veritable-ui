@@ -13,7 +13,6 @@ export async function up(knex: Knex): Promise<void> {
         enumName: 'query_status',
       })
       .notNullable()
-      .notNullable()
     def.datetime('created_at').notNullable().defaultTo(now())
     def.datetime('updated_at').notNullable().defaultTo(now())
 
