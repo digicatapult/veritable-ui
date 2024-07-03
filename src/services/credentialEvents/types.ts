@@ -5,7 +5,7 @@ export interface CredentialEventHandlerBase {
   handleOfferReceived(credential: Credential, formatData: CredentialFormatData): Promise<void>
   handleRequestReceived(credential: Credential, formatData: CredentialFormatData): Promise<void>
   handleCredentialReceived(credential: Credential, formatData: CredentialFormatData): Promise<void>
-  handleDone(credential: Credential): Promise<void>
+  handleDone(credential: Credential, formatData: CredentialFormatData): Promise<void>
 }
 
 export interface CredentialEventHandler<EventName extends string, EventVersion extends string>
