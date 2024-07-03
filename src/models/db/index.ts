@@ -80,11 +80,6 @@ export default class Database {
       query = order.reduce((acc, [key, direction]) => acc.orderBy(key, direction), query)
     }
     if (limit !== undefined) query = query.limit(limit)
-    if (model === 'query') {
-      query = query
-        .join('connection', 'query.connection_id', 'connection.id')
-        .select('query.*', 'connection.company_name')
-    }
     const result = await query
     return z.array(Zod[model].get).parse(result)
   }

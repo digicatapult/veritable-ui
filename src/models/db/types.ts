@@ -26,7 +26,6 @@ const insertConnectionInvite = z.object({
 })
 const insertQuery = z.object({
   connection_id: z.string(),
-  company_name: z.string(),
   query_type: z.string(),
   status: z.enum(['resolved', 'pending_your_input', 'pending_their_input']),
   created_at: z.date(),
