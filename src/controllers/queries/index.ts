@@ -4,6 +4,7 @@ import { inject, injectable, singleton } from 'tsyringe'
 import { Logger, type ILogger } from '../../logger.js'
 
 import Database from '../../models/db/index.js'
+import { ConnectionRow, QueryRow } from '../../models/db/types.js'
 import QueriesTemplates from '../../views/queries.js'
 import QueryListTemplates from '../../views/queriesList.js'
 import { HTML, HTMLController } from '../HTMLController.js'
@@ -14,25 +15,6 @@ interface Query {
   query_type: string
   updated_at: Date
   status: QueryStatus
-}
-type QuerySubset = {
-  updated_at: Date
-  connection_id: string
-  status: 'resolved' | 'pending_your_input' | 'pending_their_input'
-  id: string
-  created_at: Date
-  query_type: string
-}
-
-type Connection = {
-  company_name: string
-  updated_at: Date
-  company_number: string
-  status: 'pending' | 'unverified' | 'verified_them' | 'verified_us' | 'verified_both' | 'disconnected'
-  agent_connection_id: string | null
-  id: string
-  created_at: Date
-  connection_id?: string | undefined
 }
 
 @singleton()
@@ -78,7 +60,7 @@ export class QueriesController extends HTMLController {
   }
 }
 
-function combineData(query_subset: QuerySubset[], connections: Connection[]): Query[] {
+function combineData(query_subset: QueryRow[], connections: ConnectionRow[]): Query[] {
   const connectionMap: Record<string, string> = {}
   for (const connection of connections) {
     if (connection.id) {
