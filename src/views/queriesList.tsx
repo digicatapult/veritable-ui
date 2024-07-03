@@ -1,5 +1,4 @@
 import Html from '@kitajs/html'
-import moment from 'moment'
 import { singleton } from 'tsyringe'
 import { ButtonIcon, Page } from './common.js'
 
@@ -106,9 +105,7 @@ export default class QueryListTemplates {
                       <td>{Html.escapeHtml(query.query_type)}</td>
                       <td>{this.direction(query.status)}</td>
                       <td>
-                        <time datetime={new Date(query.updated_at).toISOString()}>
-                          {moment(new Date(query.updated_at).toISOString()).local().format('LLL')}
-                        </time>
+                        <time>{new Date(query.updated_at).toISOString()}</time>
                       </td>
                       <td>{this.statusToClass(query.status)}</td>
 
