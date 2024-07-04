@@ -1,7 +1,7 @@
 import { Knex } from 'knex'
 import { z } from 'zod'
 
-export const tablesList = ['connection', 'connection_invite'] as const
+export const tablesList = ['connection', 'connection_invite', 'query'] as const
 
 const insertConnection = z.object({
   company_name: z.string(),
@@ -24,6 +24,13 @@ const insertConnectionInvite = z.object({
   pin_hash: z.string(),
   expires_at: z.date(),
 })
+const insertQuery = z.object({
+  connection_id: z.string(),
+  query_type: z.string(),
+  status: z.enum(['resolved', 'pending_your_input', 'pending_their_input']),
+  created_at: z.date(),
+  updated_at: z.date(),
+})
 
 const Zod = {
   connection: {
@@ -42,12 +49,22 @@ const Zod = {
       updated_at: z.date(),
     }),
   },
+  query: {
+    insert: insertQuery,
+    get: insertQuery.extend({
+      id: z.string(),
+      created_at: z.date(),
+      updated_at: z.date(),
+    }),
+  },
 }
 
 const { connection } = Zod
+const { query } = Zod
 
 export type InsertConnection = z.infer<typeof connection.insert>
 export type ConnectionRow = z.infer<typeof connection.get>
+export type QueryRow = z.infer<typeof query.get>
 
 export type TABLES_TUPLE = typeof tablesList
 export type TABLE = TABLES_TUPLE[number]
