@@ -3,10 +3,10 @@ import { describe, test } from 'mocha'
 import { expect } from 'chai'
 import sinon from 'sinon'
 import CredentialEvents from '../index.js'
-import { withMockedDependencies } from './helpers/mocks.js'
+import { withCredentialEventsDepsMock } from './helpers/mocks.js'
 
 function assertHandlerCallCount(
-  companyDetailsMock: ReturnType<typeof withMockedDependencies>['companyDetailsMock'],
+  companyDetailsMock: ReturnType<typeof withCredentialEventsDepsMock>['companyDetailsMock'],
   callCount: number
 ) {
   const totalCount =
@@ -28,8 +28,8 @@ describe('credentialEvents', function () {
     clock?.restore()
   })
 
-  async function prepareTest(credentialRecord: unknown, options: Parameters<typeof withMockedDependencies>['0']) {
-    const deps = withMockedDependencies(options)
+  async function prepareTest(credentialRecord: unknown, options: Parameters<typeof withCredentialEventsDepsMock>['0']) {
+    const deps = withCredentialEventsDepsMock(options)
     const credentialEvents = new CredentialEvents(...deps.args)
     credentialEvents.start()
 

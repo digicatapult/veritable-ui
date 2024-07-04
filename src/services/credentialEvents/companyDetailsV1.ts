@@ -157,7 +157,8 @@ export default class CompanyDetailsV1Handler implements CredentialEventHandler<'
       const connectionSearch = await db.get('connection', { agent_connection_id: credential.connectionId })
       const connection = connectionSearch[0] || undefined
       if (!connection) {
-        throw new Error(`Unknown connection associated with credential ${credential.id}`)
+        this.logger.warn('Unknown connection %s associated with credential %s', credential.connectionId, credential.id)
+        return
       }
 
       let newState: typeof connection.status | null = null
