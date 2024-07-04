@@ -42,7 +42,7 @@ export default class ConnectionTemplates {
     return (
       <Page title="Veritable - Connections" heading="Connections" headerLinks={[{ name: 'Connections', url: '#' }]}>
         <div
-          class="main connections"
+          class="main-list-page"
           hx-get="/connection"
           hx-trigger="every 10s"
           hx-select="#search-results"
@@ -50,7 +50,7 @@ export default class ConnectionTemplates {
           hx-swap="outerHTML"
           hx-include="#connection-search-input"
         >
-          <div class="connections header">
+          <div class="list-page-header">
             <span>Connections Summary</span>
             <ButtonIcon
               disabled={false}
@@ -67,8 +67,8 @@ export default class ConnectionTemplates {
               fillButton={true}
             />
           </div>
-          <div class="connections list">
-            <div class="connections-list-nav">
+          <div class="list-page">
+            <div class="list-nav">
               <span>Connections</span>
               <input
                 id="connection-search-input"
@@ -84,12 +84,12 @@ export default class ConnectionTemplates {
                 hx-swap="outerHTML"
               ></input>
             </div>
-            <table class="connections list">
+            <table class="list-page">
               <thead>
                 {['Company Name', 'Verification Status', 'Actions'].map((name: string) => (
                   <th>
                     <span>{name || 'unknown'}</span>
-                    <a class="connections-table icon disabled" />
+                    <a class="list-table icon disabled" />
                   </th>
                 ))}
               </thead>
