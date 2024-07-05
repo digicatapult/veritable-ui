@@ -13,6 +13,7 @@ import { ForbiddenError, HttpError } from './errors.js'
 import { ILogger, Logger } from './logger.js'
 import { RegisterRoutes } from './routes.js'
 import ConnectionEvents from './services/connectionEvents.js'
+import CredentialEvents from './services/credentialEvents/index.js'
 import VeritableCloudagentEvents from './services/veritableCloudagentEvents.js'
 import loadApiSpec from './swagger.js'
 
@@ -38,6 +39,7 @@ export default async (startEvents: boolean = true) => {
   const logger = container.resolve<ILogger>(Logger)
 
   container.resolve(ConnectionEvents).start()
+  container.resolve(CredentialEvents).start()
   const cloudagentEvents = container.resolve(VeritableCloudagentEvents)
   if (startEvents) {
     await cloudagentEvents.start()

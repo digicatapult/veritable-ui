@@ -185,7 +185,7 @@ describe('veritableCloudagent', () => {
     })
 
     describe('error (response code)', function () {
-      withCloudagentMock('GET', '/v1/connections', 400, {})
+      withCloudagentMock('DELETE', '/v1/connections/42', 400, {})
 
       it('should throw internal error', async () => {
         const environment = new Env()
@@ -409,8 +409,6 @@ describe('veritableCloudagent', () => {
     })
   })
 
-  //HERE
-
   describe('createCredentialDefinition', () => {
     describe('success', function () {
       withCloudagentMock('POST', `/v1/credential-definitions`, 200, createCredentialDefinitionResponse)
@@ -424,7 +422,7 @@ describe('veritableCloudagent', () => {
     })
 
     describe('error (response code)', function () {
-      withCloudagentMock('POST', `/v1/schemas`, 400, {})
+      withCloudagentMock('POST', `/v1/credential-definitions`, 400, {})
 
       it('should throw internal error', async () => {
         const environment = new Env()
@@ -441,7 +439,7 @@ describe('veritableCloudagent', () => {
     })
 
     describe('error (response invalid)', function () {
-      withCloudagentMock('POST', `/v1/schemas`, 200, invalidResponse)
+      withCloudagentMock('POST', `/v1/credential-definitions`, 200, invalidResponse)
 
       it('should throw internal error', async () => {
         const environment = new Env()

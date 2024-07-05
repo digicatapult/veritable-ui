@@ -4,7 +4,7 @@ import { z } from 'zod'
 
 import { Env } from '../env.js'
 import { Logger, type ILogger } from '../logger.js'
-import VeritableCloudagent, { connectionParser } from '../models/veritableCloudagent.js'
+import VeritableCloudagent, { connectionParser, credentialParser } from '../models/veritableCloudagent.js'
 import IndexedAsyncEventEmitter from '../utils/indexedAsyncEventEmitter.js'
 import { MapDiscriminatedUnion } from '../utils/types.js'
 
@@ -15,9 +15,14 @@ const eventParser = z.discriminatedUnion('type', [
       connectionRecord: connectionParser,
     }),
   }),
+  z.object({
+    type: z.literal('CredentialStateChanged'),
+    payload: z.object({
+      credentialRecord: credentialParser,
+    }),
+  }),
   z.object({ type: z.literal('BasicMessageStateChanged'), payload: z.object({}) }),
   z.object({ type: z.literal('ConnectionDidRotated'), payload: z.object({}) }),
-  z.object({ type: z.literal('CredentialStateChanged'), payload: z.object({}) }),
   z.object({ type: z.literal('RevocationNotificationReceived'), payload: z.object({}) }),
   z.object({ type: z.literal('DrpcRequestStateChanged'), payload: z.object({}) }),
   z.object({ type: z.literal('DrpcResponseStateChanged'), payload: z.object({}) }),
@@ -70,6 +75,7 @@ export default class VeritableCloudagentEvents extends IndexedAsyncEventEmitter<
       this.logger.info('WebSocket connection to Cloudagent established')
       this.internalStatus = 'CONNECTED'
       const connectionSeen = new Set<string>()
+      const credentialSeen = new Set<string>()
 
       socket.addEventListener('message', (ev: WebSocket.MessageEvent) => {
         this.logger.debug('WebSocket Message Received')
@@ -89,6 +95,10 @@ export default class VeritableCloudagentEvents extends IndexedAsyncEventEmitter<
             id = data.payload.connectionRecord.id
             connectionSeen.add(id)
             break
+          case 'CredentialStateChanged':
+            id = data.payload.credentialRecord.id
+            credentialSeen.add(id)
+            break
           default:
             this.logger.trace('Skipping %s event', type)
             return
@@ -102,6 +112,15 @@ export default class VeritableCloudagentEvents extends IndexedAsyncEventEmitter<
           this.emitIndexed('ConnectionStateChanged', connection.id, {
             type: 'ConnectionStateChanged',
             payload: { connectionRecord: connection },
+          })
+        }
+      }
+
+      for (const credential of await this.veritable.getCredentials()) {
+        if (!credentialSeen.has(credential.id)) {
+          this.emitIndexed('CredentialStateChanged', credential.id, {
+            type: 'CredentialStateChanged',
+            payload: { credentialRecord: credential },
           })
         }
       }

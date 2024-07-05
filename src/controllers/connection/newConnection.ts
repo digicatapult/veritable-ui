@@ -171,7 +171,7 @@ export class NewConnectionController extends HTMLController {
     // otherwise we're doing final submit. Generate pin and oob invitation
     const pin = randomInt(1e6).toString(10).padStart(6, '0')
     const [pinHash, invite] = await Promise.all([
-      argon2.hash(pin, { secret: Buffer.from(this.env.get('INVITATION_PIN_SECRET'), 'utf8') }),
+      argon2.hash(pin, { secret: this.env.get('INVITATION_PIN_SECRET') }),
       this.cloudagent.createOutOfBandInvite({ companyName: company.company_name }),
     ])
 
@@ -241,7 +241,7 @@ export class NewConnectionController extends HTMLController {
     // otherwise we're doing final submit. Generate pin and oob invitation
     const pin = randomInt(1e6).toString(10).padStart(6, '0')
     const [pinHash, invite] = await Promise.all([
-      argon2.hash(pin, { secret: Buffer.from(this.env.get('INVITATION_PIN_SECRET'), 'utf8') }),
+      argon2.hash(pin, { secret: this.env.get('INVITATION_PIN_SECRET') }),
       this.cloudagent.receiveOutOfBandInvite({
         companyName: inviteOrError.company.company_name,
         invitationUrl: inviteOrError.inviteUrl,

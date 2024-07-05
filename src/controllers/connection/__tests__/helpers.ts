@@ -117,7 +117,7 @@ export const withNewConnectionMocks = () => {
     get: (name: string) => {
       switch (name) {
         case 'INVITATION_PIN_SECRET':
-          return 'secret'
+          return Buffer.from('secret', 'utf8')
         case 'INVITATION_FROM_COMPANY_NUMBER':
           return '07964699'
         default:
