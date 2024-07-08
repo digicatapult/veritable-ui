@@ -1,6 +1,6 @@
 {
   "name": "veritable-ui",
-  "version": "0.7.4",
+  "version": "0.7.5",
   "description": "UI for Veritable",
   "main": "src/index.ts",
   "type": "module",
@@ -62,7 +62,7 @@
     "@types/cookie-parser": "^1.4.7",
     "@types/express": "^4.17.21",
     "@types/mocha": "^10.0.7",
-    "@types/node": "^20.14.9",
+    "@types/node": "^20.14.10",
     "@types/nodemailer": "^6.4.15",
     "@types/pino-http": "^5.8.4",
     "@types/sinon": "^17.0.3",
