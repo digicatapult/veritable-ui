@@ -22,10 +22,6 @@ button {
   font-weight: inherit;
 }
 
-.active {
-  background-color: #5670f1 !important;
-}
-
 .warning,
 .error,
 .success,

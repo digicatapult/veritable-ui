@@ -7,7 +7,12 @@ export default class HomepageTemplates {
   constructor() {}
   public homepage = () => {
     return (
-      <Page title="Veritable - Homepage" heading="Homepage" headerLinks={[{ name: '', url: '/' }]}>
+      <Page
+        title="Veritable - Homepage"
+        heading="Homepage"
+        activePage="categories"
+        headerLinks={[{ name: '', url: '/' }]}
+      >
         <div class="main connections" hx-get="/"></div>
         <div class="center-category">
           <div class="category-container">
