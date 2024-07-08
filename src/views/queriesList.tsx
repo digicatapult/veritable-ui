@@ -45,6 +45,7 @@ export default class QueryListTemplates {
       <Page
         title="Veritable - Queries"
         heading="Query Management"
+        activePage="categories"
         headerLinks={[{ name: 'Query Management', url: '/queries' }]}
       >
         <div

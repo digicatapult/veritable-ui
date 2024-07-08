@@ -75,17 +75,32 @@ i.side-bar {
   padding: 1rem;
   text-align: center;
   margin-bottom: 0.5rem;
-
-  &:hover {
-    background-color: var(--accent);
-  }
 }
 
 a.side-bar.icon {
+  position: relative;
   border: 1px solid var(--text-color-sub);
   border-radius: 10px;
+}
+
+.side-bar.icon.active {
+  background-color: #5670f1;
+}
+
+a.side-bar.icon::before {
+  content: '';
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  width: 100%;
+  height: 100%;
   background-repeat: no-repeat;
   background-position: center;
+  background-image: var(--background-image);
+}
+
+a.side-bar.icon.active::before {
+  filter: invert(100%);
 }
 
 a.list-table.icon {
