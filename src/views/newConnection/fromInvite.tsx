@@ -57,7 +57,7 @@ export class FromInviteTemplates extends NewConnectionTemplates {
         progressStepCount={2}
         actions={[
           { type: 'link', text: 'Cancel', href: '/connection' },
-          { type: 'submit', value: 'verifyInvite', text: 'Submit' },
+          { type: 'submit', value: 'createConnection', text: 'Submit' },
         ]}
       >
         <div id="from-invite-invite-input" class="accented-container">

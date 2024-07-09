@@ -400,7 +400,7 @@ describe('NewConnectionController', () => {
     it('should rendered error when invite is empty', async () => {
       let { args } = withNewConnectionMocks()
       const controller = new NewConnectionController(...args)
-      const result = await controller.submitFromInvite({ invite: '', action: 'verifyInvite' }).then(toHTMLString)
+      const result = await controller.submitFromInvite({ invite: '', action: 'createConnection' }).then(toHTMLString)
       expect(result).to.equal('fromInviteForm_error--Invitation is not valid-invite_fromInviteForm')
     })
 
@@ -408,7 +408,7 @@ describe('NewConnectionController', () => {
       let { args } = withNewConnectionMocks()
       const controller = new NewConnectionController(...args)
       const result = await controller
-        .submitFromInvite({ invite: invalidBase64Invite, action: 'verifyInvite' })
+        .submitFromInvite({ invite: invalidBase64Invite, action: 'createConnection' })
         .then(toHTMLString)
       expect(result).to.equal('fromInviteForm_error--Invitation is not valid-invite_fromInviteForm')
     })
@@ -417,7 +417,7 @@ describe('NewConnectionController', () => {
       let { args } = withNewConnectionMocks()
       const controller = new NewConnectionController(...args)
       const result = await controller
-        .submitFromInvite({ invite: invalidInvite, action: 'verifyInvite' })
+        .submitFromInvite({ invite: invalidInvite, action: 'createConnection' })
         .then(toHTMLString)
       expect(result).to.equal('fromInviteForm_error--Invitation is not valid-invite_fromInviteForm')
     })
@@ -426,7 +426,7 @@ describe('NewConnectionController', () => {
       let { args } = withNewConnectionMocks()
       const controller = new NewConnectionController(...args)
       const result = await controller
-        .submitFromInvite({ invite: invalidCompanyNumberInvite, action: 'verifyInvite' })
+        .submitFromInvite({ invite: invalidCompanyNumberInvite, action: 'createConnection' })
         .then(toHTMLString)
       expect(result).to.equal('fromInviteForm_error--Invitation is not valid-invite_fromInviteForm')
     })
@@ -435,7 +435,7 @@ describe('NewConnectionController', () => {
       let { args } = withNewConnectionMocks()
       const controller = new NewConnectionController(...args)
       const result = await controller
-        .submitFromInvite({ invite: notFoundCompanyNumberInvite, action: 'verifyInvite' })
+        .submitFromInvite({ invite: notFoundCompanyNumberInvite, action: 'createConnection' })
         .then(toHTMLString)
       expect(result).to.equal('fromInviteForm_error--Company number does not exist-invite_fromInviteForm')
     })
@@ -444,7 +444,7 @@ describe('NewConnectionController', () => {
       let { args } = withNewConnectionMocks()
       const controller = new NewConnectionController(...args)
       const result = await controller
-        .submitFromInvite({ invite: validExistingCompanyNumberInvite, action: 'verifyInvite' })
+        .submitFromInvite({ invite: validExistingCompanyNumberInvite, action: 'createConnection' })
         .then(toHTMLString)
       expect(result).to.equal('fromInviteForm_error--Connection already exists with NAME2-invite_fromInviteForm')
     })
@@ -453,7 +453,7 @@ describe('NewConnectionController', () => {
       let { args } = withNewConnectionMocks()
       const controller = new NewConnectionController(...args)
       const result = await controller
-        .submitFromInvite({ invite: validCompanyNumberInDisputeInvite, action: 'verifyInvite' })
+        .submitFromInvite({ invite: validCompanyNumberInDisputeInvite, action: 'createConnection' })
         .then(toHTMLString)
       expect(result).to.equal(
         'fromInviteForm_error--Cannot validate company NAME3 as address is currently in dispute-invite_fromInviteForm'
@@ -464,7 +464,7 @@ describe('NewConnectionController', () => {
       let { args } = withNewConnectionMocks()
       const controller = new NewConnectionController(...args)
       const result = await controller
-        .submitFromInvite({ invite: validCompanyNumberInactiveInvite, action: 'verifyInvite' })
+        .submitFromInvite({ invite: validCompanyNumberInactiveInvite, action: 'createConnection' })
         .then(toHTMLString)
       expect(result).to.equal('fromInviteForm_error--Company NAME4 is not active-invite_fromInviteForm')
     })
@@ -480,7 +480,7 @@ describe('NewConnectionController', () => {
       const result = await controller
         .submitFromInvite({
           invite: validCompanyNumberInvite,
-          action: 'verifyInvite',
+          action: 'createConnection',
         })
         .then(toHTMLString)
 
@@ -496,7 +496,7 @@ describe('NewConnectionController', () => {
       const result = await controller
         .submitFromInvite({
           invite: validCompanyNumberInvite,
-          action: 'verifyInvite',
+          action: 'createConnection',
         })
         .then(toHTMLString)
 
@@ -520,7 +520,7 @@ describe('NewConnectionController', () => {
         result = await controller
           .submitFromInvite({
             invite: validCompanyNumberInvite,
-            action: 'verifyInvite',
+            action: 'createConnection',
           })
           .then(toHTMLString)
       })

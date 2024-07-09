@@ -239,10 +239,10 @@ export class NewConnectionController extends HTMLController {
     @Body()
     body: {
       invite: BASE_64_URL
-      action: 'verifyInvite'
+      action: 'createConnection'
     }
   ): Promise<HTML> {
-    if (body.action !== 'verifyInvite') {
+    if (body.action !== 'createConnection') {
       return this.receiveInviteErrorHtml('Invalid action supplied with invitation')
     }
 
