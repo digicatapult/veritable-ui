@@ -500,7 +500,7 @@ describe('NewConnectionController', () => {
         })
         .then(toHTMLString)
 
-      expect(result).to.equal('fromInviteForm_message--Success! Invite validated.-success_fromInviteForm')
+      expect(result).to.equal('fromInviteForm_message--Success! Invitation has been accepted. Please allow some time for PIN Code to arrive. Once received, please go to connections page and click on "Complete Verification".-success_fromInviteForm')
     })
 
     describe('happy path assertions', function () {
@@ -530,7 +530,7 @@ describe('NewConnectionController', () => {
       })
 
       it('should return success form', () => {
-        expect(result).to.equal('fromInviteForm_message--Success! Invite validated.-success_fromInviteForm')
+        expect(result).to.equal('fromInviteForm_message--Success! Invitation has been accepted. Please allow some time for PIN Code to arrive. Once received, please go to connections page and click on "Complete Verification".-success_fromInviteForm')
       })
 
       it('should insert two row', () => {
