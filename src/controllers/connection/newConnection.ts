@@ -368,7 +368,7 @@ export class NewConnectionController extends HTMLController {
       }
 
       // handlePin using credentials
-      await db.update('connection', { id: connection.id }, { status: 'verified_them' })
+      await db.update('connection', { id: connection.id }, { status: 'pending' })
     })
   }
 
