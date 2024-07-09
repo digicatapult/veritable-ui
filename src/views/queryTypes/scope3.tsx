@@ -1,0 +1,192 @@
+import Html from '@kitajs/html'
+import { UUID } from 'crypto'
+import { singleton } from 'tsyringe'
+import { ConnectionRow } from '../../models/db/types.js'
+import { ButtonIcon, FormButton, Page } from '../common.js'
+
+export type Scope3FormStage = 'companySelect' | 'form' | 'success'
+interface Scope3FormProps {
+  formStage: Scope3FormStage
+  company: { companyNumber: string; companyName?: string }
+  connection_id?: string | UUID
+  productId?: string
+  quantity?: string
+  connections: ConnectionRow[]
+  search: string
+}
+
+@singleton()
+export default class Scope3CarbonConsumptionTemplates {
+  constructor() {}
+
+  public newScope3CarbonConsumptionFormPage = (
+    formStage: Scope3FormStage,
+    connections: ConnectionRow[],
+    search: string = '',
+    company: { companyName: string; companyNumber: string }
+  ) => {
+    return (
+      <Page
+        title="Veritable - Select Company"
+        heading="Select Company To Send Your Query To"
+        headerLinks={[{ name: 'Select Company', url: '/queries/new/scope-3-carbon-consumption' }]}
+      >
+        <div class="connections header"></div>
+        <div class="card-body">
+          <this.newScope3 formStage={formStage} connections={connections} search={search} company={company} />
+        </div>
+      </Page>
+    )
+  }
+  public newScope3 = (props: Scope3FormProps): JSX.Element => {
+    switch (props.formStage) {
+      case 'companySelect':
+        return <this.listPage {...props}></this.listPage>
+      case 'form':
+        return <this.scope3CarbonConsumptionFormPage {...props}></this.scope3CarbonConsumptionFormPage>
+      case 'success':
+        return <this.newInviteSuccess {...props}></this.newInviteSuccess>
+      default:
+        return <this.newInviteSuccess {...props}></this.newInviteSuccess>
+    }
+  }
+
+  public listPage = (props: Scope3FormProps) => {
+    return (
+      <div>
+        <div
+          class="main-list-page"
+          hx-post="/queries/new/scope-3-carbon-consumption"
+          hx-trigger="input changed delay:500ms"
+          hx-select="#search-results"
+          hx-target="#search-results"
+          hx-swap="outerHTML"
+          hx-include="#queries-search-input"
+        >
+          <div class="list-page ">
+            <div class="list-nav">
+              <span>Select a Company to send Query to </span>
+              <input
+                id="queries-search-input"
+                class="search-window"
+                type="search"
+                name="search"
+                value={Html.escapeHtml(props.search)}
+                placeholder="Search"
+                hx-get="/queries/new/scope-3-carbon-consumption"
+                hx-trigger="input changed delay:50ms, search"
+                hx-target="#search-results"
+                hx-select="#search-results"
+                hx-swap="outerHTML"
+              ></input>
+            </div>
+            <form
+              id="company-form"
+              hx-post="/queries/new/scope-3-carbon-consumption/stage"
+              hx-trigger="submit"
+              hx-include=".company-checkbox:checked"
+              hx-select="main > *"
+              hx-target="main"
+              hx-swap="innerHTML"
+            >
+              <input type="hidden" name="action" value="form" />
+
+              <table class="list-page">
+                <thead>
+                  {['Check Company', 'Company Name'].map((name: string) => (
+                    <th>
+                      <span>{name || 'unknown'}</span>
+                      <a class="list-table icon disabled" />
+                    </th>
+                  ))}
+                </thead>
+                <tbody id="search-results">
+                  {props.connections.length == 0 ? (
+                    <tr>
+                      <td>No connections for that search. Please establish a connection and try again.</td>
+                    </tr>
+                  ) : (
+                    props.connections.map((connection) => (
+                      <tr>
+                        <td>
+                          <input
+                            type="checkbox"
+                            class="company-checkbox"
+                            name="companyNumber"
+                            value={connection.company_number}
+                          ></input>
+                        </td>
+                        <td>{Html.escapeHtml(connection.company_name)}</td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+              <button type="submit" class="button">
+                Next
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+    )
+  }
+  public scope3CarbonConsumptionFormPage = (props: Scope3FormProps) => {
+    console.log(props)
+    return (
+      <div>
+        <div class="container-scope3-carbon">
+          <div class="box1">
+            <h1>Scope 3 Carbon Consumption</h1>
+            <p class="query-text-carbon3-consumption">
+              Creates a query for calculating the total scope 3 carbon consumption for a given product or component.
+            </p>
+          </div>
+          <div class="box2">
+            <p>
+              Choose the product that you want to apply the query “What is your scope 1, 2, 3 carbon consumption?” to.
+            </p>
+            <form
+              id="scope-3-carbon-consumption"
+              hx-post={`/queries/new/scope-3-carbon-consumption/stage`}
+              hx-select="main > *"
+              hx-target="main"
+              hx-swap="innerHTML"
+            >
+              <input type="hidden" name="companyNumber" value={props.company.companyNumber} />
+              <input
+                id="productId-input"
+                name="productId"
+                placeholder="BX20001"
+                class="query-input-field"
+                type="text"
+                required
+                value={props.productId}
+              ></input>
+
+              <input
+                id="productQuantity-input"
+                name="quantity"
+                type="text"
+                placeholder="123"
+                required
+                value={props.quantity}
+                class="query-input-field"
+              ></input>
+              <FormButton type="submit" name="action" value="success" text="Submit Query" fillButton={true} />
+            </form>
+          </div>
+        </div>
+      </div>
+    )
+  }
+  private newInviteSuccess = (props: Scope3FormProps): JSX.Element => {
+    return (
+      <div id="new-invite-confirmation-text">
+        <p>Your query request has been shared with the following supplier: {props.company.companyName}.</p>
+        <p>Please await for responses and check for updates in the query management page.</p>
+        <ButtonIcon name="Back to Home" href="/" fillButton={true} />
+      </div>
+    )
+  }
+}

@@ -4,6 +4,7 @@ import { ILogger } from '../../../logger.js'
 import Database from '../../../models/db/index.js'
 import QueriesTemplates from '../../../views/queries.js'
 import QueryListTemplates from '../../../views/queriesList.js'
+import Scope3CarbonConsumptionTemplates from '../../../views/queryTypes/scope3.js'
 
 type QueryStatus = 'resolved' | 'pending_your_input' | 'pending_their_input'
 
@@ -20,6 +21,7 @@ function templateListFake(templateName: string, ...args: any[]) {
   return Promise.resolve([templateName, args.join('-'), templateName].join('_'))
 }
 export const withQueriesMocks = () => {
+  const scope3CarbonConsumptionTemplateMock = {} as Scope3CarbonConsumptionTemplates
   const queryTemplateMock = {
     chooseQueryPage: () => templateFake('queries'),
   } as QueriesTemplates
@@ -32,6 +34,7 @@ export const withQueriesMocks = () => {
   } as unknown as Database
 
   return {
+    scope3CarbonConsumptionTemplateMock,
     queryListTemplateMock,
     queryTemplateMock,
     mockLogger,

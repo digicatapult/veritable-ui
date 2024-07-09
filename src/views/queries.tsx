@@ -21,7 +21,7 @@ export default class QueriesTemplates {
           <hr class="divider"></hr>
         </div>
         <div class="query-container">
-          <a class="query-item" onclick="location.href='#';">
+          <a class="query-item" onclick="location.href='/queries/new/scope-3-carbon-consumption';">
             <h1 class="query-header">Scope 3 Carbon Consumption</h1>
             <p class="query-text">
               Creates a query for calculating the total scope 3 carbon consumption for a given product or component.

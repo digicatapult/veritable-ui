@@ -26,7 +26,7 @@ export class NewInviteTemplates extends NewConnectionTemplates {
         <div class="connections header">
           <span>Invite New Connection</span>
         </div>
-        <div class="card-body ">
+        <div class="card-body">
           <this.newInviteForm feedback={feedback} formStage="form" />
         </div>
       </Page>

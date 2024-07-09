@@ -10,21 +10,42 @@ describe('QueriesController', () => {
   })
   describe('queries', () => {
     it('should match the snapshot of the rendered query page', async () => {
-      const { mockLogger, queryTemplateMock, dbMock, queryListTemplateMock } = withQueriesMocks()
-      const controller = new QueriesController(queryTemplateMock, queryListTemplateMock, dbMock, mockLogger)
+      const { scope3CarbonConsumptionTemplateMock, mockLogger, queryTemplateMock, dbMock, queryListTemplateMock } =
+        withQueriesMocks()
+      const controller = new QueriesController(
+        scope3CarbonConsumptionTemplateMock,
+        queryTemplateMock,
+        queryListTemplateMock,
+        dbMock,
+        mockLogger
+      )
       const result = await controller.queries().then(toHTMLString)
       expect(result).to.equal('queries_template')
     })
     it('should call db as expected', async () => {
-      const { mockLogger, queryTemplateMock, dbMock, queryListTemplateMock } = withQueriesMocks()
-      const controller = new QueriesController(queryTemplateMock, queryListTemplateMock, dbMock, mockLogger)
+      const { scope3CarbonConsumptionTemplateMock, mockLogger, queryTemplateMock, dbMock, queryListTemplateMock } =
+        withQueriesMocks()
+      const controller = new QueriesController(
+        scope3CarbonConsumptionTemplateMock,
+        queryTemplateMock,
+        queryListTemplateMock,
+        dbMock,
+        mockLogger
+      )
       const spy = sinon.spy(dbMock, 'get')
       await controller.queryManagement().then(toHTMLString)
       expect(spy.calledWith('query', {}, [['updated_at', 'desc']])).to.equal(true)
     })
     it('should call db as expected', async () => {
-      const { mockLogger, queryTemplateMock, dbMock, queryListTemplateMock } = withQueriesMocks()
-      const controller = new QueriesController(queryTemplateMock, queryListTemplateMock, dbMock, mockLogger)
+      const { scope3CarbonConsumptionTemplateMock, mockLogger, queryTemplateMock, dbMock, queryListTemplateMock } =
+        withQueriesMocks()
+      const controller = new QueriesController(
+        scope3CarbonConsumptionTemplateMock,
+        queryTemplateMock,
+        queryListTemplateMock,
+        dbMock,
+        mockLogger
+      )
       const spy = sinon.spy(dbMock, 'get')
       await controller.queryManagement('VER123').then(toHTMLString)
       const search = 'VER123'
