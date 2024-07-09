@@ -6,7 +6,6 @@ import { inject, injectable, singleton } from 'tsyringe'
 import { z } from 'zod'
 
 import { Env } from '../../env.js'
-import { InvalidInputError } from '../../errors.js'
 import { Logger, type ILogger } from '../../logger.js'
 import CompanyHouseEntity, { CompanyProfile } from '../../models/companyHouseEntity.js'
 import Database from '../../models/db/index.js'
@@ -198,9 +197,10 @@ export class NewConnectionController extends HTMLController {
   }
 
   /**
-   * renders pin-submission form
-   * @param companyNumber - base64 encoded string
-   * @returns pin-submission form
+   * render pin code submission form
+   * @param companyNumber - for retrieving a connection from a db
+   * @param pin - a pin code
+   * @returns
    */
   @SuccessResponse(200)
   @Get('/pin-submission')
@@ -226,13 +226,6 @@ export class NewConnectionController extends HTMLController {
       await this.verifyReceiveConnection(body.companyNumber, body.pin)
     }
 
-    /**
-     * TODOs
-     * [x] - db.withTransaction for connection to alice so -> "verified_them" (bob should see)
-     * [x] - db.update connection (our new) - to pending (alice should see)
-     * [ ] - db.get connection_invite
-     * [ ] - confirm it updates connection events (connection state handler)
-     */
     const { pin, companyNumber, action } = body
     return this.html(this.pinSubmission.renderSuccess(action, pin, companyNumber))
   }
@@ -365,14 +358,15 @@ export class NewConnectionController extends HTMLController {
       const connection = await db.get('connection', { company_number })
       if (!connection) {
         this.logger.error('Unknown connection associated with companyNumber %s', company_number)
-        throw new InvalidInputError('company_number is not provided in this request')
+        return
       }
 
       if (!pin) {
-        throw new InvalidInputError('pin not provided in this request')
+        this.logger.error('pin not provided in this request')
+        return
       }
 
-      // DO something with pin
+      // handlePin using credentials
       await db.update('connection', { id: connection[0].id }, { status: 'verified_us' })
     })
   }
