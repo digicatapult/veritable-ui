@@ -482,7 +482,8 @@ export class NewConnectionController extends HTMLController {
       this.fromInvite.fromInviteForm({
         feedback: {
           type: 'message',
-          message: 'Success! Invite validated.',
+          message:
+            'Success! Invitation has been accepted. Please allow some time for PIN Code to arrive. Once received, please go to connections page and click on "Complete Verification".',
         },
         invite,
         formStage: 'success',

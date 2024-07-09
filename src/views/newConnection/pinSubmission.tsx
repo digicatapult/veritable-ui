@@ -62,7 +62,10 @@ export class PinSubmissionTemplates extends NewConnectionTemplates {
     return (
       <this.newConnectionForm
         submitRoute="pin-submission"
-        feedback={{ type: 'message', message: `[${action}]: PIN code has been sucessfully submitted and will be verified by the issuer` }}
+        feedback={{
+          type: 'message',
+          message: `[${action}]: PIN code has been sucessfully submitted and will need to be verified by the issuer now.`,
+        }}
         progressStep={2}
         progressStepCount={2}
         actions={[{ type: 'link', text: 'Back To Home', href: '/connection' }]}
