@@ -1,3 +1,6 @@
+import { randomUUID } from 'crypto'
+import type { ConnectionRow } from '../../../models/db/types.js'
+
 export const notFoundCompanyNumber = '00000000'
 export const invalidCompanyNumber = 'XXXXXXXX'
 export const validCompanyNumber = '00000001'
@@ -48,6 +51,16 @@ export const validCompanyMap: Record<string, typeof validCompany> = {
   [validExistingCompanyNumber]: validExistingCompany,
   [validCompanyNumberInDispute]: validCompanyInDispute,
   [validCompanyNumberInactive]: validCompanyInactive,
+}
+
+export const validConnection: ConnectionRow = {
+  id: '4a5d4085-5924-43c6-b60d-754440332e3d',
+  agent_connection_id: randomUUID(),
+  created_at: new Date(),
+  updated_at: new Date(),
+  status: 'pending',
+  company_number: validCompanyNumber,
+  company_name: 'must be a valid company name',
 }
 
 const buildBase64Invite = (companyNumber: string) =>

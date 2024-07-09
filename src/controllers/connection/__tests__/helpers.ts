@@ -14,7 +14,13 @@ import { FormFeedback } from '../../../views/newConnection/base.js'
 import { FromInviteTemplates } from '../../../views/newConnection/fromInvite.js'
 import { NewInviteTemplates } from '../../../views/newConnection/newInvite.js'
 import { PinSubmissionTemplates } from '../../../views/newConnection/pinSubmission.js'
-import { notFoundCompanyNumber, validCompanyMap, validCompanyNumber, validExistingCompanyNumber } from './fixtures.js'
+import {
+  notFoundCompanyNumber,
+  validCompanyMap,
+  validCompanyNumber,
+  validConnection,
+  validExistingCompanyNumber,
+} from './fixtures.js'
 
 function templateFake(templateName: string, ...args: any[]) {
   return Promise.resolve([templateName, args.join('-'), templateName].join('_'))
@@ -41,11 +47,7 @@ export const withNewConnectionMocks = () => {
   const mockLogger: ILogger = pino({ level: 'silent' })
   const mockTransactionDb = {
     insert: () => Promise.resolve([{ id: '42' }]),
-    get: () =>
-      Promise.resolve([
-        { company_name: 'foo', status: 'verified' },
-        { company_name: 'bar', status: 'pending' },
-      ]),
+    get: () => Promise.resolve([validConnection]),
     update: () => Promise.resolve(),
   }
   const mockDb = {
@@ -53,6 +55,7 @@ export const withNewConnectionMocks = () => {
       if (tableName !== 'connection') throw new Error('Invalid table')
       if (where?.company_number === validCompanyNumber) return []
       if (where?.company_number === validExistingCompanyNumber) return [{}]
+      if (where?.id === '4a5d4085-5924-43c6-b60d-754440332e3d') return [validConnection]
       return []
     },
     withTransaction: (fn: Function) => {
@@ -75,6 +78,7 @@ export const withNewConnectionMocks = () => {
       throw new Error('Invalid number')
     },
   } as unknown as CompanyHouseEntity
+
   const mockCloudagent = {
     createOutOfBandInvite: ({ companyName }: { companyName: string }) => {
       return {

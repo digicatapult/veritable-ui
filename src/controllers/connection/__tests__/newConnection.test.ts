@@ -18,6 +18,7 @@ import {
   validCompanyNumberInactive,
   validCompanyNumberInactiveInvite,
   validCompanyNumberInvite,
+  validConnection,
   validExistingCompanyNumber,
   validExistingCompanyNumberInvite,
 } from './fixtures.js'
@@ -54,6 +55,7 @@ describe('NewConnectionController', () => {
     it('should return rendered error when company not found', async () => {
       let { args } = withNewConnectionMocks()
       const controller = new NewConnectionController(...args)
+
       const result = await controller.verifyCompanyForm(notFoundCompanyNumber).then(toHTMLString)
       expect(result).to.equal('companyFormInput_error--Company number does not exist-form--00000000_companyFormInput')
     })
@@ -163,7 +165,7 @@ describe('NewConnectionController', () => {
       let { args } = withNewConnectionMocks()
       const controller = new NewConnectionController(...args)
       const result = await controller
-        .submitPinCode({ action: 'submitPinCode', companyNumber: validCompanyNumber, pin: '123456782' })
+        .submitPinCode({ action: 'submitPinCode', connectionId: validConnection.id, pin: '123456782' })
         .then(toHTMLString)
       expect(result).to.equal('renderSuccess_submitPinCode-123456782_renderSuccess')
     })
@@ -172,7 +174,7 @@ describe('NewConnectionController', () => {
       let { args } = withNewConnectionMocks()
       const controller = new NewConnectionController(...args)
       const result = await controller
-        .submitPinCode({ action: 'submitPinCode', companyNumber: validCompanyNumber, pin: '1235235asdasd' })
+        .submitPinCode({ action: 'submitPinCode', connectionId: validConnection.id, pin: '1235235asdasd' })
         .then(toHTMLString)
       expect(result).to.equal('renderSuccess_submitPinCode-1235235asdasd_renderSuccess')
     })
@@ -181,7 +183,7 @@ describe('NewConnectionController', () => {
       let { args } = withNewConnectionMocks()
       const controller = new NewConnectionController(...args)
       const result = await controller
-        .submitPinCode({ action: 'submitPinCode', companyNumber: validCompanyNumber, pin: 'not-valid-code' })
+        .submitPinCode({ action: 'submitPinCode', connectionId: validConnection.id, pin: 'not-valid-code' })
         .then(toHTMLString)
       expect(result).to.equal('renderSuccess_submitPinCode-not-valid-code_renderSuccess')
     })
@@ -190,7 +192,7 @@ describe('NewConnectionController', () => {
       let { args } = withNewConnectionMocks()
       const controller = new NewConnectionController(...args)
       const result = await controller
-        .submitPinCode({ action: 'submitPinCode', companyNumber: validCompanyNumber, pin: '111111' })
+        .submitPinCode({ action: 'submitPinCode', connectionId: validConnection.id, pin: '111111' })
         .then(toHTMLString)
       expect(result).to.equal('renderSuccess_submitPinCode-111111_renderSuccess')
     })
@@ -500,7 +502,9 @@ describe('NewConnectionController', () => {
         })
         .then(toHTMLString)
 
-      expect(result).to.equal('fromInviteForm_message--Success! Invitation has been accepted. Please allow some time for PIN Code to arrive. Once received, please go to connections page and click on "Complete Verification".-success_fromInviteForm')
+      expect(result).to.equal(
+        'fromInviteForm_message--Success! Invitation has been accepted. Please allow some time for PIN Code to arrive. Once received, please go to connections page and click on "Complete Verification".-success_fromInviteForm'
+      )
     })
 
     describe('happy path assertions', function () {
@@ -530,7 +534,9 @@ describe('NewConnectionController', () => {
       })
 
       it('should return success form', () => {
-        expect(result).to.equal('fromInviteForm_message--Success! Invitation has been accepted. Please allow some time for PIN Code to arrive. Once received, please go to connections page and click on "Complete Verification".-success_fromInviteForm')
+        expect(result).to.equal(
+          'fromInviteForm_message--Success! Invitation has been accepted. Please allow some time for PIN Code to arrive. Once received, please go to connections page and click on "Complete Verification".-success_fromInviteForm'
+        )
       })
 
       it('should insert two row', () => {

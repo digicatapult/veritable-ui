@@ -1,6 +1,6 @@
 import Html from '@kitajs/html'
 import { singleton } from 'tsyringe'
-import { COMPANY_NUMBER } from '../../models/strings.js'
+import { ConnectionRow } from '../../models/db/types.js'
 import { ButtonIcon, Page } from '../common.js'
 
 type ConnectionStatus = 'pending' | 'unverified' | 'verified_them' | 'verified_us' | 'verified_both' | 'disconnected'
@@ -8,7 +8,7 @@ type ConnectionStatus = 'pending' | 'unverified' | 'verified_them' | 'verified_u
 interface connection {
   company_name: string
   status: ConnectionStatus
-  company_number: COMPANY_NUMBER
+  id?: string
 }
 
 @singleton()
@@ -40,7 +40,7 @@ export default class ConnectionTemplates {
     }
   }
 
-  public listPage = (connections: connection[], search: string = '') => {
+  public listPage = (connections: ConnectionRow[] | connection[], search: string = '') => {
     return (
       <Page
         title="Veritable - Connections"
@@ -106,11 +106,9 @@ export default class ConnectionTemplates {
                     <td>No Connections for that search query. Try again or add a new connection</td>
                   </tr>
                 ) : (
-                  connections.map(({ company_name, company_number, status }) => {
+                  connections.map(({ company_name, id, status }) => {
                     const isVerified = ['unverified', 'verified_them'].includes(status)
-                    const actionHref = isVerified
-                      ? `/connection/new/pin-submission?companyNumber=${company_number}`
-                      : '#'
+                    const actionHref = isVerified ? `/connection//new/${id}/pin-submission` : '#'
                     return (
                       <tr>
                         <td>{Html.escapeHtml(company_name)}</td>

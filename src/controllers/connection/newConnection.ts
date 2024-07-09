@@ -1,14 +1,17 @@
 import { randomInt } from 'node:crypto'
+import type { UUID } from '../../models/strings.js'
 
 import argon2 from 'argon2'
-import { Body, Get, Post, Produces, Query, Route, Security, SuccessResponse } from 'tsoa'
+import { Body, Get, Path, Post, Produces, Query, Route, Security, SuccessResponse } from 'tsoa'
 import { inject, injectable, singleton } from 'tsyringe'
 import { z } from 'zod'
 
 import { Env } from '../../env.js'
+import { NotFoundError } from '../../errors.js'
 import { Logger, type ILogger } from '../../logger.js'
 import CompanyHouseEntity, { CompanyProfile } from '../../models/companyHouseEntity.js'
 import Database from '../../models/db/index.js'
+import { ConnectionRow } from '../../models/db/types.js'
 import EmailService from '../../models/emailService/index.js'
 import {
   base64UrlRegex,
@@ -203,11 +206,11 @@ export class NewConnectionController extends HTMLController {
    * @returns
    */
   @SuccessResponse(200)
-  @Get('/pin-submission')
-  public async renderPinCode(@Query() companyNumber: string, @Query() pin?: string): Promise<HTML> {
-    this.logger.debug('PIN_SUBMISSION GET: %o', { companyNumber, pin })
+  @Get('/{connectionId}/pin-submission')
+  public async renderPinCode(@Path() connectionId: UUID, @Query() pin?: string): Promise<HTML> {
+    this.logger.debug('PIN_SUBMISSION GET: %o', { connectionId, pin })
 
-    return this.html(this.pinSubmission.renderPinForm(companyNumber, pin || undefined))
+    return this.html(this.pinSubmission.renderPinForm(connectionId, pin || ''))
   }
 
   /**
@@ -218,16 +221,17 @@ export class NewConnectionController extends HTMLController {
   @SuccessResponse(200)
   @Post('/pin-submission')
   public async submitPinCode(
-    @Body() body: { action: 'submitPinCode'; pin: string; companyNumber: COMPANY_NUMBER }
+    @Body() body: { action: 'submitPinCode'; pin: string; connectionId: UUID }
   ): Promise<HTML> {
     this.logger.debug('PIN_SUBMISSION POST: %o', { body })
+    const { connectionId, pin, action } = body
 
-    if (body.companyNumber) {
-      await this.verifyReceiveConnection(body.companyNumber, body.pin)
-    }
+    const [connection]: ConnectionRow[] = await this.db.get('connection', { id: connectionId })
 
-    const { pin, companyNumber, action } = body
-    return this.html(this.pinSubmission.renderSuccess(action, pin, companyNumber))
+    if (!connection) throw new NotFoundError(`[connection: ${connectionId}`)
+    await this.verifyReceiveConnection(connection, pin)
+
+    return this.html(this.pinSubmission.renderSuccess(action, pin, connection.company_name))
   }
 
   /**
@@ -353,21 +357,18 @@ export class NewConnectionController extends HTMLController {
     }
   }
 
-  private async verifyReceiveConnection(company_number: COMPANY_NUMBER, pin: string) {
+  private async verifyReceiveConnection(connection: ConnectionRow, pin: string) {
     await this.db.withTransaction(async (db) => {
-      const connection = await db.get('connection', { company_number })
       if (!connection) {
-        this.logger.error('Unknown connection associated with companyNumber %s', company_number)
-        return
+        return this.logger.error('Unknown connection associated with companyNumber %s', connection)
       }
 
       if (!pin) {
-        this.logger.error('pin not provided in this request')
-        return
+        return this.logger.error('pin not provided in this request')
       }
 
       // handlePin using credentials
-      await db.update('connection', { id: connection[0].id }, { status: 'verified_them' })
+      await db.update('connection', { id: connection.id }, { status: 'verified_them' })
     })
   }
 

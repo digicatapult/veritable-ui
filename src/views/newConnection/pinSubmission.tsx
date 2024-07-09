@@ -1,6 +1,6 @@
 import Html from '@kitajs/html'
 import { singleton } from 'tsyringe'
-import { COMPANY_NUMBER, pinCodeRegex } from '../../models/strings.js'
+import { UUID, pinCodeRegex } from '../../models/strings.js'
 import { Page } from '../common.js'
 import { NewConnectionTemplates } from './base.js'
 
@@ -10,7 +10,7 @@ export class PinSubmissionTemplates extends NewConnectionTemplates {
     super()
   }
 
-  public renderPinForm = (company_number: COMPANY_NUMBER, pin?: string) => {
+  public renderPinForm = (connectionId: UUID, pin?: string) => {
     return (
       <Page
         title="Veritable - New Connection"
@@ -18,7 +18,7 @@ export class PinSubmissionTemplates extends NewConnectionTemplates {
         heading="New Connection - PIN Verification"
         headerLinks={[
           { name: 'Connections', url: '/connection' },
-          { name: 'Pin Submission', url: `/connection/new/pin-submission` },
+          { name: 'Pin Submission', url: `/connection/new/${connectionId}/pin-submission` },
         ]}
         stylesheets={['new-invite.css']}
       >
@@ -38,7 +38,7 @@ export class PinSubmissionTemplates extends NewConnectionTemplates {
           >
             <div class="accented-container">
               <p>Please enter the verification code from the physical letter</p>
-              <input name="companyNumber" value={company_number} type="hidden" />
+              <input name="connectionId" value={connectionId} type="hidden" />
               <input
                 id="from-invite-invite-input-pin"
                 name="pin"
@@ -58,7 +58,7 @@ export class PinSubmissionTemplates extends NewConnectionTemplates {
     )
   }
 
-  public renderSuccess = (action: 'submitPinCode', pin: string, companyNumber: COMPANY_NUMBER): JSX.Element => {
+  public renderSuccess = (action: 'submitPinCode', pin: string, companyName: string): JSX.Element => {
     return (
       <this.newConnectionForm
         submitRoute="pin-submission"
@@ -72,8 +72,8 @@ export class PinSubmissionTemplates extends NewConnectionTemplates {
       >
         <div id="from-invite-invite-input">
           <p safe>
-            PIN Code {pin} has been submitted for {companyNumber} company ID. Please wait for the verification code to
-            be confirmed by viewing the verification. status.
+            PIN Code {pin} has been submitted for {companyName} company ID. Please wait for the verification code to be
+            confirmed by viewing the verification. status.
           </p>
         </div>
       </this.newConnectionForm>
