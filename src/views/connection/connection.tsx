@@ -106,27 +106,29 @@ export default class ConnectionTemplates {
                     <td>No Connections for that search query. Try again or add a new connection</td>
                   </tr>
                 ) : (
-                  connections.map((connection) => (
-                    <tr>
-                      <td>{Html.escapeHtml(connection.company_name)}</td>
-                      <td>{this.statusToClass(connection.status)}</td>
-                      <td>
-                        <ButtonIcon
-                          icon='url("/public/images/arrow-right-circle.svg")'
-                          outline={true}
-                          disabled={connection.status.includes('verified') ? false : true}
-                          href={
-                            connection.status.includes('verified')
-                              ? `/connection/new/pin-submission?companyNumber=${connection.company_number}`
-                              : '#'
-                          }
-                          name="Complete Verification"
-                          showIcon={true}
-                          fillButton={true}
-                        />
-                      </td>
-                    </tr>
-                  ))
+                  connections.map(({ company_name, company_number, status }) => {
+                    const isVerified = ['unverified', 'verified_them'].includes(status)
+                    const actionHref = isVerified
+                      ? `/connection/new/pin-submission?companyNumber=${company_number}`
+                      : '#'
+                    return (
+                      <tr>
+                        <td>{Html.escapeHtml(company_name)}</td>
+                        <td>{this.statusToClass(status)}</td>
+                        <td>
+                          <ButtonIcon
+                            icon='url("/public/images/arrow-right-circle.svg")'
+                            outline={true}
+                            disabled={isVerified}
+                            href={actionHref}
+                            name="Complete Verification"
+                            showIcon={true}
+                            fillButton={true}
+                          />
+                        </td>
+                      </tr>
+                    )
+                  })
                 )}
               </tbody>
             </table>

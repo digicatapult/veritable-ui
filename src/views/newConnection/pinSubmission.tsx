@@ -68,7 +68,7 @@ export class PinSubmissionTemplates extends NewConnectionTemplates {
         actions={[{ type: 'link', text: 'Back To Home', href: '/connection' }]}
       >
         <div id="from-invite-invite-input">
-          <p>
+          <p safe>
             PIN Code {pin} has been submitted for {companyNumber}, please wait for their verification and keep updated
             by viewing the verification. status.
           </p>
