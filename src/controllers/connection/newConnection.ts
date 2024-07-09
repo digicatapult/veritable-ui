@@ -20,12 +20,12 @@ import {
 import VeritableCloudagent from '../../models/veritableCloudagent.js'
 import { FromInviteTemplates } from '../../views/newConnection/fromInvite.js'
 import { NewInviteFormStage, NewInviteTemplates } from '../../views/newConnection/newInvite.js'
+import { PinSubmissionTemplates } from '../../views/newConnection/pinSubmission.js'
 import { HTML, HTMLController } from '../HTMLController.js'
 
 const submitToFormStage = {
   back: 'form',
   continue: 'confirmation',
-  pin: 'pin',
   submit: 'success',
 } as const
 
@@ -48,6 +48,7 @@ export class NewConnectionController extends HTMLController {
     private email: EmailService,
     private newInvite: NewInviteTemplates,
     private fromInvite: FromInviteTemplates,
+    private pinSubmission: PinSubmissionTemplates,
     private env: Env,
     @inject(Logger) private logger: ILogger
   ) {
@@ -196,30 +197,45 @@ export class NewConnectionController extends HTMLController {
   }
 
   /**
+   * renders pin-submission form
+   * @param invite - base64 encoded string
+   * @returns pin-submission form
+   */
+  @SuccessResponse(200)
+  @Get('/pin-submission')
+  public async renderPinCode(@Query() invite: BASE_64_URL, @Query() pin?: string): Promise<HTML> {
+    this.logger.debug('%s %o', 'renderPinCode() GET:', { invite, pin })
+
+    return this.html(this.pinSubmission.renderPage(invite, pin || undefined))
+  }
+
+  /**
+   * handles PIN code submission form submit action
+   * @param body - contains forms inputs
+   * @returns
+   */
+  @SuccessResponse(200)
+  @Post('/pin-submission')
+  public async submitPinCode(@Body() body: { invite: BASE_64_URL; pin: string }): Promise<any> {
+    this.logger.debug('%s %o', 'submitPinCode() POST:', { body })
+    const { pin, invite } = body
+
+    return this.html(this.pinSubmission.renderSuccess(invite, pin))
+  }
+
+  /**
    * submits the company number for
    */
   @SuccessResponse(200)
   @Post('/receive-invitation')
   public async submitFromInvite(
     @Body()
-    body:
-      | {
-          invite: BASE_64_URL
-          action: 'createConnection'
-        }
-      | {
-          invite: BASE_64_URL
-          pin: string
-          action: 'pinSubmission'
-        }
-  ): Promise<HTML> {
-    // handle pinSubmission
-    if (body.action === 'pinSubmission' && body.pin) {
-      this.logger.info(`pin code [${body.pin}] has been submitted.`)
-      return this.receivePinSuccessHtml(body.pin)
+    body: {
+      invite: BASE_64_URL
+      action: 'verifyInvite'
     }
-
-    if (body.action !== 'createConnection') {
+  ): Promise<HTML> {
+    if (body.action !== 'verifyInvite') {
       return this.receiveInviteErrorHtml('Invalid action supplied with invitation')
     }
 
@@ -436,28 +452,15 @@ export class NewConnectionController extends HTMLController {
     )
   }
 
-  private receivePinSuccessHtml(pin: string) {
-    return this.html(
-      this.fromInvite.fromInviteForm({
-        feedback: {
-          type: 'message',
-          message: 'PIN code has been submitted for other party to verify.',
-        },
-        pin,
-        formStage: 'success',
-      })
-    )
-  }
-
   private receiveInviteSuccessHtml(invite: string) {
     return this.html(
       this.fromInvite.fromInviteForm({
         feedback: {
           type: 'message',
-          message: 'This is a second step of verification. Please enter a 6 digit code.',
+          message: 'Success! Invite validated.',
         },
-        invite: Buffer.from(JSON.stringify(invite), 'utf8').toString('base64url'),
-        formStage: 'pin',
+        invite,
+        formStage: 'success',
       })
     )
   }

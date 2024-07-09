@@ -303,10 +303,11 @@ a.list-table.icon {
   border-radius: 12px;
   padding: 1rem;
 }
+
 .card-body {
   background-color: #fff;
   overflow-x: auto;
-  max-width: 1000px;
+  width: max-content;
   border-radius: 12px;
   padding: 2rem 2rem;
   margin: 1rem 2rem 0rem 1rem;
@@ -492,11 +493,6 @@ a.list-table.icon {
 
   .side-bar.logo-container {
     margin: 0;
-  }
-
-  .card-body {
-    max-width: 100%;
-    margin: 1rem;
   }
 
   .search-window {

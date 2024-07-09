@@ -74,7 +74,7 @@ describe('NewConnectionController', () => {
       server = await createHttpServer(false)
       response = await post(server.app, '/connection/new/receive-invitation', {
         invite: context.invite,
-        action: 'createConnection',
+        action: 'verifyInvite',
       })
     })
 
@@ -111,7 +111,7 @@ describe('NewConnectionController', () => {
       server = await createHttpServer(true)
       await post(server.app, '/connection/new/receive-invitation', {
         invite: context.invite,
-        action: 'createConnection',
+        action: 'verifyInvite',
       })
     })
 

@@ -3,7 +3,7 @@ import { inject, injectable, singleton } from 'tsyringe'
 
 import { Logger, type ILogger } from '../logger.js'
 
-import HomepageTemplates from '../views/homepage.js'
+import HomepageTemplates from '../views/homepage/homepage.js'
 import { HTML, HTMLController } from './HTMLController.js'
 
 @singleton()

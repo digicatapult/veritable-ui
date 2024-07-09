@@ -7,11 +7,13 @@ import CompanyHouseEntity from '../../../models/companyHouseEntity.js'
 import Database from '../../../models/db/index.js'
 import { ConnectionRow } from '../../../models/db/types.js'
 import EmailService from '../../../models/emailService/index.js'
+import { BASE_64_URL } from '../../../models/strings.js'
 import VeritableCloudagent from '../../../models/veritableCloudagent.js'
-import ConnectionTemplates from '../../../views/connection.js'
+import ConnectionTemplates from '../../../views/connection/connection.js'
 import { FormFeedback } from '../../../views/newConnection/base.js'
 import { FromInviteTemplates } from '../../../views/newConnection/fromInvite.js'
 import { NewInviteTemplates } from '../../../views/newConnection/newInvite.js'
+import { PinSubmissionTemplates } from '../../../views/newConnection/pinSubmission.js'
 import { notFoundCompanyNumber, validCompanyMap, validCompanyNumber, validExistingCompanyNumber } from './fixtures.js'
 
 function templateFake(templateName: string, ...args: any[]) {
@@ -112,6 +114,10 @@ export const withNewConnectionMocks = () => {
         formStage
       ),
   } as unknown as FromInviteTemplates
+  const mockPinForm = {
+    renderPage: (invite: BASE_64_URL, pin?: string) => templateFake('renderPage', invite, pin),
+    renderSuccess: (invite: BASE_64_URL, pin?: string) => templateFake('renderSuccess', invite, pin),
+  } as unknown as PinSubmissionTemplates
 
   const mockEnv = {
     get: (name: string) => {
@@ -134,6 +140,7 @@ export const withNewConnectionMocks = () => {
     mockEmail,
     mockNewInvite,
     mockFromInvite,
+    mockPinForm,
     mockEnv,
     mockLogger,
     args: [
@@ -143,6 +150,7 @@ export const withNewConnectionMocks = () => {
       mockEmail,
       mockNewInvite,
       mockFromInvite,
+      mockPinForm,
       mockEnv,
       mockLogger,
     ] as const,

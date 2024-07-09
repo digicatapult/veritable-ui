@@ -1,17 +1,14 @@
 import Html from '@kitajs/html'
 import { singleton } from 'tsyringe'
-import { CompanyProfile } from '../../models/companyHouseEntity.js'
-import { BASE_64_URL, pinCodeRegex } from '../../models/strings.js'
+import { BASE_64_URL } from '../../models/strings.js'
 import { Page } from '../common.js'
 import { FormFeedback, NewConnectionTemplates } from './base.js'
 
-export type FromInviteFormStage = 'invite' | 'pin' | 'success'
+export type FromInviteFormStage = 'invite' | 'success'
 export type FormInviteProps = {
-  feedback: FormFeedback
   formStage: FromInviteFormStage
-  pin?: string
+  feedback: FormFeedback
   invite?: BASE_64_URL
-  company?: CompanyProfile
 }
 
 @singleton()
@@ -20,7 +17,7 @@ export class FromInviteTemplates extends NewConnectionTemplates {
     super()
   }
 
-  public fromInviteFormPage = (feedback: FormFeedback, pin?: string) => {
+  public fromInviteFormPage = (feedback: FormFeedback) => {
     return (
       <Page
         title="Veritable - New Connection"
@@ -36,7 +33,7 @@ export class FromInviteTemplates extends NewConnectionTemplates {
           <span>Invite New Connection</span>
         </div>
         <div class="card-body ">
-          <this.fromInviteForm pin={pin} feedback={feedback} formStage="invite" />
+          <this.fromInviteForm feedback={feedback} formStage="invite" />
         </div>
       </Page>
     )
@@ -46,8 +43,6 @@ export class FromInviteTemplates extends NewConnectionTemplates {
     switch (props.formStage) {
       case 'invite':
         return <this.fromInviteInvite {...props}></this.fromInviteInvite>
-      case 'pin':
-        return <this.fromInvitePin {...props}></this.fromInvitePin>
       case 'success':
         return <this.fromInviteSuccess {...props}></this.fromInviteSuccess>
     }
@@ -59,10 +54,10 @@ export class FromInviteTemplates extends NewConnectionTemplates {
         submitRoute="receive-invitation"
         feedback={props.feedback}
         progressStep={1}
-        progressStepCount={3}
+        progressStepCount={2}
         actions={[
           { type: 'link', text: 'Cancel', href: '/connection' },
-          { type: 'submit', value: 'createConnection', text: 'Submit' },
+          { type: 'submit', value: 'verifyInvite', text: 'Submit' },
         ]}
       >
         <div id="from-invite-invite-input" class="accented-container">
@@ -76,40 +71,8 @@ export class FromInviteTemplates extends NewConnectionTemplates {
             hx-select="#new-connection-feedback"
             hx-swap="outerHTML"
           >
-            {props.invite ? Html.escapeHtml(props.invite) : ''}
+            {Html.escapeHtml(props.invite || '')}
           </textarea>
-        </div>
-      </this.newConnectionForm>
-    )
-  }
-
-  public fromInvitePin = (props: FormInviteProps): JSX.Element => {
-    return (
-      <this.newConnectionForm
-        submitRoute="pin-submission"
-        feedback={props.feedback}
-        progressStep={2}
-        progressStepCount={3}
-        actions={[
-          { type: 'link', text: 'Fill In Later', href: '/connection' },
-          { type: 'submit', value: 'pinSubmission', text: 'Continue' },
-        ]}
-      >
-        <div class="accented-container">
-          <p>Please enter the verification code from the physical letter</p>
-          <input name="invite" value={props.invite || ''} type="hidden" />
-          <input
-            id="from-invite-invite-input-pin"
-            name="pin"
-            class="new-connection-input-field"
-            placeholder="Code"
-            required
-            value={props.pin || ''}
-            type="text"
-            pattern={pinCodeRegex.source}
-            minlength={6}
-            maxlength={6}
-          />
         </div>
       </this.newConnectionForm>
     )
@@ -120,11 +83,11 @@ export class FromInviteTemplates extends NewConnectionTemplates {
       <this.newConnectionForm
         submitRoute="receive-invitation"
         feedback={props.feedback}
-        progressStep={3}
-        progressStepCount={3}
+        progressStep={2}
+        progressStepCount={2}
         actions={[{ type: 'link', text: 'Back To Home', href: '/connection' }]}
       >
-        <div id="new-invite-confirmation-text">
+        <div id="from-invite-invite-input">
           <p>
             Your connection has been established, but still needs to be verified. You should receive a verification
             letter at your registered business with instructions on how to do this. A reciprocal verification request

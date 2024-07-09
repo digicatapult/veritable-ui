@@ -32,7 +32,7 @@ export abstract class NewConnectionTemplates {
   protected newConnectionForm = (
     props: Html.PropsWithChildren<{
       submitRoute: 'create-invitation' | 'receive-invitation' | 'pin-submission'
-      feedback: FormFeedback
+      feedback?: FormFeedback
       progressStep: number
       progressStepCount: number
       actions: FormAction[]
@@ -42,7 +42,7 @@ export abstract class NewConnectionTemplates {
       <form id="new-invite-form" hx-post={`/connection/new/${props.submitRoute}`} hx-select="#new-invite-form > *">
         <this.stepper stage={props.progressStep} total={props.progressStepCount} />
         {props.children}
-        <this.feedback feedback={props.feedback} />
+        {props.feedback && <this.feedback feedback={props.feedback} />}
         <div id="new-invite-actions">
           {props.actions.map((action, i) => {
             const lastIndex = props.actions.length - 1
