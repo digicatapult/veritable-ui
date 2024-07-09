@@ -162,29 +162,37 @@ describe('NewConnectionController', () => {
     it('should render error if it is longer than 6 digits', async () => {
       let { args } = withNewConnectionMocks()
       const controller = new NewConnectionController(...args)
-      const result = await controller.submitPinCode({ invite: 'invite', pin: '12345678' }).then(toHTMLString)
-      expect(result).to.equal('renderSuccess_invite-12345678_renderSuccess')
+      const result = await controller
+        .submitPinCode({ action: 'submitPinCode', companyNumber: validCompanyNumber, pin: '123456782' })
+        .then(toHTMLString)
+      expect(result).to.equal('renderSuccess_submitPinCode-123456782_renderSuccess')
     })
 
     it('also should render error if it combined characters and numbers', async () => {
       let { args } = withNewConnectionMocks()
       const controller = new NewConnectionController(...args)
-      const result = await controller.submitPinCode({ invite: 'invite', pin: '12345678asdg' }).then(toHTMLString)
-      expect(result).to.equal('renderSuccess_invite-12345678asdg_renderSuccess')
+      const result = await controller
+        .submitPinCode({ action: 'submitPinCode', companyNumber: validCompanyNumber, pin: '1235235asdasd' })
+        .then(toHTMLString)
+      expect(result).to.equal('renderSuccess_submitPinCode-1235235asdasd_renderSuccess')
     })
 
     it('should accept only numbers', async () => {
       let { args } = withNewConnectionMocks()
       const controller = new NewConnectionController(...args)
-      const result = await controller.submitPinCode({ invite: 'invite', pin: 'asdasd' }).then(toHTMLString)
-      expect(result).to.equal('renderSuccess_invite-asdasd_renderSuccess')
+      const result = await controller
+        .submitPinCode({ action: 'submitPinCode', companyNumber: validCompanyNumber, pin: 'not-valid-code' })
+        .then(toHTMLString)
+      expect(result).to.equal('renderSuccess_submitPinCode-not-valid-code_renderSuccess')
     })
 
     it('renders a success screen', async () => {
       let { args } = withNewConnectionMocks()
       const controller = new NewConnectionController(...args)
-      const result = await controller.submitPinCode({ invite: 'invite', pin: '123456' }).then(toHTMLString)
-      expect(result).to.equal('renderSuccess_invite-123456_renderSuccess')
+      const result = await controller
+        .submitPinCode({ action: 'submitPinCode', companyNumber: validCompanyNumber, pin: '111111' })
+        .then(toHTMLString)
+      expect(result).to.equal('renderSuccess_submitPinCode-111111_renderSuccess')
     })
   })
 

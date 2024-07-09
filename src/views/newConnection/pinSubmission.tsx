@@ -1,6 +1,6 @@
 import Html from '@kitajs/html'
 import { singleton } from 'tsyringe'
-import { BASE_64_URL, pinCodeRegex } from '../../models/strings.js'
+import { COMPANY_NUMBER, pinCodeRegex } from '../../models/strings.js'
 import { Page } from '../common.js'
 import { NewConnectionTemplates } from './base.js'
 
@@ -10,7 +10,7 @@ export class PinSubmissionTemplates extends NewConnectionTemplates {
     super()
   }
 
-  public renderPage = (invite: BASE_64_URL, pin?: string) => {
+  public renderPinForm = (company_number: COMPANY_NUMBER, pin?: string) => {
     return (
       <Page
         title="Veritable - New Connection"
@@ -33,12 +33,12 @@ export class PinSubmissionTemplates extends NewConnectionTemplates {
             progressStepCount={2}
             actions={[
               { type: 'link', text: 'Fill In Later', href: '/connection' },
-              { type: 'submit', value: 'submit', text: 'Continue' },
+              { type: 'submit', value: 'submitPinCode', text: 'Continue' },
             ]}
           >
             <div class="accented-container">
               <p>Please enter the verification code from the physical letter</p>
-              <input name="invite" value={invite} type="hidden" />
+              <input name="companyNumber" value={company_number} type="hidden" />
               <input
                 id="from-invite-invite-input-pin"
                 name="pin"
@@ -58,20 +58,19 @@ export class PinSubmissionTemplates extends NewConnectionTemplates {
     )
   }
 
-  public renderSuccess = (invite: BASE_64_URL, pin?: string): JSX.Element => {
-    console.log({ invite, pin })
+  public renderSuccess = (action: 'submitPinCode', pin: string, companyNumber: COMPANY_NUMBER): JSX.Element => {
     return (
       <this.newConnectionForm
         submitRoute="pin-submission"
-        feedback={undefined}
+        feedback={{ type: 'message', message: action }}
         progressStep={2}
         progressStepCount={2}
         actions={[{ type: 'link', text: 'Back To Home', href: '/connection' }]}
       >
         <div id="from-invite-invite-input">
           <p>
-            PIN Code has been submitted, please wait for their verification and keep updated by viewing the verification
-            status.
+            PIN Code {pin} has been submitted for {companyNumber}, please wait for their verification and keep updated
+            by viewing the verification. status.
           </p>
         </div>
       </this.newConnectionForm>

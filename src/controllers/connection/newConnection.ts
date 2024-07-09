@@ -6,6 +6,7 @@ import { inject, injectable, singleton } from 'tsyringe'
 import { z } from 'zod'
 
 import { Env } from '../../env.js'
+import { InvalidInputError } from '../../errors.js'
 import { Logger, type ILogger } from '../../logger.js'
 import CompanyHouseEntity, { CompanyProfile } from '../../models/companyHouseEntity.js'
 import Database from '../../models/db/index.js'
@@ -198,15 +199,15 @@ export class NewConnectionController extends HTMLController {
 
   /**
    * renders pin-submission form
-   * @param invite - base64 encoded string
+   * @param companyNumber - base64 encoded string
    * @returns pin-submission form
    */
   @SuccessResponse(200)
   @Get('/pin-submission')
-  public async renderPinCode(@Query() invite: BASE_64_URL, @Query() pin?: string): Promise<HTML> {
-    this.logger.debug('%s %o', 'renderPinCode() GET:', { invite, pin })
+  public async renderPinCode(@Query() companyNumber: string, @Query() pin?: string): Promise<HTML> {
+    this.logger.debug('PIN_SUBMISSION GET: %o', { companyNumber, pin })
 
-    return this.html(this.pinSubmission.renderPage(invite, pin || undefined))
+    return this.html(this.pinSubmission.renderPinForm(companyNumber, pin || undefined))
   }
 
   /**
@@ -216,11 +217,24 @@ export class NewConnectionController extends HTMLController {
    */
   @SuccessResponse(200)
   @Post('/pin-submission')
-  public async submitPinCode(@Body() body: { invite: BASE_64_URL; pin: string }): Promise<any> {
-    this.logger.debug('%s %o', 'submitPinCode() POST:', { body })
-    const { pin, invite } = body
+  public async submitPinCode(
+    @Body() body: { action: 'submitPinCode'; pin: string; companyNumber: COMPANY_NUMBER }
+  ): Promise<HTML> {
+    this.logger.debug('PIN_SUBMISSION POST: %o', { body })
 
-    return this.html(this.pinSubmission.renderSuccess(invite, pin))
+    if (body.companyNumber) {
+      await this.verifyReceiveConnection(body.companyNumber, body.pin)
+    }
+
+    /**
+     * TODOs
+     * [x] - db.withTransaction for connection to alice so -> "verified_them" (bob should see)
+     * [x] - db.update connection (our new) - to pending (alice should see)
+     * [ ] - db.get connection_invite
+     * [ ] - confirm it updates connection events (connection state handler)
+     */
+    const { pin, companyNumber, action } = body
+    return this.html(this.pinSubmission.renderSuccess(action, pin, companyNumber))
   }
 
   /**
@@ -344,6 +358,23 @@ export class NewConnectionController extends HTMLController {
       type: 'success',
       company,
     }
+  }
+
+  private async verifyReceiveConnection(company_number: COMPANY_NUMBER, pin: string) {
+    await this.db.withTransaction(async (db) => {
+      const connection = await db.get('connection', { company_number })
+      if (!connection) {
+        this.logger.error('Unknown connection associated with companyNumber %s', company_number)
+        throw new InvalidInputError('company_number is not provided in this request')
+      }
+
+      if (!pin) {
+        throw new InvalidInputError('pin not provided in this request')
+      }
+
+      // DO something with pin
+      await db.update('connection', { id: connection[0].id }, { status: 'verified_us' })
+    })
   }
 
   private async insertNewConnection(

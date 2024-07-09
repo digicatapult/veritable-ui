@@ -1,5 +1,6 @@
 import Html from '@kitajs/html'
 import { singleton } from 'tsyringe'
+import { COMPANY_NUMBER } from '../../models/strings.js'
 import { ButtonIcon, Page } from '../common.js'
 
 type ConnectionStatus = 'pending' | 'unverified' | 'verified_them' | 'verified_us' | 'verified_both' | 'disconnected'
@@ -7,6 +8,7 @@ type ConnectionStatus = 'pending' | 'unverified' | 'verified_them' | 'verified_u
 interface connection {
   company_name: string
   status: ConnectionStatus
+  company_number: COMPANY_NUMBER
 }
 
 @singleton()
@@ -112,8 +114,12 @@ export default class ConnectionTemplates {
                         <ButtonIcon
                           icon='url("/public/images/arrow-right-circle.svg")'
                           outline={true}
-                          disabled={connection.status === 'pending' ? false : true}
-                          href={connection.status === 'pending' ? '/connection/new?fromInvite=true' : '#'}
+                          disabled={connection.status.includes('verified') ? false : true}
+                          href={
+                            connection.status.includes('verified')
+                              ? `/connection/new/pin-submission?companyNumber=${connection.company_number}`
+                              : '#'
+                          }
                           name="Complete Verification"
                           showIcon={true}
                           fillButton={true}

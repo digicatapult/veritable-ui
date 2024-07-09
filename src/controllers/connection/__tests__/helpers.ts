@@ -41,6 +41,12 @@ export const withNewConnectionMocks = () => {
   const mockLogger: ILogger = pino({ level: 'silent' })
   const mockTransactionDb = {
     insert: () => Promise.resolve([{ id: '42' }]),
+    get: () =>
+      Promise.resolve([
+        { company_name: 'foo', status: 'verified' },
+        { company_name: 'bar', status: 'pending' },
+      ]),
+    update: () => Promise.resolve(),
   }
   const mockDb = {
     get: (tableName: string, where?: Record<string, string>) => {
@@ -115,7 +121,7 @@ export const withNewConnectionMocks = () => {
       ),
   } as unknown as FromInviteTemplates
   const mockPinForm = {
-    renderPage: (invite: BASE_64_URL, pin?: string) => templateFake('renderPage', invite, pin),
+    renderPinForm: (invite: BASE_64_URL, pin?: string) => templateFake('renderPinForm', invite, pin),
     renderSuccess: (invite: BASE_64_URL, pin?: string) => templateFake('renderSuccess', invite, pin),
   } as unknown as PinSubmissionTemplates
 
