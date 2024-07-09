@@ -119,7 +119,7 @@ export default class ConnectionTemplates {
                           <ButtonIcon
                             icon='url("/public/images/arrow-right-circle.svg")'
                             outline={true}
-                            disabled={isVerified}
+                            disabled={isVerified ? false : true}
                             href={actionHref}
                             name="Complete Verification"
                             showIcon={true}

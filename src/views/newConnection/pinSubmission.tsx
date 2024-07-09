@@ -62,15 +62,15 @@ export class PinSubmissionTemplates extends NewConnectionTemplates {
     return (
       <this.newConnectionForm
         submitRoute="pin-submission"
-        feedback={{ type: 'message', message: action }}
+        feedback={{ type: 'message', message: `[${action}]: PIN code has been sucessfully submitted and will be verified by the issuer` }}
         progressStep={2}
         progressStepCount={2}
         actions={[{ type: 'link', text: 'Back To Home', href: '/connection' }]}
       >
         <div id="from-invite-invite-input">
           <p safe>
-            PIN Code {pin} has been submitted for {companyNumber}, please wait for their verification and keep updated
-            by viewing the verification. status.
+            PIN Code {pin} has been submitted for {companyNumber} company ID. Please wait for the verification code to
+            be confirmed by viewing the verification. status.
           </p>
         </div>
       </this.newConnectionForm>
