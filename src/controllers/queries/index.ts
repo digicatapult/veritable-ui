@@ -5,8 +5,8 @@ import { Logger, type ILogger } from '../../logger.js'
 
 import Database from '../../models/db/index.js'
 import { ConnectionRow, QueryRow } from '../../models/db/types.js'
-import QueriesTemplates from '../../views/queries.js'
-import QueryListTemplates from '../../views/queriesList.js'
+import QueriesTemplates from '../../views/queries/queries.js'
+import QueryListTemplates from '../../views/queries/queriesList.js'
 import { HTML, HTMLController } from '../HTMLController.js'
 
 type QueryStatus = 'resolved' | 'pending_your_input' | 'pending_their_input'

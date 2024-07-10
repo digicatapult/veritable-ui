@@ -49,7 +49,19 @@ export type CompanyProfileResult =
 @singleton()
 @injectable()
 export default class CompanyHouseEntity {
-  constructor(private env: Env) {}
+  private localCompanyHouseProfilePromise: Promise<CompanyProfile>
+
+  constructor(private env: Env) {
+    this.localCompanyHouseProfilePromise = this.getCompanyProfileByCompanyNumber(
+      env.get('INVITATION_FROM_COMPANY_NUMBER')
+    ).then((result) => {
+      if (result.type === 'notFound') {
+        throw new Error('Invalid local company house number configuration')
+      }
+
+      return result.company
+    })
+  }
 
   private async makeCompanyProfileRequest(route: string): Promise<unknown> {
     const url = new URL(route)
@@ -81,5 +93,9 @@ export default class CompanyHouseEntity {
     return companyProfile === null
       ? { type: 'notFound' }
       : { type: 'found', company: companyProfileSchema.parse(companyProfile) }
+  }
+
+  async localCompanyHouseProfile(): Promise<CompanyProfile> {
+    return await this.localCompanyHouseProfilePromise
   }
 }

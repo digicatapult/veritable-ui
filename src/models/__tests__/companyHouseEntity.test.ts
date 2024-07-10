@@ -42,4 +42,13 @@ describe('companyHouseEntity', () => {
       expect((errorMessage as Error).message).equals(`Error calling CompanyHouse API`)
     })
   })
+
+  describe('localCompanyHouseProfile', () => {
+    it('should return company found', async () => {
+      const environment = new Env()
+      const companyHouseObject = new CompanyHouseEntity(environment)
+      const response = await companyHouseObject.localCompanyHouseProfile()
+      expect(response).deep.equal(successResponse)
+    })
+  })
 })

@@ -20,12 +20,12 @@ import {
 import VeritableCloudagent from '../../models/veritableCloudagent.js'
 import { FromInviteTemplates } from '../../views/newConnection/fromInvite.js'
 import { NewInviteFormStage, NewInviteTemplates } from '../../views/newConnection/newInvite.js'
+import { PinSubmissionTemplates } from '../../views/newConnection/pinSubmission.js'
 import { HTML, HTMLController } from '../HTMLController.js'
 
 const submitToFormStage = {
   back: 'form',
   continue: 'confirmation',
-  pin: 'pin',
   submit: 'success',
 } as const
 
@@ -48,6 +48,7 @@ export class NewConnectionController extends HTMLController {
     private email: EmailService,
     private newInvite: NewInviteTemplates,
     private fromInvite: FromInviteTemplates,
+    private pinSubmission: PinSubmissionTemplates,
     private env: Env,
     @inject(Logger) private logger: ILogger
   ) {
@@ -135,7 +136,6 @@ export class NewConnectionController extends HTMLController {
           type: 'companyFound',
           company,
         },
-        formStage: 'invite',
       })
     )
   }
@@ -202,27 +202,11 @@ export class NewConnectionController extends HTMLController {
   @Post('/receive-invitation')
   public async submitFromInvite(
     @Body()
-    body:
-      | {
-          invite: BASE_64_URL
-          action: 'createConnection'
-        }
-      | {
-          invite: BASE_64_URL
-          pin: string
-          action: 'pinSubmission'
-        }
+    body: {
+      invite: BASE_64_URL | string
+      action: 'createConnection'
+    }
   ): Promise<HTML> {
-    // handle pinSubmission
-    if (body.action === 'pinSubmission' && body.pin) {
-      this.logger.info(`pin code [${body.pin}] has been submitted.`)
-      return this.receivePinSuccessHtml(body.pin)
-    }
-
-    if (body.action !== 'createConnection') {
-      return this.receiveInviteErrorHtml('Invalid action supplied with invitation')
-    }
-
     if (body.invite && !body.invite.match(base64UrlRegex)) {
       return this.receiveInviteErrorHtml('Invitation is not valid')
     }
@@ -261,7 +245,8 @@ export class NewConnectionController extends HTMLController {
     await this.sendAdminEmail(inviteOrError.company, pin)
 
     this.logger.debug('NEW_CONNECTION: complete: %s', dbResult.connectionId)
-    return this.receiveInviteSuccessHtml(inviteOrError.inviteUrl)
+    this.setHeader('HX-Replace-Url', `/connection/${dbResult.connectionId}/pin-submission`)
+    return this.receivePinSubmissionHtml(dbResult.connectionId)
   }
 
   private async decodeInvite(
@@ -436,30 +421,8 @@ export class NewConnectionController extends HTMLController {
     )
   }
 
-  private receivePinSuccessHtml(pin: string) {
-    return this.html(
-      this.fromInvite.fromInviteForm({
-        feedback: {
-          type: 'message',
-          message: 'PIN code has been submitted for other party to verify.',
-        },
-        pin,
-        formStage: 'success',
-      })
-    )
-  }
-
-  private receiveInviteSuccessHtml(invite: string) {
-    return this.html(
-      this.fromInvite.fromInviteForm({
-        feedback: {
-          type: 'message',
-          message: 'This is a second step of verification. Please enter a 6 digit code.',
-        },
-        invite: Buffer.from(JSON.stringify(invite), 'utf8').toString('base64url'),
-        formStage: 'pin',
-      })
-    )
+  private receivePinSubmissionHtml(connectionId: string) {
+    return this.html(this.pinSubmission.renderPinForm({ connectionId, continuationFromInvite: true }))
   }
 
   private receiveInviteErrorHtml(message: string) {
@@ -469,7 +432,6 @@ export class NewConnectionController extends HTMLController {
           type: 'error',
           error: message,
         },
-        formStage: 'invite',
       })
     )
   }

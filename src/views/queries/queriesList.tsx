@@ -1,6 +1,6 @@
 import Html from '@kitajs/html'
 import { singleton } from 'tsyringe'
-import { ButtonIcon, Page } from './common.js'
+import { ButtonIcon, Page } from '../common.js'
 
 type QueryStatus = 'resolved' | 'pending_your_input' | 'pending_their_input'
 

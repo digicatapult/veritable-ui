@@ -21,6 +21,7 @@ export function withCompanyHouseMock() {
         method: 'GET',
       })
       .reply(200, successResponse)
+      .persist()
   })
   afterEach(function () {
     setGlobalDispatcher(originalDispatcher)
