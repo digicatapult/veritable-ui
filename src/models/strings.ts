@@ -30,13 +30,13 @@ export type EMAIL = string
 
 /**
  * Pin Code format
- * @pattern ^[1-9][0-9]{5}$
+ * @pattern ^[0-9]{6}$
  * @minLength 6
  * @maxLength 6
  * @example 123456
  */
 export type PIN_CODE = string
-export const pinCodeRegex = /^[1-9][0-9]{5}$/
+export const pinCodeRegex = /^[0-9]{6}$/
 
 /**
  * Company number format

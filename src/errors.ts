@@ -2,6 +2,16 @@ export abstract class HttpError extends Error {
   public abstract get code(): number
 }
 
+export class NotFoundError extends HttpError {
+  constructor(item: string) {
+    super(`${item} - not found`)
+  }
+
+  public get code(): number {
+    return 404
+  }
+}
+
 export class InvalidInputError extends HttpError {
   constructor(message?: string) {
     super(message)

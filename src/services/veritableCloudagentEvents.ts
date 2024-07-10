@@ -142,6 +142,7 @@ export default class VeritableCloudagentEvents extends IndexedAsyncEventEmitter<
       this.socket.removeEventListener('close', this.closeHandler)
       this.socket.close()
       this.socket = undefined
+      this.removeAllListeners()
       return
     }
 

@@ -54,6 +54,7 @@ describe('NewConnectionController', () => {
     it('should return rendered error when company not found', async () => {
       let { args } = withNewConnectionMocks()
       const controller = new NewConnectionController(...args)
+
       const result = await controller.verifyCompanyForm(notFoundCompanyNumber).then(toHTMLString)
       expect(result).to.equal('companyFormInput_error--Company number does not exist-form--00000000_companyFormInput')
     })
@@ -103,35 +104,35 @@ describe('NewConnectionController', () => {
       let { args } = withNewConnectionMocks()
       const controller = new NewConnectionController(...args)
       const result = await controller.verifyInviteForm(invalidBase64Invite).then(toHTMLString)
-      expect(result).to.equal('fromInviteForm_error--Invitation is not valid-invite_fromInviteForm')
+      expect(result).to.equal('fromInviteForm_error--Invitation is not valid_fromInviteForm')
     })
 
     it('should rendered error when invite invalid format', async () => {
       let { args } = withNewConnectionMocks()
       const controller = new NewConnectionController(...args)
       const result = await controller.verifyInviteForm(invalidInvite).then(toHTMLString)
-      expect(result).to.equal('fromInviteForm_error--Invitation is not valid-invite_fromInviteForm')
+      expect(result).to.equal('fromInviteForm_error--Invitation is not valid_fromInviteForm')
     })
 
     it('should rendered error when company number invalid', async () => {
       let { args } = withNewConnectionMocks()
       const controller = new NewConnectionController(...args)
       const result = await controller.verifyInviteForm(invalidCompanyNumberInvite).then(toHTMLString)
-      expect(result).to.equal('fromInviteForm_error--Invitation is not valid-invite_fromInviteForm')
+      expect(result).to.equal('fromInviteForm_error--Invitation is not valid_fromInviteForm')
     })
 
     it('should return rendered error when company not found', async () => {
       let { args } = withNewConnectionMocks()
       const controller = new NewConnectionController(...args)
       const result = await controller.verifyInviteForm(notFoundCompanyNumberInvite).then(toHTMLString)
-      expect(result).to.equal('fromInviteForm_error--Company number does not exist-invite_fromInviteForm')
+      expect(result).to.equal('fromInviteForm_error--Company number does not exist_fromInviteForm')
     })
 
     it('should return rendered error when company already connected', async () => {
       let { args } = withNewConnectionMocks()
       const controller = new NewConnectionController(...args)
       const result = await controller.verifyInviteForm(validExistingCompanyNumberInvite).then(toHTMLString)
-      expect(result).to.equal('fromInviteForm_error--Connection already exists with NAME2-invite_fromInviteForm')
+      expect(result).to.equal('fromInviteForm_error--Connection already exists with NAME2_fromInviteForm')
     })
 
     it('should return rendered error when company registered office in dispute', async () => {
@@ -139,7 +140,7 @@ describe('NewConnectionController', () => {
       const controller = new NewConnectionController(...args)
       const result = await controller.verifyInviteForm(validCompanyNumberInDisputeInvite).then(toHTMLString)
       expect(result).to.equal(
-        'fromInviteForm_error--Cannot validate company NAME3 as address is currently in dispute-invite_fromInviteForm'
+        'fromInviteForm_error--Cannot validate company NAME3 as address is currently in dispute_fromInviteForm'
       )
     })
 
@@ -147,60 +148,14 @@ describe('NewConnectionController', () => {
       let { args } = withNewConnectionMocks()
       const controller = new NewConnectionController(...args)
       const result = await controller.verifyInviteForm(validCompanyNumberInactiveInvite).then(toHTMLString)
-      expect(result).to.equal('fromInviteForm_error--Company NAME4 is not active-invite_fromInviteForm')
+      expect(result).to.equal('fromInviteForm_error--Company NAME4 is not active_fromInviteForm')
     })
 
     it('should return success form', async () => {
       let { args } = withNewConnectionMocks()
       const controller = new NewConnectionController(...args)
       const result = await controller.verifyInviteForm(validCompanyNumberInvite).then(toHTMLString)
-      expect(result).to.equal('fromInviteForm_companyFound-NAME--invite_fromInviteForm')
-    })
-  })
-
-  describe('fromInvitePin', () => {
-    it('should render error if it is longer than 6 digits', async () => {
-      let { args } = withNewConnectionMocks()
-      const controller = new NewConnectionController(...args)
-      const result = await controller
-        .submitFromInvite({ invite: 'invite', pin: '12345678', action: 'pinSubmission' })
-        .then(toHTMLString)
-      expect(result).to.equal(
-        'fromInviteForm_message--PIN code has been submitted for other party to verify.-success_fromInviteForm'
-      )
-    })
-
-    it('also should render error if it combined characters and numbers', async () => {
-      let { args } = withNewConnectionMocks()
-      const controller = new NewConnectionController(...args)
-      const result = await controller
-        .submitFromInvite({ invite: 'invite', pin: '12345678asdg', action: 'pinSubmission' })
-        .then(toHTMLString)
-      expect(result).to.equal(
-        'fromInviteForm_message--PIN code has been submitted for other party to verify.-success_fromInviteForm'
-      )
-    })
-
-    it('should accept only numbers', async () => {
-      let { args } = withNewConnectionMocks()
-      const controller = new NewConnectionController(...args)
-      const result = await controller
-        .submitFromInvite({ invite: 'invite', pin: 'asdasd', action: 'pinSubmission' })
-        .then(toHTMLString)
-      expect(result).to.equal(
-        'fromInviteForm_message--PIN code has been submitted for other party to verify.-success_fromInviteForm'
-      )
-    })
-
-    it('renders a success screen', async () => {
-      let { args } = withNewConnectionMocks()
-      const controller = new NewConnectionController(...args)
-      const result = await controller
-        .submitFromInvite({ invite: 'invite', pin: '123456', action: 'pinSubmission' })
-        .then(toHTMLString)
-      expect(result).to.equal(
-        'fromInviteForm_message--PIN code has been submitted for other party to verify.-success_fromInviteForm'
-      )
+      expect(result).to.equal('fromInviteForm_companyFound-NAME-_fromInviteForm')
     })
   })
 
@@ -409,7 +364,7 @@ describe('NewConnectionController', () => {
       let { args } = withNewConnectionMocks()
       const controller = new NewConnectionController(...args)
       const result = await controller.submitFromInvite({ invite: '', action: 'createConnection' }).then(toHTMLString)
-      expect(result).to.equal('fromInviteForm_error--Invitation is not valid-invite_fromInviteForm')
+      expect(result).to.equal('fromInviteForm_error--Invitation is not valid_fromInviteForm')
     })
 
     it('should rendered error when invite invalid base64', async () => {
@@ -418,7 +373,7 @@ describe('NewConnectionController', () => {
       const result = await controller
         .submitFromInvite({ invite: invalidBase64Invite, action: 'createConnection' })
         .then(toHTMLString)
-      expect(result).to.equal('fromInviteForm_error--Invitation is not valid-invite_fromInviteForm')
+      expect(result).to.equal('fromInviteForm_error--Invitation is not valid_fromInviteForm')
     })
 
     it('should rendered error when invite invalid format', async () => {
@@ -427,7 +382,7 @@ describe('NewConnectionController', () => {
       const result = await controller
         .submitFromInvite({ invite: invalidInvite, action: 'createConnection' })
         .then(toHTMLString)
-      expect(result).to.equal('fromInviteForm_error--Invitation is not valid-invite_fromInviteForm')
+      expect(result).to.equal('fromInviteForm_error--Invitation is not valid_fromInviteForm')
     })
 
     it('should rendered error when company number invalid', async () => {
@@ -436,7 +391,7 @@ describe('NewConnectionController', () => {
       const result = await controller
         .submitFromInvite({ invite: invalidCompanyNumberInvite, action: 'createConnection' })
         .then(toHTMLString)
-      expect(result).to.equal('fromInviteForm_error--Invitation is not valid-invite_fromInviteForm')
+      expect(result).to.equal('fromInviteForm_error--Invitation is not valid_fromInviteForm')
     })
 
     it('should return rendered error when company not found', async () => {
@@ -445,7 +400,7 @@ describe('NewConnectionController', () => {
       const result = await controller
         .submitFromInvite({ invite: notFoundCompanyNumberInvite, action: 'createConnection' })
         .then(toHTMLString)
-      expect(result).to.equal('fromInviteForm_error--Company number does not exist-invite_fromInviteForm')
+      expect(result).to.equal('fromInviteForm_error--Company number does not exist_fromInviteForm')
     })
 
     it('should return rendered error when company already connected', async () => {
@@ -454,7 +409,7 @@ describe('NewConnectionController', () => {
       const result = await controller
         .submitFromInvite({ invite: validExistingCompanyNumberInvite, action: 'createConnection' })
         .then(toHTMLString)
-      expect(result).to.equal('fromInviteForm_error--Connection already exists with NAME2-invite_fromInviteForm')
+      expect(result).to.equal('fromInviteForm_error--Connection already exists with NAME2_fromInviteForm')
     })
 
     it('should return rendered error when company registered office in dispute', async () => {
@@ -464,7 +419,7 @@ describe('NewConnectionController', () => {
         .submitFromInvite({ invite: validCompanyNumberInDisputeInvite, action: 'createConnection' })
         .then(toHTMLString)
       expect(result).to.equal(
-        'fromInviteForm_error--Cannot validate company NAME3 as address is currently in dispute-invite_fromInviteForm'
+        'fromInviteForm_error--Cannot validate company NAME3 as address is currently in dispute_fromInviteForm'
       )
     })
 
@@ -474,7 +429,7 @@ describe('NewConnectionController', () => {
       const result = await controller
         .submitFromInvite({ invite: validCompanyNumberInactiveInvite, action: 'createConnection' })
         .then(toHTMLString)
-      expect(result).to.equal('fromInviteForm_error--Company NAME4 is not active-invite_fromInviteForm')
+      expect(result).to.equal('fromInviteForm_error--Company NAME4 is not active_fromInviteForm')
     })
 
     it('should return rendered error when unique constraint is violated', async () => {
@@ -492,7 +447,7 @@ describe('NewConnectionController', () => {
         })
         .then(toHTMLString)
 
-      expect(result).to.equal('fromInviteForm_error--Connection already exists with NAME-invite_fromInviteForm')
+      expect(result).to.equal('fromInviteForm_error--Connection already exists with NAME_fromInviteForm')
     })
 
     it('should return success even if email send fails', async () => {
@@ -508,9 +463,7 @@ describe('NewConnectionController', () => {
         })
         .then(toHTMLString)
 
-      expect(result).to.equal(
-        'fromInviteForm_message--This is a second step of verification. Please enter a 6 digit code.-pin_fromInviteForm'
-      )
+      expect(result).to.equal('renderPinForm_42--true_renderPinForm')
     })
 
     describe('happy path assertions', function () {
@@ -540,9 +493,7 @@ describe('NewConnectionController', () => {
       })
 
       it('should return success form', () => {
-        expect(result).to.equal(
-          'fromInviteForm_message--This is a second step of verification. Please enter a 6 digit code.-pin_fromInviteForm'
-        )
+        expect(result).to.equal('renderPinForm_42--true_renderPinForm')
       })
 
       it('should insert two row', () => {

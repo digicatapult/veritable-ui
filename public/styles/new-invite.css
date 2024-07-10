@@ -170,8 +170,20 @@
 
 #from-invite-invite-input-pin {
   border-radius: 8px;
-  color: #abafb1;
   background: var(--Input-defaultBackground, rgba(239, 241, 249, 0.6));
+
+  &:focus-visible {
+    outline: 2px solid var(--neutral-accent);
+  }
+
+  &:not(:placeholder-shown) {
+    &:invalid {
+      outline-color: var(--negative-accent);
+    }
+    &:valid {
+      outline-color: var(--positive-accent);
+    }
+  }
 }
 
 /* Mobile view */

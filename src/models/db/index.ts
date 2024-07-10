@@ -30,10 +30,9 @@ export default class Database {
   private db: IDatabase
 
   constructor(private client = clientSingleton) {
-    this.client = client
     const models: IDatabase = tablesList.reduce((acc, name) => {
       return {
-        [name]: () => clientSingleton(name),
+        [name]: () => this.client(name),
         ...acc,
       }
     }, {}) as IDatabase

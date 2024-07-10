@@ -1,12 +1,14 @@
 import Html from '@kitajs/html'
 import { singleton } from 'tsyringe'
-import { ButtonIcon, Page } from './common.js'
+import { ConnectionRow } from '../../models/db/types.js'
+import { ButtonIcon, Page } from '../common.js'
 
 type ConnectionStatus = 'pending' | 'unverified' | 'verified_them' | 'verified_us' | 'verified_both' | 'disconnected'
 
 interface connection {
   company_name: string
   status: ConnectionStatus
+  id?: string
 }
 
 @singleton()
@@ -38,7 +40,7 @@ export default class ConnectionTemplates {
     }
   }
 
-  public listPage = (connections: connection[], search: string = '') => {
+  public listPage = (connections: ConnectionRow[] | connection[], search: string = '') => {
     return (
       <Page
         title="Veritable - Connections"
@@ -104,23 +106,27 @@ export default class ConnectionTemplates {
                     <td>No Connections for that search query. Try again or add a new connection</td>
                   </tr>
                 ) : (
-                  connections.map((connection) => (
-                    <tr>
-                      <td>{Html.escapeHtml(connection.company_name)}</td>
-                      <td>{this.statusToClass(connection.status)}</td>
-                      <td>
-                        <ButtonIcon
-                          icon='url("/public/images/arrow-right-circle.svg")'
-                          outline={true}
-                          disabled={connection.status === 'pending' ? false : true}
-                          href={connection.status === 'pending' ? '/connection/new?fromInvite=true' : '#'}
-                          name="Complete Verification"
-                          showIcon={true}
-                          fillButton={true}
-                        />
-                      </td>
-                    </tr>
-                  ))
+                  connections.map(({ company_name, id, status }) => {
+                    const isVerified = ['unverified', 'verified_them'].includes(status)
+                    const actionHref = isVerified ? `/connection/${id}/pin-submission` : '#'
+                    return (
+                      <tr>
+                        <td>{Html.escapeHtml(company_name)}</td>
+                        <td>{this.statusToClass(status)}</td>
+                        <td>
+                          <ButtonIcon
+                            icon='url("/public/images/arrow-right-circle.svg")'
+                            outline={true}
+                            disabled={isVerified ? false : true}
+                            href={actionHref}
+                            name="Complete Verification"
+                            showIcon={true}
+                            fillButton={true}
+                          />
+                        </td>
+                      </tr>
+                    )
+                  })
                 )}
               </tbody>
             </table>

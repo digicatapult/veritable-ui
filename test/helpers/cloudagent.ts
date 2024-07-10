@@ -1,13 +1,9 @@
-import { pino } from 'pino'
+import { container } from 'tsyringe'
 
 import { Env } from '../../src/env.js'
 import VeritableCloudagent from '../../src/models/veritableCloudagent.js'
-
-import { container } from 'tsyringe'
-import { type ILogger } from '../../src/logger.js'
 import { validCompanyName, validCompanyNumber } from './fixtures.js'
-
-const mockLogger: ILogger = pino({ level: 'silent' })
+import { mockLogger } from './logger.js'
 
 const cleanupShared = async function (agent: VeritableCloudagent) {
   const connections = await agent.getConnections()

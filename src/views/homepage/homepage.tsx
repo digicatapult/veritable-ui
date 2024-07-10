@@ -1,6 +1,6 @@
 import Html from '@kitajs/html'
 import { singleton } from 'tsyringe'
-import { Page } from './common.js'
+import { Page } from '../common.js'
 
 @singleton()
 export default class HomepageTemplates {
