@@ -1,9 +1,9 @@
-import { Post, Body, Path, Get, Produces, Query, Route, Security, SuccessResponse } from 'tsoa'
+import { Body, Get, Path, Post, Produces, Query, Route, Security, SuccessResponse } from 'tsoa'
 import { inject, injectable, singleton } from 'tsyringe'
 import { z } from 'zod'
 
-import ConnectionTemplates from '../../views/connection/connection.js'
 import type { UUID } from '../../models/strings.js'
+import ConnectionTemplates from '../../views/connection/connection.js'
 
 import { NotFoundError } from '../../errors.js'
 import { Logger, type ILogger } from '../../logger.js'
@@ -13,7 +13,6 @@ import { FromInviteTemplates } from '../../views/newConnection/fromInvite.js'
 import { NewInviteTemplates } from '../../views/newConnection/newInvite.js'
 import { PinSubmissionTemplates } from '../../views/newConnection/pinSubmission.js'
 import { HTML, HTMLController } from '../HTMLController.js'
-
 
 const inviteParser = z.object({
   companyNumber: z.string(),
@@ -84,35 +83,35 @@ export class ConnectionController extends HTMLController {
    * @param pin - a pin code
    * @returns
    */
-    @SuccessResponse(200)
-    @Get('/{connectionId}/pin-submission')
-    public async renderPinCode(@Path() connectionId: UUID, @Query() pin?: string): Promise<HTML> {
-      this.logger.debug('PIN_SUBMISSION GET: %o', { connectionId, pin })
-  
-      return this.html(this.pinSubmission.renderPinForm(connectionId, pin || ''))
-    }
-  
-    /**
-     * handles PIN code submission form submit action
-     * @param body - contains forms inputs
-     * @returns
-     */
-    @SuccessResponse(200)
-    @Post('/{connectionId}/pin-submission')
-    public async submitPinCode(
-      @Body() body: { action: 'submitPinCode'; pin: string },
-      @Path() connectionId: UUID
-    ): Promise<HTML> {
-      this.logger.debug('PIN_SUBMISSION POST: %o', { body })
-      const { pin, action } = body
-  
-      const [connection]: ConnectionRow[] = await this.db.get('connection', { id: connectionId })
-  
-      if (!connection) throw new NotFoundError(`[connection: ${connectionId}`)
-      await this.verifyReceiveConnection(connection, pin)
-  
-      return this.html(this.pinSubmission.renderSuccess(action, pin, connection.company_name))
-    }
+  @SuccessResponse(200)
+  @Get('/{connectionId}/pin-submission')
+  public async renderPinCode(@Path() connectionId: UUID, @Query() pin?: string): Promise<HTML> {
+    this.logger.debug('PIN_SUBMISSION GET: %o', { connectionId, pin })
+
+    return this.html(this.pinSubmission.renderPinForm(connectionId, pin || ''))
+  }
+
+  /**
+   * handles PIN code submission form submit action
+   * @param body - contains forms inputs
+   * @returns
+   */
+  @SuccessResponse(200)
+  @Post('/{connectionId}/pin-submission')
+  public async submitPinCode(
+    @Body() body: { action: 'submitPinCode'; pin: string },
+    @Path() connectionId: UUID
+  ): Promise<HTML> {
+    this.logger.debug('PIN_SUBMISSION POST: %o', { body })
+    const { pin, action } = body
+
+    const [connection]: ConnectionRow[] = await this.db.get('connection', { id: connectionId })
+
+    if (!connection) throw new NotFoundError(`[connection: ${connectionId}`)
+    await this.verifyReceiveConnection(connection, pin)
+
+    return this.html(this.pinSubmission.renderSuccess(action, pin, connection.company_name))
+  }
 
   private async verifyReceiveConnection(connection: ConnectionRow, pin: string) {
     await this.db.withTransaction(async (db) => {
@@ -128,5 +127,4 @@ export class ConnectionController extends HTMLController {
       await db.update('connection', { id: connection.id }, { status: 'pending' })
     })
   }
-
 }

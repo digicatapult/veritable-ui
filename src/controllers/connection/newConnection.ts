@@ -26,7 +26,6 @@ import { NewInviteFormStage, NewInviteTemplates } from '../../views/newConnectio
 import { PinSubmissionTemplates } from '../../views/newConnection/pinSubmission.js'
 import { HTML, HTMLController } from '../HTMLController.js'
 
-
 const submitToFormStage = {
   back: 'form',
   continue: 'confirmation',

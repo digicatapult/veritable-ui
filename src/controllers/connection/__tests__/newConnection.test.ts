@@ -18,7 +18,6 @@ import {
   validCompanyNumberInactive,
   validCompanyNumberInactiveInvite,
   validCompanyNumberInvite,
-  validConnection,
   validExistingCompanyNumber,
   validExistingCompanyNumberInvite,
 } from './fixtures.js'
@@ -157,44 +156,6 @@ describe('NewConnectionController', () => {
       const controller = new NewConnectionController(...args)
       const result = await controller.verifyInviteForm(validCompanyNumberInvite).then(toHTMLString)
       expect(result).to.equal('fromInviteForm_companyFound-NAME--invite_fromInviteForm')
-    })
-  })
-
-  describe('fromInvitePin', () => {
-    it('should render error if it is longer than 6 digits', async () => {
-      let { args } = withNewConnectionMocks()
-      const controller = new NewConnectionController(...args)
-      const result = await controller
-        .submitPinCode({ action: 'submitPinCode', pin: '123456782' }, validConnection.id)
-        .then(toHTMLString)
-      expect(result).to.equal('renderSuccess_submitPinCode-123456782_renderSuccess')
-    })
-
-    it('also should render error if it combined characters and numbers', async () => {
-      let { args } = withNewConnectionMocks()
-      const controller = new NewConnectionController(...args)
-      const result = await controller
-        .submitPinCode({ action: 'submitPinCode', pin: '1235235asdasd' }, validConnection.id)
-        .then(toHTMLString)
-      expect(result).to.equal('renderSuccess_submitPinCode-1235235asdasd_renderSuccess')
-    })
-
-    it('should accept only numbers', async () => {
-      let { args } = withNewConnectionMocks()
-      const controller = new NewConnectionController(...args)
-      const result = await controller
-        .submitPinCode({ action: 'submitPinCode', pin: 'not-valid-code' }, validConnection.id)
-        .then(toHTMLString)
-      expect(result).to.equal('renderSuccess_submitPinCode-not-valid-code_renderSuccess')
-    })
-
-    it('renders a success screen', async () => {
-      let { args } = withNewConnectionMocks()
-      const controller = new NewConnectionController(...args)
-      const result = await controller
-        .submitPinCode({ action: 'submitPinCode', pin: '111111' }, validConnection.id)
-        .then(toHTMLString)
-      expect(result).to.equal('renderSuccess_submitPinCode-111111_renderSuccess')
     })
   })
 
