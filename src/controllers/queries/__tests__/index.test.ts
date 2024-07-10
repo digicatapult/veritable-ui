@@ -53,7 +53,7 @@ describe('QueriesController', () => {
       const query = search ? [['company_name', 'ILIKE', `%${search}%`]] : {}
       expect(spy.firstCall.calledWith('connection', query, [['updated_at', 'desc']])).to.equal(true)
 
-      expect(spy.secondCall.calledWith('query', query, [['updated_at', 'desc']])).to.equal(true)
+      expect(spy.secondCall.calledWith('query', {}, [['updated_at', 'desc']])).to.equal(true)
     })
   })
 })

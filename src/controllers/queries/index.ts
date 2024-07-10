@@ -165,7 +165,6 @@ export class QueriesController extends HTMLController {
 
 function combineData(query_subset: QueryRow[], connections: ConnectionRow[]): Query[] {
   const connectionMap: Record<string, string> = {}
-
   for (const connection of connections) {
     if (connection.id) {
       connectionMap[connection.id] = connection.company_name

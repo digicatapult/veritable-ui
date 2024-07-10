@@ -14,6 +14,13 @@ interface Query {
   updated_at: Date
   status: QueryStatus
 }
+
+const sampleArray = [
+  [{ id: 'x', status: 'xx', connection_id: '11' }],
+  [{ company_name: 'VER123', status: 'pending', id: '11' }],
+  [{ id: 'x', status: 'xx', connection_id: '11' }],
+  [{ company_name: 'bar', status: 'pending', id: '11' }],
+]
 function templateFake(templateName: string) {
   return Promise.resolve(`${templateName}_template`)
 }
@@ -30,7 +37,7 @@ export const withQueriesMocks = () => {
   } as QueryListTemplates
   const mockLogger: ILogger = pino({ level: 'silent' })
   const dbMock = {
-    get: () => Promise.resolve([{ company_name: 'foo', status: 'verified' }]),
+    get: () => Promise.resolve(sampleArray.pop()),
   } as unknown as Database
 
   return {
