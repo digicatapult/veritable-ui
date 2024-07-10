@@ -15,8 +15,6 @@ describe('ConnectionController', () => {
   describe('listConnections', () => {
     it('should return rendered list template', async () => {
       let { args } = withConnectionMocks()
-      // MATT: wanted to import from withNewConnection mocks
-      // and update all the tests below
       const controller = new ConnectionController(...args)
       const result = await controller.listConnections().then(toHTMLString)
       expect(result).to.equal('list_foo-unverified_list')
