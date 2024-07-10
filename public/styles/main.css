@@ -321,6 +321,7 @@ a.list-table.icon {
   padding-left: 40px;
   font-size: 12px;
   min-width: 100px;
+  margin-bottom: 5px;
 }
 
 .accented-container {
@@ -474,10 +475,10 @@ a.list-table.icon {
   border: 1px solid var(--border-black);
   box-shadow: none;
   width: 100%;
-  min-width: 150px;
-  max-width: 200px;
-  padding: 15px;
-  margin-bottom: 20px;
+  min-width: 100px;
+  max-width: 150px;
+  padding: 25px 10px 5px 10px;
+
   border-radius: 0.5em;
   margin-top: var(--form-element-vert-spacing);
 }
@@ -488,7 +489,41 @@ a.list-table.icon {
   position: absolute;
   top: 55%;
 }
+.input-container {
+  position: relative;
+  margin-bottom: 20px;
+}
 
+.input-label {
+  position: absolute;
+  top: 5px;
+  left: 5px;
+  background-color: white;
+  padding: 0 5px;
+  font-size: 9px;
+  color: #333;
+  opacity: 0.7;
+}
+.additional-input-label {
+  padding: 0px;
+  margin: 0px;
+  font-size: 11px;
+  opacity: 0.6;
+  padding-top: 3px;
+}
+#new-query-confirmation-text {
+  font-size: 0.875rem;
+  margin-inline: 40px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+#company-selected-next-button {
+  background-color: var(--accent-color);
+  margin-top: 5px;
+  color: white;
+}
 /* Mobile view */
 @media (max-width: 767px) {
   body.flex-page {

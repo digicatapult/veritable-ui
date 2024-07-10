@@ -45,9 +45,9 @@ export default class Scope3CarbonConsumptionTemplates {
       case 'form':
         return <this.scope3CarbonConsumptionFormPage {...props}></this.scope3CarbonConsumptionFormPage>
       case 'success':
-        return <this.newInviteSuccess {...props}></this.newInviteSuccess>
+        return <this.newQuerySuccess {...props}></this.newQuerySuccess>
       default:
-        return <this.newInviteSuccess {...props}></this.newInviteSuccess>
+        return <this.newQuerySuccess {...props}></this.newQuerySuccess>
     }
   }
 
@@ -122,7 +122,7 @@ export default class Scope3CarbonConsumptionTemplates {
                   )}
                 </tbody>
               </table>
-              <button type="submit" class="button">
+              <button type="submit" class="button" id="company-selected-next-button">
                 Next
               </button>
             </form>
@@ -154,25 +154,37 @@ export default class Scope3CarbonConsumptionTemplates {
               hx-swap="innerHTML"
             >
               <input type="hidden" name="companyNumber" value={props.company.companyNumber} />
-              <input
-                id="productId-input"
-                name="productId"
-                placeholder="BX20001"
-                class="query-input-field"
-                type="text"
-                required
-                value={props.productId}
-              ></input>
+              <div class="input-container">
+                <label for="productId-input" class="input-label">
+                  Product ID
+                </label>
 
-              <input
-                id="productQuantity-input"
-                name="quantity"
-                type="text"
-                placeholder="123"
-                required
-                value={props.quantity}
-                class="query-input-field"
-              ></input>
+                <input
+                  id="productId-input"
+                  name="productId"
+                  placeholder="BX20001"
+                  class="query-input-field"
+                  type="text"
+                  required
+                  value={props.productId}
+                ></input>
+                <p class="additional-input-label">Product ID</p>
+              </div>
+              <div class="input-container">
+                <label for="productQuantity-input" class="input-label">
+                  Quantity
+                </label>
+                <input
+                  id="productQuantity-input"
+                  name="quantity"
+                  type="text"
+                  placeholder="123"
+                  required
+                  value={props.quantity}
+                  class="query-input-field"
+                ></input>
+                <p class="additional-input-label">Quantity of product</p>
+              </div>
               <FormButton type="submit" name="action" value="success" text="Submit Query" fillButton={true} />
             </form>
           </div>
@@ -180,9 +192,9 @@ export default class Scope3CarbonConsumptionTemplates {
       </div>
     )
   }
-  private newInviteSuccess = (props: Scope3FormProps): JSX.Element => {
+  private newQuerySuccess = (props: Scope3FormProps): JSX.Element => {
     return (
-      <div id="new-invite-confirmation-text">
+      <div id="new-query-confirmation-text">
         <p>Your query request has been shared with the following supplier: {props.company.companyName}.</p>
         <p>Please await for responses and check for updates in the query management page.</p>
         <ButtonIcon name="Back to Home" href="/" fillButton={true} />
