@@ -1,17 +1,14 @@
 import { randomInt } from 'node:crypto'
-import type { UUID } from '../../models/strings.js'
 
 import argon2 from 'argon2'
-import { Body, Get, Path, Post, Produces, Query, Route, Security, SuccessResponse } from 'tsoa'
+import { Body, Get, Post, Produces, Query, Route, Security, SuccessResponse } from 'tsoa'
 import { inject, injectable, singleton } from 'tsyringe'
 import { z } from 'zod'
 
 import { Env } from '../../env.js'
-import { NotFoundError } from '../../errors.js'
 import { Logger, type ILogger } from '../../logger.js'
 import CompanyHouseEntity, { CompanyProfile } from '../../models/companyHouseEntity.js'
 import Database from '../../models/db/index.js'
-import { ConnectionRow } from '../../models/db/types.js'
 import EmailService from '../../models/emailService/index.js'
 import {
   base64UrlRegex,
@@ -139,7 +136,6 @@ export class NewConnectionController extends HTMLController {
           type: 'companyFound',
           company,
         },
-        formStage: 'invite',
       })
     )
   }
@@ -200,44 +196,6 @@ export class NewConnectionController extends HTMLController {
   }
 
   /**
-   * render pin code submission form
-   * MATT: this has been moved to the connection/index.ts
-   * @param companyNumber - for retrieving a connection from a db
-   * @param pin - a pin code
-   * @returns
-   */
-  @SuccessResponse(200)
-  @Get('/{connectionId}/pin-submission')
-  public async renderPinCode(@Path() connectionId: UUID, @Query() pin?: string): Promise<HTML> {
-    this.logger.debug('PIN_SUBMISSION GET: %o', { connectionId, pin })
-
-    return this.html(this.pinSubmission.renderPinForm(connectionId, pin || ''))
-  }
-
-  /**
-   * handles PIN code submission form submit action
-   * MATT: this has been moved to the connection/index.ts
-   * @param body - contains forms inputs
-   * @returns
-   */
-  @SuccessResponse(200)
-  @Post('/{connectionId}/pin-submission')
-  public async submitPinCode(
-    @Body() body: { action: 'submitPinCode'; pin: string },
-    @Path() connectionId: UUID
-  ): Promise<HTML> {
-    this.logger.debug('PIN_SUBMISSION POST: %o', { body })
-    const { pin, action } = body
-
-    const [connection]: ConnectionRow[] = await this.db.get('connection', { id: connectionId })
-
-    if (!connection) throw new NotFoundError(`[connection: ${connectionId}`)
-    await this.verifyReceiveConnection(connection, pin)
-
-    return this.html(this.pinSubmission.renderSuccess(action, pin, connection.company_name))
-  }
-
-  /**
    * submits the company number for
    */
   @SuccessResponse(200)
@@ -245,14 +203,10 @@ export class NewConnectionController extends HTMLController {
   public async submitFromInvite(
     @Body()
     body: {
-      invite: BASE_64_URL
+      invite: BASE_64_URL | string
       action: 'createConnection'
     }
   ): Promise<HTML> {
-    if (body.action !== 'createConnection') {
-      return this.receiveInviteErrorHtml('Invalid action supplied with invitation')
-    }
-
     if (body.invite && !body.invite.match(base64UrlRegex)) {
       return this.receiveInviteErrorHtml('Invitation is not valid')
     }
@@ -291,7 +245,8 @@ export class NewConnectionController extends HTMLController {
     await this.sendAdminEmail(inviteOrError.company, pin)
 
     this.logger.debug('NEW_CONNECTION: complete: %s', dbResult.connectionId)
-    return this.receiveInviteSuccessHtml(inviteOrError.inviteUrl)
+    this.setHeader('HX-Replace-Url', `/connection/${dbResult.connectionId}/pin-submission`)
+    return this.receivePinSubmissionHtml(dbResult.connectionId)
   }
 
   private async decodeInvite(
@@ -358,23 +313,6 @@ export class NewConnectionController extends HTMLController {
       type: 'success',
       company,
     }
-  }
-
-  // MATT: this as well is in connection/index.ts
-  // leaving so just in case, basically was in moving and got to the tests
-  private async verifyReceiveConnection(connection: ConnectionRow, pin: string) {
-    await this.db.withTransaction(async (db) => {
-      if (!connection) {
-        return this.logger.error('Unknown connection associated with companyNumber %s', connection)
-      }
-
-      if (!pin) {
-        return this.logger.error('pin not provided in this request')
-      }
-
-      // handlePin using credentials
-      await db.update('connection', { id: connection.id }, { status: 'pending' })
-    })
   }
 
   private async insertNewConnection(
@@ -483,18 +421,8 @@ export class NewConnectionController extends HTMLController {
     )
   }
 
-  private receiveInviteSuccessHtml(invite: string) {
-    return this.html(
-      this.fromInvite.fromInviteForm({
-        feedback: {
-          type: 'message',
-          message:
-            'Success! Invitation has been accepted. Please allow some time for PIN Code to arrive. Once received, please go to connections page and click on "Complete Verification".',
-        },
-        invite,
-        formStage: 'success',
-      })
-    )
+  private receivePinSubmissionHtml(connectionId: string) {
+    return this.html(this.pinSubmission.renderPinForm({ connectionId, continuationFromInvite: true }))
   }
 
   private receiveInviteErrorHtml(message: string) {
@@ -504,7 +432,6 @@ export class NewConnectionController extends HTMLController {
           type: 'error',
           error: message,
         },
-        formStage: 'invite',
       })
     )
   }

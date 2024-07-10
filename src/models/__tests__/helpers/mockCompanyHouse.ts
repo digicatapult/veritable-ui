@@ -25,6 +25,7 @@ export function withCompanyHouseMock() {
         method: 'GET',
       })
       .reply(200, successResponse)
+      .persist()
 
     client
       .intercept({

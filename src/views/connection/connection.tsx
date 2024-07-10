@@ -108,7 +108,7 @@ export default class ConnectionTemplates {
                 ) : (
                   connections.map(({ company_name, id, status }) => {
                     const isVerified = ['unverified', 'verified_them'].includes(status)
-                    const actionHref = isVerified ? `/connection/new/${id}/pin-submission` : '#'
+                    const actionHref = isVerified ? `/connection/${id}/pin-submission` : '#'
                     return (
                       <tr>
                         <td>{Html.escapeHtml(company_name)}</td>

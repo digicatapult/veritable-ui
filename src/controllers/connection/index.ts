@@ -1,15 +1,15 @@
 import { Body, Get, Path, Post, Produces, Query, Route, Security, SuccessResponse } from 'tsoa'
 import { inject, injectable, singleton } from 'tsyringe'
 
-import type { UUID } from '../../models/strings.js'
+import { pinCodeRegex, type PIN_CODE, type UUID } from '../../models/strings.js'
 import ConnectionTemplates from '../../views/connection/connection.js'
 
-import { NotFoundError } from '../../errors.js'
+import { InvalidInputError, NotFoundError } from '../../errors.js'
 import { Logger, type ILogger } from '../../logger.js'
+import CompanyHouseEntity, { CompanyProfile } from '../../models/companyHouseEntity.js'
 import Database from '../../models/db/index.js'
 import { ConnectionRow } from '../../models/db/types.js'
-import { FromInviteTemplates } from '../../views/newConnection/fromInvite.js'
-import { NewInviteTemplates } from '../../views/newConnection/newInvite.js'
+import VeritableCloudagent from '../../models/veritableCloudagent.js'
 import { PinSubmissionTemplates } from '../../views/newConnection/pinSubmission.js'
 import { HTML, HTMLController } from '../HTMLController.js'
 
@@ -21,9 +21,9 @@ import { HTML, HTMLController } from '../HTMLController.js'
 export class ConnectionController extends HTMLController {
   constructor(
     private db: Database,
+    private cloudagent: VeritableCloudagent,
+    private companyHouse: CompanyHouseEntity,
     private connectionTemplates: ConnectionTemplates,
-    private newInvite: NewInviteTemplates,
-    private fromInvite: FromInviteTemplates,
     private pinSubmission: PinSubmissionTemplates,
     @inject(Logger) private logger: ILogger
   ) {
@@ -46,30 +46,6 @@ export class ConnectionController extends HTMLController {
   }
 
   /**
-   *
-   * @returns The new connections form page
-   */
-  @SuccessResponse(200)
-  @Get('/')
-  public async newConnectionForm(@Query() fromInvite: boolean = false): Promise<HTML> {
-    if (fromInvite) {
-      return this.html(
-        this.fromInvite.fromInviteFormPage({
-          type: 'message',
-          message: 'Please paste the invite text from the invitation email',
-        })
-      )
-    }
-
-    return this.html(
-      this.newInvite.newInviteFormPage({
-        type: 'message',
-        message: 'Please type in a valid company number to populate information',
-      })
-    )
-  }
-
-  /**
    * render pin code submission form
    * @param companyNumber - for retrieving a connection from a db
    * @param pin - a pin code
@@ -77,10 +53,10 @@ export class ConnectionController extends HTMLController {
    */
   @SuccessResponse(200)
   @Get('/{connectionId}/pin-submission')
-  public async renderPinCode(@Path() connectionId: UUID, @Query() pin?: string): Promise<HTML> {
+  public async renderPinCode(@Path() connectionId: UUID, @Query() pin?: PIN_CODE | string): Promise<HTML> {
     this.logger.debug('PIN_SUBMISSION GET: %o', { connectionId, pin })
 
-    return this.html(this.pinSubmission.renderPinForm(connectionId, pin || ''))
+    return this.html(this.pinSubmission.renderPinForm({ connectionId, pin: pin ?? '', continuationFromInvite: false }))
   }
 
   /**
@@ -91,32 +67,50 @@ export class ConnectionController extends HTMLController {
   @SuccessResponse(200)
   @Post('/{connectionId}/pin-submission')
   public async submitPinCode(
-    @Body() body: { action: 'submitPinCode'; pin: string },
+    @Body() body: { action: 'submitPinCode'; pin: PIN_CODE | string; stepCount?: number },
     @Path() connectionId: UUID
   ): Promise<HTML> {
     this.logger.debug('PIN_SUBMISSION POST: %o', { body })
-    const { pin, action } = body
+    const { pin } = body
+
+    if (!pin.match(pinCodeRegex)) {
+      return this.html(this.pinSubmission.renderPinForm({ connectionId, pin, continuationFromInvite: false }))
+    }
+
+    const profile = await this.companyHouse.localCompanyHouseProfile()
 
     const [connection]: ConnectionRow[] = await this.db.get('connection', { id: connectionId })
 
     if (!connection) throw new NotFoundError(`[connection: ${connectionId}`)
-    await this.verifyReceiveConnection(connection, pin)
 
-    return this.html(this.pinSubmission.renderSuccess(action, pin, connection.company_name))
+    const agentConnectionId = connection.agent_connection_id
+    if (!agentConnectionId) throw new InvalidInputError('Cannot verify PIN on a pending connection')
+
+    await this.verifyReceiveConnection(agentConnectionId, profile, pin)
+
+    return this.html(
+      this.pinSubmission.renderSuccess({ companyName: connection.company_name, stepCount: body.stepCount ?? 2 })
+    )
   }
 
-  private async verifyReceiveConnection(connection: ConnectionRow, pin: string) {
-    await this.db.withTransaction(async (db) => {
-      if (!connection) {
-        return this.logger.error('Unknown connection associated with companyNumber %s', connection)
-      }
-
-      if (!pin) {
-        return this.logger.error('pin not provided in this request')
-      }
-
-      // handlePin using credentials
-      await db.update('connection', { id: connection.id }, { status: 'pending' })
+  private async verifyReceiveConnection(agentConnectionId: string, profile: CompanyProfile, pin: string) {
+    await this.cloudagent.proposeCredential(agentConnectionId, {
+      schemaName: 'COMPANY_DETAILS',
+      schemaVersion: '1.0.0',
+      attributes: [
+        {
+          name: 'company_name',
+          value: profile.company_name,
+        },
+        {
+          name: 'company_number',
+          value: profile.company_number,
+        },
+        {
+          name: 'pin',
+          value: pin,
+        },
+      ],
     })
   }
 }

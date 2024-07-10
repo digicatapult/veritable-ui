@@ -31,15 +31,23 @@ export type FormAction =
 export abstract class NewConnectionTemplates {
   protected newConnectionForm = (
     props: Html.PropsWithChildren<{
-      submitRoute: 'create-invitation' | 'receive-invitation' | 'pin-submission'
+      submitRoute?: string
       feedback?: FormFeedback
       progressStep: number
       progressStepCount: number
       actions: FormAction[]
     }>
   ): JSX.Element => {
+    const htmxProps = props.submitRoute
+      ? {
+          'hx-post': `/connection/${props.submitRoute}`,
+          'hx-swap': 'outerHTML',
+          'hx-select': '#new-invite-form',
+        }
+      : {}
+
     return (
-      <form id="new-invite-form" hx-post={`/connection/new/${props.submitRoute}`} hx-select="#new-invite-form > *">
+      <form id="new-invite-form" {...htmxProps}>
         <this.stepper stage={props.progressStep} total={props.progressStepCount} />
         {props.children}
         {props.feedback && <this.feedback feedback={props.feedback} />}

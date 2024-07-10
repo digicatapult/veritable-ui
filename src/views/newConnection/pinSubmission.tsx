@@ -10,7 +10,8 @@ export class PinSubmissionTemplates extends NewConnectionTemplates {
     super()
   }
 
-  public renderPinForm = (connectionId: UUID, pin?: string) => {
+  public renderPinForm = (props: { connectionId: UUID; pin?: string; continuationFromInvite: boolean }) => {
+    const stepCount = props.continuationFromInvite ? 3 : 2
     return (
       <Page
         title="Veritable - New Connection"
@@ -18,7 +19,7 @@ export class PinSubmissionTemplates extends NewConnectionTemplates {
         heading="New Connection - PIN Verification"
         headerLinks={[
           { name: 'Connections', url: '/connection' },
-          { name: 'Pin Submission', url: `/connection/new/${connectionId}/pin-submission` },
+          { name: 'Pin Submission', url: `/connection/${props.connectionId}/pin-submission` },
         ]}
         stylesheets={['new-invite.css']}
       >
@@ -27,10 +28,9 @@ export class PinSubmissionTemplates extends NewConnectionTemplates {
         </div>
         <div class="card-body">
           <this.newConnectionForm
-            feedback={undefined}
-            submitRoute="pin-submission"
-            progressStep={1}
-            progressStepCount={2}
+            submitRoute={`${props.connectionId}/pin-submission`}
+            progressStep={stepCount - 1}
+            progressStepCount={stepCount}
             actions={[
               { type: 'link', text: 'Fill In Later', href: '/connection' },
               { type: 'submit', value: 'submitPinCode', text: 'Continue' },
@@ -38,14 +38,14 @@ export class PinSubmissionTemplates extends NewConnectionTemplates {
           >
             <div class="accented-container">
               <p>Please enter the verification code from the physical letter</p>
-              <input name="connectionId" value={connectionId} type="hidden" />
+              <input name="stepCount" value={stepCount.toString()} type="hidden" />
               <input
                 id="from-invite-invite-input-pin"
                 name="pin"
                 class="new-connection-input-field"
                 placeholder="Code"
                 required
-                value={pin || ''}
+                value={props.pin || ''}
                 type="text"
                 pattern={pinCodeRegex.source}
                 minlength={6}
@@ -58,21 +58,20 @@ export class PinSubmissionTemplates extends NewConnectionTemplates {
     )
   }
 
-  public renderSuccess = (action: 'submitPinCode', pin: string, companyName: string): JSX.Element => {
+  public renderSuccess = (props: { companyName: string; stepCount: number }): JSX.Element => {
     return (
       <this.newConnectionForm
-        submitRoute="pin-submission"
         feedback={{
           type: 'message',
-          message: `[${action}]: PIN code has been sucessfully submitted and will need to be verified by the issuer now.`,
+          message: `PIN code has been sucessfully submitted and will need to be verified by the issuer now.`,
         }}
-        progressStep={2}
-        progressStepCount={2}
+        progressStep={props.stepCount}
+        progressStepCount={props.stepCount}
         actions={[{ type: 'link', text: 'Back To Home', href: '/connection' }]}
       >
         <div id="from-invite-invite-input">
           <p safe>
-            PIN Code {pin} has been submitted for {companyName} company ID. Please wait for the verification code to be
+            PIN Code has been submitted for {props.companyName} company ID. Please wait for the verification code to be
             confirmed by viewing the verification. status.
           </p>
         </div>

@@ -1,13 +1,13 @@
 import { Readable } from 'node:stream'
 import { pino } from 'pino'
 
+import sinon from 'sinon'
 import { Env } from '../../../env.js'
 import type { ILogger } from '../../../logger.js'
 import CompanyHouseEntity from '../../../models/companyHouseEntity.js'
 import Database from '../../../models/db/index.js'
 import { ConnectionRow } from '../../../models/db/types.js'
 import EmailService from '../../../models/emailService/index.js'
-import { BASE_64_URL } from '../../../models/strings.js'
 import VeritableCloudagent from '../../../models/veritableCloudagent.js'
 import ConnectionTemplates from '../../../views/connection/connection.js'
 import { FormFeedback } from '../../../views/newConnection/base.js'
@@ -30,16 +30,42 @@ export const withConnectionMocks = () => {
   const templateMock = {
     listPage: (connections: ConnectionRow[]) =>
       templateFake('list', connections[0].company_name, connections[0].status),
-  } as ConnectionTemplates
+  }
   const mockLogger: ILogger = pino({ level: 'silent' })
   const dbMock = {
-    get: () => Promise.resolve([{ company_name: 'foo', status: 'verified' }]),
-  } as unknown as Database
+    get: () =>
+      Promise.resolve([{ company_name: 'foo', status: 'unverified', agent_connection_id: 'AGENT_CONNECTION_ID' }]),
+  }
+  const cloudagentMock = {
+    proposeCredential: sinon.stub().resolves(),
+  }
+  const companyHouseMock = {
+    localCompanyHouseProfile: () =>
+      Promise.resolve({
+        company_number: 'COMPANY_NUMBER',
+        company_name: 'COMPANY_NAME',
+      }),
+  }
+  const pinSubmission = {
+    renderPinForm: (props: { connectionId: string; pin?: string; continuationFromInvite: boolean }) =>
+      templateFake('renderPinForm', props.connectionId, props.pin, props.continuationFromInvite),
+    renderSuccess: (props: { companyName: string; stepCount: number }) =>
+      templateFake('renderSuccess', props.companyName, props.stepCount),
+  }
 
   return {
     templateMock,
     mockLogger,
     dbMock,
+    cloudagentMock,
+    args: [
+      dbMock as unknown as Database,
+      cloudagentMock as unknown as VeritableCloudagent,
+      companyHouseMock as unknown as CompanyHouseEntity,
+      templateMock as ConnectionTemplates,
+      pinSubmission as unknown as PinSubmissionTemplates,
+      mockLogger,
+    ] as const,
   }
 }
 
@@ -115,18 +141,19 @@ export const withNewConnectionMocks = () => {
   } as unknown as NewInviteTemplates
   const mockFromInvite = {
     fromInviteFormPage: (feedback: FormFeedback) => templateFake('fromInvitePage', feedback.type),
-    fromInviteForm: ({ feedback, formStage }: any) =>
+    fromInviteForm: ({ feedback }: any) =>
       templateFake(
         'fromInviteForm',
         feedback.type,
         feedback.company?.company_name || '',
-        feedback.message || feedback.error || '',
-        formStage
+        feedback.message || feedback.error || ''
       ),
   } as unknown as FromInviteTemplates
   const mockPinForm = {
-    renderPinForm: (invite: BASE_64_URL, pin?: string) => templateFake('renderPinForm', invite, pin),
-    renderSuccess: (invite: BASE_64_URL, pin?: string) => templateFake('renderSuccess', invite, pin),
+    renderPinForm: (props: { connectionId: string; pin?: string; continuationFromInvite: boolean }) =>
+      templateFake('renderPinForm', props.connectionId, props.pin, props.continuationFromInvite),
+    renderSuccess: (props: { companyName: string; stepCount: number }) =>
+      templateFake('renderSuccess', props.companyName, props.stepCount),
   } as unknown as PinSubmissionTemplates
 
   const mockEnv = {

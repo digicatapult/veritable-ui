@@ -57,7 +57,7 @@ export class NewInviteTemplates extends NewConnectionTemplates {
   }): JSX.Element => {
     return (
       <this.newConnectionForm
-        submitRoute="create-invitation"
+        submitRoute="new/create-invitation"
         feedback={props.feedback}
         progressStep={1}
         progressStepCount={3}
@@ -104,7 +104,7 @@ export class NewInviteTemplates extends NewConnectionTemplates {
   }): JSX.Element => {
     return (
       <this.newConnectionForm
-        submitRoute="create-invitation"
+        submitRoute="new/create-invitation"
         feedback={props.feedback}
         progressStep={2}
         progressStepCount={3}
@@ -144,7 +144,7 @@ export class NewInviteTemplates extends NewConnectionTemplates {
   private newInviteSuccess = (props: { feedback: FormFeedback }): JSX.Element => {
     return (
       <this.newConnectionForm
-        submitRoute="create-invitation"
+        submitRoute="new/create-invitation"
         feedback={props.feedback}
         progressStep={3}
         progressStepCount={3}
