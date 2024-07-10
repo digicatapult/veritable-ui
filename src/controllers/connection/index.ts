@@ -1,6 +1,5 @@
 import { Body, Get, Path, Post, Produces, Query, Route, Security, SuccessResponse } from 'tsoa'
 import { inject, injectable, singleton } from 'tsyringe'
-import { z } from 'zod'
 
 import type { UUID } from '../../models/strings.js'
 import ConnectionTemplates from '../../views/connection/connection.js'
@@ -13,13 +12,6 @@ import { FromInviteTemplates } from '../../views/newConnection/fromInvite.js'
 import { NewInviteTemplates } from '../../views/newConnection/newInvite.js'
 import { PinSubmissionTemplates } from '../../views/newConnection/pinSubmission.js'
 import { HTML, HTMLController } from '../HTMLController.js'
-
-const inviteParser = z.object({
-  companyNumber: z.string(),
-  inviteUrl: z.string(),
-})
-
-type Invite = z.infer<typeof inviteParser>
 
 @singleton()
 @injectable()

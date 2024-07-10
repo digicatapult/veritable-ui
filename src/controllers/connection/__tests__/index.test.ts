@@ -5,6 +5,7 @@ import sinon from 'sinon'
 import { toHTMLString, withConnectionMocks } from './helpers.js'
 
 import { ConnectionController } from '../index.js'
+import { validConnection } from './fixtures.js'
 import { withNewConnectionMocks } from './helpers.js'
 
 describe('ConnectionController', () => {
@@ -14,8 +15,10 @@ describe('ConnectionController', () => {
 
   describe('listConnections', () => {
     it('should return rendered list template', async () => {
-      let { mockDb, mockLogger, mockPinForm, mock } = withNewConnectionMocks()
-      const controller = new ConnectionController(...args)
+      let {} = withNewConnectionMocks()
+      // MATT: wanted to import from withNewConnection mocks
+      // and update all the tests below
+      const controller = new ConnectionController()
       const result = await controller.listConnections().then(toHTMLString)
       expect(result).to.equal('list_foo-verified_list')
     })

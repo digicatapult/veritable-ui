@@ -360,6 +360,8 @@ export class NewConnectionController extends HTMLController {
     }
   }
 
+  // MATT: this as well is in connection/index.ts
+  // leaving so just in case, basically was in moving and got to the tests
   private async verifyReceiveConnection(connection: ConnectionRow, pin: string) {
     await this.db.withTransaction(async (db) => {
       if (!connection) {
