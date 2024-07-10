@@ -201,6 +201,7 @@ export class NewConnectionController extends HTMLController {
 
   /**
    * render pin code submission form
+   * MATT: this has been moved to the connection/index.ts
    * @param companyNumber - for retrieving a connection from a db
    * @param pin - a pin code
    * @returns
@@ -215,6 +216,7 @@ export class NewConnectionController extends HTMLController {
 
   /**
    * handles PIN code submission form submit action
+   * MATT: this has been moved to the connection/index.ts
    * @param body - contains forms inputs
    * @returns
    */
