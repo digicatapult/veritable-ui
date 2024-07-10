@@ -34,7 +34,8 @@ describe('QueriesController', () => {
       )
       const spy = sinon.spy(dbMock, 'get')
       await controller.queryManagement().then(toHTMLString)
-      expect(spy.calledWith('query', {}, [['updated_at', 'desc']])).to.equal(true)
+      expect(spy.firstCall.calledWith('connection', {}, [['updated_at', 'desc']])).to.equal(true)
+      expect(spy.secondCall.calledWith('query', {}, [['updated_at', 'desc']])).to.equal(true)
     })
     it('should call db as expected', async () => {
       const { scope3CarbonConsumptionTemplateMock, mockLogger, queryTemplateMock, dbMock, queryListTemplateMock } =
@@ -50,7 +51,9 @@ describe('QueriesController', () => {
       await controller.queryManagement('VER123').then(toHTMLString)
       const search = 'VER123'
       const query = search ? [['company_name', 'ILIKE', `%${search}%`]] : {}
-      expect(spy.calledWith('query', query, [['updated_at', 'desc']])).to.equal(true)
+      expect(spy.firstCall.calledWith('connection', query, [['updated_at', 'desc']])).to.equal(true)
+
+      expect(spy.secondCall.calledWith('query', query, [['updated_at', 'desc']])).to.equal(true)
     })
   })
 })
