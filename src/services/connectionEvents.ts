@@ -48,7 +48,7 @@ export default class ConnectionEvents {
       await db.update(
         'connection',
         { id: inviteRecord.connection_id, status: connection.status },
-        { status: updateStatus }
+        { status: updateStatus, agent_connection_id: cloudAgentConnectionId }
       )
       return
     })

@@ -24,6 +24,7 @@ export class FromInviteTemplates extends NewConnectionTemplates {
     return (
       <Page
         title="Veritable - New Connection"
+        activePage="connections"
         heading="New Connection"
         headerLinks={[
           { name: 'Connections', url: '/connection' },

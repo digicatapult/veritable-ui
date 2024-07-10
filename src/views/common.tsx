@@ -5,6 +5,7 @@ type HeaderLink = { name: string; url: string }
 type PageProps = {
   title: string
   heading: string
+  activePage: 'categories' | 'connections' | 'storage' | 'notifications' | 'settings'
   headerLinks: HeaderLink[]
   stylesheets?: string[]
 }
@@ -57,39 +58,39 @@ export const FormButton = (props: FormButtonProps): JSX.Element => (
  * Main menu/Nav
  * @returns JSX - Sidarbar
  */
-const SideBar = (): JSX.Element => {
+const SideBar = ({ activePage }: { activePage: PageProps['activePage'] }): JSX.Element => {
   return (
     <nav class="flex-page side-bar">
       <img class="side-bar logo-container" src="/public/images/logo-square.svg" />
       <a
         title="categories"
         href="/"
-        class="side-bar icon"
-        style={{ backgroundImage: 'url("/public/images/category.svg")' }}
+        class={`side-bar icon ${activePage === 'categories' ? 'active' : ''}`}
+        style={'--background-image: url("/public/images/category.svg")'}
       />
       <a
         title="connections"
         href="/connection"
-        class="side-bar icon active"
-        style={{ backgroundImage: 'url("/public/images/connection.svg")' }}
+        class={`side-bar icon ${activePage === 'connections' ? 'active' : ''}`}
+        style={'--background-image: url("/public/images/connection.svg")'}
       />
       <a
         title="storage"
         href="#storage"
-        class="side-bar icon disabled"
-        style={{ backgroundImage: 'url("/public/images/folder.svg")' }}
+        class={`side-bar icon disabled ${activePage === 'storage' ? 'active' : ''}`}
+        style={'--background-image: url("/public/images/folder.svg")'}
       />
       <a
         title="notifications"
         href="#notification"
-        class="side-bar icon disabled"
-        style={{ backgroundImage: 'url("/public/images/notification.svg")' }}
+        class={`side-bar icon disabled ${activePage === 'notifications' ? 'active' : ''}`}
+        style={'--background-image: url("/public/images/notification.svg")'}
       />
       <a
         title="settings"
         href="#settings"
-        class="side-bar icon disabled"
-        style={{ backgroundImage: 'url("/public/images/setting.svg")' }}
+        class={`side-bar icon disabled ${activePage === 'settings' ? 'active' : ''}`}
+        style={'--background-image: url("/public/images/setting.svg")'}
       />
     </nav>
   )
@@ -139,7 +140,7 @@ export const Page = (props: Html.PropsWithChildren<PageProps>): JSX.Element => (
         <title>{Html.escapeHtml(props.title)}</title>
       </head>
       <body class="flex-page" hx-ext="json-enc">
-        <SideBar />
+        <SideBar activePage={props.activePage} />
         <main class="flex-page content">
           <ContentHeader heading={props.heading} headerLinks={props.headerLinks} />
           <div class="content main">{props.children}</div>
