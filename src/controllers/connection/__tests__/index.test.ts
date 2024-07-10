@@ -41,7 +41,7 @@ describe('ConnectionController', () => {
   })
 
   describe('renderPinCode', () => {
-    it('should render error if it is longer than 6 digits', async () => {
+    it('should render form', async () => {
       let { args } = withConnectionMocks()
       const controller = new ConnectionController(...args)
       const result = await controller.renderPinCode(validConnection.id, '123456').then(toHTMLString)

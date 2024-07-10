@@ -48,6 +48,7 @@ export class PinSubmissionTemplates extends NewConnectionTemplates {
                 value={props.pin || ''}
                 type="text"
                 pattern={pinCodeRegex.source}
+                oninput="this.reportValidity()"
                 minlength={6}
                 maxlength={6}
               />

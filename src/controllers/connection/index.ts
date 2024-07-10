@@ -56,6 +56,11 @@ export class ConnectionController extends HTMLController {
   public async renderPinCode(@Path() connectionId: UUID, @Query() pin?: PIN_CODE | string): Promise<HTML> {
     this.logger.debug('PIN_SUBMISSION GET: %o', { connectionId, pin })
 
+    const [connection]: ConnectionRow[] = await this.db.get('connection', { id: connectionId })
+    if (!connection) {
+      throw new NotFoundError(`[connection]: ${connectionId}`)
+    }
+
     return this.html(this.pinSubmission.renderPinForm({ connectionId, pin: pin ?? '', continuationFromInvite: false }))
   }
 
@@ -81,7 +86,7 @@ export class ConnectionController extends HTMLController {
 
     const [connection]: ConnectionRow[] = await this.db.get('connection', { id: connectionId })
 
-    if (!connection) throw new NotFoundError(`[connection: ${connectionId}`)
+    if (!connection) throw new NotFoundError(`[connection]: ${connectionId}`)
 
     const agentConnectionId = connection.agent_connection_id
     if (!agentConnectionId) throw new InvalidInputError('Cannot verify PIN on a pending connection')
