@@ -28,6 +28,7 @@ export default class Scope3CarbonConsumptionTemplates {
     return (
       <Page
         title="Veritable - Select Company"
+        activePage="categories"
         heading="Select Company To Send Your Query To"
         headerLinks={[{ name: 'Select Company', url: '/queries/new/scope-3-carbon-consumption' }]}
       >
