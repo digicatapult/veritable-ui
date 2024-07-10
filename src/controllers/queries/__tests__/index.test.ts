@@ -55,5 +55,35 @@ describe('QueriesController', () => {
 
       expect(spy.secondCall.calledWith('query', {}, [['updated_at', 'desc']])).to.equal(true)
     })
+    it('should call db as expected', async () => {
+      const { scope3CarbonConsumptionTemplateMock, mockLogger, queryTemplateMock, dbMock, queryListTemplateMock } =
+        withQueriesMocks()
+      const controller = new QueriesController(
+        scope3CarbonConsumptionTemplateMock,
+        queryTemplateMock,
+        queryListTemplateMock,
+        dbMock,
+        mockLogger
+      )
+      const spy = sinon.spy(dbMock, 'get')
+      await controller.scope3CarbonConsumption().then(toHTMLString)
+      expect(spy.firstCall.calledWith('connection', {}, [['updated_at', 'desc']])).to.equal(true)
+    })
+    it('should call db as expected', async () => {
+      const { scope3CarbonConsumptionTemplateMock, mockLogger, queryTemplateMock, dbMock, queryListTemplateMock } =
+        withQueriesMocks()
+      const controller = new QueriesController(
+        scope3CarbonConsumptionTemplateMock,
+        queryTemplateMock,
+        queryListTemplateMock,
+        dbMock,
+        mockLogger
+      )
+      const spy = sinon.spy(dbMock, 'get')
+      await controller.scope3CarbonConsumption('VER123').then(toHTMLString)
+      const search = 'VER123'
+      const query = search ? [['company_name', 'ILIKE', `%${search}%`]] : {}
+      expect(spy.firstCall.calledWith('connection', query, [['updated_at', 'desc']])).to.equal(true)
+    })
   })
 })

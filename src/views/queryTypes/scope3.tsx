@@ -195,7 +195,9 @@ export default class Scope3CarbonConsumptionTemplates {
   private newQuerySuccess = (props: Scope3FormProps): JSX.Element => {
     return (
       <div id="new-query-confirmation-text">
-        <p>Your query request has been shared with the following supplier: {props.company.companyName}.</p>
+        <p>
+          Your query request has been shared with the following supplier: {Html.escapeHtml(props.company.companyName)}.
+        </p>
         <p>Please await for responses and check for updates in the query management page.</p>
         <ButtonIcon name="Back to Home" href="/" fillButton={true} />
       </div>
