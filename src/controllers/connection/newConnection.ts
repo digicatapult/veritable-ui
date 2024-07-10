@@ -26,6 +26,7 @@ import { NewInviteFormStage, NewInviteTemplates } from '../../views/newConnectio
 import { PinSubmissionTemplates } from '../../views/newConnection/pinSubmission.js'
 import { HTML, HTMLController } from '../HTMLController.js'
 
+
 const submitToFormStage = {
   back: 'form',
   continue: 'confirmation',
@@ -219,12 +220,13 @@ export class NewConnectionController extends HTMLController {
    * @returns
    */
   @SuccessResponse(200)
-  @Post('/pin-submission')
+  @Post('/{connectionId}/pin-submission')
   public async submitPinCode(
-    @Body() body: { action: 'submitPinCode'; pin: string; connectionId: UUID }
+    @Body() body: { action: 'submitPinCode'; pin: string },
+    @Path() connectionId: UUID
   ): Promise<HTML> {
     this.logger.debug('PIN_SUBMISSION POST: %o', { body })
-    const { connectionId, pin, action } = body
+    const { pin, action } = body
 
     const [connection]: ConnectionRow[] = await this.db.get('connection', { id: connectionId })
 

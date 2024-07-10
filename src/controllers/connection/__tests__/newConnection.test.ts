@@ -165,7 +165,7 @@ describe('NewConnectionController', () => {
       let { args } = withNewConnectionMocks()
       const controller = new NewConnectionController(...args)
       const result = await controller
-        .submitPinCode({ action: 'submitPinCode', connectionId: validConnection.id, pin: '123456782' })
+        .submitPinCode({ action: 'submitPinCode', pin: '123456782' }, validConnection.id)
         .then(toHTMLString)
       expect(result).to.equal('renderSuccess_submitPinCode-123456782_renderSuccess')
     })
@@ -174,7 +174,7 @@ describe('NewConnectionController', () => {
       let { args } = withNewConnectionMocks()
       const controller = new NewConnectionController(...args)
       const result = await controller
-        .submitPinCode({ action: 'submitPinCode', connectionId: validConnection.id, pin: '1235235asdasd' })
+        .submitPinCode({ action: 'submitPinCode', pin: '1235235asdasd' }, validConnection.id)
         .then(toHTMLString)
       expect(result).to.equal('renderSuccess_submitPinCode-1235235asdasd_renderSuccess')
     })
@@ -183,7 +183,7 @@ describe('NewConnectionController', () => {
       let { args } = withNewConnectionMocks()
       const controller = new NewConnectionController(...args)
       const result = await controller
-        .submitPinCode({ action: 'submitPinCode', connectionId: validConnection.id, pin: 'not-valid-code' })
+        .submitPinCode({ action: 'submitPinCode', pin: 'not-valid-code' }, validConnection.id)
         .then(toHTMLString)
       expect(result).to.equal('renderSuccess_submitPinCode-not-valid-code_renderSuccess')
     })
@@ -192,7 +192,7 @@ describe('NewConnectionController', () => {
       let { args } = withNewConnectionMocks()
       const controller = new NewConnectionController(...args)
       const result = await controller
-        .submitPinCode({ action: 'submitPinCode', connectionId: validConnection.id, pin: '111111' })
+        .submitPinCode({ action: 'submitPinCode', pin: '111111' }, validConnection.id)
         .then(toHTMLString)
       expect(result).to.equal('renderSuccess_submitPinCode-111111_renderSuccess')
     })
