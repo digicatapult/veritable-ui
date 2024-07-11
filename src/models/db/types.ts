@@ -15,6 +15,7 @@ const insertConnection = z.object({
     z.literal('disconnected'),
   ]),
   agent_connection_id: z.union([z.string(), z.null()]),
+  pin_attempt_count: z.number().int().gte(0).lte(255),
 })
 
 const insertConnectionInvite = z.object({
@@ -22,6 +23,7 @@ const insertConnectionInvite = z.object({
   oob_invite_id: z.string(),
   pin_hash: z.string(),
   expires_at: z.date(),
+  validity: z.union([z.literal('valid'), z.literal('expired'), z.literal('too_many_attempts'), z.literal('used')]),
 })
 const insertQuery = z.object({
   connection_id: z.string(),
@@ -74,6 +76,10 @@ export type Models = {
   }
 }
 
+export type ColumnsByType<M extends TABLE, T> = {
+  [K in keyof Models[M]['get']]-?: Models[M]['get'][K] extends T ? K : never
+}[keyof Models[M]['get']]
+
 type WhereComparison<M extends TABLE> = {
   [key in keyof Models[M]['get']]: [
     Extract<key, string>,
@@ -88,6 +94,7 @@ export type WhereMatch<M extends TABLE> = {
 export type Where<M extends TABLE> = WhereMatch<M> | (WhereMatch<M> | WhereComparison<M>[keyof Models[M]['get']])[]
 export type Order<M extends TABLE> = [keyof Models[M]['get'], 'asc' | 'desc'][]
 export type Update<M extends TABLE> = Partial<Models[M]['get']>
+
 export type IDatabase = {
   [key in TABLE]: () => Knex.QueryBuilder
 }

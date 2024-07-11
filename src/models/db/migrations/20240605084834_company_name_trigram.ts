@@ -8,6 +8,6 @@ export async function up(knex: Knex): Promise<void> {
 }
 
 export async function down(knex: Knex): Promise<void> {
-  await knex.raw('DROP INDEX company_name_trgm_idx on connection')
+  await knex.raw('DROP INDEX company_name_trgm_idx')
   await knex.raw('DROP EXTENSION "pg_trgm"')
 }
