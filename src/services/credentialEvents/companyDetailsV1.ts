@@ -65,12 +65,31 @@ export default class CompanyDetailsV1Handler implements CredentialEventHandler<'
       return
     }
 
+    // before we check pin validity check we haven't had too many pin attempts already
+    const [{ pin_attempt_count: pinAttemptCount }] = await this.db.increment('connection', 'pin_attempt_count', {
+      id: connection.id,
+    })
+    if (pinAttemptCount > this.env.get('INVITATION_PIN_ATTEMPT_LIMIT')) {
+      this.logger.warn(
+        { connectionId: connection.id },
+        'PIN verification attempt count exceeded for connection %s',
+        connection.id
+      )
+      await this.db.update('connection_invite', { connection_id: connection.id }, { validity: 'too_many_attempts' })
+      await this.db.update('connection', { id: connection.id }, { pin_attempt_count: 0 }) // reset so if a new pin is sent they can try again
+      return
+    }
+
     // check the pin number provided is valid
-    const pinInvites = await this.db.get('connection_invite', { connection_id: connection.id })
+    const pinInvites = await this.db.get('connection_invite', {
+      connection_id: connection.id,
+      validity: 'valid',
+    })
     const isPinValid = (
       await Promise.all(
-        pinInvites.map(async ({ pin_hash, expires_at }) => {
+        pinInvites.map(async ({ pin_hash, expires_at, id }) => {
           if (expires_at < new Date()) {
+            await this.db.update('connection_invite', { id }, { validity: 'expired' })
             return false
           }
           return await argon2.verify(pin_hash, pinAttr.value, { secret: this.env.get('INVITATION_PIN_SECRET') })
@@ -179,6 +198,7 @@ export default class CompanyDetailsV1Handler implements CredentialEventHandler<'
       }
 
       await db.update('connection', { id: connection.id }, { status: newState })
+      await db.update('connection_invite', { connection_id: connection.id }, { validity: 'used' })
     })
   }
 }

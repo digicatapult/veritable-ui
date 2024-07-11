@@ -3,7 +3,7 @@ import { container, singleton } from 'tsyringe'
 import { z } from 'zod'
 
 import { Env } from '../../env.js'
-import Zod, { IDatabase, Models, Order, TABLE, Update, Where, tablesList } from './types.js'
+import Zod, { ColumnsByType, IDatabase, Models, Order, TABLE, Update, Where, tablesList } from './types.js'
 import { reduceWhere } from './util.js'
 
 const env = container.resolve(Env)
@@ -64,6 +64,18 @@ export default class Database {
     })
     query = reduceWhere(query, where)
 
+    return z.array(Zod[model].get).parse(await query.returning('*'))
+  }
+
+  increment = async <M extends TABLE>(
+    model: M,
+    column: ColumnsByType<M, number>,
+    where?: Where<M>,
+    amount: number = 1
+  ): Promise<Models[typeof model]['get'][]> => {
+    let query = this.db[model]()
+    query = reduceWhere(query, where)
+    query = query.increment(column, amount)
     return z.array(Zod[model].get).parse(await query.returning('*'))
   }
 
