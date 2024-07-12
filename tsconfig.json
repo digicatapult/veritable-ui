@@ -18,7 +18,8 @@
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
     "outDir": "build",
-    "resolveJsonModule": true
+    "resolveJsonModule": true,
+    "types": ["@kitajs/html/htmx.d.ts"]
   },
   "include": ["src", "src/swagger.json"],
   "exclude": ["test", "**/__tests__"]

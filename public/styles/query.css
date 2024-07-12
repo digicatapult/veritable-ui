@@ -1,0 +1,78 @@
+/* Query page specific styling */
+
+#query-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 250px));
+  gap: 10px;
+  width: 100%;
+  height: 100%;
+  cursor: pointer;
+}
+
+#query-container > a {
+  background-color: #fff;
+  overflow-x: auto;
+  border-radius: 12px;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: left;
+  align-content: left;
+  font-size: 1.5rem;
+  min-height: 500px;
+  position: relative;
+  &:hover,
+  &:focus-visible {
+    background-color: var(--accent-color);
+    box-shadow: 10px 10px 8px rgba(0, 0, 0, 0.2);
+    border: 1px solid lightslategrey;
+  }
+}
+
+#query-container h1 {
+  text-align: left;
+  font-size: 2rem;
+  padding-top: 10px;
+  margin: 0px;
+}
+
+#query-container p {
+  font-size: 0.875rem;
+  padding-right: 15px;
+  text-align: left;
+  position: absolute;
+  top: 55%;
+}
+
+#query-container > a {
+  &:hover,
+  &:focus-visible {
+    color: var(--bg-color);
+  }
+}
+
+#query-header-divider {
+  border: 0;
+  border-top: 2px solid #000;
+  margin-top: 0.25rem;
+  margin-bottom: 1rem;
+}
+
+#query-page-header {
+  font-size: 2.5em;
+  font-weight: bold;
+  padding: 0px;
+  margin-top: 1rem;
+  margin-bottom: 0rem;
+}
+
+/* Mobile view */
+@media (max-width: 767px) {
+  #query-container {
+    grid-template-columns: auto;
+  }
+
+  #query-container > a {
+    min-height: 250px;
+  }
+}

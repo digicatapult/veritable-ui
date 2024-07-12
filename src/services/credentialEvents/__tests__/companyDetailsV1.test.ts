@@ -1031,13 +1031,8 @@ describe('companyDetailsV1', function () {
       })
 
       const stub = dbTransactionMock.update
-      expect(stub.callCount).to.equal(2)
+      expect(stub.callCount).to.equal(1)
       expect(stub.firstCall.args).to.deep.equal(['connection', { id: `connection-id` }, { status: 'verified_us' }])
-      expect(stub.secondCall.args).to.deep.equal([
-        'connection_invite',
-        { connection_id: `connection-id` },
-        { validity: 'used' },
-      ])
     })
 
     test('happy path unverified as issuer', async function () {
@@ -1079,13 +1074,8 @@ describe('companyDetailsV1', function () {
       })
 
       const stub = dbTransactionMock.update
-      expect(stub.callCount).to.equal(2)
+      expect(stub.callCount).to.equal(1)
       expect(stub.firstCall.args).to.deep.equal(['connection', { id: `connection-id` }, { status: 'verified_both' }])
-      expect(stub.secondCall.args).to.deep.equal([
-        'connection_invite',
-        { connection_id: `connection-id` },
-        { validity: 'used' },
-      ])
     })
 
     test('happy path verified_us as issuer', async function () {

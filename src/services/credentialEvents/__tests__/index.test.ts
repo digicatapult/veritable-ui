@@ -74,6 +74,34 @@ describe('credentialEvents', function () {
     assertHandlerCallCount(companyDetailsMock, 0)
   })
 
+  test('valid proposal-sent as issuer', async function () {
+    const credentialRecord = {
+      protocolVersion: 'v2',
+      id: 'record-id',
+      state: 'proposal-sent',
+      role: 'issuer',
+    }
+    const options = {}
+
+    const { companyDetailsMock } = await prepareTest(credentialRecord, options)
+
+    assertHandlerCallCount(companyDetailsMock, 0)
+  })
+
+  test('valid proposal-sent as holder', async function () {
+    const credentialRecord = {
+      protocolVersion: 'v2',
+      id: 'record-id',
+      state: 'proposal-sent',
+      role: 'holder',
+    }
+    const options = {}
+
+    const { companyDetailsMock } = await prepareTest(credentialRecord, options)
+
+    assertHandlerCallCount(companyDetailsMock, 0)
+  })
+
   test('valid offer-received as holder', async function () {
     const credentialRecord = {
       protocolVersion: 'v2',

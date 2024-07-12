@@ -25,14 +25,12 @@ export class FromInviteTemplates extends NewConnectionTemplates {
           { name: 'Connections', url: '/connection' },
           { name: 'Add from Invitation', url: '/connection/new?fromInvite=true' },
         ]}
-        stylesheets={['new-invite.css']}
+        stylesheets={['connection.css']}
       >
         <div class="connections header">
           <span>Invite New Connection</span>
         </div>
-        <div class="card-body ">
-          <this.fromInviteForm feedback={feedback} />
-        </div>
+        <this.fromInviteForm feedback={feedback} />
       </Page>
     )
   }
@@ -49,7 +47,7 @@ export class FromInviteTemplates extends NewConnectionTemplates {
           { type: 'submit', value: 'createConnection', text: 'Submit' },
         ]}
       >
-        <div id="from-invite-invite-input" class="accented-container">
+        <div id="new-connection-invite-input" class="accented-container">
           <textarea
             name="invite"
             placeholder="Invitation Text"
