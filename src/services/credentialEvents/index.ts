@@ -53,6 +53,11 @@ export default class CredentialEvents {
       return
     }
 
+    if (record.state === 'proposal-sent') {
+      this.logger.debug('Proposal sent event for %s', record.id)
+      return
+    }
+
     // if we have a schema we need to make sure it is valid with the schema we're using moving forward
     if (!this.isSchemaValid(formatData, maybeSchema)) {
       this.logger.warn('Schema was not valid for credential %s. Schema does not match proposal', record.id)

@@ -12,39 +12,29 @@ export default class HomepageTemplates {
         heading="Homepage"
         activePage="categories"
         headerLinks={[{ name: '', url: '/' }]}
+        stylesheets={['homepage.css']}
       >
-        <div class="main connections" hx-get="/"></div>
-        <div class="center-category">
-          <div class="category-container">
-            <a class="category-item" onclick="location.href='/queries';">
-              <div class="category-align-in-row">
-                <img class=" category-icon" src="/public/images/send.svg" />
-                <h1 class="category-header">Queries</h1>
-              </div>
-              <p class="category-text">Ask and answer digitally verified questions from any of your contacts.</p>
-            </a>
-            <a class="category-item" onclick="location.href='#';">
-              <div class="category-align-in-row">
-                <img class="category-icon" src="/public/images/layers.svg" />
-                <h1 class="category-header">Certifications</h1>
-              </div>
-              <p class="category-text">Manage and verify digital certifications securely within your network.</p>
-            </a>
-            <a class="category-item" onclick="location.href='/connection';">
-              <div class="category-align-in-row">
-                <img class="category-icon" src="/public/images/user-check.svg" />
-                <h1 class="category-header">Onboard/Refer</h1>
-              </div>
-              <p class="category-text">Easily onboard new companies or refer companies to join your network.</p>
-            </a>
-            <a class="category-item" onclick="location.href='#';">
-              <div class="category-align-in-row">
-                <img class="category-icon" src="/public/images/settings.svg" />
-                <h1 class="category-header">Settings</h1>
-              </div>
-              <p class="category-text">Manage your account preferences and profile settings.</p>
-            </a>
-          </div>
+        <div id="homepage-container">
+          <a href="/queries">
+            <img src="/public/images/send.svg" />
+            <h1>Queries</h1>
+            <p>Ask and answer digitally verified questions from any of your contacts.</p>
+          </a>
+          <a href="#">
+            <img src="/public/images/layers.svg" />
+            <h1>Certifications</h1>
+            <p>Manage and verify digital certifications securely within your network.</p>
+          </a>
+          <a href="/connection">
+            <img src="/public/images/user-check.svg" />
+            <h1>Onboard/Refer</h1>
+            <p>Easily onboard new companies or refer companies to join your network.</p>
+          </a>
+          <a href="#">
+            <img src="/public/images/settings.svg" />
+            <h1>Settings</h1>
+            <p>Manage your account preferences and profile settings.</p>
+          </a>
         </div>
       </Page>
     )
