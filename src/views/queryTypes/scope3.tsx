@@ -178,8 +178,9 @@ export default class Scope3CarbonConsumptionTemplates {
                 <input
                   id="productQuantity-input"
                   name="quantity"
-                  type="text" //num?
+                  type="text"
                   placeholder="123"
+                  pattern="^\d+$"
                   required
                   value={props.quantity?.toString()}
                   class="query-input-field"
