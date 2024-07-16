@@ -100,7 +100,7 @@ export class QueriesController extends HTMLController {
       companyNumber: COMPANY_NUMBER
       companyName?: string
       productId?: string
-      quantity?: string
+      quantity?: number
       action: 'companySelect' | 'form' | 'success'
     }
   ) {

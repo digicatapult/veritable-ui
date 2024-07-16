@@ -10,7 +10,7 @@ interface Scope3FormProps {
   company: { companyNumber: string; companyName?: string }
   connection_id?: string | UUID
   productId?: string
-  quantity?: string
+  quantity?: number
   connections: ConnectionRow[]
   search: string
 }
@@ -178,10 +178,10 @@ export default class Scope3CarbonConsumptionTemplates {
                 <input
                   id="productQuantity-input"
                   name="quantity"
-                  type="text"
+                  type="text" //num?
                   placeholder="123"
                   required
-                  value={props.quantity}
+                  value={props.quantity?.toString()}
                   class="query-input-field"
                 ></input>
                 <p class="additional-input-label">Quantity of product</p>
