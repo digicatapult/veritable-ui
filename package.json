@@ -1,6 +1,6 @@
 {
   "name": "veritable-ui",
-  "version": "0.8.4",
+  "version": "0.8.5",
   "description": "UI for Veritable",
   "main": "src/index.ts",
   "type": "module",
@@ -68,7 +68,7 @@
     "@types/sinon": "^17.0.3",
     "@types/supertest": "^6.0.2",
     "@types/swagger-ui-express": "^4.1.6",
-    "@types/ws": "^8.5.10",
+    "@types/ws": "^8.5.11",
     "chai": "^5.1.1",
     "chai-jest-snapshot": "^2.0.0",
     "depcheck": "^1.4.7",
