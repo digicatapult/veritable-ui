@@ -10,47 +10,39 @@ type PageProps = {
   stylesheets?: string[]
 }
 
-type ButtonProps = {
-  name: string
-  showIcon?: boolean
-  display?: boolean
+type SharedButtonProps = {
+  disabled?: boolean
+  text: string
+  style: 'outlined' | 'filled'
   icon?: string
-  disabled?: boolean
-  outline?: boolean
+}
+
+type ButtonProps = SharedButtonProps & {
   href?: string
-  fillButton?: boolean
 }
 
-type FormButtonProps = {
+type FormButtonProps = SharedButtonProps & {
   name: string
-  disabled?: boolean
-  outline?: boolean
   value?: string
-  text?: string
-  type?: string
-  fillButton?: boolean
 }
 
-export const ButtonIcon = (props: ButtonProps): JSX.Element => (
-  <a
-    class={`button ${props.disabled ? 'disabled' : ''} ${props.outline ? 'outline' : ''} ${props.fillButton ? 'button-filled' : ''}`}
-    href={`${props.href || '#'}`}
-  >
-    {props.showIcon && (
-      <div class="button-icon" style={{ backgroundImage: props?.icon || 'url("/public/images/plus.svg")' }} />
-    )}
-    <span class={`button-text ${props.outline ? 'accent' : ''}`}>{props.name || 'unknown'}</span>
+export const LinkButton = (props: ButtonProps): JSX.Element => (
+  <a class={`button ${props.disabled ? 'disabled' : ''}`} href={`${props.href || '#'}`} data-variant={props.style}>
+    {props.icon && <div style={{ ['--button-icon' as string]: props.icon || '' }} />}
+    <span>{props.text || 'unknown'}</span>
   </a>
 )
 
 export const FormButton = (props: FormButtonProps): JSX.Element => (
   <button
-    class={`button ${props.disabled ? 'disabled' : ''} ${props.outline ? 'outline' : ''} ${props.fillButton ? 'button-filled' : ''}`}
-    type={`${props.type}`}
+    class={`button ${props.disabled ? 'disabled' : ''} `}
+    data-variant={props.style}
+    type="submit"
     name={`${props.name}`}
     value={`${props.value}`}
   >
-    <span class={`button-text ${props.outline ? 'accent' : ''}`}>{props.text || props.value || 'unknown'}</span>
+    {props.icon && <div style={{ ['--button-icon' as string]: props.icon || '' }} />}
+    <span>{props.text || props.value || 'unknown'}</span>
   </button>
 )
 
@@ -60,37 +52,40 @@ export const FormButton = (props: FormButtonProps): JSX.Element => (
  */
 const SideBar = ({ activePage }: { activePage: PageProps['activePage'] }): JSX.Element => {
   return (
-    <nav class="flex-page side-bar">
-      <img class="side-bar logo-container" src="/public/images/logo-square.svg" />
+    <nav id="side-bar">
+      <img src="/public/images/logo-square.svg" />
       <a
         title="categories"
         href="/"
-        class={`side-bar icon ${activePage === 'categories' ? 'active' : ''}`}
-        style={'--background-image: url("/public/images/category.svg")'}
+        data-active={activePage === 'categories'}
+        style={{ ['--background-image' as string]: "url('/public/images/category.svg')" }}
       />
       <a
         title="connections"
         href="/connection"
-        class={`side-bar icon ${activePage === 'connections' ? 'active' : ''}`}
-        style={'--background-image: url("/public/images/connection.svg")'}
+        data-active={activePage === 'connections'}
+        style={{ ['--background-image' as string]: "url('/public/images/connection.svg')" }}
       />
       <a
         title="storage"
         href="#storage"
-        class={`side-bar icon disabled ${activePage === 'storage' ? 'active' : ''}`}
-        style={'--background-image: url("/public/images/folder.svg")'}
+        data-active={activePage === 'storage'}
+        class="disabled"
+        style={{ ['--background-image' as string]: "url('/public/images/folder.svg')" }}
       />
       <a
         title="notifications"
         href="#notification"
-        class={`side-bar icon disabled ${activePage === 'notifications' ? 'active' : ''}`}
-        style={'--background-image: url("/public/images/notification.svg")'}
+        data-active={activePage === 'notifications'}
+        class="disabled"
+        style={{ ['--background-image' as string]: "url('/public/images/notification.svg')" }}
       />
       <a
         title="settings"
         href="#settings"
-        class={`side-bar icon disabled ${activePage === 'settings' ? 'active' : ''}`}
-        style={'--background-image: url("/public/images/setting.svg")'}
+        data-active={activePage === 'settings'}
+        class="disabled"
+        style={{ ['--background-image' as string]: "url('/public/images/setting.svg')" }}
       />
     </nav>
   )
@@ -102,28 +97,28 @@ const SideBar = ({ activePage }: { activePage: PageProps['activePage'] }): JSX.E
  * @returns JSX
  */
 const ContentHeader = (props: { heading: string; headerLinks: HeaderLink[] }): JSX.Element => (
-  <div class="content header">
-    <h1 class="header heading">{props.heading || 'unknown'}</h1>
-    <div class="header nav">
-      {/* is this meant to be /connections or just host/ */}
+  <div id="content-header">
+    <h1>{props.heading || 'unknown'}</h1>
+    <div id="content-header-nav">
       <a title="home" class="nav icon" href="/" />
       {...props.headerLinks.map(({ name, url }) => (
-        <>
-          <span class="url-separator">/</span>
-          <a title={name} href={url}>
-            {Html.escapeHtml(name)}
-          </a>
-        </>
+        <a title={name} href={url}>
+          {Html.escapeHtml(name)}
+        </a>
       ))}
     </div>
   </div>
 )
 
+const extractHtmxProps = (props: object): Record<`hx-${string}`, unknown> => {
+  return Object.fromEntries(Object.entries(props).filter(([key]) => key.startsWith('hx-')))
+}
+
 /**
  * default page template: props.children = content
  * @returns JSX - default page
  */
-export const Page = (props: Html.PropsWithChildren<PageProps>): JSX.Element => (
+export const Page = (props: Html.PropsWithChildren<PageProps & Htmx.Attributes>): JSX.Element => (
   <>
     {'<!DOCTYPE html>'}
     <html lang="en">
@@ -133,17 +128,20 @@ export const Page = (props: Html.PropsWithChildren<PageProps>): JSX.Element => (
         <script src="/public/scripts/auth-redirect.js"></script>
         <link rel="icon" type="image/ico" sizes="48x48" href="/public/images/favicon.ico" />
         <link rel="stylesheet" type="text/css" href="/public/styles/main.css" />
+        <link rel="stylesheet" type="text/css" href="/public/styles/shared.css" />
         <link rel="stylesheet" type="text/css" href="/public/styles/mpa.css" />
         {(props.stylesheets || []).map((sheetName) => (
           <link rel="stylesheet" type="text/css" href={`/public/styles/${sheetName}`} />
         ))}
         <title>{Html.escapeHtml(props.title)}</title>
       </head>
-      <body class="flex-page" hx-ext="json-enc">
+      <body hx-ext="json-enc">
         <SideBar activePage={props.activePage} />
-        <main class="flex-page content">
+        <main>
           <ContentHeader heading={props.heading} headerLinks={props.headerLinks} />
-          <div class="content main">{props.children}</div>
+          <div id="content-main" {...extractHtmxProps(props)}>
+            {props.children}
+          </div>
         </main>
       </body>
     </html>

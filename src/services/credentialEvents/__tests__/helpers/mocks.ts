@@ -80,6 +80,11 @@ const defaultCompanyDetailsOptions = {
       expires_at: new Date(10), // needs to be in the future
     },
   ] as unknown,
+  dbIncrement: [
+    {
+      pin_attempt_count: 1,
+    },
+  ] as unknown,
 }
 
 export const withCompanyDetailsDepsMock = (opts: Partial<typeof defaultCompanyDetailsOptions>) => {
@@ -89,7 +94,14 @@ export const withCompanyDetailsDepsMock = (opts: Partial<typeof defaultCompanyDe
   }
 
   const envMock = {
-    get: sinon.stub().withArgs('INVITATION_PIN_SECRET').returns(invitePinSecret),
+    get: sinon.stub().callsFake((name: 'INVITATION_PIN_SECRET' | 'INVITATION_PIN_ATTEMPT_LIMIT') => {
+      switch (name) {
+        case 'INVITATION_PIN_SECRET':
+          return invitePinSecret
+        case 'INVITATION_PIN_ATTEMPT_LIMIT':
+          return 5
+      }
+    }),
   } as unknown as Env
   const dbTransactionMock = {
     get: sinon.stub().resolves(options.dbGetConnection),
@@ -101,6 +113,8 @@ export const withCompanyDetailsDepsMock = (opts: Partial<typeof defaultCompanyDe
       else if (table === 'connection_invite') return Promise.resolve(options.dbGetConnectionInvites)
       else throw new Error('bad db call')
     }),
+    increment: sinon.stub().resolves(options.dbIncrement),
+    update: sinon.stub().resolves(),
     withTransaction: sinon.stub().callsFake(async (handler: (db: Database) => Promise<void>): Promise<void> => {
       await handler(dbTransactionMock as unknown as Database)
     }),

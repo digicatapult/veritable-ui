@@ -1,0 +1,191 @@
+/* Shared components and variants used across the application */
+
+.disabled {
+  transition: opacity filter 0.3s;
+  filter: grayscale(100%);
+  opacity: 0.3;
+
+  &:hover,
+  &:focus-visible {
+    filter: blur(3px);
+    opacity: 1;
+  }
+}
+
+.button {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  padding: 10px 20px;
+  border-radius: 7px;
+  transition: all 0.3s;
+  border: 1px solid var(--accent-color);
+  color: var(--accent-color);
+  background-color: transparent;
+  width: max-content;
+  max-width: 300px;
+
+  &:hover,
+  &:focus-visible {
+    opacity: 0.7;
+  }
+}
+
+.button[data-variant='filled'] {
+  background-color: var(--accent-color);
+  color: #fff;
+}
+
+.button[data-variant='outlined'] {
+  border: solid 1px var(--accent-color);
+  background-color: transparent;
+  color: var(--accent-color);
+}
+
+.button > div:first-child {
+  width: 16px;
+  height: 16px;
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-color: transparent;
+  background-image: var(--button-icon);
+}
+
+.list-nav,
+.list-page-header {
+  display: flex;
+  flex-direction: row;
+  color: var(--text-color);
+  font-size: 1rem;
+  gap: 2ch;
+  align-items: center;
+}
+
+.list-page-header > .button {
+  flex-basis: 28ch;
+}
+
+.list-page-header > *:first-child,
+.list-nav > *:first-child {
+  margin-right: auto;
+  height: min-content;
+}
+
+.list-nav {
+  padding-bottom: 0.8rem;
+}
+
+.list-page-header {
+  background-color: var(--bg-color);
+  padding-top: 0.5rem;
+  padding-bottom: 1rem;
+}
+
+.list-page table {
+  width: 100%;
+  border-radius: 0px;
+  background-color: #fff;
+  border-collapse: collapse;
+  color: var(--text-color-secondary);
+  border-bottom: 1px solid var(--text-color-sub);
+}
+
+.list-page th {
+  text-align: left;
+  color: var(--text-color);
+  padding: 1rem 0;
+  font-size: 0.75rem;
+  font-weight: bold;
+  border-top: 1px solid var(--text-color-sub);
+  border-bottom: 1px solid var(--text-color-sub);
+}
+
+.list-page td {
+  text-align: left;
+  height: 3rem;
+  color: var(--text-color-secondary);
+  font-size: 0.7rem;
+}
+
+.list-page {
+  background-color: #fff;
+  overflow-x: auto;
+
+  border-radius: 12px;
+  padding: 1rem;
+}
+
+.list-item-status {
+  width: max-content;
+  border-radius: 8px;
+  font-size: 0.75rem;
+  line-height: 1rem;
+  padding: 5px;
+  background-color: hsl(from var(--status-color) h s l / 0.2);
+}
+
+.list-item-status[data-status='warning'] {
+  --status-color: var(--warning-accent);
+}
+
+.list-item-status[data-status='error'] {
+  --status-color: var(--negative-accent);
+}
+
+.list-item-status[data-status='success'] {
+  --status-color: var(--positive-accent);
+}
+
+.list-item-status[data-status='disabled'] {
+  --status-color: var(--disabled-accent);
+}
+
+.list-filter-icon {
+  padding: 1rem;
+  text-align: center;
+  margin-bottom: 0.5rem;
+  background-image: url('/public/images/filter.svg');
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+.search-window {
+  border-color: var(--text-color-sub);
+  border-radius: 5px;
+  border-width: 1px;
+  padding: 10px;
+  background-image: url('../images/search.svg');
+  background-repeat: no-repeat;
+  background-position: 10px;
+  padding-left: 40px;
+  font-size: 12px;
+  min-width: 100px;
+}
+
+.accented-container {
+  position: relative;
+}
+
+.accented-container::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  height: 10px;
+  width: 12px;
+  background-image: url('../images/info-accent.svg');
+}
+
+/* Mobile view */
+@media (max-width: 767px) {
+  .list-nav {
+    padding: 5px;
+  }
+
+  .search-window {
+    margin-left: 10px;
+  }
+}

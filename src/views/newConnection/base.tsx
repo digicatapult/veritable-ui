@@ -1,6 +1,6 @@
 import Html from '@kitajs/html'
 import { CompanyProfile } from '../../models/companyHouseEntity.js'
-import { ButtonIcon, FormButton } from '../common.js'
+import { FormButton, LinkButton } from '../common.js'
 
 export type FormFeedback =
   | {
@@ -42,31 +42,24 @@ export abstract class NewConnectionTemplates {
       ? {
           'hx-post': `/connection/${props.submitRoute}`,
           'hx-swap': 'outerHTML',
-          'hx-select': '#new-invite-form',
+          'hx-select': '#new-connection-form',
         }
       : {}
 
     return (
-      <form id="new-invite-form" {...htmxProps}>
+      <form id="new-connection-form" {...htmxProps}>
         <this.stepper stage={props.progressStep} total={props.progressStepCount} />
         {props.children}
         {props.feedback && <this.feedback feedback={props.feedback} />}
-        <div id="new-invite-actions">
+        <div id="new-connection-actions">
           {props.actions.map((action, i) => {
             const lastIndex = props.actions.length - 1
+            const style = i === lastIndex ? 'filled' : 'outlined'
             switch (action.type) {
               case 'link':
-                return <ButtonIcon name={action.text} href={action.href} fillButton={i === lastIndex} />
+                return <LinkButton text={action.text} href={action.href} style={style} />
               case 'submit':
-                return (
-                  <FormButton
-                    type="submit"
-                    name="action"
-                    value={action.value}
-                    text={action.text}
-                    fillButton={i === lastIndex}
-                  />
-                )
+                return <FormButton name="action" value={action.value} text={action.text} style={style} />
             }
           })}
         </div>
@@ -104,7 +97,7 @@ export abstract class NewConnectionTemplates {
       <div id="new-connection-feedback" class="accented-container feedback-positive">
         <div>
           <p>
-            <span class="sub-header-bold">Registered Office Address</span>
+            <span>Registered Office Address</span>
             {addressLines.map((line, i) => (
               <span class="address-line">
                 {Html.escapeHtml(line) + (i === addressLines.length - 1 ? '' : ',&nbsp')}
@@ -113,7 +106,7 @@ export abstract class NewConnectionTemplates {
           </p>
 
           <p>
-            <span class="sub-header-bold">Company Status</span>
+            <span>Company Status</span>
             {Html.escapeHtml(company.company_status)}
           </p>
         </div>
@@ -135,12 +128,12 @@ export abstract class NewConnectionTemplates {
 
   protected stepper = (params: { stage: number; total: number }): JSX.Element => {
     return (
-      <div id="new-invite-progress" style={`--progress-percent: ${params.stage / params.total}`}>
-        <div id="new-invite-progress-text">
+      <div id="new-connection-progress" style={`--progress-percent: ${params.stage / params.total}`}>
+        <div id="new-connection-progress-text">
           <span>Step {params.stage}</span>
           <span> of {params.total}</span>
         </div>
-        <div id="new-invite-progress-bar"></div>
+        <div id="new-connection-progress-bar"></div>
       </div>
     )
   }

@@ -331,6 +331,7 @@ export class NewConnectionController extends HTMLController {
           company_number: company.company_number,
           agent_connection_id: agentConnectionId,
           status: 'pending',
+          pin_attempt_count: 0,
         })
 
         await db.insert('connection_invite', {
@@ -338,6 +339,7 @@ export class NewConnectionController extends HTMLController {
           oob_invite_id: invitationId,
           pin_hash: pinHash,
           expires_at: new Date(new Date().getTime() + 14 * 24 * 60 * 60 * 1000),
+          validity: 'valid',
         })
         connectionId = record.id
       })

@@ -22,7 +22,7 @@ export class NewInviteTemplates extends NewConnectionTemplates {
           { name: 'Connections', url: '/connection' },
           { name: 'Invite New Connection', url: '/connection/new' },
         ]}
-        stylesheets={['new-invite.css']}
+        stylesheets={['connection.css']}
       >
         <div class="connections header">
           <span>Invite New Connection</span>
@@ -69,7 +69,6 @@ export class NewInviteTemplates extends NewConnectionTemplates {
         <input
           id="new-invite-company-number-input"
           name="companyNumber"
-          class="new-connection-input-field"
           placeholder="Company House Number"
           required
           hx-get="/connection/new/verify-company"
@@ -87,7 +86,6 @@ export class NewInviteTemplates extends NewConnectionTemplates {
         <input
           required
           id="new-invite-email-input"
-          class="new-connection-input-field"
           placeholder="Connection's Email Address"
           name="email"
           value={props.email}
@@ -115,19 +113,12 @@ export class NewInviteTemplates extends NewConnectionTemplates {
       >
         <input
           id="new-invite-company-number-input"
-          class="new-connection-input-field"
           name="companyNumber"
           value={props.companyNumber}
           type="hidden"
         ></input>
-        <input
-          id="new-invite-email-input"
-          class="new-connection-input-field"
-          name="email"
-          value={props.email}
-          type="hidden"
-        ></input>
-        <div id="new-invite-confirmation-text">
+        <input id="new-invite-email-input" name="email" value={props.email} type="hidden"></input>
+        <div id="new-connection-confirmation-text">
           <p>Please confirm the details of the connection before sending</p>
           <p>
             {Html.escapeHtml(
@@ -150,7 +141,7 @@ export class NewInviteTemplates extends NewConnectionTemplates {
         progressStepCount={3}
         actions={[{ type: 'link', text: 'Back To Home', href: '/connection' }]}
       >
-        <div id="new-invite-confirmation-text">
+        <div id="new-connection-confirmation-text">
           <p>
             Your connection invitation has been sent. Please wait for their verification. As the post may take 2-3 days
             to arrive, please wait for their verification and keep updated by viewing the verification status.

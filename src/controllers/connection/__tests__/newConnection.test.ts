@@ -318,6 +318,7 @@ describe('NewConnectionController', () => {
             company_number: '00000001',
             status: 'pending',
             agent_connection_id: null,
+            pin_attempt_count: 0,
           },
         ])
       })
@@ -329,6 +330,7 @@ describe('NewConnectionController', () => {
           connection_id: '42',
           oob_invite_id: 'id-NAME',
           expires_at: new Date(100 + 14 * 24 * 60 * 60 * 1000),
+          validity: 'valid',
         })
         expect(typeof pin_hash).to.equal('string')
       })
@@ -508,6 +510,7 @@ describe('NewConnectionController', () => {
             company_number: '00000001',
             status: 'pending',
             agent_connection_id: 'oob-connection',
+            pin_attempt_count: 0,
           },
         ])
       })
@@ -519,6 +522,7 @@ describe('NewConnectionController', () => {
           connection_id: '42',
           oob_invite_id: 'oob-record',
           expires_at: new Date(100 + 14 * 24 * 60 * 60 * 1000),
+          validity: 'valid',
         })
         expect(typeof pin_hash).to.equal('string')
       })

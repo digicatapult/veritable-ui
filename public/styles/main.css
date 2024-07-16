@@ -1,3 +1,5 @@
+/* styling for top level elements that appear on all pages */
+
 @import url('/public/styles/reset.css'); /* generics/defaults */
 
 @font-face {
@@ -28,30 +30,27 @@
 
   --neutral-accent: var(--accent-color);
   --negative-accent: #f57e77;
+  --warning-accent: #ffa800;
   --positive-accent: #32936f;
+  --disabled-accent: #363636;
 
   /* layout and other vars */
   --mobile-header-bg: transparent;
-  --side-bar-width: 5vw;
+  --side-bar-width: max(70px, min(150px, 5vw));
   --desktop-content-width: calc(100vw - var(--side-bar-width));
 }
 
 body {
   margin: 0;
   padding: 0;
-  display: grid;
+  display: flex;
   background-color: var(--bg-color);
   color: var(--text-color);
   font-family: Roboto, system-ui;
   min-height: 100vh;
 }
 
-body.flex-page {
-  display: flex;
-  flex-direction: row;
-}
-
-.flex-page.side-bar {
+#side-bar {
   width: var(--side-bar-width);
   min-height: 100vh;
   display: flex;
@@ -62,32 +61,28 @@ body.flex-page {
   background-color: #fff;
 }
 
-.side-bar.logo-container {
+#side-bar > img:first-child {
   height: 61px;
   width: 61px;
   margin-bottom: 4rem;
 }
 
-a.side-bar,
-i.side-bar {
+#side-bar > a {
   height: 50px;
   width: 50px;
   padding: 1rem;
   text-align: center;
   margin-bottom: 0.5rem;
-}
-
-a.side-bar.icon {
   position: relative;
   border: 1px solid var(--text-color-sub);
   border-radius: 10px;
 }
 
-.side-bar.icon.active {
+#side-bar > a[data-active] {
   background-color: #5670f1;
 }
 
-a.side-bar.icon::before {
+#side-bar > a::before {
   content: '';
   position: absolute;
   top: 0px;
@@ -99,37 +94,32 @@ a.side-bar.icon::before {
   background-image: var(--background-image);
 }
 
-a.side-bar.icon.active::before {
+#side-bar > a[data-active]::before {
   filter: invert(100%);
 }
 
-a.list-table.icon {
-  padding: 1rem;
-  text-align: center;
-  margin-bottom: 0.5rem;
-  background-image: url('/public/images/filter.svg');
-  background-repeat: no-repeat;
-  background-position: center;
-}
-
-.flex-page.content {
+main {
   display: flex;
   flex-direction: column;
 }
 
-.header.heading {
+#content-header {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  width: var(
+    --desktop-content-width
+  ); /* due to column flex-grow: grows height so to void double wrap of els e.g. col/row */
+  background-color: #fff;
+}
+
+#content-header > h1 {
   text-align: center;
   font-size: 2rem;
   padding: 0.5rem;
 }
-.sub-header-bold {
-  display: block;
-  text-align: left;
-  color: var(--text-color);
-  font-weight: bold;
-}
 
-.header.nav {
+#content-header-nav {
   display: flex;
   flex-direction: row;
   border-top: #c9cace 0.1px solid;
@@ -141,7 +131,7 @@ a.list-table.icon {
   color: var(--text-color-sub);
 }
 
-.nav.icon {
+#content-header-nav > a:first-child {
   width: 20px;
   height: 20px;
   background-repeat: no-repeat;
@@ -149,17 +139,13 @@ a.list-table.icon {
   background-image: url('/public/images/home.svg');
 }
 
-.content.header {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  width: var(
-    --desktop-content-width
-  ); /* due to column flex-grow: grows height so to void double wrap of els e.g. col/row */
-  background-color: #fff;
+#content-header-nav > a:not(:first-child)::before {
+  content: '/';
+  padding: 0 0.5rem;
+  font-size: 1rem;
 }
 
-.content.main {
+#content-main {
   padding: 1rem;
   max-width: 2000px;
   view-transition-name: main;
@@ -541,20 +527,20 @@ a.list-table.icon {
 }
 /* Mobile view */
 @media (max-width: 767px) {
-  body.flex-page {
+  body {
     flex-direction: column;
   }
-  .header.heading {
+  #content-header > h1 {
     display: none;
   }
-  .content.header {
+  #content-header {
     width: 100%;
     background-color: var(--mobile-header-bg);
   }
-  .content.main {
+  #content-main {
     width: 100%;
   }
-  .flex-page.side-bar {
+  #side-bar {
     flex-direction: row;
     align-items: space-around;
     width: 100%;
@@ -562,11 +548,8 @@ a.list-table.icon {
     justify-content: space-between;
     min-height: auto;
   }
-  .list-nav {
-    padding: 5px;
-  }
 
-  .side-bar.logo-container {
+  #side-bar > img:first-child {
     margin: 0;
   }
 

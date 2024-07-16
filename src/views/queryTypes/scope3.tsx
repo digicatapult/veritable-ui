@@ -2,7 +2,7 @@ import Html from '@kitajs/html'
 import { UUID } from 'crypto'
 import { singleton } from 'tsyringe'
 import { ConnectionRow } from '../../models/db/types.js'
-import { ButtonIcon, FormButton, Page } from '../common.js'
+import { FormButton, LinkButton, Page } from '../common.js'
 
 export type Scope3FormStage = 'companySelect' | 'form' | 'success'
 interface Scope3FormProps {
@@ -186,7 +186,7 @@ export default class Scope3CarbonConsumptionTemplates {
                 ></input>
                 <p class="additional-input-label">Quantity of product</p>
               </div>
-              <FormButton type="submit" name="action" value="success" text="Submit Query" fillButton={true} />
+              <FormButton name="action" value="success" text="Submit Query" style="filled" />
             </form>
           </div>
         </div>
@@ -200,7 +200,7 @@ export default class Scope3CarbonConsumptionTemplates {
           Your query request has been shared with the following supplier: {Html.escapeHtml(props.company.companyName)}.
         </p>
         <p>Please await for responses and check for updates in the query management page.</p>
-        <ButtonIcon name="Back to Home" href="/" fillButton={true} />
+        <LinkButton disabled={false} text="Back to Home" href="/" icon={''} style="filled" />
       </div>
     )
   }

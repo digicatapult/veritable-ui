@@ -51,7 +51,17 @@ describe('companyDetailsV1', function () {
 
       expect(dbMock.get.callCount).equal(2)
       expect(dbMock.get.firstCall.args).deep.equal(['connection', { agent_connection_id: 'agent-connection-id' }])
-      expect(dbMock.get.secondCall.args).deep.equal(['connection_invite', { connection_id: 'connection-id' }])
+      expect(dbMock.get.secondCall.args).deep.equal([
+        'connection_invite',
+        { connection_id: 'connection-id', validity: 'valid' },
+      ])
+      expect(dbMock.increment.callCount).to.equal(1)
+      expect(dbMock.increment.firstCall.args).to.deep.equal([
+        'connection',
+        'pin_attempt_count',
+        { id: 'connection-id' },
+      ])
+      expect(dbMock.update.callCount).to.equal(0)
 
       const stub = cloudagentMock.acceptProposal
       expect(stub.callCount).to.equal(1)
@@ -117,7 +127,17 @@ describe('companyDetailsV1', function () {
 
       expect(dbMock.get.callCount).equal(2)
       expect(dbMock.get.firstCall.args).deep.equal(['connection', { agent_connection_id: 'agent-connection-id' }])
-      expect(dbMock.get.secondCall.args).deep.equal(['connection_invite', { connection_id: 'connection-id' }])
+      expect(dbMock.get.secondCall.args).deep.equal([
+        'connection_invite',
+        { connection_id: 'connection-id', validity: 'valid' },
+      ])
+      expect(dbMock.increment.callCount).to.equal(1)
+      expect(dbMock.increment.firstCall.args).to.deep.equal([
+        'connection',
+        'pin_attempt_count',
+        { id: 'connection-id' },
+      ])
+      expect(dbMock.update.callCount).to.equal(0)
 
       const stub = cloudagentMock.acceptProposal
       expect(stub.callCount).to.equal(1)
@@ -402,6 +422,61 @@ describe('companyDetailsV1', function () {
       expect(stub.callCount).to.equal(0)
     })
 
+    test(`pin attempt count exceeded`, async function () {
+      const { args, cloudagentMock, dbMock } = withCompanyDetailsDepsMock({ dbIncrement: [{ pin_attempt_count: 6 }] })
+      const companyDetails = new CompanyDetailsV1Handler(...args)
+
+      await companyDetails.handleProposalReceived(
+        {
+          id: 'credential-id',
+          connectionId: 'agent-connection-id',
+          protocolVersion: 'v2',
+          role: 'issuer',
+          state: 'proposal-received',
+        },
+        {
+          proposalAttributes: [
+            {
+              'mime-type': 'text/plain',
+              name: 'company_name',
+              value: 'NAME',
+            },
+            {
+              'mime-type': 'text/plain',
+              name: 'company_number',
+              value: 'NUMBER',
+            },
+            {
+              'mime-type': 'text/plain',
+              name: 'pin',
+              value: '123456',
+            },
+          ],
+        }
+      )
+
+      expect(dbMock.increment.callCount).to.equal(1)
+      expect(dbMock.increment.firstCall.args).to.deep.equal([
+        'connection',
+        'pin_attempt_count',
+        { id: 'connection-id' },
+      ])
+      expect(dbMock.update.callCount).to.equal(2)
+      expect(dbMock.update.firstCall.args).to.deep.equal([
+        'connection_invite',
+        { connection_id: 'connection-id' },
+        { validity: 'too_many_attempts' },
+      ])
+      expect(dbMock.update.secondCall.args).to.deep.equal([
+        'connection',
+        { id: 'connection-id' },
+        { pin_attempt_count: 0 },
+      ])
+
+      const stub = cloudagentMock.acceptProposal
+      expect(stub.callCount).to.equal(0)
+    })
+
     test(`invalid pin`, async function () {
       const { args, cloudagentMock } = withCompanyDetailsDepsMock({})
       const companyDetails = new CompanyDetailsV1Handler(...args)
@@ -440,9 +515,10 @@ describe('companyDetailsV1', function () {
     })
 
     test(`invalid pin (expired)`, async function () {
-      const { args, cloudagentMock } = withCompanyDetailsDepsMock({
+      const { args, cloudagentMock, dbMock } = withCompanyDetailsDepsMock({
         dbGetConnectionInvites: [
           {
+            id: 'invite-id',
             pin_hash: await argon2.hash('123456', { secret: invitePinSecret }),
             expires_at: new Date(0),
           },
@@ -478,6 +554,13 @@ describe('companyDetailsV1', function () {
           ],
         }
       )
+
+      expect(dbMock.update.callCount).to.equal(1)
+      expect(dbMock.update.firstCall.args).to.deep.equal([
+        'connection_invite',
+        { id: 'invite-id' },
+        { validity: 'expired' },
+      ])
 
       const stub = cloudagentMock.acceptProposal
       expect(stub.callCount).to.equal(0)
@@ -935,7 +1018,7 @@ describe('companyDetailsV1', function () {
   }
 
   describe('handleDone', async function () {
-    describe('happy path unverified as holder', async function () {
+    test('happy path unverified as holder', async function () {
       const { args, dbTransactionMock } = withCompanyDetailsDepsMock({})
       const companyDetails = new CompanyDetailsV1Handler(...args)
 
@@ -952,7 +1035,7 @@ describe('companyDetailsV1', function () {
       expect(stub.firstCall.args).to.deep.equal(['connection', { id: `connection-id` }, { status: 'verified_us' }])
     })
 
-    describe('happy path unverified as issuer', async function () {
+    test('happy path unverified as issuer', async function () {
       const { args, dbTransactionMock } = withCompanyDetailsDepsMock({})
       const companyDetails = new CompanyDetailsV1Handler(...args)
 
@@ -965,11 +1048,16 @@ describe('companyDetailsV1', function () {
       })
 
       const stub = dbTransactionMock.update
-      expect(stub.callCount).to.equal(1)
+      expect(stub.callCount).to.equal(2)
       expect(stub.firstCall.args).to.deep.equal(['connection', { id: `connection-id` }, { status: 'verified_them' }])
+      expect(stub.secondCall.args).to.deep.equal([
+        'connection_invite',
+        { connection_id: `connection-id` },
+        { validity: 'used' },
+      ])
     })
 
-    describe('happy path verified_them as holder', async function () {
+    test('happy path verified_them as holder', async function () {
       const { args, dbTransactionMock } = withCompanyDetailsDepsMock({
         dbGetConnection: [
           { status: 'verified_them', id: 'connection-id', company_name: 'NAME', company_number: 'NUMBER' },
@@ -990,7 +1078,7 @@ describe('companyDetailsV1', function () {
       expect(stub.firstCall.args).to.deep.equal(['connection', { id: `connection-id` }, { status: 'verified_both' }])
     })
 
-    describe('happy path verified_us as issuer', async function () {
+    test('happy path verified_us as issuer', async function () {
       const { args, dbTransactionMock } = withCompanyDetailsDepsMock({
         dbGetConnection: [
           { status: 'verified_us', id: 'connection-id', company_name: 'NAME', company_number: 'NUMBER' },
@@ -1007,11 +1095,16 @@ describe('companyDetailsV1', function () {
       })
 
       const stub = dbTransactionMock.update
-      expect(stub.callCount).to.equal(1)
+      expect(stub.callCount).to.equal(2)
       expect(stub.firstCall.args).to.deep.equal(['connection', { id: `connection-id` }, { status: 'verified_both' }])
+      expect(stub.secondCall.args).to.deep.equal([
+        'connection_invite',
+        { connection_id: `connection-id` },
+        { validity: 'used' },
+      ])
     })
 
-    describe('verified_both as holder', async function () {
+    test('verified_both as holder', async function () {
       const { args, dbTransactionMock } = withCompanyDetailsDepsMock({
         dbGetConnection: [
           { status: 'verified_both', id: 'connection-id', company_name: 'NAME', company_number: 'NUMBER' },
@@ -1031,7 +1124,7 @@ describe('companyDetailsV1', function () {
       expect(stub.callCount).to.equal(0)
     })
 
-    describe('verified_both as issuer', async function () {
+    test('verified_both as issuer', async function () {
       const { args, dbTransactionMock } = withCompanyDetailsDepsMock({
         dbGetConnection: [
           { status: 'verified_both', id: 'connection-id', company_name: 'NAME', company_number: 'NUMBER' },
@@ -1051,7 +1144,7 @@ describe('companyDetailsV1', function () {
       expect(stub.callCount).to.equal(0)
     })
 
-    describe('verified_us as holder', async function () {
+    test('verified_us as holder', async function () {
       const { args, dbTransactionMock } = withCompanyDetailsDepsMock({
         dbGetConnection: [
           { status: 'verified_us', id: 'connection-id', company_name: 'NAME', company_number: 'NUMBER' },
@@ -1071,7 +1164,7 @@ describe('companyDetailsV1', function () {
       expect(stub.callCount).to.equal(0)
     })
 
-    describe('verified_them as issuer', async function () {
+    test('verified_them as issuer', async function () {
       const { args, dbTransactionMock } = withCompanyDetailsDepsMock({
         dbGetConnection: [
           { status: 'verified_them', id: 'connection-id', company_name: 'NAME', company_number: 'NUMBER' },
@@ -1091,7 +1184,7 @@ describe('companyDetailsV1', function () {
       expect(stub.callCount).to.equal(0)
     })
 
-    describe('with unknown connection', async function () {
+    test('with unknown connection', async function () {
       const { args, dbTransactionMock } = withCompanyDetailsDepsMock({
         dbGetConnection: [],
       })
