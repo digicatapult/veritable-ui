@@ -104,39 +104,46 @@ export class QueriesController extends HTMLController {
       action: 'companySelect' | 'form' | 'success'
     }
   ) {
-    console.log(body)
-    if (body) {
-      const formStage: NewFormStage = body.action
-      if (formStage !== 'success') {
-        console.log(body)
+    try {
+      if (body) {
+        const formStage: NewFormStage = body.action
+
+        if (formStage !== 'success') {
+          console.log(body)
+          return this.html(
+            this.scope3CarbonConsumptionTemplates.newScope3CarbonConsumptionFormPage(formStage, [], '', {
+              companyName: '',
+              companyNumber: body.companyNumber,
+            })
+          )
+        }
+        console.log('does not reach this which is good')
+        const company = await this.db.get(
+          'connection',
+          [['company_number', 'ILIKE', `%${body.companyNumber}%`]],
+          [['updated_at', 'desc']]
+        )
+        if (!body.productId || !body.quantity) {
+          throw new Error('ProductId or quantity is missing.')
+        }
+        const newQueryId = await this.insertNewQuery(
+          company[0].id,
+          'Scope 3 Carbon Consumption',
+          `{ "productId": "${body.productId}", "quantity": "${body.quantity}" }`
+        )
+        if (!newQueryId) {
+          throw new Error('Query isertion was unsuccessful.')
+        }
+        //final stage
         return this.html(
           this.scope3CarbonConsumptionTemplates.newScope3CarbonConsumptionFormPage(formStage, [], '', {
-            companyName: '',
+            companyName: company[0].company_name,
             companyNumber: body.companyNumber,
           })
         )
       }
-
-      const company = await this.db.get(
-        'connection',
-        [['company_number', 'ILIKE', `%${body.companyNumber}%`]],
-        [['updated_at', 'desc']]
-      )
-      if (!body.productId || !body.quantity) {
-        throw new Error('ProductId or quantity is missing.')
-      }
-      await this.insertNewQuery(
-        company[0].id,
-        'Scope 3 Carbon Consumption',
-        `{ "productId": "${body.productId}", "quantity": "${body.quantity}" }`
-      )
-      //final stage
-      return this.html(
-        this.scope3CarbonConsumptionTemplates.newScope3CarbonConsumptionFormPage(formStage, [], '', {
-          companyName: company[0].company_name,
-          companyNumber: body.companyNumber,
-        })
-      )
+    } catch (e) {
+      throw e
     }
   }
   private async insertNewQuery(
@@ -155,8 +162,8 @@ export class QueriesController extends HTMLController {
           details: details,
         })
         queryId = record.id
-        console.log(queryId)
       })
+      return queryId
     } catch (err) {
       throw err
     }

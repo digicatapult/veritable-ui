@@ -85,5 +85,19 @@ describe('QueriesController', () => {
       const query = search ? [['company_name', 'ILIKE', `%${search}%`]] : {}
       expect(spy.firstCall.calledWith('connection', query, [['updated_at', 'desc']])).to.equal(true)
     })
+    it.only('should call page as expected', async () => {
+      const { scope3CarbonConsumptionTemplateMock, mockLogger, queryTemplateMock, dbMock, queryListTemplateMock } =
+        withQueriesMocks('form')
+      const controller = new QueriesController(
+        scope3CarbonConsumptionTemplateMock,
+        queryTemplateMock,
+        queryListTemplateMock,
+        dbMock,
+        mockLogger
+      )
+      const result = await controller.scope3CarbonConsumptionStage({ companyNumber: '000000', action: 'form' })
+
+      expect(result).to.equal('queries_template')
+    })
   })
 })

@@ -5,7 +5,7 @@ import Database from '../../../models/db/index.js'
 import { ConnectionRow } from '../../../models/db/types.js'
 import QueriesTemplates from '../../../views/queries/queries.js'
 import QueryListTemplates from '../../../views/queries/queriesList.js'
-import Scope3CarbonConsumptionTemplates from '../../../views/queryTypes/scope3.js'
+import Scope3CarbonConsumptionTemplates, { Scope3FormStage } from '../../../views/queryTypes/scope3.js'
 
 type QueryStatus = 'resolved' | 'pending_your_input' | 'pending_their_input'
 
@@ -16,29 +16,37 @@ interface Query {
   status: QueryStatus
 }
 
-//this is not the most elegant way to have the sample data
-//(it is being poppped from the end every time a get is called on a db)
-const sampleArray = [
-  [{ company_name: 'VER123', status: 'pending', id: '11' }],
-  [{ company_name: 'VER123', status: 'pending', id: '11' }],
-  [{ id: 'x', status: 'xx', connection_id: '11' }],
-  [{ company_name: 'VER123', status: 'pending', id: '11' }],
-  [{ id: 'x', status: 'xx', connection_id: '11' }],
-  [{ company_name: 'bar', status: 'pending', id: '11' }],
-]
+function* sampleGenerator() {
+  const samples = [
+    [{ company_name: 'bar', status: 'pending', id: '11' }],
+    [{ id: 'x', status: 'xx', connection_id: '11' }],
+    [{ company_name: 'VER123', status: 'pending', id: '11' }],
+    [{ id: 'x', status: 'xx', connection_id: '11' }],
+    [{ company_name: 'VER123', status: 'pending', id: '11' }],
+    [{ company_name: 'VER123', status: 'pending', id: '11' }],
+    [{ company_name: 'VER123', status: 'pending', id: '11' }],
+  ]
+
+  let index = 0
+  while (index < samples.length) {
+    yield samples[index++]
+  }
+}
+const sampleGen = sampleGenerator()
+
 function templateFake(templateName: string) {
   return Promise.resolve(`${templateName}_template`)
 }
 function templateListFake(templateName: string, ...args: any[]) {
   return Promise.resolve([templateName, args.join('-'), templateName].join('_'))
 }
-export const withQueriesMocks = () => {
+export const withQueriesMocks = (stage: Scope3FormStage = 'companySelect', compNumber: string = '00000') => {
   const scope3CarbonConsumptionTemplateMock = {
     newScope3CarbonConsumptionFormPage: (
-      formStage: 'companySelect',
+      formStage: Scope3FormStage = stage,
       connections: ConnectionRow[],
       search = '',
-      company: { companyName: string; companyNumber: string }
+      company: { companyName: string; companyNumber: string } = { companyName: '', companyNumber: compNumber }
     ) => templateFake(connections[0].company_name),
   } as Scope3CarbonConsumptionTemplates
   const queryTemplateMock = {
@@ -49,7 +57,10 @@ export const withQueriesMocks = () => {
   } as QueryListTemplates
   const mockLogger: ILogger = pino({ level: 'silent' })
   const dbMock = {
-    get: () => Promise.resolve(sampleArray.pop()),
+    get: () => {
+      const result = sampleGen.next()
+      return Promise.resolve(result.value)
+    },
   } as unknown as Database
 
   return {

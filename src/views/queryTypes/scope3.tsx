@@ -25,6 +25,7 @@ export default class Scope3CarbonConsumptionTemplates {
     search: string = '',
     company: { companyName: string; companyNumber: string }
   ) => {
+    console.log('this is not printed')
     return (
       <Page
         title="Veritable - Select Company"
@@ -133,7 +134,7 @@ export default class Scope3CarbonConsumptionTemplates {
     )
   }
   public scope3CarbonConsumptionFormPage = (props: Scope3FormProps) => {
-    console.log(props)
+    console.log('in form page')
     return (
       <div>
         <div class="container-scope3-carbon">
