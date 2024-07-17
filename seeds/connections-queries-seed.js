@@ -71,18 +71,21 @@ export async function queryVariants(connections) {
         connection_id: connection.id,
         query_type: 'Type A',
         status: 'pending_your_input',
+        details: 'x',
       })
     } else if (i % 3 == 1) {
       queryVariants.push({
         connection_id: connection.id,
         query_type: 'Type B',
         status: 'resolved',
+        details: 'x',
       })
     } else if (i % 3 == 2) {
       queryVariants.push({
         connection_id: connection.id,
         query_type: 'Type A',
         status: 'pending_their_input',
+        details: 'x',
       })
     }
   }

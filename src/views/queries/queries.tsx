@@ -17,29 +17,32 @@ export default class QueriesTemplates {
         ]}
         stylesheets={['query.css']}
       >
-        <h1 id="query-page-header">Queries</h1>
-        <hr id="query-header-divider"></hr>
-        <div id="query-container">
-          <a href="#">
+        <div class="main-list-page" hx-get="/queries/new"></div>
+        <div>
+          <h1 class="query-page-header">Queries</h1>
+          <hr class="divider"></hr>
+        </div>
+        <div class="query-container">
+          <a class="query-item" onclick="location.href='/queries/new/scope-3-carbon-consumption';">
             <h1 class="query-header">Scope 3 Carbon Consumption</h1>
             <p class="query-text">
               Creates a query for calculating the total scope 3 carbon consumption for a given product or component.
             </p>
           </a>
-          <a href="#">
+          <a class="query-item" onclick="#">
             <h1 class="query-header">Product Provenance</h1>
             <p class="query-text">
               Creates a query to assert that a product and its components are not coming from blacklisted areas.
             </p>
           </a>
-          <a href="#">
+          <a class="query-item" onclick="#">
             <h1 class="query-header">Aerospace Grade</h1>
             <p class="query-text">
               Creates a query to certify all components of a product are manufactured according to aerospace grade
               standards such as AS9100.
             </p>
           </a>
-          <a href="#">
+          <a class="query-item" onclick="#">
             <h1 class="query-header">ISO 9001 Compliance</h1>
             <p class="query-text">
               Creates a query to verify that all the companies involved in manufacturing a given product are ISO9001
