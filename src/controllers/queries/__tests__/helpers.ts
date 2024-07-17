@@ -24,7 +24,7 @@ function* sampleGenerator() {
     [{ id: 'x', status: 'xx', connection_id: '11' }],
     [{ company_name: 'VER123', status: 'pending', id: '11' }],
     [{ company_name: 'VER123', status: 'pending', id: '11' }],
-    [{ company_name: 'VER123', status: 'pending', id: '11' }],
+    [{ company_name: 'VER123', status: 'pending', id: '11', company_number: '10000009' }],
   ]
 
   let index = 0
@@ -40,14 +40,14 @@ function templateFake(templateName: string) {
 function templateListFake(templateName: string, ...args: any[]) {
   return Promise.resolve([templateName, args.join('-'), templateName].join('_'))
 }
-export const withQueriesMocks = (stage: Scope3FormStage = 'companySelect', compNumber: string = '00000') => {
+export const withQueriesMocks = (stage: Scope3FormStage = 'companySelect', compNumber: string = '10000009') => {
   const scope3CarbonConsumptionTemplateMock = {
     newScope3CarbonConsumptionFormPage: (
       formStage: Scope3FormStage = stage,
       connections: ConnectionRow[],
       search = '',
       company: { companyName: string; companyNumber: string } = { companyName: '', companyNumber: compNumber }
-    ) => templateFake(connections[0].company_name),
+    ) => templateFake('queries'),
   } as Scope3CarbonConsumptionTemplates
   const queryTemplateMock = {
     chooseQueryPage: () => templateFake('queries'),
@@ -60,6 +60,19 @@ export const withQueriesMocks = (stage: Scope3FormStage = 'companySelect', compN
     get: () => {
       const result = sampleGen.next()
       return Promise.resolve(result.value)
+    },
+    insert: () => {
+      return Promise.resolve([
+        {
+          status: 'pending_their_input',
+          id: 123,
+          created_at: new Date(),
+          updated_at: new Date(),
+          connection_id: '11',
+          query_type: 'Scope 3',
+          details: 'some details',
+        },
+      ])
     },
   } as unknown as Database
 

@@ -104,47 +104,39 @@ export class QueriesController extends HTMLController {
       action: 'companySelect' | 'form' | 'success'
     }
   ) {
-    try {
-      if (body) {
-        const formStage: NewFormStage = body.action
+    const formStage: NewFormStage = body.action
 
-        if (formStage !== 'success') {
-          console.log(body)
-          return this.html(
-            this.scope3CarbonConsumptionTemplates.newScope3CarbonConsumptionFormPage(formStage, [], '', {
-              companyName: '',
-              companyNumber: body.companyNumber,
-            })
-          )
-        }
-        console.log('does not reach this which is good')
-        const company = await this.db.get(
-          'connection',
-          [['company_number', 'ILIKE', `%${body.companyNumber}%`]],
-          [['updated_at', 'desc']]
-        )
-        if (!body.productId || !body.quantity) {
-          throw new Error('ProductId or quantity is missing.')
-        }
-        const newQueryId = await this.insertNewQuery(
-          company[0].id,
-          'Scope 3 Carbon Consumption',
-          `{ "productId": "${body.productId}", "quantity": "${body.quantity}" }`
-        )
-        if (!newQueryId) {
-          throw new Error('Query isertion was unsuccessful.')
-        }
-        //final stage
-        return this.html(
-          this.scope3CarbonConsumptionTemplates.newScope3CarbonConsumptionFormPage(formStage, [], '', {
-            companyName: company[0].company_name,
-            companyNumber: body.companyNumber,
-          })
-        )
-      }
-    } catch (e) {
-      throw e
+    if (formStage !== 'success') {
+      return this.html(
+        this.scope3CarbonConsumptionTemplates.newScope3CarbonConsumptionFormPage(formStage, [], '', {
+          companyName: '',
+          companyNumber: body.companyNumber,
+        })
+      )
     }
+    const company = await this.db.get(
+      'connection',
+      [['company_number', 'ILIKE', `%${body.companyNumber}%`]],
+      [['updated_at', 'desc']]
+    )
+    if (!body.productId || !body.quantity) {
+      throw new Error('ProductId or quantity is missing.')
+    }
+    const newQueryId = await this.insertNewQuery(
+      company[0].id,
+      'Scope 3 Carbon Consumption',
+      `{ "productId": "${body.productId}", "quantity": "${body.quantity}" }`
+    )
+    if (!newQueryId) {
+      throw new Error('Query isertion was unsuccessful.')
+    }
+    //final stage
+    return this.html(
+      this.scope3CarbonConsumptionTemplates.newScope3CarbonConsumptionFormPage(formStage, [], '', {
+        companyName: company[0].company_name,
+        companyNumber: body.companyNumber,
+      })
+    )
   }
   private async insertNewQuery(
     connection_id: string,
@@ -154,15 +146,15 @@ export class QueriesController extends HTMLController {
   ) {
     try {
       let queryId: string = ''
-      await this.db.withTransaction(async (db) => {
-        const [record] = await db.insert('query', {
-          connection_id: connection_id,
-          query_type: query_type,
-          status: status,
-          details: details,
-        })
-        queryId = record.id
+
+      const [record] = await this.db.insert('query', {
+        connection_id: connection_id,
+        query_type: query_type,
+        status: status,
+        details: details,
       })
+      queryId = record.id
+
       return queryId
     } catch (err) {
       throw err

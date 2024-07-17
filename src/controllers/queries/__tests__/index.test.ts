@@ -85,9 +85,9 @@ describe('QueriesController', () => {
       const query = search ? [['company_name', 'ILIKE', `%${search}%`]] : {}
       expect(spy.firstCall.calledWith('connection', query, [['updated_at', 'desc']])).to.equal(true)
     })
-    it.only('should call page as expected', async () => {
+    it('should call page with stage FORM as expected', async () => {
       const { scope3CarbonConsumptionTemplateMock, mockLogger, queryTemplateMock, dbMock, queryListTemplateMock } =
-        withQueriesMocks('form')
+        withQueriesMocks('form', '10000009')
       const controller = new QueriesController(
         scope3CarbonConsumptionTemplateMock,
         queryTemplateMock,
@@ -95,7 +95,30 @@ describe('QueriesController', () => {
         dbMock,
         mockLogger
       )
-      const result = await controller.scope3CarbonConsumptionStage({ companyNumber: '000000', action: 'form' })
+      const result = await controller
+        .scope3CarbonConsumptionStage({ companyNumber: '10000009', action: 'form' })
+        .then(toHTMLString)
+
+      expect(result).to.equal('queries_template')
+    })
+    it('should call page with stage SUCCESS as expected', async () => {
+      const { scope3CarbonConsumptionTemplateMock, mockLogger, queryTemplateMock, dbMock, queryListTemplateMock } =
+        withQueriesMocks('success', '10000009')
+      const controller = new QueriesController(
+        scope3CarbonConsumptionTemplateMock,
+        queryTemplateMock,
+        queryListTemplateMock,
+        dbMock,
+        mockLogger
+      )
+      const result = await controller
+        .scope3CarbonConsumptionStage({
+          companyNumber: '10000009',
+          action: 'success',
+          productId: 'SomeID',
+          quantity: 111,
+        })
+        .then(toHTMLString)
 
       expect(result).to.equal('queries_template')
     })
