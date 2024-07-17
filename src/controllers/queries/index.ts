@@ -144,21 +144,17 @@ export class QueriesController extends HTMLController {
     details: string,
     status: 'resolved' | 'pending_your_input' | 'pending_their_input' = 'pending_their_input'
   ) {
-    try {
-      let queryId: string = ''
+    let queryId: string = ''
 
-      const [record] = await this.db.insert('query', {
-        connection_id: connection_id,
-        query_type: query_type,
-        status: status,
-        details: details,
-      })
-      queryId = record.id
+    const [record] = await this.db.insert('query', {
+      connection_id: connection_id,
+      query_type: query_type,
+      status: status,
+      details: details,
+    })
+    queryId = record.id
 
-      return queryId
-    } catch (err) {
-      throw err
-    }
+    return queryId
   }
 }
 
