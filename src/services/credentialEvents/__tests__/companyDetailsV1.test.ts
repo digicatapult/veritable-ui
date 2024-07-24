@@ -511,7 +511,9 @@ describe('companyDetailsV1', function () {
       )
 
       const stub = cloudagentMock.acceptProposal
+      const stub2 = cloudagentMock.sendProblemReport
       expect(stub.callCount).to.equal(0)
+      expect(stub2.callCount).to.equal(1)
     })
 
     test(`invalid pin (expired)`, async function () {

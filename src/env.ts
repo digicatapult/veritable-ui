@@ -84,7 +84,7 @@ export const envConfig = {
   CLOUDAGENT_ADMIN_ORIGIN: envalid.url({ devDefault: 'http://localhost:3100' }),
   CLOUDAGENT_ADMIN_WS_ORIGIN: envalid.url({ devDefault: 'ws://localhost:3100' }),
   INVITATION_PIN_SECRET: pinSecretValidator({ devDefault: Buffer.from('secret', 'utf8') }),
-  INVITATION_PIN_ATTEMPT_LIMIT: envalid.num({ default: 5 }),
+  INVITATION_PIN_ATTEMPT_LIMIT: envalid.num({ default: 5, devDefault: 5 }),
   INVITATION_FROM_COMPANY_NUMBER: envalid.str({ devDefault: '07964699' }),
   ISSUANCE_DID_POLICY: issuanceRecordValidator({ devDefault: 'EXISTING_OR_NEW' }),
   ISSUANCE_SCHEMA_POLICY: issuanceRecordValidator({ devDefault: 'EXISTING_OR_NEW' }),

@@ -10,7 +10,12 @@ export class PinSubmissionTemplates extends NewConnectionTemplates {
     super()
   }
 
-  public renderPinForm = (props: { connectionId: UUID; pin?: string; continuationFromInvite: boolean }) => {
+  public renderPinForm = (props: {
+    connectionId: UUID
+    pin?: string
+    continuationFromInvite: boolean
+    remainingTries?: string
+  }) => {
     const stepCount = props.continuationFromInvite ? 3 : 2
     return (
       <Page
@@ -50,6 +55,8 @@ export class PinSubmissionTemplates extends NewConnectionTemplates {
               minlength={6}
               maxlength={6}
             />
+            <p id="remaining-pint-attempts">{props.remainingTries}</p>
+            <img class="htmx-indicator" src="/public/images/send.svg" />
           </div>
         </this.newConnectionForm>
       </Page>

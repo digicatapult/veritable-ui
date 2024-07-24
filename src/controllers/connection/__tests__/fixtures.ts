@@ -62,6 +62,7 @@ export const validConnection: ConnectionRow = {
   company_number: validCompanyNumber,
   company_name: 'must be a valid company name',
   pin_attempt_count: 0,
+  local_pin_attempt_count: 0,
 }
 
 const buildBase64Invite = (companyNumber: string) =>

@@ -82,6 +82,7 @@ export const credentialParser = z.object({
     z.literal('done'),
     z.literal('abandoned'),
   ]),
+  errorMessage: z.string().optional(),
 })
 export type Credential = z.infer<typeof credentialParser>
 
@@ -265,7 +266,7 @@ export default class VeritableCloudagent {
       },
       connectionId,
     }
-
+    console.log(body)
     return this.postRequest('/v1/credentials/propose-credential', body, this.buildParser(credentialParser))
   }
 
@@ -291,6 +292,13 @@ export default class VeritableCloudagent {
 
   public async acceptCredential(credentialId: string): Promise<Credential> {
     return this.postRequest(`/v1/credentials/${credentialId}/accept-credential`, {}, this.buildParser(credentialParser))
+  }
+  public async sendProblemReport(credentialId: string, description: string): Promise<Credential> {
+    return this.postRequest(
+      `/v1/credentials/${credentialId}/send-problem-report`,
+      { description: description },
+      this.buildParser(credentialParser)
+    )
   }
 
   private async getRequest<O>(path: string, parse: parserFn<O>): Promise<O> {

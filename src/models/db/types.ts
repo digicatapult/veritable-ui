@@ -16,6 +16,7 @@ const insertConnection = z.object({
   ]),
   agent_connection_id: z.union([z.string(), z.null()]),
   pin_attempt_count: z.number().int().gte(0).lte(255),
+  local_pin_attempt_count: z.number().int().gte(0).lte(255),
 })
 
 const insertConnectionInvite = z.object({

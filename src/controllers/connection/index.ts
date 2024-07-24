@@ -90,8 +90,27 @@ export class ConnectionController extends HTMLController {
 
     const agentConnectionId = connection.agent_connection_id
     if (!agentConnectionId) throw new InvalidInputError('Cannot verify PIN on a pending connection')
-
+    //check initial db state of local_pin_attempt_counts
+    const [connectionCheck]: ConnectionRow[] = await this.db.get('connection', { id: connectionId })
     await this.verifyReceiveConnection(agentConnectionId, profile, pin)
+
+    console.log(connectionCheck)
+    // loading spinner for htmx
+    const localPinAttemptCount = await this.pollPinSubmission(connectionId, connection.local_pin_attempt_count)
+    if (localPinAttemptCount) {
+      if (localPinAttemptCount.localPinAttempts > 0) {
+        console.log('rendering pin form ')
+
+        return this.html(
+          this.pinSubmission.renderPinForm({
+            connectionId,
+            pin,
+            continuationFromInvite: false,
+            remainingTries: localPinAttemptCount.message,
+          })
+        )
+      }
+    }
 
     return this.html(
       this.pinSubmission.renderSuccess({ companyName: connection.company_name, stepCount: body.stepCount ?? 2 })
@@ -99,6 +118,7 @@ export class ConnectionController extends HTMLController {
   }
 
   private async verifyReceiveConnection(agentConnectionId: string, profile: CompanyProfile, pin: string) {
+    console.log('about to propose a credential')
     await this.cloudagent.proposeCredential(agentConnectionId, {
       schemaName: 'COMPANY_DETAILS',
       schemaVersion: '1.0.0',
@@ -117,5 +137,32 @@ export class ConnectionController extends HTMLController {
         },
       ],
     })
+  }
+  private async pollPinSubmission(connectionId: string, initialLocalPinAttempts: number) {
+    const startTime = Date.now()
+    const timeout = 4000 // 4 seconds
+    const interval = 100 // 100 ms
+
+    while (Date.now() - startTime < timeout) {
+      const [connectionCheck]: ConnectionRow[] = await this.db.get('connection', { id: connectionId })
+      this.logger.debug('Polling for local pin attempts change.')
+
+      if (initialLocalPinAttempts === 5) {
+        this.logger.debug('Maximum number of pin attempts has been reached, issuing new pin.')
+        return {
+          localPinAttempts: connectionCheck.local_pin_attempt_count,
+          message: `New pin has been issued. You have 5 attempts to enter it.`,
+        } //new pin gets issued here
+      } else if (connectionCheck.local_pin_attempt_count > initialLocalPinAttempts) {
+        console.log(connectionCheck.local_pin_attempt_count)
+        return {
+          localPinAttempts: connectionCheck.local_pin_attempt_count,
+          message: `Sorry, your code is invalid. You have ${6 - connectionCheck.local_pin_attempt_count} attempts left before the PIN expires.`,
+        }
+      }
+      await new Promise((resolve) => setTimeout(resolve, interval))
+    }
+
+    console.log('Polling timed out after 5 seconds')
   }
 }

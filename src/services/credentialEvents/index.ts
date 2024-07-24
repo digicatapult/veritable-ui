@@ -1,6 +1,7 @@
 import { inject, injectable, singleton } from 'tsyringe'
 
 import { Logger, type ILogger } from '../../logger.js'
+import Database from '../../models/db/index.js'
 import type { Credential, CredentialFormatData, Schema } from '../../models/veritableCloudagent.js'
 import VeritableCloudagent from '../../models/veritableCloudagent.js'
 import VeritableCloudagentEvents from '../veritableCloudagentEvents.js'
@@ -17,6 +18,7 @@ export default class CredentialEvents {
     private events: VeritableCloudagentEvents,
     private cloudagent: VeritableCloudagent,
     private companyDetailsHandler: CompanyDetailsV1Handler,
+    private db: Database,
     @inject(Logger) protected logger: ILogger
   ) {}
 
@@ -58,6 +60,29 @@ export default class CredentialEvents {
       return
     }
 
+    if (this.isCredentialError(record)) {
+      this.logger.debug('There was an erorr in credential issuance of credential %s', record.id)
+      if (!record.errorMessage) {
+        this.logger.debug('Errror message in error report is missing for credential', record.id)
+        return
+      }
+
+      const startIndex = record.errorMessage.indexOf('{')
+
+      // Extract the JSON part starting from the first '{'
+      const jsonString = startIndex !== -1 ? record.errorMessage.slice(startIndex) : null
+      if (jsonString) {
+        console.log(jsonString)
+        const message: { message: string; pinTries: number } = JSON.parse(jsonString)
+        const pinTries = message.pinTries ? message.pinTries : 1
+        await this.db.update(
+          'connection',
+          { agent_connection_id: record.connectionId },
+          { local_pin_attempt_count: pinTries }
+        )
+      }
+      return
+    }
     // if we have a schema we need to make sure it is valid with the schema we're using moving forward
     if (!this.isSchemaValid(formatData, maybeSchema)) {
       this.logger.warn('Schema was not valid for credential %s. Schema does not match proposal', record.id)
@@ -114,6 +139,16 @@ export default class CredentialEvents {
       formatData.proposal?.anoncreds.schema_name === maybeSchema.name &&
       formatData.proposal?.anoncreds.schema_version === maybeSchema.version
     )
+  }
+  private isCredentialError(credential: Credential): boolean {
+    if (
+      credential.role === 'holder' &&
+      credential.state === 'abandoned' &&
+      typeof credential.errorMessage === 'string'
+    ) {
+      return true
+    }
+    return false
   }
 
   private isOfferReceived(credential: Credential): boolean {

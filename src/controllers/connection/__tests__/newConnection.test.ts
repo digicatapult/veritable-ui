@@ -319,6 +319,7 @@ describe('NewConnectionController', () => {
             status: 'pending',
             agent_connection_id: null,
             pin_attempt_count: 0,
+            local_pin_attempt_count: 0,
           },
         ])
       })
@@ -511,6 +512,7 @@ describe('NewConnectionController', () => {
             status: 'pending',
             agent_connection_id: 'oob-connection',
             pin_attempt_count: 0,
+            local_pin_attempt_count: 0,
           },
         ])
       })
