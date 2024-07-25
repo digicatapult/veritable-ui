@@ -69,6 +69,7 @@ export default async (startEvents: boolean = true) => {
 
   app.use('/public', express.static('public'))
   app.use('/lib/htmx.org', express.static('node_modules/htmx.org/dist'))
+  app.use('/lib/htmx-ext-json-enc/json-enc.js', express.static('node_modules/htmx-ext-json-enc/json-enc.js'))
 
   const apiSpec = await loadApiSpec(env)
   app.get('/api-docs', (_req, res) => res.json(apiSpec))

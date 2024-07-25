@@ -3,6 +3,7 @@ ignores: [
   '@kitajs/ts-html-plugin',
   'tsimp',
   'htmx.org',
+  'htmx-ext-json-enc',
   'prettier-plugin-organize-imports',
   'reflect-metadata',
   'pg',
