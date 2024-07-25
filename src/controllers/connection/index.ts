@@ -90,13 +90,13 @@ export class ConnectionController extends HTMLController {
 
     const agentConnectionId = connection.agent_connection_id
     if (!agentConnectionId) throw new InvalidInputError('Cannot verify PIN on a pending connection')
-    //check initial db state of local_pin_attempt_counts
+    //check initial db state of pin_tries_remaining_counts
     const [connectionCheck]: ConnectionRow[] = await this.db.get('connection', { id: connectionId })
     await this.verifyReceiveConnection(agentConnectionId, profile, pin)
 
     console.log(connectionCheck)
     // loading spinner for htmx
-    const localPinAttemptCount = await this.pollPinSubmission(connectionId, connection.local_pin_attempt_count)
+    const localPinAttemptCount = await this.pollPinSubmission(connectionId, connection.pin_tries_remaining_count)
     if (localPinAttemptCount) {
       if (localPinAttemptCount.localPinAttempts > 0) {
         console.log('rendering pin form ')
@@ -107,6 +107,20 @@ export class ConnectionController extends HTMLController {
             pin,
             continuationFromInvite: false,
             remainingTries: localPinAttemptCount.message,
+          })
+        )
+      } else if (localPinAttemptCount.nextScreen === 'success') {
+        //render sucess screen
+        return this.html(
+          this.pinSubmission.renderSuccess({ companyName: connection.company_name, stepCount: body.stepCount ?? 2 })
+        )
+      } else if (localPinAttemptCount.nextScreen === 'error') {
+        //render error screen with message coming from pollPin submission
+        return this.html(
+          this.pinSubmission.renderSuccess({
+            companyName: connection.company_name,
+            stepCount: body.stepCount ?? 2,
+            errorMessage: localPinAttemptCount.message,
           })
         )
       }
@@ -138,7 +152,7 @@ export class ConnectionController extends HTMLController {
       ],
     })
   }
-  private async pollPinSubmission(connectionId: string, initialLocalPinAttempts: number) {
+  private async pollPinSubmission(connectionId: string, initialPinAttemptsRemaining: number) {
     const startTime = Date.now()
     const timeout = 4000 // 4 seconds
     const interval = 100 // 100 ms
@@ -146,23 +160,44 @@ export class ConnectionController extends HTMLController {
     while (Date.now() - startTime < timeout) {
       const [connectionCheck]: ConnectionRow[] = await this.db.get('connection', { id: connectionId })
       this.logger.debug('Polling for local pin attempts change.')
+      //first check if we have exceeded the number of pin attempts -> redirect to connections page
+      if (initialPinAttemptsRemaining > 0 && connectionCheck.pin_tries_remaining_count == 0) {
+        //localPinAttemptsRemaining; if we run out of attempts - use success screen as error screen
+        this.logger.debug('Maximum number of pin attempts has been reached.')
+        return {
+          localPinAttempts: connectionCheck.pin_tries_remaining_count,
+          message:
+            'Maximum number of pin attempts has been reached, please rewach out to the company you are attempting to connect to.',
+          nextScreen: 'error',
+        }
+      } else if (connectionCheck.status === 'verified_us') {
+        this.logger.debug('Pin has been verified.')
 
-      if (initialLocalPinAttempts === 5) {
-        this.logger.debug('Maximum number of pin attempts has been reached, issuing new pin.')
         return {
-          localPinAttempts: connectionCheck.local_pin_attempt_count,
-          message: `New pin has been issued. You have 5 attempts to enter it.`,
-        } //new pin gets issued here
-      } else if (connectionCheck.local_pin_attempt_count > initialLocalPinAttempts) {
-        console.log(connectionCheck.local_pin_attempt_count)
+          localPinAttempts: connectionCheck.pin_tries_remaining_count,
+          message: 'Success',
+          nextScreen: 'success',
+        }
+      } else if (
+        connectionCheck.pin_tries_remaining_count < initialPinAttemptsRemaining ||
+        (initialPinAttemptsRemaining === 0 && connectionCheck.pin_tries_remaining_count === 4)
+      ) {
+        this.logger.debug(`Pin was invalid remaining attempts number:${connectionCheck.pin_tries_remaining_count}.`)
+
         return {
-          localPinAttempts: connectionCheck.local_pin_attempt_count,
-          message: `Sorry, your code is invalid. You have ${6 - connectionCheck.local_pin_attempt_count} attempts left before the PIN expires.`,
+          localPinAttempts: connectionCheck.pin_tries_remaining_count,
+          message: `Sorry, your code is invalid. You have ${connectionCheck.pin_tries_remaining_count} attempts left before the PIN expires.`,
+          nextScreen: 'form',
         }
       }
+
       await new Promise((resolve) => setTimeout(resolve, interval))
     }
-
-    console.log('Polling timed out after 5 seconds')
+    this.logger.debug('Polling timed out after 5 seconds')
+    return {
+      localPinAttempts: initialPinAttemptsRemaining,
+      message: `Sorry, there has been an error validating this pin, please try again.`,
+      nextScreen: 'error',
+    }
   }
 }

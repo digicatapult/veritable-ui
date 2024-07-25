@@ -332,7 +332,7 @@ export class NewConnectionController extends HTMLController {
           agent_connection_id: agentConnectionId,
           status: 'pending',
           pin_attempt_count: 0,
-          local_pin_attempt_count: 0,
+          pin_tries_remaining_count: 0,
         })
 
         await db.insert('connection_invite', {

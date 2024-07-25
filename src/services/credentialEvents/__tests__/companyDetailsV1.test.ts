@@ -422,7 +422,7 @@ describe('companyDetailsV1', function () {
       expect(stub.callCount).to.equal(0)
     })
 
-    test(`pin attempt count exceeded`, async function () {
+    test.only(`pin attempt count exceeded`, async function () {
       const { args, cloudagentMock, dbMock } = withCompanyDetailsDepsMock({ dbIncrement: [{ pin_attempt_count: 6 }] })
       const companyDetails = new CompanyDetailsV1Handler(...args)
 
@@ -456,6 +456,7 @@ describe('companyDetailsV1', function () {
       )
 
       expect(dbMock.increment.callCount).to.equal(1)
+      console.log('after 1st expect')
       expect(dbMock.increment.firstCall.args).to.deep.equal([
         'connection',
         'pin_attempt_count',

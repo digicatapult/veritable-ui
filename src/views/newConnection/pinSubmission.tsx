@@ -63,12 +63,14 @@ export class PinSubmissionTemplates extends NewConnectionTemplates {
     )
   }
 
-  public renderSuccess = (props: { companyName: string; stepCount: number }): JSX.Element => {
+  public renderSuccess = (props: { companyName: string; stepCount: number; errorMessage?: string }): JSX.Element => {
     return (
       <this.newConnectionForm
         feedback={{
           type: 'message',
-          message: `PIN code has been sucessfully submitted and will need to be verified by the issuer now.`,
+          message: props.errorMessage
+            ? props.errorMessage
+            : `PIN code has been sucessfully submitted and will need to be verified by the issuer now.`,
         }}
         progressStep={props.stepCount}
         progressStepCount={props.stepCount}
@@ -76,8 +78,11 @@ export class PinSubmissionTemplates extends NewConnectionTemplates {
       >
         <div id="new-connection-invite-input">
           <p safe>
-            PIN Code has been submitted for {props.companyName} company ID. Please wait for the verification code to be
-            confirmed by viewing the verification. status.
+            {props.errorMessage ? 'You have run out of PIN attempts ' : 'PIN Code has been submitted '} for
+            {props.companyName} company ID.{' '}
+            {props.errorMessage
+              ? 'Please contact the company to request a pin resend.'
+              : 'Please wait for the verification code to be confirmed by viewing theverification status.'}
           </p>
         </div>
       </this.newConnectionForm>

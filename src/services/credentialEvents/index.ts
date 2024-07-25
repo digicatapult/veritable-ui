@@ -78,7 +78,7 @@ export default class CredentialEvents {
         await this.db.update(
           'connection',
           { agent_connection_id: record.connectionId },
-          { local_pin_attempt_count: pinTries }
+          { pin_tries_remaining_count: pinTries }
         )
       }
       return
