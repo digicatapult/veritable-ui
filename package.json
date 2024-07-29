@@ -31,7 +31,7 @@
     "xss-scan": "xss-scan"
   },
   "dependencies": {
-    "@digicatapult/tsoa-oauth-express": "^0.1.22",
+    "@digicatapult/tsoa-oauth-express": "^0.1.24",
     "@kitajs/html": "^4.1.0",
     "@kitajs/ts-html-plugin": "^4.0.1",
     "@tsoa/runtime": "^6.4.0",
@@ -43,14 +43,15 @@
     "dotenv": "^16.4.5",
     "envalid": "^8.0.0",
     "express": "^4.19.2",
-    "htmx.org": "^1.9.12",
+    "htmx-ext-json-enc": "^2.0.0",
+    "htmx.org": "^2.0.1",
     "knex": "^3.1.0",
     "nodemailer": "^6.9.14",
     "pg": "^8.12.0",
     "pino": "^9.3.1",
     "pino-http": "^10.2.0",
     "swagger-ui-express": "^5.0.1",
-    "tsoa": "^6.3.1",
+    "tsoa": "^6.4.0",
     "tsyringe": "^4.8.0",
     "ws": "^8.18.0",
     "zod": "^3.23.8"
@@ -72,13 +73,13 @@
     "chai": "^5.1.1",
     "chai-jest-snapshot": "^2.0.0",
     "depcheck": "^1.4.7",
-    "mocha": "^10.6.0",
+    "mocha": "^10.7.0",
     "pino-colada": "^2.2.2",
     "prettier": "^3.3.3",
     "prettier-plugin-organize-imports": "^4.0.0",
     "sinon": "^18.0.0",
     "supertest": "^7.0.0",
     "tsimp": "^2.0.11",
-    "undici": "^6.19.2"
+    "undici": "^6.19.4"
   }
 }
