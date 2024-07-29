@@ -91,36 +91,37 @@ export class ConnectionController extends HTMLController {
     const agentConnectionId = connection.agent_connection_id
     if (!agentConnectionId) throw new InvalidInputError('Cannot verify PIN on a pending connection')
     //check initial db state of pin_tries_remaining_counts
-    const [connectionCheck]: ConnectionRow[] = await this.db.get('connection', { id: connectionId })
+
     await this.verifyReceiveConnection(agentConnectionId, profile, pin)
 
-    console.log(connectionCheck)
     // loading spinner for htmx
     const localPinAttemptCount = await this.pollPinSubmission(connectionId, connection.pin_tries_remaining_count)
     if (localPinAttemptCount) {
-      if (localPinAttemptCount.localPinAttempts > 0) {
-        console.log('rendering pin form ')
+      if (localPinAttemptCount.nextScreen === 'success') {
+        //render sucess screen
+        this.logger.debug('Rendering sucess screen')
 
+        return this.html(
+          this.pinSubmission.renderSuccess({ companyName: connection.company_name, stepCount: body.stepCount ?? 2 })
+        )
+      } else if (localPinAttemptCount.nextScreen === 'error') {
+        //render error screen with message coming from pollPin submission
+        this.logger.debug('Render error screen with message coming from poll Pin submission')
+
+        return this.html(
+          this.pinSubmission.renderSuccess({
+            companyName: connection.company_name,
+            stepCount: body.stepCount ?? 2,
+            errorMessage: localPinAttemptCount.message,
+          })
+        )
+      } else if (localPinAttemptCount.localPinAttempts > 0) {
         return this.html(
           this.pinSubmission.renderPinForm({
             connectionId,
             pin,
             continuationFromInvite: false,
             remainingTries: localPinAttemptCount.message,
-          })
-        )
-      } else if (localPinAttemptCount.nextScreen === 'success') {
-        //render sucess screen
-        return this.html(
-          this.pinSubmission.renderSuccess({ companyName: connection.company_name, stepCount: body.stepCount ?? 2 })
-        )
-      } else if (localPinAttemptCount.nextScreen === 'error') {
-        //render error screen with message coming from pollPin submission
-        return this.html(
-          this.pinSubmission.renderSuccess({
-            companyName: connection.company_name,
-            stepCount: body.stepCount ?? 2,
-            errorMessage: localPinAttemptCount.message,
           })
         )
       }
@@ -132,7 +133,6 @@ export class ConnectionController extends HTMLController {
   }
 
   private async verifyReceiveConnection(agentConnectionId: string, profile: CompanyProfile, pin: string) {
-    console.log('about to propose a credential')
     await this.cloudagent.proposeCredential(agentConnectionId, {
       schemaName: 'COMPANY_DETAILS',
       schemaVersion: '1.0.0',
@@ -160,14 +160,12 @@ export class ConnectionController extends HTMLController {
     while (Date.now() - startTime < timeout) {
       const [connectionCheck]: ConnectionRow[] = await this.db.get('connection', { id: connectionId })
       this.logger.debug('Polling for local pin attempts change.')
-      //first check if we have exceeded the number of pin attempts -> redirect to connections page
       if (initialPinAttemptsRemaining > 0 && connectionCheck.pin_tries_remaining_count == 0) {
-        //localPinAttemptsRemaining; if we run out of attempts - use success screen as error screen
         this.logger.debug('Maximum number of pin attempts has been reached.')
         return {
           localPinAttempts: connectionCheck.pin_tries_remaining_count,
           message:
-            'Maximum number of pin attempts has been reached, please rewach out to the company you are attempting to connect to.',
+            'Maximum number of pin attempts has been reached, please reach out to the company you are attempting to connect to.',
           nextScreen: 'error',
         }
       } else if (connectionCheck.status === 'verified_us') {

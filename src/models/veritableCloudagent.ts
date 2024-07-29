@@ -266,7 +266,6 @@ export default class VeritableCloudagent {
       },
       connectionId,
     }
-    console.log(body)
     return this.postRequest('/v1/credentials/propose-credential', body, this.buildParser(credentialParser))
   }
 

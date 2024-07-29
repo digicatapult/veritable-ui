@@ -47,6 +47,7 @@ export const withCredentialEventsDepsMock = (opts: Partial<typeof defaultCredEve
     getSchemaById: sinon.stub().resolves(options.schemaResponse),
   }
   const eventMock = new EventEmitter()
+  const dbMock = new Database()
 
   return {
     loggerMock,
@@ -60,6 +61,7 @@ export const withCredentialEventsDepsMock = (opts: Partial<typeof defaultCredEve
       eventMock as VeritableCloudagentEvents,
       cloudagentMock as unknown as VeritableCloudagent,
       companyDetailsMock as unknown as CompanyDetailsV1Handler,
+      dbMock,
       loggerMock,
     ] as const,
   }

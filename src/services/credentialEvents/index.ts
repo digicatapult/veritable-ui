@@ -72,7 +72,6 @@ export default class CredentialEvents {
       // Extract the JSON part starting from the first '{'
       const jsonString = startIndex !== -1 ? record.errorMessage.slice(startIndex) : null
       if (jsonString) {
-        console.log(jsonString)
         const message: { message: string; pinTries: number } = JSON.parse(jsonString)
         const pinTries = message.pinTries ? message.pinTries : 1
         await this.db.update(
