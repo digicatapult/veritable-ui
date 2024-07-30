@@ -12,6 +12,7 @@ import { ConnectionRow } from '../../models/db/types.js'
 import VeritableCloudagent from '../../models/veritableCloudagent.js'
 import { PinSubmissionTemplates } from '../../views/newConnection/pinSubmission.js'
 import { HTML, HTMLController } from '../HTMLController.js'
+import { checkDb } from './helpers.js'
 
 @singleton()
 @injectable()
@@ -153,49 +154,31 @@ export class ConnectionController extends HTMLController {
     })
   }
   private async pollPinSubmission(connectionId: string, initialPinAttemptsRemaining: number) {
-    const startTime = Date.now()
-    const timeout = 4000 // 4 seconds
-    const interval = 100 // 100 ms
-
-    while (Date.now() - startTime < timeout) {
-      const [connectionCheck]: ConnectionRow[] = await this.db.get('connection', { id: connectionId })
-      this.logger.debug('Polling for local pin attempts change.')
-      if (initialPinAttemptsRemaining > 0 && connectionCheck.pin_tries_remaining_count == 0) {
-        this.logger.debug('Maximum number of pin attempts has been reached.')
+    try {
+      const finalState = checkDb(
+        await this.db.waitForCondition(
+          'connection',
+          (rows) => !!checkDb(rows, initialPinAttemptsRemaining, this.logger),
+          { id: connectionId }
+        ),
+        initialPinAttemptsRemaining,
+        this.logger //!!checkDb(rows)
+      )
+      if (!finalState) {
         return {
-          localPinAttempts: connectionCheck.pin_tries_remaining_count,
-          message:
-            'Maximum number of pin attempts has been reached, please reach out to the company you are attempting to connect to.',
+          localPinAttempts: initialPinAttemptsRemaining,
+          message: `Sorry, there has been an error validating this pin, please try again.`,
           nextScreen: 'error',
         }
-      } else if (connectionCheck.status === 'verified_us') {
-        this.logger.debug('Pin has been verified.')
-
-        return {
-          localPinAttempts: connectionCheck.pin_tries_remaining_count,
-          message: 'Success',
-          nextScreen: 'success',
-        }
-      } else if (
-        connectionCheck.pin_tries_remaining_count < initialPinAttemptsRemaining ||
-        (initialPinAttemptsRemaining === 0 && connectionCheck.pin_tries_remaining_count === 4)
-      ) {
-        this.logger.debug(`Pin was invalid remaining attempts number:${connectionCheck.pin_tries_remaining_count}.`)
-
-        return {
-          localPinAttempts: connectionCheck.pin_tries_remaining_count,
-          message: `Sorry, your code is invalid. You have ${connectionCheck.pin_tries_remaining_count} attempts left before the PIN expires.`,
-          nextScreen: 'form',
-        }
       }
-
-      await new Promise((resolve) => setTimeout(resolve, interval))
-    }
-    this.logger.debug('Polling timed out after 5 seconds')
-    return {
-      localPinAttempts: initialPinAttemptsRemaining,
-      message: `Sorry, there has been an error validating this pin, please try again.`,
-      nextScreen: 'error',
+      return finalState
+    } catch (err) {
+      this.logger.debug('Polling timed out after 5 seconds')
+      return {
+        localPinAttempts: initialPinAttemptsRemaining,
+        message: `Sorry, there has been an error validating this pin, please try again. ${err}`,
+        nextScreen: 'error',
+      }
     }
   }
 }

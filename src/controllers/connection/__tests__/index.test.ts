@@ -105,5 +105,34 @@ describe('ConnectionController', () => {
         },
       ])
     })
+    it('should return a success', async () => {
+      let { args } = withConnectionMocks()
+      const controller = new ConnectionController(...args)
+      const result = await controller
+        .submitPinCode({ action: 'submitPinCode', pin: '111111' }, validConnection.id)
+        .then(toHTMLString)
+
+      expect(result).to.equal('renderSuccess_foo-2_renderSuccess')
+    })
+    it('should return a form page', async () => {
+      let { args } = withConnectionMocks()
+      const controller = new ConnectionController(...args)
+      const result = await controller
+        .submitPinCode({ action: 'submitPinCode', pin: '111111' }, validConnection.id)
+        .then(toHTMLString)
+      expect(result).to.equal(
+        'renderPinForm_4a5d4085-5924-43c6-b60d-754440332e3d-111111-false-Sorry, your code is invalid. You have 4 attempts left before the PIN expires._renderPinForm'
+      )
+    })
+    it('should return a success page with an error message', async () => {
+      let { args } = withConnectionMocks()
+      const controller = new ConnectionController(...args)
+      const result = await controller
+        .submitPinCode({ action: 'submitPinCode', pin: '111111' }, validConnection.id)
+        .then(toHTMLString)
+      expect(result).to.equal(
+        'renderSuccess_foo-2-Maximum number of pin attempts has been reached, please reach out to the company you are attempting to connect to._renderSuccess'
+      )
+    })
   })
 })

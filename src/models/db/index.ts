@@ -95,6 +95,27 @@ export default class Database {
     return z.array(Zod[model].get).parse(result)
   }
 
+  waitForCondition = async <M extends TABLE>(
+    model: M,
+    checkCondition: (rows: Models[typeof model]['get'][]) => boolean,
+    where?: Where<M>,
+    timeout?: number
+  ): Promise<Models[typeof model]['get'][]> => {
+    const startTime = Date.now()
+    const timeoutMs = timeout ?? 4000 // 4 seconds
+    const interval = 100 // 100 ms
+
+    while (Date.now() - startTime < timeoutMs) {
+      const rows = await this.get(model, where)
+      if (checkCondition(rows)) {
+        return rows
+      }
+
+      await new Promise((resolve) => setTimeout(resolve, interval))
+    }
+    throw new Error(`Sorry, there has been an error validating this pin, please try again.`)
+  }
+
   withTransaction = (update: (db: Database) => Promise<void>) => {
     return this.client.transaction(async (trx) => {
       const decorated = new Database(trx)

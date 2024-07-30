@@ -7,7 +7,7 @@ import CompanyDetailsV1Handler from '../companyDetailsV1.js'
 import { invitePinSecret, withCompanyDetailsDepsMock } from './helpers/mocks.js'
 
 describe('companyDetailsV1', function () {
-  describe.only('handleProposalReceived', function () {
+  describe('handleProposalReceived', function () {
     let clock: sinon.SinonFakeTimers
     beforeEach(function () {
       clock = sinon.useFakeTimers(5)
