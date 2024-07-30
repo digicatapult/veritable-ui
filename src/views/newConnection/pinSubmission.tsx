@@ -56,7 +56,7 @@ export class PinSubmissionTemplates extends NewConnectionTemplates {
               minlength={6}
               maxlength={6}
             />
-            <p id="remaining-pint-attempts">{Html.escapeHtml(remainingTriesString)}</p>
+            <p id="remaining-pin-attempts">{Html.escapeHtml(remainingTriesString)}</p>
             <img class="htmx-indicator" src="/public/images/send.svg" />
           </div>
         </this.newConnectionForm>

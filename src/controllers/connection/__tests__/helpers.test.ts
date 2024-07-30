@@ -1,13 +1,8 @@
 import { expect } from 'chai'
 import { describe, it } from 'mocha'
-import sinon from 'sinon'
 import { checkDb } from '../helpers.js'
 import { withCheckDbMocks } from './helpers.js'
 describe('CheckDb helper function', () => {
-  afterEach(() => {
-    sinon.restore()
-  })
-
   describe('CheckDb helper', () => {
     it('should return an error message', async () => {
       let { mockLogger } = withCheckDbMocks()

@@ -1,7 +1,7 @@
-import { Logger } from 'pino'
+import { ILogger } from '../../logger.js'
 import { ConnectionRow } from '../../models/db/types.js'
 
-export const checkDb = async (rows: ConnectionRow[], initialPinAttemptsRemaining: number, logger: Logger<string>) => {
+export const checkDb = async (rows: ConnectionRow[], initialPinAttemptsRemaining: number, logger: ILogger) => {
   const [connectionCheck] = rows
   if (initialPinAttemptsRemaining > 0 && connectionCheck.pin_tries_remaining_count == 0) {
     logger.debug('Maximum number of pin attempts has been reached.')
