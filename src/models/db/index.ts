@@ -97,7 +97,7 @@ export default class Database {
 
   waitForCondition = async <M extends TABLE>(
     model: M,
-    checkCondition: (rows: Models[typeof model]['get'][]) => boolean,
+    checkCondition: (rows: Models[typeof model]['get'][]) => Promise<boolean>,
     where?: Where<M>,
     timeout?: number
   ): Promise<Models[typeof model]['get'][]> => {
@@ -107,13 +107,15 @@ export default class Database {
 
     while (Date.now() - startTime < timeoutMs) {
       const rows = await this.get(model, where)
-      if (checkCondition(rows)) {
+      const res = await checkCondition(rows)
+      if (res !== false) {
         return rows
       }
 
       await new Promise((resolve) => setTimeout(resolve, interval))
     }
-    throw new Error(`Sorry, there has been an error validating this pin, please try again.`)
+
+    throw new Error(`Sorry, there has been an error polling the database, table ${model}`)
   }
 
   withTransaction = (update: (db: Database) => Promise<void>) => {

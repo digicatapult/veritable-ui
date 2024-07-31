@@ -97,6 +97,7 @@ export class ConnectionController extends HTMLController {
 
     // loading spinner for htmx
     const localPinAttemptCount = await this.pollPinSubmission(connectionId, connection.pin_tries_remaining_count)
+
     if (localPinAttemptCount) {
       if (localPinAttemptCount.nextScreen === 'success') {
         //render sucess screen
@@ -155,28 +156,29 @@ export class ConnectionController extends HTMLController {
   }
   private async pollPinSubmission(connectionId: string, initialPinAttemptsRemaining: number) {
     try {
-      const finalState = checkDb(
+      const finalState = await checkDb(
         await this.db.waitForCondition(
           'connection',
-          (rows) => !!checkDb(rows, initialPinAttemptsRemaining, this.logger),
+          async (rows) => !!(await checkDb(rows, initialPinAttemptsRemaining, this.logger)),
           { id: connectionId }
         ),
         initialPinAttemptsRemaining,
         this.logger //!!checkDb(rows)
       )
-      if (!finalState) {
+      if (finalState == false) {
+        this.logger.debug('Polling timed out after 5 seconds')
         return {
           localPinAttempts: initialPinAttemptsRemaining,
-          message: `Sorry, there has been an error validating this pin, please try again.`,
+          message: `Polling has timed out.`,
           nextScreen: 'error',
         }
       }
       return finalState
     } catch (err) {
-      this.logger.debug('Polling timed out after 5 seconds')
+      this.logger.debug(`${err}`)
       return {
         localPinAttempts: initialPinAttemptsRemaining,
-        message: `Sorry, there has been an error validating this pin, please try again. ${err}`,
+        message: `Sorry, an error has occured.`,
         nextScreen: 'error',
       }
     }

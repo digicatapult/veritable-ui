@@ -66,7 +66,6 @@ export default class CredentialEvents {
         this.logger.debug('Errror message in error report is missing for credential', record.id)
         return
       }
-      console.log(record)
 
       const startIndex = record.errorMessage.indexOf('{')
 
