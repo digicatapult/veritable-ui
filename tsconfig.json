@@ -20,6 +20,6 @@
     "resolveJsonModule": true,
     "types": ["@kitajs/html/htmx"]
   },
-  "include": ["src", "src/swagger.json"],
+  "include": ["src", "src/swagger.json", "@kitajs/html/htmx"],
   "exclude": ["test", "**/__tests__"]
 }
