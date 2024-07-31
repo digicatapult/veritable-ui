@@ -525,7 +525,7 @@ main {
   margin-top: 5px;
   color: white;
 }
-#remaining-pin-attempts {
+.warn-pin-attempts {
   color: var(--negative-accent);
   font-size: 0.875rem;
 }

@@ -6,7 +6,7 @@ describe('CheckDb helper function', () => {
   describe('CheckDb helper', () => {
     it('should return an error message', async () => {
       let { mockLogger } = withCheckDbMocks()
-      const result = await checkDb(
+      const result = checkDb(
         [
           {
             id: 'someId',
@@ -31,7 +31,7 @@ describe('CheckDb helper function', () => {
     })
     it('should return a sucess message', async () => {
       let { mockLogger } = withCheckDbMocks()
-      const result = await checkDb(
+      const result = checkDb(
         [
           {
             id: 'someId',
@@ -52,7 +52,7 @@ describe('CheckDb helper function', () => {
     })
     it('should return an error message maximum pin entry tries reached', async () => {
       let { mockLogger } = withCheckDbMocks()
-      const result = await checkDb(
+      const result = checkDb(
         [
           {
             id: 'someId',

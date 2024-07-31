@@ -98,7 +98,7 @@ export default class Database {
 
   waitForCondition = async <M extends TABLE>(
     model: M,
-    checkCondition: (rows: Models[typeof model]['get'][]) => Promise<boolean>,
+    checkCondition: (rows: Models[typeof model]['get'][]) => boolean,
     where?: Where<M>,
     timeout?: number
   ): Promise<Models[typeof model]['get'][]> => {
@@ -108,8 +108,7 @@ export default class Database {
 
     while (Date.now() - startTime < timeoutMs) {
       const rows = await this.get(model, where)
-      const res = await checkCondition(rows)
-      if (res !== false) {
+      if (checkCondition(rows)) {
         return rows
       }
 

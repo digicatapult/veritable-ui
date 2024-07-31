@@ -56,8 +56,8 @@ export class PinSubmissionTemplates extends NewConnectionTemplates {
               minlength={6}
               maxlength={6}
             />
-            <p id="remaining-pin-attempts">{Html.escapeHtml(remainingTriesString)}</p>
-            <img class={`${props.remainingTries ?? 'htmx-indicator'}`} src="/public/images/send.svg" />
+            <p class="warn-pin-attempts">{Html.escapeHtml(remainingTriesString)}</p>
+            <img class="htmx-indicator" src="/public/images/send.svg" />
           </div>
         </this.newConnectionForm>
       </Page>
@@ -78,7 +78,7 @@ export class PinSubmissionTemplates extends NewConnectionTemplates {
         actions={[{ type: 'link', text: 'Back To Home', href: '/connection' }]}
       >
         <div id="new-connection-invite-input">
-          <p>
+          <p class={`${props.errorMessage ? 'warn-pin-attempts' : ''}`}>
             {props.errorMessage ? 'You have run out of PIN attempts ' : 'PIN Code has been submitted '} for
             {Html.escapeHtml(props.companyName)} company ID.{' '}
             {props.errorMessage

@@ -156,10 +156,10 @@ export class ConnectionController extends HTMLController {
   }
   private async pollPinSubmission(connectionId: string, initialPinAttemptsRemaining: number) {
     try {
-      const finalState = await checkDb(
+      const finalState = checkDb(
         await this.db.waitForCondition(
           'connection',
-          async (rows) => !!(await checkDb(rows, initialPinAttemptsRemaining, this.logger)),
+          (rows) => !!checkDb(rows, initialPinAttemptsRemaining, this.logger),
           { id: connectionId }
         ),
         initialPinAttemptsRemaining,
