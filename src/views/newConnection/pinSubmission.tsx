@@ -18,6 +18,8 @@ export class PinSubmissionTemplates extends NewConnectionTemplates {
   }) => {
     const stepCount = props.continuationFromInvite ? 3 : 2
     const remainingTriesString = props.remainingTries ? props.remainingTries : ''
+    console.log(remainingTriesString)
+    console.log(remainingTriesString.length)
     return (
       <Page
         title="Veritable - New Connection"
@@ -57,7 +59,7 @@ export class PinSubmissionTemplates extends NewConnectionTemplates {
               maxlength={6}
             />
             <p id="remaining-pin-attempts">{Html.escapeHtml(remainingTriesString)}</p>
-            <img class="htmx-indicator" src="/public/images/send.svg" />
+            <img class={`${props.remainingTries ?? 'htmx-indicator'}`} src="/public/images/send.svg" />
           </div>
         </this.newConnectionForm>
       </Page>

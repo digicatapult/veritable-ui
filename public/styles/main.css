@@ -539,6 +539,7 @@ main {
 .htmx-request.htmx-indicator {
   opacity: 1;
 }
+
 /* Mobile view */
 @media (max-width: 767px) {
   body {
