@@ -1,3 +1,4 @@
+import Html from '@kitajs/html'
 import { singleton } from 'tsyringe'
 import { UUID, pinCodeRegex } from '../../models/strings.js'
 import { Page } from '../common.js'
