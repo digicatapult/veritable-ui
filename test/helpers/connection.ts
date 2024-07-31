@@ -88,12 +88,14 @@ export const withEstablishedConnectionFromUs = function (context: {
     })
 
     const [{ id: remoteConnectionId }] = await context.remoteDatabase.insert('connection', {
+      pin_attempt_count: 0,
       agent_connection_id: connectionRecord.id,
       company_name: validCompanyName,
       company_number: validCompanyNumber,
       status: 'unverified',
     })
     await context.remoteDatabase.insert('connection_invite', {
+      validity: 'valid',
       connection_id: remoteConnectionId,
       expires_at: new Date(new Date().getTime() + 60 * 1000),
       oob_invite_id: outOfBandRecord.id,
@@ -157,6 +159,7 @@ export const withEstablishedConnectionFromThem = function (context: {
     ).toString('base64url')
 
     const [{ id: remoteConnectionId }] = await context.remoteDatabase.insert('connection', {
+      pin_attempt_count: 0,
       company_name: validCompanyName,
       company_number: validCompanyNumber,
       status: 'pending',
@@ -166,6 +169,7 @@ export const withEstablishedConnectionFromThem = function (context: {
     context.localVerificationPin = '123456'
     const pinHash = await argon2.hash(context.localVerificationPin, { secret: Buffer.from('secret', 'utf8') })
     await context.remoteDatabase.insert('connection_invite', {
+      validity: 'valid',
       connection_id: remoteConnectionId,
       expires_at: new Date(new Date().getTime() + 60 * 1000),
       oob_invite_id: invite.outOfBandRecord.id,
