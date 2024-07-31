@@ -43,9 +43,13 @@ function templateListFake(templateName: string, ...args: any[]) {
 export const withQueriesMocks = (stage: Scope3FormStage = 'companySelect', compNumber: string = '10000009') => {
   const scope3CarbonConsumptionTemplateMock = {
     newScope3CarbonConsumptionFormPage: (
+      // @ts-ignore
       formStage: Scope3FormStage = stage,
+      // @ts-ignore
       connections: ConnectionRow[],
+      // @ts-ignore
       search = '',
+      // @ts-ignore
       company: { companyName: string; companyNumber: string } = { companyName: '', companyNumber: compNumber }
     ) => templateFake('queries'),
   } as Scope3CarbonConsumptionTemplates
