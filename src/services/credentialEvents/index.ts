@@ -73,12 +73,8 @@ export default class CredentialEvents {
         // Extract the JSON part starting from the first '{'
         const jsonString = startIndex !== -1 ? record.errorMessage.slice(startIndex) : null
         if (jsonString) {
-          //check if message is valid json and contains the requested fields
-          const schema = z.object({
-            message: z.string(),
-            pinTries: z.number(),
-          })
-          const message = schema.parse(JSON.parse(jsonString))
+          //check if message is valid json and contains the requested field
+          const message = this.problemReportStringParser(jsonString)
           this.logger.debug(`Error message: ${message.message}, Remaining pin tries: ${message.pinTries}`)
           const pinTries = message.pinTries ? message.pinTries : 1
           await this.db.update(
@@ -171,5 +167,13 @@ export default class CredentialEvents {
 
   private isDone(credential: Credential): boolean {
     return credential.state === 'done'
+  }
+  private problemReportStringParser(string: string) {
+    const schema = z.object({
+      message: z.string(),
+      pinTries: z.number(),
+    })
+    const message = schema.parse(JSON.parse(string))
+    return message
   }
 }
