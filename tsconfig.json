@@ -18,8 +18,8 @@
     "allowSyntheticDefaultImports": true,
     "outDir": "build",
     "resolveJsonModule": true,
-    "types": ["@kitajs/html/htmx"]
+    "types": ["@kitajs/html"]
   },
-  "include": ["src", "src/swagger.json", "@kitajs/html/htmx"],
+  "include": ["src", "src/swagger.json"],
   "exclude": ["test", "**/__tests__"]
 }

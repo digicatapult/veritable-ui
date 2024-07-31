@@ -120,7 +120,7 @@ const extractHtmxProps = (props: object): Record<`hx-${string}`, unknown> => {
  * default page template: props.children = content
  * @returns JSX - default page
  */
-export const Page = (props: PropsWithChildren<PageProps & Htmx.Attributes>): JSX.Element => (
+export const Page = (props: PropsWithChildren<PageProps>): JSX.Element => (
   <>
     {'<!DOCTYPE html>'}
     <html lang="en">
