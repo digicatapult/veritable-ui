@@ -72,7 +72,7 @@ export default class CredentialEvents {
 
         // Extract the JSON part starting from the first '{'
         const jsonString = startIndex !== -1 ? record.errorMessage.slice(startIndex) : null
-        if (jsonString) {
+        if (jsonString !== null) {
           //check if message is valid json and contains the requested field
           const message = this.problemReportStringParser(jsonString)
           this.logger.debug(`Error message: ${message.message}, Remaining pin tries: ${message.pinTries}`)
@@ -82,6 +82,8 @@ export default class CredentialEvents {
             { agent_connection_id: record.connectionId },
             { pin_tries_remaining_count: pinTries }
           )
+        } else {
+          throw new Error(`ErrorMessage string is null.`)
         }
       } catch (err) {
         this.logger.debug('There has been an error receiving problem report %s', record)
