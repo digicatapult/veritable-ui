@@ -1,8 +1,7 @@
 {
   "compilerOptions": {
-    "jsx": "react",
-    "jsxFactory": "Html.createElement",
-    "jsxFragmentFactory": "Html.Fragment",
+    "jsx": "react-jsx",
+    "jsxImportSource": "@kitajs/html",
     "plugins": [{ "name": "@kitajs/ts-html-plugin" }],
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
@@ -19,7 +18,7 @@
     "allowSyntheticDefaultImports": true,
     "outDir": "build",
     "resolveJsonModule": true,
-    "types": ["@kitajs/html/htmx.d.ts"]
+    "types": ["@kitajs/html/htmx"]
   },
   "include": ["src", "src/swagger.json"],
   "exclude": ["test", "**/__tests__"]
