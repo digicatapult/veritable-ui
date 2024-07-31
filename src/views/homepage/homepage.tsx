@@ -1,4 +1,3 @@
-import Html from '@kitajs/html'
 import { singleton } from 'tsyringe'
 import { Page } from '../common.js'
 

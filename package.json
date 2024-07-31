@@ -1,6 +1,6 @@
 {
   "name": "veritable-ui",
-  "version": "0.8.13",
+  "version": "0.8.14",
   "description": "UI for Veritable",
   "main": "src/index.ts",
   "type": "module",
@@ -32,8 +32,8 @@
   },
   "dependencies": {
     "@digicatapult/tsoa-oauth-express": "^0.1.24",
-    "@kitajs/html": "^4.1.0",
-    "@kitajs/ts-html-plugin": "^4.0.1",
+    "@kitajs/html": "^4.2.0",
+    "@kitajs/ts-html-plugin": "^4.0.2",
     "@tsoa/runtime": "^6.4.0",
     "@types/compression": "^1.7.5",
     "argon2": "^0.40.3",

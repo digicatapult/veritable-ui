@@ -1,4 +1,6 @@
-import { Html } from '@kitajs/html'
+import type { PropsWithChildren } from '@kitajs/html'
+import { escapeHtml } from '@kitajs/html'
+/// <reference types="@kitajs/html/all-types.d.ts" />
 
 type HeaderLink = { name: string; url: string }
 
@@ -103,7 +105,7 @@ const ContentHeader = (props: { heading: string; headerLinks: HeaderLink[] }): J
       <a title="home" class="nav icon" href="/" />
       {...props.headerLinks.map(({ name, url }) => (
         <a title={name} href={url}>
-          {Html.escapeHtml(name)}
+          {escapeHtml(name)}
         </a>
       ))}
     </div>
@@ -118,7 +120,7 @@ const extractHtmxProps = (props: object): Record<`hx-${string}`, unknown> => {
  * default page template: props.children = content
  * @returns JSX - default page
  */
-export const Page = (props: Html.PropsWithChildren<PageProps & Htmx.Attributes>): JSX.Element => (
+export const Page = (props: PropsWithChildren<PageProps>): JSX.Element => (
   <>
     {'<!DOCTYPE html>'}
     <html lang="en">
@@ -130,10 +132,10 @@ export const Page = (props: Html.PropsWithChildren<PageProps & Htmx.Attributes>)
         <link rel="stylesheet" type="text/css" href="/public/styles/main.css" />
         <link rel="stylesheet" type="text/css" href="/public/styles/shared.css" />
         <link rel="stylesheet" type="text/css" href="/public/styles/mpa.css" />
-        {(props.stylesheets || []).map((sheetName) => (
+        {(props.stylesheets || []).map((sheetName: JSX.Element) => (
           <link rel="stylesheet" type="text/css" href={`/public/styles/${sheetName}`} />
         ))}
-        <title>{Html.escapeHtml(props.title)}</title>
+        <title>{escapeHtml(props.title)}</title>
       </head>
       <body hx-ext="json-enc">
         <SideBar activePage={props.activePage} />
