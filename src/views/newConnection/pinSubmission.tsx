@@ -18,8 +18,6 @@ export class PinSubmissionTemplates extends NewConnectionTemplates {
   }) => {
     const stepCount = props.continuationFromInvite ? 3 : 2
     const remainingTriesString = props.remainingTries ? props.remainingTries : ''
-    console.log(remainingTriesString)
-    console.log(remainingTriesString.length)
     return (
       <Page
         title="Veritable - New Connection"

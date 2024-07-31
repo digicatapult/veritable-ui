@@ -1,5 +1,6 @@
 import { inject, injectable, singleton } from 'tsyringe'
 
+import { z } from 'zod'
 import { Logger, type ILogger } from '../../logger.js'
 import Database from '../../models/db/index.js'
 import type { Credential, CredentialFormatData, Schema } from '../../models/veritableCloudagent.js'
@@ -66,20 +67,31 @@ export default class CredentialEvents {
         this.logger.debug('Errror message in error report is missing for credential', record.id)
         return
       }
+      try {
+        const startIndex = record.errorMessage.indexOf('{')
 
-      const startIndex = record.errorMessage.indexOf('{')
-
-      // Extract the JSON part starting from the first '{'
-      const jsonString = startIndex !== -1 ? record.errorMessage.slice(startIndex) : null
-      if (jsonString) {
-        const message: { message: string; pinTries: number } = JSON.parse(jsonString)
-        const pinTries = message.pinTries ? message.pinTries : 1
-        await this.db.update(
-          'connection',
-          { agent_connection_id: record.connectionId },
-          { pin_tries_remaining_count: pinTries }
-        )
+        // Extract the JSON part starting from the first '{'
+        const jsonString = startIndex !== -1 ? record.errorMessage.slice(startIndex) : null
+        if (jsonString) {
+          //check if message is valid json and contains the requested fields
+          const schema = z.object({
+            message: z.string(),
+            pinTries: z.number(),
+          })
+          const message = schema.parse(JSON.parse(jsonString))
+          this.logger.debug(`Error message: ${message.message}, Remaining pin tries: ${message.pinTries}`)
+          const pinTries = message.pinTries ? message.pinTries : 1
+          await this.db.update(
+            'connection',
+            { agent_connection_id: record.connectionId },
+            { pin_tries_remaining_count: pinTries }
+          )
+        }
+      } catch (err) {
+        this.logger.debug('There has been an error receiving problem report %s', record)
+        return
       }
+
       return
     }
     // if we have a schema we need to make sure it is valid with the schema we're using moving forward
