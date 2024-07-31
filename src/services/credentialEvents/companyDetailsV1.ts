@@ -79,7 +79,6 @@ export default class CompanyDetailsV1Handler implements CredentialEventHandler<'
         message: `PIN verification attempt count exceeded for connection ${connection.id}`,
         pinTries: 5 - pinAttemptCount,
       }
-      console.log(JSON.stringify(problemReportPin))
       await this.db.update('connection_invite', { connection_id: connection.id }, { validity: 'too_many_attempts' })
       await this.db.update('connection', { id: connection.id }, { pin_attempt_count: 0 }) // reset so if a new pin is sent they can try again
       await this.cloudagent.sendProblemReport(credential.id, JSON.stringify(problemReportPin))
