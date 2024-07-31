@@ -21,5 +21,5 @@
     "types": ["@kitajs/html/htmx"]
   },
   "include": ["src", "src/swagger.json"],
-  "exclude": ["test"]
+  "exclude": ["test", "**/__tests__"]
 }
