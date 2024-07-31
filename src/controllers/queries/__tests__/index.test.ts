@@ -87,7 +87,7 @@ describe('QueriesController', () => {
     })
     it('should call page with stage FORM as expected', async () => {
       const { scope3CarbonConsumptionTemplateMock, mockLogger, queryTemplateMock, dbMock, queryListTemplateMock } =
-        withQueriesMocks('form', '10000009')
+        withQueriesMocks()
       const controller = new QueriesController(
         scope3CarbonConsumptionTemplateMock,
         queryTemplateMock,
@@ -103,7 +103,7 @@ describe('QueriesController', () => {
     })
     it('should call page with stage SUCCESS as expected', async () => {
       const { scope3CarbonConsumptionTemplateMock, mockLogger, queryTemplateMock, dbMock, queryListTemplateMock } =
-        withQueriesMocks('success', '10000009')
+        withQueriesMocks()
       const controller = new QueriesController(
         scope3CarbonConsumptionTemplateMock,
         queryTemplateMock,
