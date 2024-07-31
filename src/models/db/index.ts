@@ -3,6 +3,7 @@ import { container, singleton } from 'tsyringe'
 import { z } from 'zod'
 
 import { Env } from '../../env.js'
+import { DatabaseTimeoutError } from '../../errors.js'
 import Zod, { ColumnsByType, IDatabase, Models, Order, TABLE, Update, Where, tablesList } from './types.js'
 import { reduceWhere } from './util.js'
 
@@ -115,7 +116,7 @@ export default class Database {
       await new Promise((resolve) => setTimeout(resolve, interval))
     }
 
-    throw new Error(`Sorry, there has been an error polling the database, table ${model}`)
+    throw new DatabaseTimeoutError(`Sorry, there has been an error polling the database, table ${model}`)
   }
 
   withTransaction = (update: (db: Database) => Promise<void>) => {

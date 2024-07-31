@@ -4,7 +4,7 @@ import { inject, injectable, singleton } from 'tsyringe'
 import { pinCodeRegex, type PIN_CODE, type UUID } from '../../models/strings.js'
 import ConnectionTemplates from '../../views/connection/connection.js'
 
-import { InvalidInputError, NotFoundError } from '../../errors.js'
+import { DatabaseTimeoutError, InvalidInputError, NotFoundError } from '../../errors.js'
 import { Logger, type ILogger } from '../../logger.js'
 import CompanyHouseEntity, { CompanyProfile } from '../../models/companyHouseEntity.js'
 import Database from '../../models/db/index.js'
@@ -165,22 +165,17 @@ export class ConnectionController extends HTMLController {
         initialPinAttemptsRemaining,
         this.logger //!!checkDb(rows)
       )
-      if (finalState == false) {
-        this.logger.debug('Polling timed out after 5 seconds')
-        return {
-          localPinAttempts: initialPinAttemptsRemaining,
-          message: `Polling has timed out.`,
-          nextScreen: 'error',
-        }
-      }
       return finalState
     } catch (err) {
       this.logger.debug(`${err}`)
-      return {
-        localPinAttempts: initialPinAttemptsRemaining,
-        message: `Sorry, an error has occured.`,
-        nextScreen: 'error',
+      if (err instanceof DatabaseTimeoutError) {
+        return {
+          localPinAttempts: initialPinAttemptsRemaining,
+          message: `Polling the database timed out after 5s. Please contact your invitation provider to resend the pin.`,
+          nextScreen: 'error',
+        }
       }
+      throw new Error(`err`)
     }
   }
 }

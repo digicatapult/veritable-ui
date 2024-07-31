@@ -2,6 +2,12 @@ export abstract class HttpError extends Error {
   public abstract get code(): number
 }
 
+export class DatabaseTimeoutError extends Error {
+  constructor(message?: string) {
+    super(message)
+  }
+}
+
 export class NotFoundError extends HttpError {
   constructor(item: string) {
     super(`${item} - not found`)
