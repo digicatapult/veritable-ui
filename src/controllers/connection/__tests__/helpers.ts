@@ -22,163 +22,42 @@ import {
   validExistingCompanyNumber,
 } from './fixtures.js'
 
-function* sampleGenerator() {
-  const samples = [
-    [
-      {
-        id: 'someId',
-        created_at: new Date(),
-        company_name: 'COMPANY_NAME',
-        company_number: 'COMPANY_NUMBER',
-        status: 'verified_us',
-        agent_connection_id: '11110000',
-        updated_at: new Date(),
-        pin_attempt_count: 0,
-        pin_tries_remaining_count: null,
-      },
-    ],
-    [
-      {
-        id: 'someId',
-        created_at: new Date(),
-        company_name: 'COMPANY_NAME',
-        company_number: 'COMPANY_NUMBER',
-        status: 'verified_us',
-        agent_connection_id: '11110000',
-        updated_at: new Date(),
-        pin_attempt_count: 0,
-        pin_tries_remaining_count: null,
-      },
-    ],
-    [
-      {
-        id: 'someId',
-        created_at: new Date(),
-        company_name: 'COMPANY_NAME',
-        company_number: 'COMPANY_NUMBER',
-        status: 'pending',
-        agent_connection_id: '11110000',
-        updated_at: new Date(),
-        pin_attempt_count: 0,
-        pin_tries_remaining_count: 4,
-      },
-    ],
-    [
-      {
-        id: 'someId',
-        created_at: new Date(),
-        company_name: 'COMPANY_NAME',
-        company_number: 'COMPANY_NUMBER',
-        status: 'pending',
-        agent_connection_id: '11110000',
-        updated_at: new Date(),
-        pin_attempt_count: 0,
-        pin_tries_remaining_count: 0,
-      },
-    ],
-  ]
-
-  let index = 0
-  while (index < samples.length) {
-    yield samples[index++]
-  }
-}
-const sampleGen = sampleGenerator()
-
-function* sampleGeneratorGet() {
-  const samples = [
-    [
-      {
-        company_name: 'foo',
-        status: 'unverified',
-        agent_connection_id: 'AGENT_CONNECTION_ID',
-        pin_tries_remaining_count: null,
-      },
-    ],
-    [
-      {
-        company_name: 'foo',
-        status: 'unverified',
-        agent_connection_id: 'AGENT_CONNECTION_ID',
-        pin_tries_remaining_count: null,
-      },
-    ],
-    [
-      {
-        company_name: 'foo',
-        status: 'unverified',
-        agent_connection_id: 'AGENT_CONNECTION_ID',
-        pin_tries_remaining_count: null,
-      },
-    ],
-    [
-      {
-        company_name: 'foo',
-        status: 'unverified',
-        agent_connection_id: 'AGENT_CONNECTION_ID',
-        pin_tries_remaining_count: null,
-      },
-    ],
-    [
-      {
-        company_name: 'foo',
-        status: 'unverified',
-        agent_connection_id: 'AGENT_CONNECTION_ID',
-        pin_tries_remaining_count: null,
-      },
-    ],
-    [
-      {
-        company_name: 'foo',
-        status: 'unverified',
-        agent_connection_id: 'AGENT_CONNECTION_ID',
-        pin_tries_remaining_count: null,
-      },
-    ],
-    [
-      {
-        company_name: 'foo',
-        status: 'unverified',
-        agent_connection_id: 'AGENT_CONNECTION_ID',
-        pin_tries_remaining_count: null,
-      },
-    ],
-    [
-      {
-        company_name: 'foo',
-        status: 'unverified',
-        agent_connection_id: 'AGENT_CONNECTION_ID',
-        pin_tries_remaining_count: 1,
-      },
-    ],
-  ]
-
-  let index = 0
-  while (index < samples.length) {
-    yield samples[index++]
-  }
-}
-const sampleGenGet = sampleGeneratorGet()
-
 function templateFake(templateName: string, ...args: any[]) {
   return Promise.resolve([templateName, args.join('-'), templateName].join('_'))
 }
 
-export const withConnectionMocks = () => {
+export const withConnectionMocks = (
+  initialPinAttemptTries: number | null,
+  finalPinAttemptTries: number | null,
+  finalStatus: string
+) => {
   const templateMock = {
     listPage: (connections: ConnectionRow[]) =>
       templateFake('list', connections[0].company_name, connections[0].status),
   }
   const mockLogger: ILogger = pino({ level: 'silent' })
   const dbMock = {
-    get: () => {
-      const result = sampleGenGet.next()
-      return Promise.resolve(result.value)
-    },
-    waitForCondition: () => {
-      const result = sampleGen.next()
-      return Promise.resolve(result.value)
-    },
+    get: () => [
+      {
+        company_name: 'foo',
+        status: 'unverified',
+        agent_connection_id: 'AGENT_CONNECTION_ID',
+        pin_tries_remaining_count: initialPinAttemptTries,
+      },
+    ],
+    waitForCondition: () => [
+      {
+        id: 'someId',
+        created_at: new Date(),
+        company_name: 'COMPANY_NAME',
+        company_number: 'COMPANY_NUMBER',
+        status: finalStatus,
+        agent_connection_id: '11110000',
+        updated_at: new Date(),
+        pin_attempt_count: 0,
+        pin_tries_remaining_count: finalPinAttemptTries,
+      },
+    ],
   }
   const cloudagentMock = {
     proposeCredential: sinon.stub().resolves(),

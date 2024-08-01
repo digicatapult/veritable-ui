@@ -69,7 +69,7 @@ export default class CredentialEvents {
     }
 
     if (this.isCredentialError(record)) {
-      this.logger.debug('There was an erorr in credential issuance of credential %s', record.id)
+      this.logger.debug('There was an error in credential issuance of credential %s', record.id)
       if (!record.errorMessage) {
         this.logger.debug('Errror message in error report is missing for credential', record.id)
         return
