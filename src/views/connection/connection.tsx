@@ -9,6 +9,7 @@ interface connection {
   company_name: string
   status: ConnectionStatus
   id?: string
+  pin_tries_remaining_count?: number | null
 }
 
 @singleton()
