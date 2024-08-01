@@ -1,6 +1,6 @@
 import { inject, injectable, singleton } from 'tsyringe'
 
-import { z } from 'zod'
+import { ZodType, z } from 'zod'
 import { Logger, type ILogger } from '../../logger.js'
 import Database from '../../models/db/index.js'
 import type { Credential, CredentialFormatData, Schema } from '../../models/veritableCloudagent.js'
@@ -15,13 +15,20 @@ type eventData<T> = Parameters<typeof CloudagentOn<T>>[1]
 @singleton()
 @injectable()
 export default class CredentialEvents {
+  private problemReportParser: ZodType<{ message: string; pinTries: number }>
+
   constructor(
     private events: VeritableCloudagentEvents,
     private cloudagent: VeritableCloudagent,
     private companyDetailsHandler: CompanyDetailsV1Handler,
     private db: Database,
     @inject(Logger) protected logger: ILogger
-  ) {}
+  ) {
+    this.problemReportParser = z.object({
+      message: z.string(),
+      pinTries: z.number(),
+    })
+  }
 
   public start() {
     this.events.on('CredentialStateChanged', this.credentialStateChangedHandler)
@@ -76,7 +83,7 @@ export default class CredentialEvents {
           //check if message is valid json and contains the requested field
           const message = this.problemReportStringParser(jsonString)
           this.logger.debug(`Error message: ${message.message}, Remaining pin tries: ${message.pinTries}`)
-          const pinTries = message.pinTries ? message.pinTries : 1
+          const pinTries = message.pinTries ?? 1
           await this.db.update(
             'connection',
             { agent_connection_id: record.connectionId },
@@ -171,11 +178,7 @@ export default class CredentialEvents {
     return credential.state === 'done'
   }
   private problemReportStringParser(string: string) {
-    const schema = z.object({
-      message: z.string(),
-      pinTries: z.number(),
-    })
-    const message = schema.parse(JSON.parse(string))
+    const message = this.problemReportParser.parse(JSON.parse(string))
     return message
   }
 }

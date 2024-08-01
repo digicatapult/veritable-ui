@@ -34,7 +34,7 @@ function* sampleGenerator() {
         agent_connection_id: '11110000',
         updated_at: new Date(),
         pin_attempt_count: 0,
-        pin_tries_remaining_count: 0,
+        pin_tries_remaining_count: null,
       },
     ],
     [
@@ -47,7 +47,7 @@ function* sampleGenerator() {
         agent_connection_id: '11110000',
         updated_at: new Date(),
         pin_attempt_count: 0,
-        pin_tries_remaining_count: 0,
+        pin_tries_remaining_count: null,
       },
     ],
     [
@@ -92,7 +92,7 @@ function* sampleGeneratorGet() {
         company_name: 'foo',
         status: 'unverified',
         agent_connection_id: 'AGENT_CONNECTION_ID',
-        pin_tries_remaining_count: 0,
+        pin_tries_remaining_count: null,
       },
     ],
     [
@@ -100,7 +100,7 @@ function* sampleGeneratorGet() {
         company_name: 'foo',
         status: 'unverified',
         agent_connection_id: 'AGENT_CONNECTION_ID',
-        pin_tries_remaining_count: 0,
+        pin_tries_remaining_count: null,
       },
     ],
     [
@@ -108,7 +108,7 @@ function* sampleGeneratorGet() {
         company_name: 'foo',
         status: 'unverified',
         agent_connection_id: 'AGENT_CONNECTION_ID',
-        pin_tries_remaining_count: 0,
+        pin_tries_remaining_count: null,
       },
     ],
     [
@@ -116,7 +116,7 @@ function* sampleGeneratorGet() {
         company_name: 'foo',
         status: 'unverified',
         agent_connection_id: 'AGENT_CONNECTION_ID',
-        pin_tries_remaining_count: 0,
+        pin_tries_remaining_count: null,
       },
     ],
     [
@@ -124,7 +124,7 @@ function* sampleGeneratorGet() {
         company_name: 'foo',
         status: 'unverified',
         agent_connection_id: 'AGENT_CONNECTION_ID',
-        pin_tries_remaining_count: 0,
+        pin_tries_remaining_count: null,
       },
     ],
     [
@@ -132,7 +132,7 @@ function* sampleGeneratorGet() {
         company_name: 'foo',
         status: 'unverified',
         agent_connection_id: 'AGENT_CONNECTION_ID',
-        pin_tries_remaining_count: 0,
+        pin_tries_remaining_count: null,
       },
     ],
     [
@@ -140,7 +140,7 @@ function* sampleGeneratorGet() {
         company_name: 'foo',
         status: 'unverified',
         agent_connection_id: 'AGENT_CONNECTION_ID',
-        pin_tries_remaining_count: 0,
+        pin_tries_remaining_count: null,
       },
     ],
     [

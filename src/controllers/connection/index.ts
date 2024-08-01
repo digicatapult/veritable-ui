@@ -117,7 +117,7 @@ export class ConnectionController extends HTMLController {
             errorMessage: localPinAttemptCount.message,
           })
         )
-      } else if (localPinAttemptCount.localPinAttempts > 0) {
+      } else if (localPinAttemptCount.nextScreen === 'form') {
         return this.html(
           this.pinSubmission.renderPinForm({
             connectionId,
@@ -154,7 +154,7 @@ export class ConnectionController extends HTMLController {
       ],
     })
   }
-  private async pollPinSubmission(connectionId: string, initialPinAttemptsRemaining: number) {
+  private async pollPinSubmission(connectionId: string, initialPinAttemptsRemaining: number | null) {
     try {
       const finalState = checkDb(
         await this.db.waitForCondition(

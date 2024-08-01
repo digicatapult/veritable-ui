@@ -93,8 +93,7 @@ export const withEstablishedConnectionFromUs = function (context: {
       company_name: validCompanyName,
       company_number: validCompanyNumber,
       status: 'unverified',
-      pin_attempt_count: 0,
-      pin_tries_remaining_count: 0,
+      pin_tries_remaining_count: null,
     })
     await context.remoteDatabase.insert('connection_invite', {
       validity: 'valid',
@@ -102,7 +101,6 @@ export const withEstablishedConnectionFromUs = function (context: {
       expires_at: new Date(new Date().getTime() + 60 * 1000),
       oob_invite_id: outOfBandRecord.id,
       pin_hash: pinHash,
-      validity: 'valid',
     })
     context.remoteConnectionId = remoteConnectionId
 
@@ -167,8 +165,8 @@ export const withEstablishedConnectionFromThem = function (context: {
       company_number: validCompanyNumber,
       status: 'pending',
       agent_connection_id: null,
-      pin_attempt_count: 0,
-      pin_tries_remaining_count: 0,
+
+      pin_tries_remaining_count: null,
     })
     context.remoteConnectionId = remoteConnectionId
     context.localVerificationPin = '123456'
@@ -179,7 +177,6 @@ export const withEstablishedConnectionFromThem = function (context: {
       expires_at: new Date(new Date().getTime() + 60 * 1000),
       oob_invite_id: invite.outOfBandRecord.id,
       pin_hash: pinHash,
-      validity: 'valid',
     })
 
     const email = container.resolve(EmailService)
