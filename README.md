@@ -5,9 +5,9 @@ UI for `Veritable` utilizing [TSOA](https://tsoa-community.github.io/docs/gettin
 
 ## Setup/Configuration
 veritable-ui depends on a few external services:
-- [veritable-cloudagent]() APIs for managing connections, credentials and messages.
+- [veritable-cloudagent](https://github.com/digicatapult/veritable-cloudagent) APIs for managing connections, credentials and messages.
 - `keycloak` - runs as a docker image for each node that handles authentication and users.
-- `docker` - for orchestrating multiple personas and running other dependencies such as database (PostgreSQL) along with node specific environment variables
+- `docker` - for orchestrating multiple nodes and running other dependencies such as database (PostgreSQL) along with node specific environment variables
 
 ### Prerequisites
 > last updated: 01/08/2024
@@ -37,7 +37,7 @@ npm run build
 > Note that this is just the service on itself without other dependencies like keycloak or database, for local development please refer to the section below
 
 ### Development mode
-Before reading this please make sure that you have executed all the tasks from **Getting Started** section (installation and build), should have a directory `/build` and make sire there is at a minimum an empty `.env` at the root of project containing the below:
+Before reading this please make sure that you have executed all the tasks from **Getting Started** section (installation and build), should have a directory `/build` and make sure there is at a minimum an empty `.env` at the root of project containing the below:
 ```sh
 COMPANY_PROFILE_API_KEY=apikey
 ```
@@ -70,10 +70,7 @@ Api Docs are available on `http://localhost:3000/api-docs` and swagger `http://l
 
 
 ## Environment variables
-This is the list of all environment variables
-<!-- A short description of environment variables, if there are any unique cases please cover and mention where to retrieve the values -->
-- Table of environemnt variables as per the below example:
-- There are multiple tools for helping to automaticallt generate a markdown table [one of the tools](https://www.tablesgenerator.com/markdown_tables)
+This is the list of all environment variables including brief description
 
 | variable name                  | required | default                                                        | description                                                                                      |
 |--------------------------------|----------|----------------------------------------------------------------|--------------------------------------------------------------------------------------------------|
