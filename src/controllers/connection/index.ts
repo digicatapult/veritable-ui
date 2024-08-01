@@ -4,7 +4,7 @@ import { inject, injectable, singleton } from 'tsyringe'
 import { pinCodeRegex, type PIN_CODE, type UUID } from '../../models/strings.js'
 import ConnectionTemplates from '../../views/connection/connection.js'
 
-import { DatabaseTimeoutError, InvalidInputError, NotFoundError } from '../../errors.js'
+import { DatabaseTimeoutError, InternalError, InvalidInputError, NotFoundError } from '../../errors.js'
 import { Logger, type ILogger } from '../../logger.js'
 import CompanyHouseEntity, { CompanyProfile } from '../../models/companyHouseEntity.js'
 import Database from '../../models/db/index.js'
@@ -98,39 +98,32 @@ export class ConnectionController extends HTMLController {
     // loading spinner for htmx
     const localPinAttemptCount = await this.pollPinSubmission(connectionId, connection.pin_tries_remaining_count)
 
-    if (localPinAttemptCount) {
-      if (localPinAttemptCount.nextScreen === 'success') {
-        //render sucess screen
-        this.logger.debug('Rendering sucess screen')
+    if (localPinAttemptCount.nextScreen === 'success') {
+      this.logger.debug('Rendering sucess screen')
 
-        return this.html(
-          this.pinSubmission.renderSuccess({ companyName: connection.company_name, stepCount: body.stepCount ?? 2 })
-        )
-      } else if (localPinAttemptCount.nextScreen === 'error') {
-        //render error screen with message coming from pollPin submission
-        this.logger.debug('Render error screen with message coming from poll Pin submission')
-
-        return this.html(
-          this.pinSubmission.renderError({
-            companyName: connection.company_name,
-            stepCount: body.stepCount ?? 2,
-            errorMessage: localPinAttemptCount.message,
-          })
-        )
-      } else if (localPinAttemptCount.nextScreen === 'form') {
-        return this.html(
-          this.pinSubmission.renderPinForm({
-            connectionId,
-            pin,
-            continuationFromInvite: false,
-            remainingTries: localPinAttemptCount.message,
-          })
-        )
-      }
+      return this.html(
+        this.pinSubmission.renderSuccess({ companyName: connection.company_name, stepCount: body.stepCount ?? 2 })
+      )
     }
+    if (localPinAttemptCount.nextScreen === 'error') {
+      this.logger.debug('Render error screen with message coming from poll Pin submission')
 
+      return this.html(
+        this.pinSubmission.renderError({
+          companyName: connection.company_name,
+          stepCount: body.stepCount ?? 2,
+          errorMessage: localPinAttemptCount.message,
+        })
+      )
+    }
+    //at this point this can only be form
     return this.html(
-      this.pinSubmission.renderSuccess({ companyName: connection.company_name, stepCount: body.stepCount ?? 2 })
+      this.pinSubmission.renderPinForm({
+        connectionId,
+        pin,
+        continuationFromInvite: false,
+        remainingTries: localPinAttemptCount.message,
+      })
     )
   }
 
@@ -163,19 +156,22 @@ export class ConnectionController extends HTMLController {
           { id: connectionId }
         ),
         initialPinAttemptsRemaining,
-        this.logger //!!checkDb(rows)
+        this.logger
       )
+      if (finalState === undefined) {
+        throw new InternalError()
+      }
       return finalState
     } catch (err) {
-      this.logger.debug(`${err}`)
       if (err instanceof DatabaseTimeoutError) {
         return {
           localPinAttempts: initialPinAttemptsRemaining,
           message: `Polling the database timed out after 5s. Please contact your invitation provider to resend the pin.`,
-          nextScreen: 'error',
+          nextScreen: 'error' as const,
         }
       }
-      throw new Error(`err`)
+      this.logger.debug(`There has been an unexpected error waiting for pin response.`)
+      throw new InternalError(`There has been an unexpected error waiting for pin response.`)
     }
   }
 }

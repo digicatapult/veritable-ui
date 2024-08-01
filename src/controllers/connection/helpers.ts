@@ -11,7 +11,7 @@ export const checkDb = (rows: ConnectionRow[], initialPinAttemptsRemaining: numb
     return {
       localPinAttempts: connectionCheck.pin_tries_remaining_count,
       message: 'Success',
-      nextScreen: 'success',
+      nextScreen: 'success' as const,
     }
   }
   if (connectionCheck.pin_tries_remaining_count === 0) {
@@ -20,7 +20,7 @@ export const checkDb = (rows: ConnectionRow[], initialPinAttemptsRemaining: numb
       localPinAttempts: connectionCheck.pin_tries_remaining_count,
       message:
         'Maximum number of pin attempts has been reached, please reach out to the company you are attempting to connect to.',
-      nextScreen: 'error',
+      nextScreen: 'error' as const,
     }
   }
   if (initialPinAttemptsRemaining === connectionCheck.pin_tries_remaining_count) {
@@ -32,7 +32,7 @@ export const checkDb = (rows: ConnectionRow[], initialPinAttemptsRemaining: numb
     return {
       localPinAttempts: connectionCheck.pin_tries_remaining_count,
       message: `Sorry, your code is invalid. You have ${connectionCheck.pin_tries_remaining_count} attempts left before the PIN expires.`,
-      nextScreen: 'form',
+      nextScreen: 'form' as const,
     }
   }
   if (connectionCheck.pin_tries_remaining_count === null || initialPinAttemptsRemaining === null) {
@@ -44,7 +44,7 @@ export const checkDb = (rows: ConnectionRow[], initialPinAttemptsRemaining: numb
     return {
       localPinAttempts: connectionCheck.pin_tries_remaining_count,
       message: `Sorry, your code is invalid. You have ${connectionCheck.pin_tries_remaining_count} attempts left before the PIN expires.`,
-      nextScreen: 'form',
+      nextScreen: 'form' as const,
     }
   }
 
