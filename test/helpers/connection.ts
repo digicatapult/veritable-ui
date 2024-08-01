@@ -165,7 +165,6 @@ export const withEstablishedConnectionFromThem = function (context: {
       company_number: validCompanyNumber,
       status: 'pending',
       agent_connection_id: null,
-
       pin_tries_remaining_count: null,
     })
     context.remoteConnectionId = remoteConnectionId

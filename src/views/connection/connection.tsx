@@ -5,13 +5,6 @@ import { LinkButton, Page } from '../common.js'
 
 type ConnectionStatus = 'pending' | 'unverified' | 'verified_them' | 'verified_us' | 'verified_both' | 'disconnected'
 
-interface connection {
-  company_name: string
-  status: ConnectionStatus
-  id?: string
-  pin_tries_remaining_count?: number | null
-}
-
 @singleton()
 export default class ConnectionTemplates {
   constructor() {}
@@ -57,7 +50,7 @@ export default class ConnectionTemplates {
     }
   }
 
-  public listPage = (connections: ConnectionRow[] | connection[], search: string = '') => {
+  public listPage = (connections: ConnectionRow[], search: string = '') => {
     return (
       <Page
         title="Veritable - Connections"

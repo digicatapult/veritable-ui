@@ -43,7 +43,7 @@ describe('ConnectionController', () => {
       let { args } = withConnectionMocks()
       const controller = new ConnectionController(...args)
       const result = await controller.renderPinCode(validConnection.id, '123456').then(toHTMLString)
-      expect(result).to.equal('renderPinForm_4a5d4085-5924-43c6-b60d-754440332e3d-123456-false_renderPinForm')
+      expect(result).to.equal('renderPinForm_4a5d4085-5924-43c6-b60d-754440332e3d-123456-false-x_renderPinForm')
     })
   })
 
@@ -54,7 +54,7 @@ describe('ConnectionController', () => {
       const result = await controller
         .submitPinCode({ action: 'submitPinCode', pin: '123456782' }, validConnection.id)
         .then(toHTMLString)
-      expect(result).to.equal('renderPinForm_4a5d4085-5924-43c6-b60d-754440332e3d-123456782-false_renderPinForm')
+      expect(result).to.equal('renderPinForm_4a5d4085-5924-43c6-b60d-754440332e3d-123456782-false-x_renderPinForm')
     })
 
     it('also should render error if it combined characters and numbers', async () => {
@@ -63,7 +63,7 @@ describe('ConnectionController', () => {
       const result = await controller
         .submitPinCode({ action: 'submitPinCode', pin: '1235235asdasd' }, validConnection.id)
         .then(toHTMLString)
-      expect(result).to.equal('renderPinForm_4a5d4085-5924-43c6-b60d-754440332e3d-1235235asdasd-false_renderPinForm')
+      expect(result).to.equal('renderPinForm_4a5d4085-5924-43c6-b60d-754440332e3d-1235235asdasd-false-x_renderPinForm')
     })
 
     it('should accept only numbers', async () => {
@@ -72,7 +72,7 @@ describe('ConnectionController', () => {
       const result = await controller
         .submitPinCode({ action: 'submitPinCode', pin: 'not-valid-code' }, validConnection.id)
         .then(toHTMLString)
-      expect(result).to.equal('renderPinForm_4a5d4085-5924-43c6-b60d-754440332e3d-not-valid-code-false_renderPinForm')
+      expect(result).to.equal('renderPinForm_4a5d4085-5924-43c6-b60d-754440332e3d-not-valid-code-false-x_renderPinForm')
     })
 
     it('renders a success screen', async () => {
@@ -131,7 +131,7 @@ describe('ConnectionController', () => {
         .submitPinCode({ action: 'submitPinCode', pin: '111111' }, validConnection.id)
         .then(toHTMLString)
       expect(result).to.equal(
-        'renderSuccess_foo-2-Maximum number of pin attempts has been reached, please reach out to the company you are attempting to connect to._renderSuccess'
+        'renderError_foo-2-Maximum number of pin attempts has been reached, please reach out to the company you are attempting to connect to._renderError'
       )
     })
   })

@@ -111,7 +111,7 @@ export class ConnectionController extends HTMLController {
         this.logger.debug('Render error screen with message coming from poll Pin submission')
 
         return this.html(
-          this.pinSubmission.renderSuccess({
+          this.pinSubmission.renderError({
             companyName: connection.company_name,
             stepCount: body.stepCount ?? 2,
             errorMessage: localPinAttemptCount.message,

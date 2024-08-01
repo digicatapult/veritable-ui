@@ -161,8 +161,7 @@ function* sampleGeneratorGet() {
 const sampleGenGet = sampleGeneratorGet()
 
 function templateFake(templateName: string, ...args: any[]) {
-  const filteredArgs = args.filter((arg) => arg !== 'x')
-  return Promise.resolve([templateName, filteredArgs.join('-'), templateName].join('_'))
+  return Promise.resolve([templateName, args.join('-'), templateName].join('_'))
 }
 
 export const withConnectionMocks = () => {
@@ -205,8 +204,10 @@ export const withConnectionMocks = () => {
         props.continuationFromInvite,
         props.remainingTries ? props.remainingTries : 'x'
       ),
-    renderSuccess: (props: { companyName: string; stepCount: number; errorMessage?: string }) =>
-      templateFake('renderSuccess', props.companyName, props.stepCount, props.errorMessage ? props.errorMessage : 'x'),
+    renderSuccess: (props: { companyName: string; stepCount: number }) =>
+      templateFake('renderSuccess', props.companyName, props.stepCount),
+    renderError: (props: { companyName: string; stepCount: number; errorMessage: string }) =>
+      templateFake('renderError', props.companyName, props.stepCount, props.errorMessage),
   }
 
   return {

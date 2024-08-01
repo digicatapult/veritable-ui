@@ -64,26 +64,39 @@ export class PinSubmissionTemplates extends NewConnectionTemplates {
     )
   }
 
-  public renderSuccess = (props: { companyName: string; stepCount: number; errorMessage?: string }): JSX.Element => {
+  public renderSuccess = (props: { companyName: string; stepCount: number }): JSX.Element => {
     return (
       <this.newConnectionForm
         feedback={{
           type: 'message',
-          message: props.errorMessage
-            ? props.errorMessage
-            : `PIN code has been sucessfully submitted and will need to be verified by the issuer now.`,
+          message: `PIN code has been sucessfully submitted and will need to be verified by the issuer now.`,
         }}
         progressStep={props.stepCount}
         progressStepCount={props.stepCount}
         actions={[{ type: 'link', text: 'Back To Home', href: '/connection' }]}
       >
         <div id="new-connection-invite-input">
-          <p class={`${props.errorMessage ? 'warn-pin-attempts' : ''}`}>
-            {props.errorMessage ? 'You have run out of PIN attempts ' : 'PIN Code has been submitted '} for
-            {Html.escapeHtml(props.companyName)} company ID.{' '}
-            {props.errorMessage
-              ? 'Please contact the company to request a pin resend.'
-              : 'Please wait for the verification code to be confirmed by viewing theverification status.'}
+          <p>
+            PIN Code has been submitted for
+            {Html.escapeHtml(props.companyName)} company ID. Please wait for the verification code to be confirmed by
+            viewing theverification status.
+          </p>
+        </div>
+      </this.newConnectionForm>
+    )
+  }
+  public renderError = (props: { companyName: string; stepCount: number; errorMessage: string }): JSX.Element => {
+    return (
+      <this.newConnectionForm
+        progressStep={props.stepCount}
+        progressStepCount={props.stepCount}
+        actions={[{ type: 'link', text: 'Back To Home', href: '/connection' }]}
+      >
+        <div id="new-connection-invite-input">
+          <p class="warn-pin-attempts">
+            You have run out of PIN attempts for
+            {Html.escapeHtml(props.companyName)} company ID.
+            {Html.escapeHtml(props.errorMessage)}
           </p>
         </div>
       </this.newConnectionForm>
