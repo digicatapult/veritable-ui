@@ -69,14 +69,20 @@ export default class CompanyDetailsV1Handler implements CredentialEventHandler<'
     const [{ pin_attempt_count: pinAttemptCount }] = await this.db.increment('connection', 'pin_attempt_count', {
       id: connection.id,
     })
-    if (pinAttemptCount > this.env.get('INVITATION_PIN_ATTEMPT_LIMIT')) {
+    if (pinAttemptCount >= this.env.get('INVITATION_PIN_ATTEMPT_LIMIT')) {
       this.logger.warn(
         { connectionId: connection.id },
         'PIN verification attempt count exceeded for connection %s',
         connection.id
       )
+      const problemReportPin: { message: string; pinTries: number } = {
+        message: `PIN verification attempt count exceeded for connection ${connection.id}`,
+        pinTries: 5 - pinAttemptCount,
+      }
       await this.db.update('connection_invite', { connection_id: connection.id }, { validity: 'too_many_attempts' })
       await this.db.update('connection', { id: connection.id }, { pin_attempt_count: 0 }) // reset so if a new pin is sent they can try again
+      await this.cloudagent.sendProblemReport(credential.id, JSON.stringify(problemReportPin))
+
       return
     }
 
@@ -85,6 +91,7 @@ export default class CompanyDetailsV1Handler implements CredentialEventHandler<'
       connection_id: connection.id,
       validity: 'valid',
     })
+
     const isPinValid = (
       await Promise.all(
         pinInvites.map(async ({ pin_hash, expires_at, id }) => {
@@ -96,9 +103,15 @@ export default class CompanyDetailsV1Handler implements CredentialEventHandler<'
         })
       )
     ).some((x) => x)
-
     if (!isPinValid) {
       this.logger.debug('Invalid pin detected in credential proposal for connection %s', connection.id)
+      this.logger.debug('Pin attempt count: %s', connection.id)
+      const problemReportPin: { message: string; pinTries: number } = {
+        message: `Invalid pin detected in credential proposal for connection ${connection.id}`,
+        pinTries: pinInvites.length < 1 ? 0 : 5 - pinAttemptCount,
+      }
+      await this.cloudagent.sendProblemReport(credential.id, JSON.stringify(problemReportPin))
+
       return
     }
 

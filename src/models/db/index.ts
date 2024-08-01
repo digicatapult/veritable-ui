@@ -3,6 +3,7 @@ import { container, singleton } from 'tsyringe'
 import { z } from 'zod'
 
 import { Env } from '../../env.js'
+import { DatabaseTimeoutError } from '../../errors.js'
 import Zod, { ColumnsByType, IDatabase, Models, Order, TABLE, Update, Where, tablesList } from './types.js'
 import { reduceWhere } from './util.js'
 
@@ -93,6 +94,28 @@ export default class Database {
     if (limit !== undefined) query = query.limit(limit)
     const result = await query
     return z.array(Zod[model].get).parse(result)
+  }
+
+  waitForCondition = async <M extends TABLE>(
+    model: M,
+    checkCondition: (rows: Models[typeof model]['get'][]) => boolean,
+    where?: Where<M>,
+    timeout?: number
+  ): Promise<Models[typeof model]['get'][]> => {
+    const startTime = Date.now()
+    const timeoutMs = timeout ?? 4000 // 4 seconds
+    const interval = 100 // 100 ms
+
+    while (Date.now() - startTime < timeoutMs) {
+      const rows = await this.get(model, where)
+      if (checkCondition(rows)) {
+        return rows
+      }
+
+      await new Promise((resolve) => setTimeout(resolve, interval))
+    }
+
+    throw new DatabaseTimeoutError(`Sorry, there has been an error polling the database, table ${model}`)
   }
 
   withTransaction = (update: (db: Database) => Promise<void>) => {

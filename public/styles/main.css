@@ -525,6 +525,11 @@ main {
   margin-top: 5px;
   color: white;
 }
+.warn-pin-attempts {
+  color: var(--negative-accent);
+  font-size: 0.875rem;
+}
+
 /* Mobile view */
 @media (max-width: 767px) {
   body {

@@ -618,4 +618,68 @@ describe('credentialEvents', function () {
 
     assertHandlerCallCount(companyDetailsMock, 0)
   })
+
+  test('updates a db if there is an errorMessage on credential and remaining attempts', async function () {
+    const credentialRecord = {
+      protocolVersion: 'v2',
+      id: 'record-id',
+      state: 'abandoned',
+      role: 'holder',
+      errorMessage:
+        'issuance-abandoned: {"message":"Invalid pin detected in credential proposal for connection db3daef6-f6f1-4c7f-b3e8-512f02fb447c","pinTries":4}',
+    }
+    const options = {
+      schemaResponse: {
+        name: 'COMPANY_DETAILS',
+        version: '2.0.0',
+      },
+    }
+
+    const { companyDetailsMock, dbMock } = await prepareTest(credentialRecord, options)
+
+    assertHandlerCallCount(companyDetailsMock, 0)
+    expect(dbMock.update.callCount).equal(1)
+  })
+  test('does not update db if the error message is wrong', async function () {
+    const credentialRecord = {
+      protocolVersion: 'v2',
+      id: 'record-id',
+      state: 'abandoned',
+      role: 'holder',
+      errorMessage:
+        'issuance-abandoned: "message":"Invalid pin detected in credential proposal for connection db3daef6-f6f1-4c7f-b3e8-512f02fb447c","pinTries":4}',
+    }
+    const options = {
+      schemaResponse: {
+        name: 'COMPANY_DETAILS',
+        version: '2.0.0',
+      },
+    }
+
+    const { companyDetailsMock, dbMock } = await prepareTest(credentialRecord, options)
+
+    assertHandlerCallCount(companyDetailsMock, 0)
+    expect(dbMock.update.callCount).equal(0)
+  })
+  test('does not update db if the error message is missing properties', async function () {
+    const credentialRecord = {
+      protocolVersion: 'v2',
+      id: 'record-id',
+      state: 'abandoned',
+      role: 'holder',
+      errorMessage:
+        'issuance-abandoned: {"message":"Invalid pin detected in credential proposal for connection db3daef6-f6f1-4c7f-b3e8-512f02fb447c"}',
+    }
+    const options = {
+      schemaResponse: {
+        name: 'COMPANY_DETAILS',
+        version: '2.0.0',
+      },
+    }
+
+    const { companyDetailsMock, dbMock } = await prepareTest(credentialRecord, options)
+
+    assertHandlerCallCount(companyDetailsMock, 0)
+    expect(dbMock.update.callCount).equal(0)
+  })
 })

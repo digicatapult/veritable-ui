@@ -28,12 +28,15 @@ type FormButtonProps = SharedButtonProps & {
   value?: string
 }
 
-export const LinkButton = (props: ButtonProps): JSX.Element => (
-  <a class={`button ${props.disabled ? 'disabled' : ''}`} href={`${props.href || '#'}`} data-variant={props.style}>
-    {props.icon && <div style={{ ['--button-icon' as string]: props.icon || '' }} />}
-    <span>{props.text || 'unknown'}</span>
-  </a>
-)
+export const LinkButton = (props: ButtonProps): JSX.Element => {
+  const href = !props.disabled && props.href ? props.href : '#'
+  return (
+    <a class={`button ${props.disabled ? 'disabled' : ''}`} href={href} data-variant={props.style}>
+      {props.icon && <div style={{ ['--button-icon' as string]: props.icon || '' }} />}
+      <span>{props.text || 'unknown'}</span>
+    </a>
+  )
+}
 
 export const FormButton = (props: FormButtonProps): JSX.Element => (
   <button

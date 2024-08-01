@@ -26,15 +26,38 @@ function templateFake(templateName: string, ...args: any[]) {
   return Promise.resolve([templateName, args.join('-'), templateName].join('_'))
 }
 
-export const withConnectionMocks = () => {
+export const withConnectionMocks = (
+  initialPinAttemptTries: number | null,
+  finalPinAttemptTries: number | null,
+  finalStatus: string
+) => {
   const templateMock = {
     listPage: (connections: ConnectionRow[]) =>
       templateFake('list', connections[0].company_name, connections[0].status),
   }
   const mockLogger: ILogger = pino({ level: 'silent' })
   const dbMock = {
-    get: () =>
-      Promise.resolve([{ company_name: 'foo', status: 'unverified', agent_connection_id: 'AGENT_CONNECTION_ID' }]),
+    get: () => [
+      {
+        company_name: 'foo',
+        status: 'unverified',
+        agent_connection_id: 'AGENT_CONNECTION_ID',
+        pin_tries_remaining_count: initialPinAttemptTries,
+      },
+    ],
+    waitForCondition: () => [
+      {
+        id: 'someId',
+        created_at: new Date(),
+        company_name: 'COMPANY_NAME',
+        company_number: 'COMPANY_NUMBER',
+        status: finalStatus,
+        agent_connection_id: '11110000',
+        updated_at: new Date(),
+        pin_attempt_count: 0,
+        pin_tries_remaining_count: finalPinAttemptTries,
+      },
+    ],
   }
   const cloudagentMock = {
     proposeCredential: sinon.stub().resolves(),
@@ -47,10 +70,23 @@ export const withConnectionMocks = () => {
       }),
   }
   const pinSubmission = {
-    renderPinForm: (props: { connectionId: string; pin?: string; continuationFromInvite: boolean }) =>
-      templateFake('renderPinForm', props.connectionId, props.pin, props.continuationFromInvite),
+    renderPinForm: (props: {
+      connectionId: string
+      pin?: string
+      continuationFromInvite: boolean
+      remainingTries?: string
+    }) =>
+      templateFake(
+        'renderPinForm',
+        props.connectionId,
+        props.pin,
+        props.continuationFromInvite,
+        props.remainingTries ? props.remainingTries : 'x'
+      ),
     renderSuccess: (props: { companyName: string; stepCount: number }) =>
       templateFake('renderSuccess', props.companyName, props.stepCount),
+    renderError: (props: { companyName: string; stepCount: number; errorMessage: string }) =>
+      templateFake('renderError', props.companyName, props.stepCount, props.errorMessage),
   }
 
   return {
@@ -191,6 +227,14 @@ export const withNewConnectionMocks = () => {
       mockEnv,
       mockLogger,
     ] as const,
+  }
+}
+
+export const withCheckDbMocks = () => {
+  const mockLogger: ILogger = pino({ level: 'silent' })
+  return {
+    mockLogger,
+    args: [mockLogger] as const,
   }
 }
 
