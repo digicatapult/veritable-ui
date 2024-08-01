@@ -4,13 +4,13 @@ A user interface for `Veritable` that allows to manage connections across supply
 
 #### Table of Contents
 
-- [Setup and configuration](#setup)
-- [Getting Started](#getting-started)
-- [Development Mode/Local dev](#local-dev)
-- [Environment Variables](#env-vars)
-- [Testing](#testing)
+- [Setup and configuration][setup]
+- [Getting Started][getting-started]
+- [Development Mode/Local dev][local-dev]
+- [Environment Variables][env-vars]
+- [Testing][testing]
 
-## Setup {#setup}
+## Setup [setup]
 veritable-ui depends on a few external services:
 - [veritable-cloudagent](https://github.com/digicatapult/veritable-cloudagent) - APIs for managing connections, credentials and messages.
 - `keycloak` - runs as a docker image for each node that handles authentication and users.
@@ -24,7 +24,7 @@ veritable-ui depends on a few external services:
 - keycloak:25.0.2+ - included in the docker-compose.yml
 - veritable-cloudagent@latest - last used -> v0.9.42
 
-## Getting started {#getting-started}
+## Getting started [getting-started]
 Ensure you're running the correct version of npm, then install dependencies using:
 ```sh
 npm install
@@ -42,7 +42,7 @@ npm run build
 
 > :memo: Note that this is just the service on itself without other dependencies like keycloak or database, for local development please refer to the section below
 
-## Development mode {#local-dev}
+## Development mode [local-dev]
 Before reading this please make sure that you have executed all the tasks from **Getting Started** section (installation and build), should have a directory `/build` and make sure there is at a minimum an empty `.env` at the root of project containing the below:
 ```sh
 COMPANY_PROFILE_API_KEY=apikey
@@ -74,7 +74,7 @@ npm run dev
 > :bulb: When service is running, it can be accessed on `http://localhost:3000/`. Api Docs are available on `http://localhost:3000/api-docs` and swagger `http://localhost:3000/swagger/`.
 
 
-## Environment variables {#env-vars}
+## Environment variables [env-vars]
 This is the list of all environment variables including brief description
 
 | variable name                  | required | default                                                        | description                                                                                      |
@@ -111,7 +111,7 @@ This is the list of all environment variables including brief description
 | ISSUANCE_SCHEMA_POLICY         | y        | EXISTING_OR_NEW                                                | Same as above but for credential schema                                                          |
 | ISSUANCE_CRED_DEF_POLICY       | y        | EXISTING_OR_NEW                                                | Same as above but this is for credential definitions                                             |
 
-## Testing {#testing}
+## Testing [testing]
 Currently this repository consist of two test types: [**integration**, **unit**] and we are using a combination of `mocha`, `chai` and `sinon` frameworks
 
 ### Unit Testing
