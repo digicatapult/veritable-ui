@@ -1,26 +1,32 @@
 # veritable-ui
 
-UI for `Veritable` utilizing [TSOA](https://tsoa-community.github.io/docs/getting-started.html), [HTMX](https://htmx.org/) and [@kitajs/html](https://www.npmjs.com/package/@kitajs/html) for JSX templates. 
+A user interface for `Veritable` that allows to manage connections across supply chain and perform queries in relation to the supply chain. Utilizing [TSOA](https://tsoa-community.github.io/docs/getting-started.html), [HTMX](https://htmx.org/) and [@kitajs/html](https://www.npmjs.com/package/@kitajs/html) for JSX templates.
 
+#### Table of Contents
 
-## Setup/Configuration
+- [Setup and configuration](#Setup)
+- [Getting Started](#getting_started)
+- [Development Mode/Local dev](#local_dev)
+- [Environment Variables](#env_vars)
+- [Testing](#testing)
+
+## Setup {#setup}
 veritable-ui depends on a few external services:
-- [veritable-cloudagent](https://github.com/digicatapult/veritable-cloudagent) APIs for managing connections, credentials and messages.
+- [veritable-cloudagent](https://github.com/digicatapult/veritable-cloudagent) - APIs for managing connections, credentials and messages.
 - `keycloak` - runs as a docker image for each node that handles authentication and users.
 - `docker` - for orchestrating multiple nodes and running other dependencies such as database (PostgreSQL) along with node specific environment variables
 
 ### Prerequisites
-> last updated: 01/08/2024
+> :warning: last updated: 01/08/2024
 - docker v27.0.3+
 - npm 10.0.0+
 - node 22.0.0+
 - keycloak:25.0.2+ - included in the docker-compose.yml
 - veritable-cloudagent@latest - last used -> v0.9.42
 
-### Getting started
+## Getting started {#getting_started}
 Ensure you're running the correct version of npm, then install dependencies using:
 ```sh
-# install dependencies from a root of a repository
 npm install
 ```
 
@@ -34,9 +40,9 @@ Once TSOA build has completed, then run a typescript compiler
 npm run build
 ```
 
-> Note that this is just the service on itself without other dependencies like keycloak or database, for local development please refer to the section below
+> :memo: Note that this is just the service on itself without other dependencies like keycloak or database, for local development please refer to the section below
 
-### Development mode
+## Development mode {#local_dev}
 Before reading this please make sure that you have executed all the tasks from **Getting Started** section (installation and build), should have a directory `/build` and make sure there is at a minimum an empty `.env` at the root of project containing the below:
 ```sh
 COMPANY_PROFILE_API_KEY=apikey
@@ -46,14 +52,14 @@ After creating `.env` file you can execute `docker` which will bring all the nod
 ```sh
 docker compose up -d
 ```
-> If doing this for the first it might take some time to pull all the images
+> :memo: If doing this for the first it might take some time to pull all the images
 
 Followed by the database migrations
 ```sh
 npm run db:migrate
 ```
 
-> Optional: you can seed some mock data for rendering some items in tables and etc. run: `npm run db:seed`
+> :memo: Optional: you can seed some mock data for rendering some items in tables and etc. run: `npm run db:seed`
 
 Also, we need to create some credential definitions along with `veritable-cloudagent` instance
 ```sh
@@ -65,11 +71,10 @@ Finally, start the service and enjoy local development
 npm run dev
 ```
 
-> When the project is up, it can be found on `http://localhost:3000/`.
-Api Docs are available on `http://localhost:3000/api-docs` and swagger `http://localhost:3000/swagger/`.
+> :bulb: When service is running, it can be accessed on `http://localhost:3000/`. Api Docs are available on `http://localhost:3000/api-docs` and swagger `http://localhost:3000/swagger/`.
 
 
-## Environment variables
+## Environment variables {#env_vars}
 This is the list of all environment variables including brief description
 
 | variable name                  | required | default                                                        | description                                                                                      |
@@ -106,7 +111,7 @@ This is the list of all environment variables including brief description
 | ISSUANCE_SCHEMA_POLICY         | y        | EXISTING_OR_NEW                                                | Same as above but for credential schema                                                          |
 | ISSUANCE_CRED_DEF_POLICY       | y        | EXISTING_OR_NEW                                                | Same as above but this is for credential definitions                                             |
 
-## Testing
+## Testing {#testing}
 Currently this repository consist of two test types: [**integration**, **unit**] and we are using a combination of `mocha`, `chai` and `sinon` frameworks
 
 ### Unit Testing
@@ -171,17 +176,17 @@ Integration tests are placed at the root level of a repository and can be found 
 ├── integration
 │   ├── newConnection.test.ts
 │   └── pinVerification.test.ts
-├── mocharc.json
-└── test.env
+├── mocharc.json # mocha configuration
+└── test.env # env variables required for integration tests and mocked services/helpers
 ```
 
-In order to execute just integration tests run the below command:
+Integration tests can be run locally by executing the below command
 ```sh
 npm run test:integration
 ```
 
 ### E2E/UI Testing
-> This is something that currently is not implemented but it's already on a roadmap so leaving this section for later and if nothing changes we will be using cypress
+> :This is something that currently is not implemented but it's already on a roadmap so leaving this section for later and if nothing changes we will be using cypress
 
 ## Database
 This service is dependant on postgreSQL which will sync up across all nodes and will update cloudagent when needed. We use `knex` wrapper for wrapping [create, read, write, update] database quries. We also have different models for inserting and returning data which gives us a control of sensitive data or data we do not want to get along the record. We also use **zod** for enchanted validation. It's currently used in `src/models/db/types.ts` file.
