@@ -120,8 +120,12 @@ export default class ConnectionTemplates {
                   <td>No Connections for that search query. Try again or add a new connection</td>
                 </tr>
               ) : (
-                connections.map(({ company_name, id, status }) => {
+                connections.map(({ company_name, id, status, pin_tries_remaining_count }) => {
                   const isVerified = ['unverified', 'verified_them'].includes(status)
+                  let disabledButton = isVerified ? false : true
+                  if (pin_tries_remaining_count === 0) {
+                    disabledButton = true
+                  }
                   const actionHref = isVerified ? `/connection/${id}/pin-submission` : '#'
                   return (
                     <tr>
@@ -131,7 +135,8 @@ export default class ConnectionTemplates {
                         <LinkButton
                           icon='url("/public/images/arrow-right-circle.svg")'
                           style="outlined"
-                          disabled={isVerified ? false : true}
+                          // disabled={isVerified ? false : true}
+                          disabled={disabledButton}
                           href={actionHref}
                           text="Complete Verification"
                         />
