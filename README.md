@@ -14,15 +14,12 @@ A user interface for `Veritable` that allows to manage connections across supply
 veritable-ui depends on a few external services:
 - [veritable-cloudagent](https://github.com/digicatapult/veritable-cloudagent) - APIs for managing connections, credentials and messages.
 - `keycloak` - runs as a docker image for each node that handles authentication and users.
-- `docker` - for orchestrating multiple nodes and running other dependencies such as database (PostgreSQL) along with node specific environment variables
 
-### Prerequisites
+### A lit
 > :warning: last updated: 01/08/2024
 - docker v27.0.3+
 - npm 10.0.0+
 - node 22.0.0+
-- keycloak:25.0.2+ - included in the docker-compose.yml
-- veritable-cloudagent@latest - last used -> v0.9.42
 
 ## Getting started
 Ensure you're running the correct version of npm, then install dependencies using:
@@ -50,7 +47,7 @@ COMPANY_PROFILE_API_KEY=apikey
 
 After creating `.env` file you can execute `docker` which will bring all the nodes and required services for local development
 ```sh
-docker compose up -d
+docker compose up -d --build
 ```
 > :memo: If doing this for the first it might take some time to pull all the images
 
@@ -140,9 +137,6 @@ Integration tests can be run locally by executing the below command
 npm run test:integration
 ```
 
-### E2E/UI Testing
-> :This is something that currently is not implemented but it's already on a roadmap so leaving this section for later and if nothing changes we will be using cypress
-
 ## Database
 This service is dependant on postgreSQL which will sync up across all nodes and will update cloudagent when needed. We use `knex` wrapper for wrapping [create, read, write, update] database quries. We also have different models for inserting and returning data which gives us a control of sensitive data or data we do not want to get along the record. We also use **zod** for enchanted validation. It's currently used in `src/models/db/types.ts` file.
 
@@ -152,7 +146,7 @@ Main configuration file can be found in at the root level of a repo `knexfile.js
 
 ```sh
 # creating a new migration
-knex migrate:make migration_name -x ts
+npm run db:cmd -- migrate:make migration_name -x ts
 
 # running migrations
 npm run db:migrate
