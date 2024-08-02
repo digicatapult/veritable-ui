@@ -1,6 +1,8 @@
 import { inject, injectable, singleton } from 'tsyringe'
 
+import { ZodType, z } from 'zod'
 import { Logger, type ILogger } from '../../logger.js'
+import Database from '../../models/db/index.js'
 import type { Credential, CredentialFormatData, Schema } from '../../models/veritableCloudagent.js'
 import VeritableCloudagent from '../../models/veritableCloudagent.js'
 import VeritableCloudagentEvents from '../veritableCloudagentEvents.js'
@@ -13,12 +15,20 @@ type eventData<T> = Parameters<typeof CloudagentOn<T>>[1]
 @singleton()
 @injectable()
 export default class CredentialEvents {
+  private problemReportParser: ZodType<{ message: string; pinTries: number }>
+
   constructor(
     private events: VeritableCloudagentEvents,
     private cloudagent: VeritableCloudagent,
     private companyDetailsHandler: CompanyDetailsV1Handler,
+    private db: Database,
     @inject(Logger) protected logger: ILogger
-  ) {}
+  ) {
+    this.problemReportParser = z.object({
+      message: z.string(),
+      pinTries: z.number(),
+    })
+  }
 
   public start() {
     this.events.on('CredentialStateChanged', this.credentialStateChangedHandler)
@@ -58,6 +68,37 @@ export default class CredentialEvents {
       return
     }
 
+    if (this.isCredentialError(record)) {
+      this.logger.debug('There was an error in credential issuance of credential %s', record.id)
+      if (!record.errorMessage) {
+        this.logger.debug('Errror message in error report is missing for credential', record.id)
+        return
+      }
+      try {
+        const startIndex = record.errorMessage.indexOf('{')
+
+        // Extract the JSON part starting from the first '{'
+        const jsonString = startIndex !== -1 ? record.errorMessage.slice(startIndex) : null
+        if (jsonString !== null) {
+          //check if message is valid json and contains the requested field
+          const message = this.problemReportStringParser(jsonString)
+          this.logger.debug(`Error message: ${message.message}, Remaining pin tries: ${message.pinTries}`)
+          const pinTries = message.pinTries ?? 1
+          await this.db.update(
+            'connection',
+            { agent_connection_id: record.connectionId },
+            { pin_tries_remaining_count: pinTries }
+          )
+        } else {
+          throw new Error(`ErrorMessage string is null.`)
+        }
+      } catch (err) {
+        this.logger.debug('There has been an error receiving problem report %s', record)
+        return
+      }
+
+      return
+    }
     // if we have a schema we need to make sure it is valid with the schema we're using moving forward
     if (!this.isSchemaValid(formatData, maybeSchema)) {
       this.logger.warn('Schema was not valid for credential %s. Schema does not match proposal', record.id)
@@ -115,6 +156,11 @@ export default class CredentialEvents {
       formatData.proposal?.anoncreds.schema_version === maybeSchema.version
     )
   }
+  private isCredentialError(credential: Credential): boolean {
+    return (
+      credential.role === 'holder' && credential.state === 'abandoned' && typeof credential.errorMessage === 'string'
+    )
+  }
 
   private isOfferReceived(credential: Credential): boolean {
     return credential.role === 'holder' && credential.state === 'offer-received'
@@ -130,5 +176,9 @@ export default class CredentialEvents {
 
   private isDone(credential: Credential): boolean {
     return credential.state === 'done'
+  }
+  private problemReportStringParser(string: string) {
+    const message = this.problemReportParser.parse(JSON.parse(string))
+    return message
   }
 }

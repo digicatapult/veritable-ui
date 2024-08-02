@@ -475,6 +475,14 @@ describe('companyDetailsV1', function () {
 
       const stub = cloudagentMock.acceptProposal
       expect(stub.callCount).to.equal(0)
+
+      const problemReportPin: { message: string; pinTries: number } = {
+        message: `PIN verification attempt count exceeded for connection connection-id`,
+        pinTries: -1,
+      }
+      const stub2 = cloudagentMock.sendProblemReport
+      expect(stub2.calledOnce)
+      expect(stub2.calledWith('credential-id', JSON.stringify(problemReportPin))).to.equal(true)
     })
 
     test(`invalid pin`, async function () {
@@ -510,8 +518,16 @@ describe('companyDetailsV1', function () {
         }
       )
 
+      const problemReportPin: { message: string; pinTries: number } = {
+        message: `Invalid pin detected in credential proposal for connection connection-id`,
+        pinTries: 4,
+      }
+
       const stub = cloudagentMock.acceptProposal
+      const stub2 = cloudagentMock.sendProblemReport
       expect(stub.callCount).to.equal(0)
+      expect(stub2.calledOnce)
+      expect(stub2.calledWith('credential-id', JSON.stringify(problemReportPin))).to.equal(true)
     })
 
     test(`invalid pin (expired)`, async function () {

@@ -4,7 +4,7 @@ import { inject, injectable, singleton } from 'tsyringe'
 import { pinCodeRegex, type PIN_CODE, type UUID } from '../../models/strings.js'
 import ConnectionTemplates from '../../views/connection/connection.js'
 
-import { InvalidInputError, NotFoundError } from '../../errors.js'
+import { DatabaseTimeoutError, InternalError, InvalidInputError, NotFoundError } from '../../errors.js'
 import { Logger, type ILogger } from '../../logger.js'
 import CompanyHouseEntity, { CompanyProfile } from '../../models/companyHouseEntity.js'
 import Database from '../../models/db/index.js'
@@ -12,6 +12,7 @@ import { ConnectionRow } from '../../models/db/types.js'
 import VeritableCloudagent from '../../models/veritableCloudagent.js'
 import { PinSubmissionTemplates } from '../../views/newConnection/pinSubmission.js'
 import { HTML, HTMLController } from '../HTMLController.js'
+import { checkDb } from './helpers.js'
 
 @singleton()
 @injectable()
@@ -90,11 +91,39 @@ export class ConnectionController extends HTMLController {
 
     const agentConnectionId = connection.agent_connection_id
     if (!agentConnectionId) throw new InvalidInputError('Cannot verify PIN on a pending connection')
+    //check initial db state of pin_tries_remaining_counts
 
     await this.verifyReceiveConnection(agentConnectionId, profile, pin)
 
+    // loading spinner for htmx
+    const localPinAttemptCount = await this.pollPinSubmission(connectionId, connection.pin_tries_remaining_count)
+
+    if (localPinAttemptCount.nextScreen === 'success') {
+      this.logger.debug('Rendering sucess screen')
+
+      return this.html(
+        this.pinSubmission.renderSuccess({ companyName: connection.company_name, stepCount: body.stepCount ?? 2 })
+      )
+    }
+    if (localPinAttemptCount.nextScreen === 'error') {
+      this.logger.debug('Render error screen with message coming from poll Pin submission')
+
+      return this.html(
+        this.pinSubmission.renderError({
+          companyName: connection.company_name,
+          stepCount: body.stepCount ?? 2,
+          errorMessage: localPinAttemptCount.message,
+        })
+      )
+    }
+    //at this point this can only be form
     return this.html(
-      this.pinSubmission.renderSuccess({ companyName: connection.company_name, stepCount: body.stepCount ?? 2 })
+      this.pinSubmission.renderPinForm({
+        connectionId,
+        pin,
+        continuationFromInvite: false,
+        remainingTries: localPinAttemptCount.message,
+      })
     )
   }
 
@@ -117,5 +146,32 @@ export class ConnectionController extends HTMLController {
         },
       ],
     })
+  }
+  private async pollPinSubmission(connectionId: string, initialPinAttemptsRemaining: number | null) {
+    try {
+      const finalState = checkDb(
+        await this.db.waitForCondition(
+          'connection',
+          (rows) => !!checkDb(rows, initialPinAttemptsRemaining, this.logger),
+          { id: connectionId }
+        ),
+        initialPinAttemptsRemaining,
+        this.logger
+      )
+      if (finalState === undefined) {
+        throw new InternalError()
+      }
+      return finalState
+    } catch (err) {
+      if (err instanceof DatabaseTimeoutError) {
+        return {
+          localPinAttempts: initialPinAttemptsRemaining,
+          message: `Polling the database timed out after 5s. Please contact your invitation provider to resend the pin.`,
+          nextScreen: 'error' as const,
+        }
+      }
+      this.logger.debug(`There has been an unexpected error waiting for pin response.`)
+      throw new InternalError(`There has been an unexpected error waiting for pin response.`)
+    }
   }
 }

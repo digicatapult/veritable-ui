@@ -5,12 +5,6 @@ import { LinkButton, Page } from '../common.js'
 
 type ConnectionStatus = 'pending' | 'unverified' | 'verified_them' | 'verified_us' | 'verified_both' | 'disconnected'
 
-interface connection {
-  company_name: string
-  status: ConnectionStatus
-  id?: string
-}
-
 @singleton()
 export default class ConnectionTemplates {
   constructor() {}
@@ -56,7 +50,7 @@ export default class ConnectionTemplates {
     }
   }
 
-  public listPage = (connections: ConnectionRow[] | connection[], search: string = '') => {
+  public listPage = (connections: ConnectionRow[], search: string = '') => {
     return (
       <Page
         title="Veritable - Connections"
@@ -120,8 +114,12 @@ export default class ConnectionTemplates {
                   <td>No Connections for that search query. Try again or add a new connection</td>
                 </tr>
               ) : (
-                connections.map(({ company_name, id, status }) => {
+                connections.map(({ company_name, id, status, pin_tries_remaining_count }) => {
                   const isVerified = ['unverified', 'verified_them'].includes(status)
+                  let disabledButton = isVerified ? false : true
+                  if (pin_tries_remaining_count === 0) {
+                    disabledButton = true
+                  }
                   const actionHref = isVerified ? `/connection/${id}/pin-submission` : '#'
                   return (
                     <tr>
@@ -131,7 +129,7 @@ export default class ConnectionTemplates {
                         <LinkButton
                           icon='url("/public/images/arrow-right-circle.svg")'
                           style="outlined"
-                          disabled={isVerified ? false : true}
+                          disabled={disabledButton}
                           href={actionHref}
                           text="Complete Verification"
                         />

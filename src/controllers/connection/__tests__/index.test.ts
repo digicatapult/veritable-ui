@@ -14,21 +14,21 @@ describe('ConnectionController', () => {
 
   describe('listConnections', () => {
     it('should return rendered list template', async () => {
-      let { args } = withConnectionMocks()
+      let { args } = withConnectionMocks(null, null, 'pending')
       const controller = new ConnectionController(...args)
       const result = await controller.listConnections().then(toHTMLString)
       expect(result).to.equal('list_foo-unverified_list')
     })
 
     it('should call db as expected', async () => {
-      let { dbMock, args } = withConnectionMocks()
+      let { dbMock, args } = withConnectionMocks(null, null, 'pending')
       const controller = new ConnectionController(...args)
       const spy: sinon.SinonSpy = sinon.spy(dbMock, 'get')
       await controller.listConnections().then(toHTMLString)
       expect(spy.calledWith('connection', {}, [['updated_at', 'desc']])).to.equal(true)
     })
     it('should call db as expected', async () => {
-      let { dbMock, args } = withConnectionMocks()
+      let { dbMock, args } = withConnectionMocks(null, null, 'pending')
       const controller = new ConnectionController(...args)
       const spy: sinon.SinonSpy = sinon.spy(dbMock, 'get')
       await controller.listConnections('dig').then(toHTMLString)
@@ -40,43 +40,43 @@ describe('ConnectionController', () => {
 
   describe('renderPinCode', () => {
     it('should render form', async () => {
-      let { args } = withConnectionMocks()
+      let { args } = withConnectionMocks(null, null, 'pending')
       const controller = new ConnectionController(...args)
       const result = await controller.renderPinCode(validConnection.id, '123456').then(toHTMLString)
-      expect(result).to.equal('renderPinForm_4a5d4085-5924-43c6-b60d-754440332e3d-123456-false_renderPinForm')
+      expect(result).to.equal('renderPinForm_4a5d4085-5924-43c6-b60d-754440332e3d-123456-false-x_renderPinForm')
     })
   })
 
   describe('submitPinCode', () => {
     it('should render error if it is longer than 6 digits', async () => {
-      let { args } = withConnectionMocks()
+      let { args } = withConnectionMocks(null, null, 'pending')
       const controller = new ConnectionController(...args)
       const result = await controller
         .submitPinCode({ action: 'submitPinCode', pin: '123456782' }, validConnection.id)
         .then(toHTMLString)
-      expect(result).to.equal('renderPinForm_4a5d4085-5924-43c6-b60d-754440332e3d-123456782-false_renderPinForm')
+      expect(result).to.equal('renderPinForm_4a5d4085-5924-43c6-b60d-754440332e3d-123456782-false-x_renderPinForm')
     })
 
     it('also should render error if it combined characters and numbers', async () => {
-      let { args } = withConnectionMocks()
+      let { args } = withConnectionMocks(null, null, 'pending')
       const controller = new ConnectionController(...args)
       const result = await controller
         .submitPinCode({ action: 'submitPinCode', pin: '1235235asdasd' }, validConnection.id)
         .then(toHTMLString)
-      expect(result).to.equal('renderPinForm_4a5d4085-5924-43c6-b60d-754440332e3d-1235235asdasd-false_renderPinForm')
+      expect(result).to.equal('renderPinForm_4a5d4085-5924-43c6-b60d-754440332e3d-1235235asdasd-false-x_renderPinForm')
     })
 
     it('should accept only numbers', async () => {
-      let { args } = withConnectionMocks()
+      let { args } = withConnectionMocks(null, null, 'pending')
       const controller = new ConnectionController(...args)
       const result = await controller
         .submitPinCode({ action: 'submitPinCode', pin: 'not-valid-code' }, validConnection.id)
         .then(toHTMLString)
-      expect(result).to.equal('renderPinForm_4a5d4085-5924-43c6-b60d-754440332e3d-not-valid-code-false_renderPinForm')
+      expect(result).to.equal('renderPinForm_4a5d4085-5924-43c6-b60d-754440332e3d-not-valid-code-false-x_renderPinForm')
     })
 
     it('renders a success screen', async () => {
-      let { args, cloudagentMock } = withConnectionMocks()
+      let { args, cloudagentMock } = withConnectionMocks(null, null, 'verified_us')
       const controller = new ConnectionController(...args)
       const result = await controller
         .submitPinCode({ action: 'submitPinCode', pin: '111111' }, validConnection.id)
@@ -104,6 +104,35 @@ describe('ConnectionController', () => {
           ],
         },
       ])
+    })
+    it('should return a success', async () => {
+      let { args } = withConnectionMocks(null, null, 'verified_us')
+      const controller = new ConnectionController(...args)
+      const result = await controller
+        .submitPinCode({ action: 'submitPinCode', pin: '111111' }, validConnection.id)
+        .then(toHTMLString)
+
+      expect(result).to.equal('renderSuccess_foo-2_renderSuccess')
+    })
+    it('should return a form page', async () => {
+      let { args } = withConnectionMocks(null, 4, 'pending')
+      const controller = new ConnectionController(...args)
+      const result = await controller
+        .submitPinCode({ action: 'submitPinCode', pin: '111112' }, validConnection.id)
+        .then(toHTMLString)
+      expect(result).to.equal(
+        'renderPinForm_4a5d4085-5924-43c6-b60d-754440332e3d-111112-false-Sorry, your code is invalid. You have 4 attempts left before the PIN expires._renderPinForm'
+      )
+    })
+    it('should return a success page with an error message', async () => {
+      let { args } = withConnectionMocks(1, 0, 'pending')
+      const controller = new ConnectionController(...args)
+      const result = await controller
+        .submitPinCode({ action: 'submitPinCode', pin: '111111' }, validConnection.id)
+        .then(toHTMLString)
+      expect(result).to.equal(
+        'renderError_foo-2-Maximum number of pin attempts has been reached, please reach out to the company you are attempting to connect to._renderError'
+      )
     })
   })
 })

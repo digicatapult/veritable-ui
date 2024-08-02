@@ -93,6 +93,7 @@ export const withEstablishedConnectionFromUs = function (context: {
       company_name: validCompanyName,
       company_number: validCompanyNumber,
       status: 'unverified',
+      pin_tries_remaining_count: null,
     })
     await context.remoteDatabase.insert('connection_invite', {
       validity: 'valid',
@@ -164,6 +165,7 @@ export const withEstablishedConnectionFromThem = function (context: {
       company_number: validCompanyNumber,
       status: 'pending',
       agent_connection_id: null,
+      pin_tries_remaining_count: null,
     })
     context.remoteConnectionId = remoteConnectionId
     context.localVerificationPin = '123456'

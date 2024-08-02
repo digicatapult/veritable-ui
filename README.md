@@ -165,3 +165,13 @@ npm run db:seed
 
 ## Service Specifics
 We do have a `init.ts` file that sets up veritable-cloudagent and credential definition along with schema. Covered in `Development Mode`
+Note: If you have changed what will be rendered in different components, it is likely you will have to update snapshots for tests to pass. Refer to `chai-jest-snapshot` documentation to do that.
+
+## Establishing connection
+
+Bring up as per above (docker compose, run migrations and seed, then npm run dev).
+You can find Bob's UI on `localhost:3001` and Alice's on `localhost:3000`.
+On Bob's UI go to `Connections > Invite New Connection` and enter a valid Company House Number (for testing purposes we have been using Digital Catapult's). Enter an email and submit your invite. Then in the list of Bob's connections you should see a new connection in 'Pending' state. Then go to Docker -> container called `Bob` in it's logs you will find a generated invite and also a pin code.
+You will enter the invitation and pin into Alice's UI in `Connections > Add From Invitation`.
+NOTE: you will need to format the Invitation Text. You need to remove any datetime stamps from the logs, remove spaces and equal signs and make sure that there are no leading ot trailing spaces when pasted to the form.
+
