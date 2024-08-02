@@ -115,45 +115,16 @@ This is the list of all environment variables including brief description
 Currently this repository consist of two test types: [**integration**, **unit**] and we are using a combination of `mocha`, `chai` and `sinon` frameworks
 
 ### Unit Testing
-Unit tests in this repository are done per service/module or class, and follow the bellow pattern.
+Unit tests in this repository are done per service/module or class, and follow the bellow pattern. In __tests__ directories collated with the units they test.
+
 ```sh
+# example
+├── __tests__
+│   ├── example.test.ts
 │   ├── __tests__
-│   │   ├── auth.test.ts
-│   │   ├── __tests__
-│   │   │   ├── index.test.ts
-│   │   │   └── newConnection.test.ts
-│       ├── __tests__
-│       │   └── index.test.ts
-│   ├── __tests__
-│   │   ├── companyHouseEntity.test.ts
-│   │   ├── credentialSchema.test.ts
-│   │   ├── idpService.test.ts
-│   │   └── veritableCloudagent.test.ts
-│   │   ├── __tests__
-│   │   │   └── index.test.ts
-│   │   ├── __tests__
-│   │   │   ├── companyDetailsV1.test.ts
-│   │   │   └── index.test.ts
-│   ├── __tests__
-│   │   │   └── testIndexedAsyncEventEmitter.ts
-│   │   ├── indexedAsyncEventEmitter.test.ts
-│   │   └── twoWayMap.test.ts
-    │   ├── __tests__
-    │   │   ├── connection.test.ts
-    │   │   └── connection.test.ts.snap
-    │   ├── __tests__
-    │   ├── __tests__
-    │   │   ├── fromInvite.test.ts
-    │   │   ├── fromInvite.test.ts.snap
-    │   │   ├── newInvite.test.ts
-    │   │   ├── newInvite.test.ts.snap
-    │   │   ├── pinSubmission.test.ts
-    │   │   └── pinSubmission.test.ts.snap
-    │   ├── __tests__
-    │   │   ├── queries.test.ts
-    │   │   ├── queries.test.ts.snap
-    │   │   ├── queriesList.test.ts
-    │   │   └── queriesList.test.ts.snap
+│   │   ├── index.test.ts
+├── __tests__
+....
 ``` 
 Unit tests can be executed by running:
 ```sh
@@ -161,24 +132,8 @@ npm run test:unit
 ```
 
 ### Integration Testing
-Integration tests are placed at the root level of a repository and can be found in `test/` folder along with mock services and helpers and a test environment variables that will be in `test/test.env`.
-```sh
-├── helpers
-│   ├── cloudagent.ts
-│   ├── companyHouse.ts
-│   ├── connection.ts
-│   ├── db.ts
-│   ├── fixtures.ts
-│   ├── logger.ts
-│   ├── routeHelper.ts
-│   └── util.ts
-├── init.ts
-├── integration
-│   ├── newConnection.test.ts
-│   └── pinVerification.test.ts
-├── mocharc.json # mocha configuration
-└── test.env # env variables required for integration tests and mocked services/helpers
-```
+Integration tests are placed at the root level of a repository and can be found at the root level `test/` folder along with mock services and helpers and a test environment variables that will be in `test/test.env`.
+
 
 Integration tests can be run locally by executing the below command
 ```sh
@@ -209,4 +164,4 @@ npm run db:seed
 ```
 
 ## Service Specifics
-We do have a `init.ts` file that sets up cloudagent and credential definition along with schema. Covered in `Development Mode`
+We do have a `init.ts` file that sets up veritable-cloudagent and credential definition along with schema. Covered in `Development Mode`
