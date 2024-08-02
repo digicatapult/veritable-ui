@@ -2,7 +2,7 @@
 
 A user interface for `Veritable` that allows to manage connections across supply chain and perform queries in relation to the supply chain. Utilizing [TSOA](https://tsoa-community.github.io/docs/getting-started.html), [HTMX](https://htmx.org/) and [@kitajs/html](https://www.npmjs.com/package/@kitajs/html) for JSX templates.
 
-#### Table of Contents
+## Table of Contents
 
 - [Setup](#setup)
 - [Getting Started](#getting-started)
