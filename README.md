@@ -15,7 +15,7 @@ veritable-ui depends on a few external services:
 - [veritable-cloudagent](https://github.com/digicatapult/veritable-cloudagent) - APIs for managing connections, credentials and messages.
 - `keycloak` - runs as a docker image for each node that handles authentication and users.
 
-### A lit
+### Prerequisites
 > :warning: last updated: 01/08/2024
 - docker v27.0.3+
 - npm 10.0.0+
