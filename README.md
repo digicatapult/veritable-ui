@@ -9,6 +9,8 @@ A user interface for `Veritable` that allows to manage connections across supply
 - [Development Mode/Local dev](#development-mode)
 - [Environment Variables](#environment-variables)
 - [Testing](#testing)
+- [Database](#database)
+- [Establishing connection](#establishing-connection)
 
 ## Setup
 veritable-ui depends on a few external services:
