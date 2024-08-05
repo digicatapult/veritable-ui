@@ -22,6 +22,7 @@ veritable-ui depends on a few external services:
 - docker v27.0.3+
 - npm 10.0.0+
 - node 22.0.0+
+- postgresql 16.3+
 
 ## Getting started
 Ensure you're running the correct version of npm, then install dependencies using:
