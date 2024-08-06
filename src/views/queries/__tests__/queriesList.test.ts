@@ -14,12 +14,7 @@ describe('ConnectionTemplates', () => {
     it('should render with single query', async () => {
       const templates = new QueryListTemplates()
       const rendered = await templates.listPage([
-        {
-          company_name: 'Company A',
-          status: 'resolved',
-          query_type: 'Type A',
-          updated_at: sampleDate,
-        },
+        { id: 'someID', company_name: 'Company A', status: 'resolved', query_type: 'Type A', updated_at: sampleDate },
       ])
       expect(rendered).to.matchSnapshot()
     })
@@ -27,6 +22,7 @@ describe('ConnectionTemplates', () => {
       const templates = new QueryListTemplates()
       const rendered = await templates.listPage([
         {
+          id: 'someID',
           company_name: '<div>I own you</div>',
           status: 'resolved',
           query_type: 'Type A',
@@ -38,42 +34,12 @@ describe('ConnectionTemplates', () => {
     it('should render multiple with each status', async () => {
       const templates = new QueryListTemplates()
       const rendered = await templates.listPage([
-        {
-          company_name: 'Company A',
-          status: 'resolved',
-          query_type: 'Type A',
-          updated_at: sampleDate,
-        },
-        {
-          company_name: 'Company B',
-          status: 'resolved',
-          query_type: 'Type A',
-          updated_at: sampleDate,
-        },
-        {
-          company_name: 'Company C',
-          status: 'resolved',
-          query_type: 'Type A',
-          updated_at: sampleDate,
-        },
-        {
-          company_name: 'Company D',
-          status: 'resolved',
-          query_type: 'Type A',
-          updated_at: sampleDate,
-        },
-        {
-          company_name: 'Company E',
-          status: 'resolved',
-          query_type: 'Type A',
-          updated_at: sampleDate,
-        },
-        {
-          company_name: 'Company F',
-          status: 'resolved',
-          query_type: 'Type A',
-          updated_at: sampleDate,
-        },
+        { id: 'someID', company_name: 'Company A', status: 'resolved', query_type: 'Type A', updated_at: sampleDate },
+        { id: 'someID', company_name: 'Company B', status: 'resolved', query_type: 'Type A', updated_at: sampleDate },
+        { id: 'someID', company_name: 'Company C', status: 'resolved', query_type: 'Type A', updated_at: sampleDate },
+        { id: 'someID', company_name: 'Company D', status: 'resolved', query_type: 'Type A', updated_at: sampleDate },
+        { id: 'someID', company_name: 'Company E', status: 'resolved', query_type: 'Type A', updated_at: sampleDate },
+        { id: 'someID', company_name: 'Company F', status: 'resolved', query_type: 'Type A', updated_at: sampleDate },
       ])
       expect(rendered).to.matchSnapshot()
     })

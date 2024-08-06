@@ -1,13 +1,14 @@
-import { Body, Get, Post, Produces, Query, Route, Security, SuccessResponse } from 'tsoa'
+import { Body, Get, Path, Post, Produces, Query, Route, Security, SuccessResponse } from 'tsoa'
 import { inject, injectable, singleton } from 'tsyringe'
 
 import { Logger, type ILogger } from '../../logger.js'
 
 import Database from '../../models/db/index.js'
 import { ConnectionRow, QueryRow } from '../../models/db/types.js'
-import { COMPANY_NUMBER } from '../../models/strings.js'
+import type { COMPANY_NUMBER, UUID } from '../../models/strings.js'
 import QueriesTemplates from '../../views/queries/queries.js'
 import QueryListTemplates from '../../views/queries/queriesList.js'
+import Scope3CarbonConsumptionResponseTemplates from '../../views/queries/queryResponses/scope3.js'
 import Scope3CarbonConsumptionTemplates from '../../views/queryTypes/scope3.js'
 import { HTML, HTMLController } from '../HTMLController.js'
 
@@ -15,6 +16,7 @@ type NewFormStage = 'companySelect' | 'form' | 'success'
 
 type QueryStatus = 'resolved' | 'pending_your_input' | 'pending_their_input'
 interface Query {
+  id: UUID
   company_name: string
   query_type: string
   updated_at: Date
@@ -29,6 +31,7 @@ interface Query {
 export class QueriesController extends HTMLController {
   constructor(
     private scope3CarbonConsumptionTemplates: Scope3CarbonConsumptionTemplates,
+    private scope3CarbonConsumptionResponseTemplates: Scope3CarbonConsumptionResponseTemplates,
     private queriesTemplates: QueriesTemplates,
     private queryManagementTemplates: QueryListTemplates,
     private db: Database,
@@ -138,6 +141,67 @@ export class QueriesController extends HTMLController {
       })
     )
   }
+
+  /**
+   * Retrieves the query response page
+   */
+  @SuccessResponse(200)
+  @Get('/scope-3-carbon-consumption-response/{queryId}')
+  public async scope3CarbonConsumptionResponse(@Path() queryId: UUID): Promise<HTML> {
+    this.logger.debug('query page requested')
+    console.log(queryId)
+    //retrieve query
+    const queries = await this.db.get('query', { id: queryId })
+    if (queries.length < 1) {
+      throw new Error(`There has been an issue retrieving the query.`)
+    }
+    const query = queries[0]
+    const connections = await this.db.get('connection', { id: query.connection_id })
+    if (connections.length < 1) {
+      throw new Error(`There has been an issue retrieving the connection.`)
+    }
+    const connection = connections[0]
+
+    return this.html(
+      this.scope3CarbonConsumptionResponseTemplates.newScope3CarbonConsumptionResponseFormPage(
+        'form',
+        {
+          companyName: connection.company_name,
+          companyNumber: connection.company_number,
+        },
+        2, //hardcoded - should come from query description
+        '05867ccc' //hardcoded - should come from query description
+      )
+    )
+  }
+
+  /**
+   * Submits the query response page
+   */
+  @SuccessResponse(200)
+  @Post('/scope-3-carbon-consumption-response/submit')
+  public async scope3CarbonConsumptionResponseSubmit(
+    @Body()
+    body: {
+      companyNumber: COMPANY_NUMBER
+      companyName: string
+      productId?: string
+      quantity?: number
+      action: 'form' | 'success'
+      totalScope3CarbonEmissions: string
+      partialResponse?: number
+    }
+  ): Promise<HTML> {
+    this.logger.debug('query page requested')
+
+    return this.html(
+      this.scope3CarbonConsumptionResponseTemplates.newScope3CarbonConsumptionResponseFormPage('success', {
+        companyName: body.companyName,
+        companyNumber: body.companyNumber,
+      })
+    )
+  }
+
   private async insertNewQuery(
     connection_id: string,
     query_type: string,
@@ -172,6 +236,7 @@ function combineData(query_subset: QueryRow[], connections: ConnectionRow[]): Qu
       const company_name = connectionMap[query.connection_id]
 
       return {
+        id: query.id,
         company_name: company_name,
         query_type: query.query_type,
         updated_at: query.updated_at,

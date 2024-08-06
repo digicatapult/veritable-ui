@@ -48,7 +48,7 @@ describe('PinSubmissionTemplates', () => {
     })
     it('should render success form with error message on pin tries', async () => {
       const templates = new PinSubmissionTemplates()
-      const rendered = await templates.renderSuccess({
+      const rendered = await templates.renderError({
         companyName: 'CompanyName',
         stepCount: 3,
         errorMessage: 'The limit on pin tries has been exceeded.',

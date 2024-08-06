@@ -10,10 +10,17 @@ describe('QueriesController', () => {
   })
   describe('queries', () => {
     it('should match the snapshot of the rendered query page', async () => {
-      const { scope3CarbonConsumptionTemplateMock, mockLogger, queryTemplateMock, dbMock, queryListTemplateMock } =
-        withQueriesMocks()
+      const {
+        scope3CarbonConsumptionTemplateMock,
+        scope3CarbonConsumptionResponseTemplateMock,
+        mockLogger,
+        queryTemplateMock,
+        dbMock,
+        queryListTemplateMock,
+      } = withQueriesMocks()
       const controller = new QueriesController(
         scope3CarbonConsumptionTemplateMock,
+        scope3CarbonConsumptionResponseTemplateMock,
         queryTemplateMock,
         queryListTemplateMock,
         dbMock,
@@ -23,10 +30,17 @@ describe('QueriesController', () => {
       expect(result).to.equal('queries_template')
     })
     it('should call db as expected', async () => {
-      const { scope3CarbonConsumptionTemplateMock, mockLogger, queryTemplateMock, dbMock, queryListTemplateMock } =
-        withQueriesMocks()
+      const {
+        scope3CarbonConsumptionTemplateMock,
+        scope3CarbonConsumptionResponseTemplateMock,
+        mockLogger,
+        queryTemplateMock,
+        dbMock,
+        queryListTemplateMock,
+      } = withQueriesMocks()
       const controller = new QueriesController(
         scope3CarbonConsumptionTemplateMock,
+        scope3CarbonConsumptionResponseTemplateMock,
         queryTemplateMock,
         queryListTemplateMock,
         dbMock,
@@ -38,10 +52,17 @@ describe('QueriesController', () => {
       expect(spy.secondCall.calledWith('query', {}, [['updated_at', 'desc']])).to.equal(true)
     })
     it('should call db as expected', async () => {
-      const { scope3CarbonConsumptionTemplateMock, mockLogger, queryTemplateMock, dbMock, queryListTemplateMock } =
-        withQueriesMocks()
+      const {
+        scope3CarbonConsumptionTemplateMock,
+        scope3CarbonConsumptionResponseTemplateMock,
+        mockLogger,
+        queryTemplateMock,
+        dbMock,
+        queryListTemplateMock,
+      } = withQueriesMocks()
       const controller = new QueriesController(
         scope3CarbonConsumptionTemplateMock,
+        scope3CarbonConsumptionResponseTemplateMock,
         queryTemplateMock,
         queryListTemplateMock,
         dbMock,
@@ -56,10 +77,17 @@ describe('QueriesController', () => {
       expect(spy.secondCall.calledWith('query', {}, [['updated_at', 'desc']])).to.equal(true)
     })
     it('should call db as expected', async () => {
-      const { scope3CarbonConsumptionTemplateMock, mockLogger, queryTemplateMock, dbMock, queryListTemplateMock } =
-        withQueriesMocks()
+      const {
+        scope3CarbonConsumptionTemplateMock,
+        scope3CarbonConsumptionResponseTemplateMock,
+        mockLogger,
+        queryTemplateMock,
+        dbMock,
+        queryListTemplateMock,
+      } = withQueriesMocks()
       const controller = new QueriesController(
         scope3CarbonConsumptionTemplateMock,
+        scope3CarbonConsumptionResponseTemplateMock,
         queryTemplateMock,
         queryListTemplateMock,
         dbMock,
@@ -70,10 +98,17 @@ describe('QueriesController', () => {
       expect(spy.firstCall.calledWith('connection', {}, [['updated_at', 'desc']])).to.equal(true)
     })
     it('should call db as expected', async () => {
-      const { scope3CarbonConsumptionTemplateMock, mockLogger, queryTemplateMock, dbMock, queryListTemplateMock } =
-        withQueriesMocks()
+      const {
+        scope3CarbonConsumptionTemplateMock,
+        scope3CarbonConsumptionResponseTemplateMock,
+        mockLogger,
+        queryTemplateMock,
+        dbMock,
+        queryListTemplateMock,
+      } = withQueriesMocks()
       const controller = new QueriesController(
         scope3CarbonConsumptionTemplateMock,
+        scope3CarbonConsumptionResponseTemplateMock,
         queryTemplateMock,
         queryListTemplateMock,
         dbMock,
@@ -86,10 +121,17 @@ describe('QueriesController', () => {
       expect(spy.firstCall.calledWith('connection', query, [['updated_at', 'desc']])).to.equal(true)
     })
     it('should call page with stage FORM as expected', async () => {
-      const { scope3CarbonConsumptionTemplateMock, mockLogger, queryTemplateMock, dbMock, queryListTemplateMock } =
-        withQueriesMocks()
+      const {
+        scope3CarbonConsumptionTemplateMock,
+        scope3CarbonConsumptionResponseTemplateMock,
+        mockLogger,
+        queryTemplateMock,
+        dbMock,
+        queryListTemplateMock,
+      } = withQueriesMocks()
       const controller = new QueriesController(
         scope3CarbonConsumptionTemplateMock,
+        scope3CarbonConsumptionResponseTemplateMock,
         queryTemplateMock,
         queryListTemplateMock,
         dbMock,
@@ -102,10 +144,17 @@ describe('QueriesController', () => {
       expect(result).to.equal('queries_template')
     })
     it('should call page with stage SUCCESS as expected', async () => {
-      const { scope3CarbonConsumptionTemplateMock, mockLogger, queryTemplateMock, dbMock, queryListTemplateMock } =
-        withQueriesMocks()
+      const {
+        scope3CarbonConsumptionTemplateMock,
+        scope3CarbonConsumptionResponseTemplateMock,
+        mockLogger,
+        queryTemplateMock,
+        dbMock,
+        queryListTemplateMock,
+      } = withQueriesMocks()
       const controller = new QueriesController(
         scope3CarbonConsumptionTemplateMock,
+        scope3CarbonConsumptionResponseTemplateMock,
         queryTemplateMock,
         queryListTemplateMock,
         dbMock,

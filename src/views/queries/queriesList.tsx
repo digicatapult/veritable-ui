@@ -1,10 +1,12 @@
 import Html from '@kitajs/html'
 import { singleton } from 'tsyringe'
+import { UUID } from '../../models/strings.js'
 import { LinkButton, Page } from '../common.js'
 
 type QueryStatus = 'resolved' | 'pending_your_input' | 'pending_their_input'
 
 interface Query {
+  id: UUID
   company_name: string
   query_type: string
   updated_at: Date
@@ -129,8 +131,9 @@ export default class QueryListTemplates {
                       <LinkButton
                         icon='url("/public/images/dot-icon.svg")'
                         style="outlined"
-                        disabled={true}
+                        disabled={false}
                         text="some action"
+                        href={`/queries/scope-3-carbon-consumption-response/${query.id}`}
                       />
                     </td>
                   </tr>

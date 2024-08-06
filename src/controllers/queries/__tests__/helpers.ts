@@ -4,6 +4,7 @@ import { ILogger } from '../../../logger.js'
 import Database from '../../../models/db/index.js'
 import QueriesTemplates from '../../../views/queries/queries.js'
 import QueryListTemplates from '../../../views/queries/queriesList.js'
+import Scope3CarbonConsumptionResponseTemplates from '../../../views/queries/queryResponses/scope3.js'
 import Scope3CarbonConsumptionTemplates from '../../../views/queryTypes/scope3.js'
 
 type QueryStatus = 'resolved' | 'pending_your_input' | 'pending_their_input'
@@ -43,6 +44,10 @@ export const withQueriesMocks = () => {
   const scope3CarbonConsumptionTemplateMock = {
     newScope3CarbonConsumptionFormPage: () => templateFake('queries'),
   } as unknown as Scope3CarbonConsumptionTemplates
+
+  const scope3CarbonConsumptionResponseTemplateMock = {
+    newScope3CarbonConsumptionResponseFormPage: () => templateFake('queriesResponse'),
+  } as unknown as Scope3CarbonConsumptionResponseTemplates
   const queryTemplateMock = {
     chooseQueryPage: () => templateFake('queries'),
   } as QueriesTemplates
@@ -72,6 +77,7 @@ export const withQueriesMocks = () => {
 
   return {
     scope3CarbonConsumptionTemplateMock,
+    scope3CarbonConsumptionResponseTemplateMock,
     queryListTemplateMock,
     queryTemplateMock,
     mockLogger,
