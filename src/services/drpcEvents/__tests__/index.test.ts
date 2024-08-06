@@ -10,7 +10,7 @@ const goodRequest = {
   jsonrpc: '2.0',
   method: 'submit_query_request',
   params: {
-    query: 'scope-3-by-product',
+    query: 'Scope 3 Carbon Consumption',
     productId: 'product-id',
     quantity: 42,
   },
@@ -68,8 +68,8 @@ describe('DrpcEvents', function () {
           {
             connection_id: 'connection-id',
             status: 'pending_your_input',
-            query_type: 'submit_query_request',
-            details: { query: 'scope-3-by-product', productId: 'product-id', quantity: 42 },
+            query_type: 'Scope 3 Carbon Consumption',
+            details: { query: 'Scope 3 Carbon Consumption', productId: 'product-id', quantity: 42 },
           },
         ])
         expect(stub.secondCall.args).to.deep.equal([
@@ -466,8 +466,8 @@ describe('DrpcEvents', function () {
           {
             connection_id: 'connection-id',
             status: 'pending_your_input',
-            query_type: 'submit_query_request',
-            details: { query: 'scope-3-by-product', productId: 'product-id', quantity: 42 },
+            query_type: 'Scope 3 Carbon Consumption',
+            details: { query: 'Scope 3 Carbon Consumption', productId: 'product-id', quantity: 42 },
           },
         ])
       })

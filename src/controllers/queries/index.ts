@@ -140,7 +140,7 @@ export class QueriesController extends HTMLController {
     }
     const [queryRow] = await this.db.insert('query', {
       connection_id: connection.id,
-      query_type: 'scope-3-carbon-consumption-by-product',
+      query_type: 'Scope 3 Carbon Consumption',
       status: 'pending_their_input',
       details: query,
     })
@@ -151,7 +151,7 @@ export class QueriesController extends HTMLController {
         connection.agent_connection_id,
         'submit_query_request',
         {
-          query: 'scope-3-by-product',
+          query: 'Scope 3 Carbon Consumption',
           ...query,
         }
       )

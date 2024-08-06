@@ -9,7 +9,7 @@ import VeritableCloudagentEvents, { DrpcRequest, eventData } from '../veritableC
 
 const submitQueryRpcParams = z.discriminatedUnion('query', [
   z.object({
-    query: z.literal('scope-3-by-product'),
+    query: z.literal('Scope 3 Carbon Consumption'),
     productId: z.string(),
     quantity: z.number().int().min(1),
   }),
@@ -101,7 +101,7 @@ export default class DrpcEvents {
       const [query] = await this.db.insert('query', {
         connection_id: connection.id,
         status: 'pending_your_input',
-        query_type: 'submit_query_request',
+        query_type: 'Scope 3 Carbon Consumption',
         details: params,
       })
       queryId = query.id
