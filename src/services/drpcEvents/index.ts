@@ -4,6 +4,7 @@ import { z } from 'zod'
 import { Logger, type ILogger } from '../../logger.js'
 import Database from '../../models/db/index.js'
 import VeritableCloudagent from '../../models/veritableCloudagent.js'
+import { neverFail } from '../../utils/promises.js'
 import VeritableCloudagentEvents, { DrpcRequest, eventData } from '../veritableCloudagentEvents.js'
 
 const submitQueryRpcParams = z.discriminatedUnion('query', [
@@ -48,33 +49,34 @@ export default class DrpcEvents {
     }
   }
 
-  private handelRequestReceived = async (request: DrpcRequest, connectionId: string) => {
-    let queryId: string | null = null
+  private async handelRequestReceived(request: DrpcRequest, agentConnectionId: string) {
+    if (request.method === 'submit_query_request') {
+      return await neverFail(this.handleSubmitQueryRequest(request, agentConnectionId))
+    }
 
+    return await this.handleInvalidMethod(request)
+  }
+
+  private async handleInvalidMethod(request: DrpcRequest) {
+    this.logger.warn('Unknown DRPC method %s', request.method)
+    await this.cloudagent.submitDrpcResponse(request.id, {
+      error: {
+        code: drpcErrorCode.METHOD_NOT_FOUND,
+        message: `Method not supported ${request.method}`,
+      },
+    })
+    return
+  }
+
+  private async handleSubmitQueryRequest(request: DrpcRequest, agentConnectionId: string) {
+    let queryId: string | null = null
     try {
       this.logger.info(
         'DRPC request (%s) received on connection %s of method %s',
         request.id,
-        connectionId,
+        agentConnectionId,
         request.method
       )
-
-      const [connection] = await this.db.get('connection', { agent_connection_id: connectionId })
-      if (!connection) {
-        this.logger.warn('Invalid connection for drpc message %s', connectionId)
-        return
-      }
-
-      if (request.method !== 'submit_query_request') {
-        this.logger.warn('Unknown DRPC method %s', request.method)
-        await this.cloudagent.submitDrpcResponse(request.id, {
-          error: {
-            code: drpcErrorCode.METHOD_NOT_FOUND,
-            message: `Method not supported ${request.method}`,
-          },
-        })
-        return
-      }
 
       let params: SubmitQueryRPCParams
       try {
@@ -90,14 +92,9 @@ export default class DrpcEvents {
         return
       }
 
-      if (params.query !== 'scope-3-by-product') {
-        this.logger.warn('Unknown query type %s on request %s', params.query, request.id)
-        await this.cloudagent.submitDrpcResponse(request.id, {
-          error: {
-            code: drpcErrorCode.INVALID_PARAMS,
-            message: `Invalid query parameter ${params.query}`,
-          },
-        })
+      const [connection] = await this.db.get('connection', { agent_connection_id: agentConnectionId })
+      if (!connection) {
+        this.logger.warn('Invalid connection for drpc message %s', agentConnectionId)
         return
       }
 
@@ -128,32 +125,22 @@ export default class DrpcEvents {
         this.logger.trace(`err: %o`, err)
       }
 
-      await neverFail(
-        this.cloudagent.submitDrpcResponse(request.id, {
-          error: {
-            code: drpcErrorCode.INTERNAL_ERROR,
-            message: `Internal error`,
-          },
-        })
-      )
-
       if (queryId !== null) {
-        await neverFail(
-          this.db.update(
-            'query',
-            { id: queryId },
-            {
-              status: 'errored',
-            }
-          )
+        await this.db.update(
+          'query',
+          { id: queryId },
+          {
+            status: 'errored',
+          }
         )
       }
+
+      await this.cloudagent.submitDrpcResponse(request.id, {
+        error: {
+          code: drpcErrorCode.INTERNAL_ERROR,
+          message: `Internal error`,
+        },
+      })
     }
   }
-}
-
-const neverFail = async <R>(p: Promise<R>): Promise<R | undefined> => {
-  try {
-    return await p
-  } catch (err) {}
 }
