@@ -172,4 +172,81 @@ describe('QueriesController', () => {
       expect(result).to.equal('queries_template')
     })
   })
+  describe('query responses', () => {
+    it('should call db as expected', async () => {
+      const {
+        scope3CarbonConsumptionTemplateMock,
+        scope3CarbonConsumptionResponseTemplateMock,
+        mockLogger,
+        queryTemplateMock,
+        dbMock,
+        queryListTemplateMock,
+      } = withQueriesMocks()
+      const controller = new QueriesController(
+        scope3CarbonConsumptionTemplateMock,
+        scope3CarbonConsumptionResponseTemplateMock,
+        queryTemplateMock,
+        queryListTemplateMock,
+        dbMock,
+        mockLogger
+      )
+      const spy = sinon.spy(dbMock, 'get')
+      await controller.scope3CarbonConsumptionResponse('SomeId').then(toHTMLString)
+      const search = 'SomeId'
+      expect(spy.firstCall.calledWith('query', { id: search })).to.equal(true)
+    })
+
+    it('should call query response page with stage FORM as expected', async () => {
+      const {
+        scope3CarbonConsumptionTemplateMock,
+        scope3CarbonConsumptionResponseTemplateMock,
+        mockLogger,
+        queryTemplateMock,
+        dbMock,
+        queryListTemplateMock,
+      } = withQueriesMocks()
+      const controller = new QueriesController(
+        scope3CarbonConsumptionTemplateMock,
+        scope3CarbonConsumptionResponseTemplateMock,
+        queryTemplateMock,
+        queryListTemplateMock,
+        dbMock,
+        mockLogger
+      )
+      const result = await controller.scope3CarbonConsumptionResponse('someId123').then(toHTMLString)
+
+      expect(result).to.equal('queriesResponse_template')
+    })
+    it('should call query response page with stage SUCCESS as expected', async () => {
+      const {
+        scope3CarbonConsumptionTemplateMock,
+        scope3CarbonConsumptionResponseTemplateMock,
+        mockLogger,
+        queryTemplateMock,
+        dbMock,
+        queryListTemplateMock,
+      } = withQueriesMocks()
+      const controller = new QueriesController(
+        scope3CarbonConsumptionTemplateMock,
+        scope3CarbonConsumptionResponseTemplateMock,
+        queryTemplateMock,
+        queryListTemplateMock,
+        dbMock,
+        mockLogger
+      )
+      const result = await controller
+        .scope3CarbonConsumptionResponseSubmit({
+          companyNumber: '2345789',
+          companyName: 'Sample Company Name',
+          productId: 'SomeID',
+          quantity: 111,
+          action: 'success',
+          totalScope3CarbonEmissions: '25',
+          partialResponse: 1,
+        })
+        .then(toHTMLString)
+
+      expect(result).to.equal('queriesResponse_template')
+    })
+  })
 })

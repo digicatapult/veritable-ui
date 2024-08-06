@@ -25,6 +25,10 @@ function* sampleGenerator() {
     [{ company_name: 'VER123', status: 'pending', id: '11' }],
     [{ company_name: 'VER123', status: 'pending', id: '11' }],
     [{ company_name: 'VER123', status: 'pending', id: '11', company_number: '10000009' }],
+    [{ company_name: 'VER123', status: 'pending', id: '11', company_number: '10000009' }],
+    [{ company_name: 'VER123', status: 'pending', id: '11', company_number: '10000009' }],
+    [{ company_name: 'VER123', status: 'pending', id: '11', company_number: '10000009' }],
+    [{ company_name: 'VER123', status: 'pending', id: '11', company_number: '10000009' }],
   ]
 
   let index = 0
@@ -53,7 +57,7 @@ export const withQueriesMocks = () => {
   } as QueriesTemplates
   const queryListTemplateMock = {
     listPage: (queries: Query[]) => templateListFake('list', queries[0].company_name, queries[0].status),
-  } as QueryListTemplates
+  } as unknown as QueryListTemplates
   const mockLogger: ILogger = pino({ level: 'silent' })
   const dbMock = {
     get: () => {
@@ -82,6 +86,14 @@ export const withQueriesMocks = () => {
     queryTemplateMock,
     mockLogger,
     dbMock,
+    args: [
+      scope3CarbonConsumptionTemplateMock as Scope3CarbonConsumptionTemplates,
+      scope3CarbonConsumptionResponseTemplateMock as Scope3CarbonConsumptionResponseTemplates,
+      queryTemplateMock as QueriesTemplates,
+      queryListTemplateMock as QueryListTemplates,
+      dbMock as Database,
+      mockLogger as ILogger,
+    ] as const,
   }
 }
 

@@ -151,6 +151,7 @@ export class QueriesController extends HTMLController {
     this.logger.debug('query page requested')
     console.log(queryId)
     //retrieve query
+
     const queries = await this.db.get('query', { id: queryId })
     if (queries.length < 1) {
       throw new Error(`There has been an issue retrieving the query.`)

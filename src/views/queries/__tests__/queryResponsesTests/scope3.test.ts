@@ -41,6 +41,6 @@ describe('QueryResponseTemplates', () => {
       expect(rendered).to.matchSnapshot()
     })
 
-    //should there be an error response somehow?
+    //should there be an error response?
   })
 })
