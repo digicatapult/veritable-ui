@@ -46,4 +46,10 @@ export const createCredentialDefinitionResponse = {
 
 export const invalidResponse = {}
 
+export const drpcRequestResponse = {
+  jsonrpc: '2.0',
+  result: 'result',
+  id: 'request-id',
+}
+
 export const mockLogger: ILogger = pino({ level: 'silent' })

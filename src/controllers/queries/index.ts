@@ -28,7 +28,7 @@ export class QueriesController extends HTMLController {
     @inject(Logger) private logger: ILogger
   ) {
     super()
-    this.logger = logger.child({ controller: '/' })
+    this.logger = logger.child({ controller: '/queries' })
   }
 
   /**
