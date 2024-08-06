@@ -45,7 +45,7 @@ export default class Scope3CarbonConsumptionTemplates {
       </Page>
     )
   }
-  public newScope3 = (props: Scope3QueryProps): JSX.Element => {
+  private newScope3 = (props: Scope3QueryProps): JSX.Element => {
     switch (props.formStage) {
       case 'companySelect':
         return <this.listPage {...props}></this.listPage>
@@ -58,7 +58,7 @@ export default class Scope3CarbonConsumptionTemplates {
     }
   }
 
-  public listPage = (props: Scope3SelectProps) => {
+  private listPage = (props: Scope3SelectProps) => {
     return (
       <div>
         <div
@@ -138,7 +138,8 @@ export default class Scope3CarbonConsumptionTemplates {
       </div>
     )
   }
-  public scope3CarbonConsumptionFormPage = (props: Scope3FormProps) => {
+
+  private scope3CarbonConsumptionFormPage = (props: Scope3FormProps) => {
     return (
       <div>
         <div class="container-scope3-carbon">
