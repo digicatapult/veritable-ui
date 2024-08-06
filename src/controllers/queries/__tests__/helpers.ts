@@ -44,13 +44,16 @@ export const withQueriesMocks = (testOptions: Partial<QueryMockOptions> = {}) =>
   }
 
   const scope3CarbonConsumptionTemplateMock = {
-    newScope3CarbonConsumptionFormPage: () => templateFake('queries'),
+    newScope3CarbonConsumptionFormPage: (props: { formStage: string }) => templateListFake('scope3', props.formStage),
   } as unknown as Scope3CarbonConsumptionTemplates
   const queryTemplateMock = {
     chooseQueryPage: () => templateFake('queries'),
   } as QueriesTemplates
   const cloudagentMock = {
-    submitDrpcRequest: sinon.stub(),
+    submitDrpcRequest: sinon.stub().resolves({
+      result: 'result',
+      id: 'request-id',
+    }),
   }
   const queryListTemplateMock = {
     listPage: (queries: Query[]) => templateListFake('list', queries[0].company_name, queries[0].status),
@@ -78,6 +81,7 @@ export const withQueriesMocks = (testOptions: Partial<QueryMockOptions> = {}) =>
     queryTemplateMock,
     mockLogger,
     dbMock,
+    cloudagentMock,
     args: [
       scope3CarbonConsumptionTemplateMock,
       queryTemplateMock,

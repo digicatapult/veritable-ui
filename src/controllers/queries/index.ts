@@ -5,7 +5,7 @@ import { Logger, type ILogger } from '../../logger.js'
 
 import { InvalidInputError } from '../../errors.js'
 import Database from '../../models/db/index.js'
-import { ConnectionRow, QueryRow } from '../../models/db/types.js'
+import { ConnectionRow, QueryRow, Where } from '../../models/db/types.js'
 import { COMPANY_NUMBER } from '../../models/strings.js'
 import VeritableCloudagent, { DrpcResponse } from '../../models/veritableCloudagent.js'
 import QueriesTemplates from '../../views/queries/queries.js'
@@ -48,7 +48,11 @@ export class QueriesController extends HTMLController {
   @Get('/')
   public async queryManagement(@Query() search?: string): Promise<HTML> {
     this.logger.debug('query management page requested')
-    const query = search ? [['company_name', 'ILIKE', `%${search}%`]] : {}
+    const query: Where<'connection'> = []
+    if (search) {
+      query.push(['company_name', 'ILIKE', `%${search}%`])
+    }
+
     const connections = await this.db.get('connection', query, [['updated_at', 'desc']])
     const query_subset = await this.db.get('query', {}, [['updated_at', 'desc']])
 
@@ -64,7 +68,11 @@ export class QueriesController extends HTMLController {
   @SuccessResponse(200)
   @Get('/new/scope-3-carbon-consumption')
   public async scope3CarbonConsumption(@Query() search?: string): Promise<HTML> {
-    const query = search ? [['company_name', 'ILIKE', `%${search}%`]] : {}
+    const query: Where<'connection'> = []
+    if (search) {
+      query.push(['company_name', 'ILIKE', `%${search}%`])
+    }
+
     const connections = await this.db.get('connection', query, [['updated_at', 'desc']])
     this.logger.debug('scope-3-carbon-consumption requested')
     this.setHeader(
@@ -102,9 +110,11 @@ export class QueriesController extends HTMLController {
           action: 'success'
         }
   ) {
-    const [connection] = await this.db.get('connection', { company_number: body.companyNumber }, [
-      ['updated_at', 'desc'],
-    ])
+    const [connection] = await this.db.get(
+      'connection',
+      { company_number: body.companyNumber, status: 'verified_both' },
+      [['updated_at', 'desc']]
+    )
     if (!connection) {
       throw new InvalidInputError(`Invalid company ${body.companyNumber}`)
     }
@@ -188,6 +198,8 @@ export class QueriesController extends HTMLController {
     if (error instanceof Error) {
       this.logger.debug('Message: %s', error.message)
       this.logger.trace('Stack: %o', error.stack)
+    } else {
+      this.logger.debug('Error: %o', error)
     }
 
     await this.db.update('query', { id: query.id }, { status: 'errored' })

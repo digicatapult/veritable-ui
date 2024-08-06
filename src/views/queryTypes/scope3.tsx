@@ -121,6 +121,7 @@ export default class Scope3CarbonConsumptionTemplates {
                             class="company-checkbox"
                             name="companyNumber"
                             value={connection.company_number}
+                            disabled={connection.status !== 'verified_both'}
                           ></input>
                         </td>
                         <td>{Html.escapeHtml(connection.company_name)}</td>
