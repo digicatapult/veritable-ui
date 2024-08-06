@@ -122,6 +122,7 @@ export class QueriesController extends HTMLController {
       [['company_number', 'ILIKE', `%${body.companyNumber}%`]],
       [['updated_at', 'desc']]
     )
+
     if (!body.productId || !body.quantity) {
       throw new Error('ProductId or quantity is missing.')
     }
@@ -149,9 +150,7 @@ export class QueriesController extends HTMLController {
   @Get('/scope-3-carbon-consumption-response/{queryId}')
   public async scope3CarbonConsumptionResponse(@Path() queryId: UUID): Promise<HTML> {
     this.logger.debug('query page requested')
-    console.log(queryId)
     //retrieve query
-
     const queries = await this.db.get('query', { id: queryId })
     if (queries.length < 1) {
       throw new Error(`There has been an issue retrieving the query.`)
