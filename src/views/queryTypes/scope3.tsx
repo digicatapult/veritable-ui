@@ -36,7 +36,11 @@ export default class Scope3CarbonConsumptionTemplates {
         title="Veritable - New Scope 3 Carbon Consumption Query"
         activePage="categories"
         heading="Select Company To Send Your Query To"
-        headerLinks={[{ name: 'New Scope 3 Carbon Consumption Query', url: '/queries/new/scope-3-carbon-consumption' }]}
+        headerLinks={[
+          { name: 'Query Management', url: '/queries' },
+          { name: 'New', url: '/queries/new' },
+          { name: 'Scope 3 Carbon Consumption', url: '/queries/new/scope-3-carbon-consumption' },
+        ]}
       >
         <div class="connections header"></div>
         <div class="card-body">
@@ -209,7 +213,7 @@ export default class Scope3CarbonConsumptionTemplates {
           Your query request has been shared with the following supplier: {Html.escapeHtml(props.company.companyName)}.
         </p>
         <p>Please await for responses and check for updates in the query management page.</p>
-        <LinkButton disabled={false} text="Back to Home" href="/" icon={''} style="filled" />
+        <LinkButton disabled={false} text="Back to Queries" href="/queries" icon={''} style="filled" />
       </div>
     )
   }
@@ -219,7 +223,7 @@ export default class Scope3CarbonConsumptionTemplates {
       <div id="new-query-confirmation-text">
         <p>An unknown error occurred whilst submitting your query to: {Html.escapeHtml(props.company.companyName)}.</p>
         <p>Please try again later.</p>
-        <LinkButton disabled={false} text="Back to Home" href="/" icon={''} style="filled" />
+        <LinkButton disabled={false} text="Back to Queries" href="/queries" icon={''} style="filled" />
       </div>
     )
   }
