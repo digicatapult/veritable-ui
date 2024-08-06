@@ -1,45 +1,51 @@
 import Html from '@kitajs/html'
-import { UUID } from 'crypto'
 import { singleton } from 'tsyringe'
 import { ConnectionRow } from '../../models/db/types.js'
 import { FormButton, LinkButton, Page } from '../common.js'
 
-export type Scope3FormStage = 'companySelect' | 'form' | 'success'
-interface Scope3FormProps {
-  formStage: Scope3FormStage
-  company: { companyNumber: string; companyName?: string }
-  connection_id?: string | UUID
-  productId?: string
-  quantity?: number
+export type Scope3FormStage = 'companySelect' | 'form' | 'success' | 'error'
+type Scope3SelectProps = {
+  formStage: 'companySelect'
   connections: ConnectionRow[]
   search: string
 }
+type Scope3FormProps = {
+  formStage: 'form'
+  company: { companyNumber: string; companyName?: string }
+  productId?: string
+  quantity?: number
+}
+type Scope3SuccessProps = {
+  formStage: 'success'
+  company: { companyNumber: string; companyName?: string }
+}
+type Scope3ErrorProps = {
+  formStage: 'error'
+  company: { companyNumber: string; companyName?: string }
+}
+
+type Scope3QueryProps = Scope3SelectProps | Scope3FormProps | Scope3SuccessProps | Scope3ErrorProps
 
 @singleton()
 export default class Scope3CarbonConsumptionTemplates {
   constructor() {}
 
-  public newScope3CarbonConsumptionFormPage = (
-    formStage: Scope3FormStage,
-    connections: ConnectionRow[],
-    search: string = '',
-    company: { companyName: string; companyNumber: string }
-  ) => {
+  public newScope3CarbonConsumptionFormPage = (props: Scope3QueryProps) => {
     return (
       <Page
-        title="Veritable - Select Company"
+        title="Veritable - New Scope 3 Carbon Consumption Query"
         activePage="categories"
         heading="Select Company To Send Your Query To"
-        headerLinks={[{ name: 'Select Company', url: '/queries/new/scope-3-carbon-consumption' }]}
+        headerLinks={[{ name: 'New Scope 3 Carbon Consumption Query', url: '/queries/new/scope-3-carbon-consumption' }]}
       >
         <div class="connections header"></div>
         <div class="card-body">
-          <this.newScope3 formStage={formStage} connections={connections} search={search} company={company} />
+          <this.newScope3 {...props} />
         </div>
       </Page>
     )
   }
-  public newScope3 = (props: Scope3FormProps): JSX.Element => {
+  public newScope3 = (props: Scope3QueryProps): JSX.Element => {
     switch (props.formStage) {
       case 'companySelect':
         return <this.listPage {...props}></this.listPage>
@@ -47,12 +53,12 @@ export default class Scope3CarbonConsumptionTemplates {
         return <this.scope3CarbonConsumptionFormPage {...props}></this.scope3CarbonConsumptionFormPage>
       case 'success':
         return <this.newQuerySuccess {...props}></this.newQuerySuccess>
-      default:
-        return <this.newQuerySuccess {...props}></this.newQuerySuccess>
+      case 'error':
+        return <this.newQueryError {...props}></this.newQueryError>
     }
   }
 
-  public listPage = (props: Scope3FormProps) => {
+  public listPage = (props: Scope3SelectProps) => {
     return (
       <div>
         <div
@@ -193,13 +199,24 @@ export default class Scope3CarbonConsumptionTemplates {
       </div>
     )
   }
-  private newQuerySuccess = (props: Scope3FormProps): JSX.Element => {
+
+  private newQuerySuccess = (props: Scope3SuccessProps): JSX.Element => {
     return (
       <div id="new-query-confirmation-text">
         <p>
           Your query request has been shared with the following supplier: {Html.escapeHtml(props.company.companyName)}.
         </p>
         <p>Please await for responses and check for updates in the query management page.</p>
+        <LinkButton disabled={false} text="Back to Home" href="/" icon={''} style="filled" />
+      </div>
+    )
+  }
+
+  private newQueryError = (props: Scope3ErrorProps): JSX.Element => {
+    return (
+      <div id="new-query-confirmation-text">
+        <p>An unknown error occurred whilst submitting your query to: {Html.escapeHtml(props.company.companyName)}.</p>
+        <p>Please try again later.</p>
         <LinkButton disabled={false} text="Back to Home" href="/" icon={''} style="filled" />
       </div>
     )

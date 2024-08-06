@@ -3,23 +3,15 @@ import { inject, injectable, singleton } from 'tsyringe'
 
 import { Logger, type ILogger } from '../../logger.js'
 
+import { InvalidInputError } from '../../errors.js'
 import Database from '../../models/db/index.js'
 import { ConnectionRow, QueryRow } from '../../models/db/types.js'
 import { COMPANY_NUMBER } from '../../models/strings.js'
+import VeritableCloudagent, { DrpcResponse } from '../../models/veritableCloudagent.js'
 import QueriesTemplates from '../../views/queries/queries.js'
 import QueryListTemplates from '../../views/queries/queriesList.js'
 import Scope3CarbonConsumptionTemplates from '../../views/queryTypes/scope3.js'
 import { HTML, HTMLController } from '../HTMLController.js'
-
-type NewFormStage = 'companySelect' | 'form' | 'success'
-
-type QueryStatus = 'resolved' | 'pending_your_input' | 'pending_their_input'
-interface Query {
-  company_name: string
-  query_type: string
-  updated_at: Date
-  status: QueryStatus
-}
 
 @singleton()
 @injectable()
@@ -31,6 +23,7 @@ export class QueriesController extends HTMLController {
     private scope3CarbonConsumptionTemplates: Scope3CarbonConsumptionTemplates,
     private queriesTemplates: QueriesTemplates,
     private queryManagementTemplates: QueryListTemplates,
+    private cloudagent: VeritableCloudagent,
     private db: Database,
     @inject(Logger) private logger: ILogger
   ) {
@@ -59,7 +52,7 @@ export class QueriesController extends HTMLController {
     const connections = await this.db.get('connection', query, [['updated_at', 'desc']])
     const query_subset = await this.db.get('query', {}, [['updated_at', 'desc']])
 
-    const queries: Query[] = combineData(query_subset, connections)
+    const queries = combineData(query_subset, connections)
 
     this.setHeader('HX-Replace-Url', search ? `/queries?search=${encodeURIComponent(search)}` : `/queries`)
     return this.html(this.queryManagementTemplates.listPage(queries, search))
@@ -82,9 +75,10 @@ export class QueriesController extends HTMLController {
     )
 
     return this.html(
-      this.scope3CarbonConsumptionTemplates.newScope3CarbonConsumptionFormPage('companySelect', connections, search, {
-        companyName: '',
-        companyNumber: '',
+      this.scope3CarbonConsumptionTemplates.newScope3CarbonConsumptionFormPage({
+        formStage: 'companySelect',
+        connections,
+        search: search ?? '',
       })
     )
   }
@@ -96,69 +90,120 @@ export class QueriesController extends HTMLController {
   @Post('/new/scope-3-carbon-consumption/stage')
   public async scope3CarbonConsumptionStage(
     @Body()
-    body: {
-      companyNumber: COMPANY_NUMBER
-      companyName?: string
-      productId?: string
-      quantity?: number
-      action: 'companySelect' | 'form' | 'success'
-    }
+    body:
+      | {
+          companyNumber: COMPANY_NUMBER
+          action: 'form'
+        }
+      | {
+          companyNumber: COMPANY_NUMBER
+          productId: string
+          quantity: number
+          action: 'success'
+        }
   ) {
-    const formStage: NewFormStage = body.action
+    const [connection] = await this.db.get('connection', { company_number: body.companyNumber }, [
+      ['updated_at', 'desc'],
+    ])
+    if (!connection) {
+      throw new InvalidInputError(`Invalid company ${body.companyNumber}`)
+    }
+    if (!connection.agent_connection_id || connection.status !== 'verified_both') {
+      throw new InvalidInputError(`Cannot query unverified connection`)
+    }
 
-    if (formStage !== 'success') {
+    if (body.action === 'form') {
       return this.html(
-        this.scope3CarbonConsumptionTemplates.newScope3CarbonConsumptionFormPage(formStage, [], '', {
-          companyName: '',
-          companyNumber: body.companyNumber,
+        this.scope3CarbonConsumptionTemplates.newScope3CarbonConsumptionFormPage({
+          formStage: 'form',
+          company: {
+            companyName: connection.company_name,
+            companyNumber: connection.company_number,
+          },
         })
       )
     }
-    const company = await this.db.get(
-      'connection',
-      [['company_number', 'ILIKE', `%${body.companyNumber}%`]],
-      [['updated_at', 'desc']]
-    )
-    if (!body.productId || !body.quantity) {
-      throw new Error('ProductId or quantity is missing.')
+
+    const query = {
+      productId: body.productId,
+      quantity: body.quantity,
     }
-    const newQueryId = await this.insertNewQuery(
-      company[0].id,
-      'Scope 3 Carbon Consumption',
-      `{ "productId": "${body.productId}", "quantity": "${body.quantity}" }`
-    )
-    if (!newQueryId) {
-      throw new Error('Query isertion was unsuccessful.')
+    const [queryRow] = await this.db.insert('query', {
+      connection_id: connection.id,
+      query_type: 'scope-3-carbon-consumption-by-product',
+      status: 'pending_their_input',
+      details: query,
+    })
+
+    let rpcResponse: DrpcResponse
+    try {
+      const maybeResponse = await this.cloudagent.submitDrpcRequest(
+        connection.agent_connection_id,
+        'submit_query_request',
+        {
+          query: 'scope-3-by-product',
+          ...query,
+        }
+      )
+      if (!maybeResponse) {
+        return await this.handleError(queryRow, connection)
+      }
+      rpcResponse = maybeResponse
+    } catch (err) {
+      return await this.handleError(queryRow, connection, undefined, err)
     }
+    const { result, error, id: rpcId } = rpcResponse
+
+    await this.db.insert('query_rpc', {
+      agent_rpc_id: rpcId,
+      query_id: queryRow.id,
+      role: 'client',
+      method: 'submit_query_request',
+      result,
+      error,
+    })
+
+    if (!result || error) {
+      return await this.handleError(queryRow, connection, rpcId)
+    }
+
     //final stage
     return this.html(
-      this.scope3CarbonConsumptionTemplates.newScope3CarbonConsumptionFormPage(formStage, [], '', {
-        companyName: company[0].company_name,
-        companyNumber: body.companyNumber,
+      this.scope3CarbonConsumptionTemplates.newScope3CarbonConsumptionFormPage({
+        formStage: 'success',
+        company: {
+          companyName: connection.company_name,
+          companyNumber: body.companyNumber,
+        },
       })
     )
   }
-  private async insertNewQuery(
-    connection_id: string,
-    query_type: string,
-    details: string,
-    status: 'resolved' | 'pending_your_input' | 'pending_their_input' = 'pending_their_input'
-  ) {
-    let queryId: string = ''
 
-    const [record] = await this.db.insert('query', {
-      connection_id: connection_id,
-      query_type: query_type,
-      status: status,
-      details: details,
-    })
-    queryId = record.id
+  private async handleError(query: QueryRow, connection: ConnectionRow, rpcId?: string, error?: unknown) {
+    if (rpcId) {
+      this.logger.warn('Error in rpc response %s to query %s to connection %s', rpcId, query.id, connection.id)
+    } else {
+      this.logger.warn('Error submitting query %s to connection %s', query.id, connection.id)
+    }
+    if (error instanceof Error) {
+      this.logger.debug('Message: %s', error.message)
+      this.logger.trace('Stack: %o', error.stack)
+    }
 
-    return queryId
+    await this.db.update('query', { id: query.id }, { status: 'errored' })
+    return this.html(
+      this.scope3CarbonConsumptionTemplates.newScope3CarbonConsumptionFormPage({
+        formStage: 'error',
+        company: {
+          companyName: connection.company_name,
+          companyNumber: connection.company_number,
+        },
+      })
+    )
   }
 }
 
-function combineData(query_subset: QueryRow[], connections: ConnectionRow[]): Query[] {
+function combineData(query_subset: QueryRow[], connections: ConnectionRow[]) {
   const connectionMap: Record<string, string> = {}
   for (const connection of connections) {
     if (connection.id) {

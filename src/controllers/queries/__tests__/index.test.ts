@@ -10,44 +10,23 @@ describe('QueriesController', () => {
   })
   describe('queries', () => {
     it('should match the snapshot of the rendered query page', async () => {
-      const { scope3CarbonConsumptionTemplateMock, mockLogger, queryTemplateMock, dbMock, queryListTemplateMock } =
-        withQueriesMocks()
-      const controller = new QueriesController(
-        scope3CarbonConsumptionTemplateMock,
-        queryTemplateMock,
-        queryListTemplateMock,
-        dbMock,
-        mockLogger
-      )
+      const { args } = withQueriesMocks()
+      const controller = new QueriesController(...args)
       const result = await controller.queries().then(toHTMLString)
       expect(result).to.equal('queries_template')
     })
     it('should call db as expected', async () => {
-      const { scope3CarbonConsumptionTemplateMock, mockLogger, queryTemplateMock, dbMock, queryListTemplateMock } =
-        withQueriesMocks()
-      const controller = new QueriesController(
-        scope3CarbonConsumptionTemplateMock,
-        queryTemplateMock,
-        queryListTemplateMock,
-        dbMock,
-        mockLogger
-      )
-      const spy = sinon.spy(dbMock, 'get')
+      const { dbMock, args } = withQueriesMocks()
+      const controller = new QueriesController(...args)
+      const spy = dbMock.get
       await controller.queryManagement().then(toHTMLString)
       expect(spy.firstCall.calledWith('connection', {}, [['updated_at', 'desc']])).to.equal(true)
       expect(spy.secondCall.calledWith('query', {}, [['updated_at', 'desc']])).to.equal(true)
     })
     it('should call db as expected', async () => {
-      const { scope3CarbonConsumptionTemplateMock, mockLogger, queryTemplateMock, dbMock, queryListTemplateMock } =
-        withQueriesMocks()
-      const controller = new QueriesController(
-        scope3CarbonConsumptionTemplateMock,
-        queryTemplateMock,
-        queryListTemplateMock,
-        dbMock,
-        mockLogger
-      )
-      const spy = sinon.spy(dbMock, 'get')
+      const { dbMock, args } = withQueriesMocks()
+      const controller = new QueriesController(...args)
+      const spy = dbMock.get
       await controller.queryManagement('VER123').then(toHTMLString)
       const search = 'VER123'
       const query = search ? [['company_name', 'ILIKE', `%${search}%`]] : {}
@@ -56,45 +35,24 @@ describe('QueriesController', () => {
       expect(spy.secondCall.calledWith('query', {}, [['updated_at', 'desc']])).to.equal(true)
     })
     it('should call db as expected', async () => {
-      const { scope3CarbonConsumptionTemplateMock, mockLogger, queryTemplateMock, dbMock, queryListTemplateMock } =
-        withQueriesMocks()
-      const controller = new QueriesController(
-        scope3CarbonConsumptionTemplateMock,
-        queryTemplateMock,
-        queryListTemplateMock,
-        dbMock,
-        mockLogger
-      )
-      const spy = sinon.spy(dbMock, 'get')
+      const { dbMock, args } = withQueriesMocks()
+      const controller = new QueriesController(...args)
+      const spy = dbMock.get
       await controller.scope3CarbonConsumption().then(toHTMLString)
       expect(spy.firstCall.calledWith('connection', {}, [['updated_at', 'desc']])).to.equal(true)
     })
     it('should call db as expected', async () => {
-      const { scope3CarbonConsumptionTemplateMock, mockLogger, queryTemplateMock, dbMock, queryListTemplateMock } =
-        withQueriesMocks()
-      const controller = new QueriesController(
-        scope3CarbonConsumptionTemplateMock,
-        queryTemplateMock,
-        queryListTemplateMock,
-        dbMock,
-        mockLogger
-      )
-      const spy = sinon.spy(dbMock, 'get')
+      const { dbMock, args } = withQueriesMocks()
+      const controller = new QueriesController(...args)
+      const spy = dbMock.get
       await controller.scope3CarbonConsumption('VER123').then(toHTMLString)
       const search = 'VER123'
       const query = search ? [['company_name', 'ILIKE', `%${search}%`]] : {}
       expect(spy.firstCall.calledWith('connection', query, [['updated_at', 'desc']])).to.equal(true)
     })
     it('should call page with stage FORM as expected', async () => {
-      const { scope3CarbonConsumptionTemplateMock, mockLogger, queryTemplateMock, dbMock, queryListTemplateMock } =
-        withQueriesMocks()
-      const controller = new QueriesController(
-        scope3CarbonConsumptionTemplateMock,
-        queryTemplateMock,
-        queryListTemplateMock,
-        dbMock,
-        mockLogger
-      )
+      const { args } = withQueriesMocks()
+      const controller = new QueriesController(...args)
       const result = await controller
         .scope3CarbonConsumptionStage({ companyNumber: '10000009', action: 'form' })
         .then(toHTMLString)
@@ -102,15 +60,8 @@ describe('QueriesController', () => {
       expect(result).to.equal('queries_template')
     })
     it('should call page with stage SUCCESS as expected', async () => {
-      const { scope3CarbonConsumptionTemplateMock, mockLogger, queryTemplateMock, dbMock, queryListTemplateMock } =
-        withQueriesMocks()
-      const controller = new QueriesController(
-        scope3CarbonConsumptionTemplateMock,
-        queryTemplateMock,
-        queryListTemplateMock,
-        dbMock,
-        mockLogger
-      )
+      const { args } = withQueriesMocks()
+      const controller = new QueriesController(...args)
       const result = await controller
         .scope3CarbonConsumptionStage({
           companyNumber: '10000009',
