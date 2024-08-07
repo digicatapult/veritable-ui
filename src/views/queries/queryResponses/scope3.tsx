@@ -3,7 +3,7 @@ import { UUID } from 'crypto'
 import { singleton } from 'tsyringe'
 import { FormButton, LinkButton, Page } from '../../common.js'
 
-export type Scope3FormStage = 'form' | 'success'
+export type Scope3FormStage = 'form' | 'success' | 'error'
 interface Scope3FormProps {
   formStage: Scope3FormStage
   company: { companyNumber: string; companyName?: string }
@@ -44,8 +44,8 @@ export default class Scope3CarbonConsumptionResponseTemplates {
         return <this.scope3CarbonConsumptionResponseFormPage {...props}></this.scope3CarbonConsumptionResponseFormPage>
       case 'success':
         return <this.newQuerySuccess {...props}></this.newQuerySuccess>
-      default:
-        return <this.newQuerySuccess {...props}></this.newQuerySuccess>
+      case 'error':
+        return <this.newQueryError {...props}></this.newQueryError>
     }
   }
 
@@ -117,6 +117,18 @@ export default class Scope3CarbonConsumptionResponseTemplates {
           Your query Response has been shared with the following company: {Html.escapeHtml(props.company.companyName)}.
         </p>
         <p>Thank you for answering this query, there is no other action required.</p>
+        <LinkButton disabled={false} text="Back to Home" href="/" icon={''} style="filled" />
+      </div>
+    )
+  }
+  private newQueryError = (props: Scope3FormProps): JSX.Element => {
+    return (
+      <div id="new-query-confirmation-text">
+        <p>
+          There has been an error when responding to the querry by following company:{' '}
+          {Html.escapeHtml(props.company.companyName)}.
+        </p>
+        <p>Please try again or contact the respective company to resolve this issue.</p>
         <LinkButton disabled={false} text="Back to Home" href="/" icon={''} style="filled" />
       </div>
     )
