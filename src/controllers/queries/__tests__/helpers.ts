@@ -1,7 +1,10 @@
 import { Readable } from 'node:stream'
 import { pino } from 'pino'
+import sinon from 'sinon'
 import { ILogger } from '../../../logger.js'
 import Database from '../../../models/db/index.js'
+import { ConnectionRow, QueryRow } from '../../../models/db/types.js'
+import VeritableCloudagent from '../../../models/veritableCloudagent.js'
 import QueriesTemplates from '../../../views/queries/queries.js'
 import QueryListTemplates from '../../../views/queries/queriesList.js'
 import Scope3CarbonConsumptionResponseTemplates from '../../../views/queries/queryResponses/scope3.js'
@@ -16,27 +19,18 @@ interface Query {
   status: QueryStatus
 }
 
-function* sampleGenerator() {
-  const samples = [
-    [{ company_name: 'bar', status: 'pending', id: '11' }],
-    [{ id: 'x', status: 'xx', connection_id: '11' }],
-    [{ company_name: 'VER123', status: 'pending', id: '11' }],
-    [{ id: 'x', status: 'xx', connection_id: '11' }],
-    [{ company_name: 'VER123', status: 'pending', id: '11' }],
-    [{ company_name: 'VER123', status: 'pending', id: '11' }],
-    [{ company_name: 'VER123', status: 'pending', id: '11', company_number: '10000009' }],
-    [{ company_name: 'VER123', status: 'pending', id: '11', company_number: '10000009' }],
-    [{ company_name: 'VER123', status: 'pending', id: '11', company_number: '10000009' }],
-    [{ company_name: 'VER123', status: 'pending', id: '11', company_number: '10000009' }],
-    [{ company_name: 'VER123', status: 'pending', id: '11', company_number: '10000009' }],
-  ]
-
-  let index = 0
-  while (index < samples.length) {
-    yield samples[index++]
+type QueryMockOptions = {
+  getRows: {
+    connection: Partial<ConnectionRow>[]
+    query: Partial<QueryRow>[]
   }
 }
-const sampleGen = sampleGenerator()
+const defaultOptions: QueryMockOptions = {
+  getRows: {
+    connection: [{ company_name: 'VER123', status: 'verified_both', id: '11', agent_connection_id: 'agentId' }],
+    query: [{ id: 'x', status: 'pending_their_input', connection_id: '11' }],
+  },
+}
 
 function templateFake(templateName: string) {
   return Promise.resolve(`${templateName}_template`)
@@ -44,9 +38,14 @@ function templateFake(templateName: string) {
 function templateListFake(templateName: string, ...args: any[]) {
   return Promise.resolve([templateName, args.join('-'), templateName].join('_'))
 }
-export const withQueriesMocks = () => {
+export const withQueriesMocks = (testOptions: Partial<QueryMockOptions> = {}) => {
+  const options = {
+    ...defaultOptions,
+    ...testOptions,
+  }
+
   const scope3CarbonConsumptionTemplateMock = {
-    newScope3CarbonConsumptionFormPage: () => templateFake('queries'),
+    newScope3CarbonConsumptionFormPage: (props: { formStage: string }) => templateListFake('scope3', props.formStage),
   } as unknown as Scope3CarbonConsumptionTemplates
 
   const scope3CarbonConsumptionResponseTemplateMock = {
@@ -55,29 +54,31 @@ export const withQueriesMocks = () => {
   const queryTemplateMock = {
     chooseQueryPage: () => templateFake('queries'),
   } as QueriesTemplates
+  const cloudagentMock = {
+    submitDrpcRequest: sinon.stub().resolves({
+      result: 'result',
+      id: 'request-id',
+    }),
+  }
   const queryListTemplateMock = {
     listPage: (queries: Query[]) => templateListFake('list', queries[0].company_name, queries[0].status),
   } as unknown as QueryListTemplates
   const mockLogger: ILogger = pino({ level: 'silent' })
   const dbMock = {
-    get: () => {
-      const result = sampleGen.next()
-      return Promise.resolve(result.value)
-    },
-    insert: () => {
-      return Promise.resolve([
-        {
-          status: 'pending_their_input',
-          id: 123,
-          created_at: new Date(),
-          updated_at: new Date(),
-          connection_id: '11',
-          query_type: 'Scope 3',
-          details: 'some details',
-        },
-      ])
-    },
-  } as unknown as Database
+    get: sinon.stub().callsFake((tableName: 'connection' | 'query') => Promise.resolve(options.getRows[tableName])),
+    update: sinon.stub().resolves(),
+    insert: sinon.stub().resolves([
+      {
+        status: 'pending_their_input',
+        id: 123,
+        created_at: new Date(),
+        updated_at: new Date(),
+        connection_id: '11',
+        query_type: 'Scope 3',
+        details: 'some details',
+      },
+    ]),
+  }
 
   return {
     scope3CarbonConsumptionTemplateMock,
@@ -86,13 +87,14 @@ export const withQueriesMocks = () => {
     queryTemplateMock,
     mockLogger,
     dbMock,
+    cloudagentMock,
     args: [
-      scope3CarbonConsumptionTemplateMock as Scope3CarbonConsumptionTemplates,
-      scope3CarbonConsumptionResponseTemplateMock as Scope3CarbonConsumptionResponseTemplates,
-      queryTemplateMock as QueriesTemplates,
-      queryListTemplateMock as QueryListTemplates,
-      dbMock as Database,
-      mockLogger as ILogger,
+      scope3CarbonConsumptionTemplateMock,
+      queryTemplateMock,
+      queryListTemplateMock,
+      cloudagentMock as unknown as VeritableCloudagent,
+      dbMock as unknown as Database,
+      mockLogger,
     ] as const,
   }
 }

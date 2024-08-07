@@ -40,6 +40,7 @@ describe('ConnectionTemplates', () => {
         { id: 'someID', company_name: 'Company D', status: 'resolved', query_type: 'Type A', updated_at: sampleDate },
         { id: 'someID', company_name: 'Company E', status: 'resolved', query_type: 'Type A', updated_at: sampleDate },
         { id: 'someID', company_name: 'Company F', status: 'resolved', query_type: 'Type A', updated_at: sampleDate },
+        { id: 'someID', company_name: 'Company G', status: 'errored', query_type: 'Type A', updated_at: sampleDate },
       ])
       expect(rendered).to.matchSnapshot()
     })

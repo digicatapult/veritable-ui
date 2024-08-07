@@ -205,3 +205,81 @@ export const withEstablishedConnectionFromThem = function (context: {
     emailSendStub.restore()
   })
 }
+
+export const withVerifiedConnection = function (context: {
+  app: express.Express
+  remoteDatabase: Database
+  remoteCloudagent: VeritableCloudagent
+  remoteConnectionId: string
+  localConnectionId: string
+}) {
+  let emailSendStub: sinon.SinonStub
+
+  const cleanupRemote = async () => {
+    const remoteConnections = await context.remoteCloudagent.getConnections()
+    for (const { id } of remoteConnections) {
+      await context.remoteCloudagent.deleteConnection(id)
+    }
+    await context.remoteDatabase.delete('connection', {})
+  }
+
+  beforeEach(async function () {
+    const localDatabase = container.resolve(Database)
+    context.remoteDatabase = new Database(knex(remoteDbConfig))
+    context.remoteCloudagent = new VeritableCloudagent(mockEnv, mockLogger)
+
+    await cleanupRemote()
+
+    const email = container.resolve(EmailService)
+    emailSendStub = sinon.stub(email, 'sendMail')
+    await post(context.app, '/connection/new/create-invitation', {
+      companyNumber: validCompanyNumber,
+      email: 'alice@example.com',
+      action: 'submit',
+    })
+    const invite = (emailSendStub.args.find(([name]) => name === 'connection_invite') || [])[1].invite
+    const inviteUrl = JSON.parse(Buffer.from(invite, 'base64url').toString('utf8')).inviteUrl
+
+    const [{ id: localConnectionId }] = await localDatabase.get('connection')
+    context.localConnectionId = localConnectionId
+
+    const { connectionRecord } = await context.remoteCloudagent.receiveOutOfBandInvite({
+      companyName: validCompanyName,
+      invitationUrl: inviteUrl,
+    })
+
+    const [{ id: remoteConnectionId }] = await context.remoteDatabase.insert('connection', {
+      pin_attempt_count: 0,
+      agent_connection_id: connectionRecord.id,
+      company_name: validCompanyName,
+      company_number: validCompanyNumber,
+      status: 'pending',
+      pin_tries_remaining_count: 4,
+    })
+    context.remoteConnectionId = remoteConnectionId
+
+    // wait for status to not be pending
+    const loopLimit = 100
+    for (let i = 1; i <= loopLimit; i++) {
+      const connectionsLocal = await localDatabase.get('connection')
+      const connectionsRemote = await context.remoteDatabase.get('connection')
+      if (connectionsLocal[0].status === 'pending' || connectionsRemote[0].status === 'pending') {
+        await delay(10)
+        continue
+      }
+      context.localConnectionId = connectionsLocal[0].id
+
+      if (i === loopLimit) {
+        throw new Error('Timeout Error initialising connection')
+      }
+    }
+
+    await localDatabase.update('connection', { id: context.localConnectionId }, { status: 'verified_both' })
+    await context.remoteDatabase.update('connection', { id: context.remoteConnectionId }, { status: 'verified_both' })
+  })
+
+  afterEach(async function () {
+    await cleanupRemote()
+    emailSendStub.restore()
+  })
+}

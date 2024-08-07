@@ -1,6 +1,6 @@
 {
   "name": "veritable-ui",
-  "version": "0.8.17",
+  "version": "0.8.23",
   "description": "UI for Veritable",
   "main": "src/index.ts",
   "type": "module",
@@ -31,8 +31,8 @@
     "xss-scan": "xss-scan"
   },
   "dependencies": {
-    "@digicatapult/tsoa-oauth-express": "^0.1.28",
-    "@kitajs/html": "^4.2.0",
+    "@digicatapult/tsoa-oauth-express": "^0.1.29",
+    "@kitajs/html": "^4.2.1",
     "@kitajs/ts-html-plugin": "^4.0.2",
     "@tsoa/runtime": "^6.4.0",
     "@types/compression": "^1.7.5",
@@ -58,12 +58,12 @@
   },
   "devDependencies": {
     "@types/body-parser": "^1.19.5",
-    "@types/chai": "^4.3.16",
+    "@types/chai": "^4.3.17",
     "@types/chai-jest-snapshot": "^1.3.8",
     "@types/cookie-parser": "^1.4.7",
     "@types/express": "^4.17.21",
     "@types/mocha": "^10.0.7",
-    "@types/node": "^20.14.13",
+    "@types/node": "^20.14.14",
     "@types/nodemailer": "^6.4.15",
     "@types/pino-http": "^5.8.4",
     "@types/sinon": "^17.0.3",
@@ -80,6 +80,6 @@
     "sinon": "^18.0.0",
     "supertest": "^7.0.0",
     "tsimp": "^2.0.11",
-    "undici": "^6.19.4"
+    "undici": "^6.19.5"
   }
 }

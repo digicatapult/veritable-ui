@@ -12,7 +12,7 @@ export default class QueriesTemplates {
         activePage="categories"
         headerLinks={[
           { name: 'Query Management', url: '/queries' },
-          { name: 'Queries', url: '/queries/new' },
+          { name: 'New', url: '/queries/new' },
         ]}
         stylesheets={['query.css']}
       >

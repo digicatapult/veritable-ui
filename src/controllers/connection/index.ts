@@ -29,7 +29,7 @@ export class ConnectionController extends HTMLController {
     @inject(Logger) private logger: ILogger
   ) {
     super()
-    this.logger = logger.child({ controller: '/conecttion' })
+    this.logger = logger.child({ controller: '/connection' })
   }
 
   /**
