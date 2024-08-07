@@ -32,7 +32,7 @@
   },
   "dependencies": {
     "@digicatapult/tsoa-oauth-express": "^0.1.29",
-    "@kitajs/html": "^4.2.0",
+    "@kitajs/html": "^4.2.1",
     "@kitajs/ts-html-plugin": "^4.0.2",
     "@tsoa/runtime": "^6.4.0",
     "@types/compression": "^1.7.5",
