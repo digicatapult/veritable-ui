@@ -44,12 +44,12 @@ export default class DrpcEvents {
     }
 
     if (role === 'server' && state === 'request-received') {
-      await this.handelRequestReceived(request, connectionId)
+      await this.handleRequestReceived(request, connectionId)
       return
     }
   }
 
-  private async handelRequestReceived(request: DrpcRequest, agentConnectionId: string) {
+  private async handleRequestReceived(request: DrpcRequest, agentConnectionId: string) {
     if (request.method === 'submit_query_request') {
       return await neverFail(this.handleSubmitQueryRequest(request, agentConnectionId))
     }
