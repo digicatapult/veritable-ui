@@ -5,12 +5,9 @@ import { Logger, type ILogger } from '../../logger.js'
 import Database from '../../models/db/index.js'
 import type { Credential, CredentialFormatData, Schema } from '../../models/veritableCloudagent.js'
 import VeritableCloudagent from '../../models/veritableCloudagent.js'
-import VeritableCloudagentEvents from '../veritableCloudagentEvents.js'
+import VeritableCloudagentEvents, { eventData } from '../veritableCloudagentEvents.js'
 import CompanyDetailsV1Handler from './companyDetailsV1.js'
 import { CredentialEventHandler, CredentialEventHandlerBase } from './types.js'
-
-declare const CloudagentOn: VeritableCloudagentEvents['on']
-type eventData<T> = Parameters<typeof CloudagentOn<T>>[1]
 
 @singleton()
 @injectable()

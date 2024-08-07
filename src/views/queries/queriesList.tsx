@@ -2,7 +2,7 @@ import Html from '@kitajs/html'
 import { singleton } from 'tsyringe'
 import { LinkButton, Page } from '../common.js'
 
-type QueryStatus = 'resolved' | 'pending_your_input' | 'pending_their_input'
+type QueryStatus = 'resolved' | 'pending_your_input' | 'pending_their_input' | 'errored'
 
 interface Query {
   company_name: string
@@ -32,6 +32,12 @@ export default class QueryListTemplates {
         return (
           <div class="list-item-status" data-status="success">
             Resolved
+          </div>
+        )
+      case 'errored':
+        return (
+          <div class="list-item-status" data-status="error">
+            Errored
           </div>
         )
       default:

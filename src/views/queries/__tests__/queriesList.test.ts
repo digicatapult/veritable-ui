@@ -74,6 +74,12 @@ describe('ConnectionTemplates', () => {
           query_type: 'Type A',
           updated_at: sampleDate,
         },
+        {
+          company_name: 'Company G',
+          status: 'errored',
+          query_type: 'Type A',
+          updated_at: sampleDate,
+        },
       ])
       expect(rendered).to.matchSnapshot()
     })

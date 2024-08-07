@@ -1,7 +1,7 @@
 import { Knex } from 'knex'
 import { z } from 'zod'
 
-export const tablesList = ['connection', 'connection_invite', 'query'] as const
+export const tablesList = ['connection', 'connection_invite', 'query', 'query_rpc'] as const
 
 const insertConnection = z.object({
   company_name: z.string(),
@@ -29,8 +29,16 @@ const insertConnectionInvite = z.object({
 const insertQuery = z.object({
   connection_id: z.string(),
   query_type: z.string(),
-  status: z.enum(['resolved', 'pending_your_input', 'pending_their_input']),
-  details: z.string(),
+  status: z.enum(['resolved', 'pending_your_input', 'pending_their_input', 'errored']),
+  details: z.record(z.any()),
+})
+const insertQueryRpc = z.object({
+  query_id: z.string(),
+  agent_rpc_id: z.string(),
+  role: z.union([z.literal('client'), z.literal('server')]),
+  method: z.union([z.literal('submit_query_request'), z.literal('submit_query_response')]),
+  result: z.union([z.record(z.any()), z.null()]).optional(),
+  error: z.union([z.record(z.any()), z.null()]).optional(),
 })
 
 const Zod = {
@@ -53,6 +61,14 @@ const Zod = {
   query: {
     insert: insertQuery,
     get: insertQuery.extend({
+      id: z.string(),
+      created_at: z.date(),
+      updated_at: z.date(),
+    }),
+  },
+  query_rpc: {
+    insert: insertQueryRpc,
+    get: insertQueryRpc.extend({
       id: z.string(),
       created_at: z.date(),
       updated_at: z.date(),

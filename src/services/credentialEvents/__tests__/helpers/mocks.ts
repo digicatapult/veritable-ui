@@ -64,7 +64,7 @@ export const withCredentialEventsDepsMock = (opts: Partial<typeof defaultCredEve
       eventMock as VeritableCloudagentEvents,
       cloudagentMock as unknown as VeritableCloudagent,
       companyDetailsMock as unknown as CompanyDetailsV1Handler,
-      dbMock,
+      dbMock as unknown as Database,
       loggerMock,
     ] as const,
   }

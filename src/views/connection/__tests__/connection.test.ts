@@ -1,6 +1,7 @@
 import { expect } from 'chai'
 import { describe, it } from 'mocha'
 
+import { ConnectionRow } from '../../../models/db/types.js'
 import ConnectionTemplates from '../connection.js'
 
 describe('ConnectionTemplates', () => {
@@ -18,7 +19,7 @@ describe('ConnectionTemplates', () => {
           company_name: 'Company A',
           status: 'disconnected',
         },
-      ])
+      ] as ConnectionRow[])
       expect(rendered).to.matchSnapshot()
     })
 
@@ -29,7 +30,7 @@ describe('ConnectionTemplates', () => {
           company_name: '<div>I own you</div>',
           status: 'verified_both',
         },
-      ])
+      ] as ConnectionRow[])
       expect(rendered).to.matchSnapshot()
     })
 
@@ -60,7 +61,7 @@ describe('ConnectionTemplates', () => {
           company_name: 'Company F',
           status: 'verified_us',
         },
-      ])
+      ] as ConnectionRow[])
       expect(rendered).to.matchSnapshot()
     })
   })
