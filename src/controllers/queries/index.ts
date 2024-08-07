@@ -193,7 +193,7 @@ export class QueriesController extends HTMLController {
     }
   ): Promise<HTML> {
     this.logger.debug('query page requested')
-
+    //send a drpc message with response
     return this.html(
       this.scope3CarbonConsumptionResponseTemplates.newScope3CarbonConsumptionResponseFormPage('success', {
         companyName: body.companyName,
