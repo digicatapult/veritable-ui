@@ -6,7 +6,7 @@ import { Logger, type ILogger } from '../../logger.js'
 import { InvalidInputError } from '../../errors.js'
 import Database from '../../models/db/index.js'
 import { ConnectionRow, QueryRow, Where } from '../../models/db/types.js'
-import { COMPANY_NUMBER } from '../../models/strings.js'
+import { UUID } from '../../models/strings.js'
 import VeritableCloudagent, { DrpcResponse } from '../../models/veritableCloudagent.js'
 import QueriesTemplates from '../../views/queries/queries.js'
 import QueryListTemplates from '../../views/queries/queriesList.js'
@@ -100,23 +100,21 @@ export class QueriesController extends HTMLController {
     @Body()
     body:
       | {
-          companyNumber: COMPANY_NUMBER
+          connectionId: UUID
           action: 'form'
         }
       | {
-          companyNumber: COMPANY_NUMBER
+          connectionId: UUID
           productId: string
           quantity: number
           action: 'success'
         }
   ) {
-    const [connection] = await this.db.get(
-      'connection',
-      { company_number: body.companyNumber, status: 'verified_both' },
-      [['updated_at', 'desc']]
-    )
+    const [connection] = await this.db.get('connection', { id: body.connectionId, status: 'verified_both' }, [
+      ['updated_at', 'desc'],
+    ])
     if (!connection) {
-      throw new InvalidInputError(`Invalid company ${body.companyNumber}`)
+      throw new InvalidInputError(`Invalid connection ${body.connectionId}`)
     }
     if (!connection.agent_connection_id || connection.status !== 'verified_both') {
       throw new InvalidInputError(`Cannot query unverified connection`)
@@ -126,10 +124,7 @@ export class QueriesController extends HTMLController {
       return this.html(
         this.scope3CarbonConsumptionTemplates.newScope3CarbonConsumptionFormPage({
           formStage: 'form',
-          company: {
-            companyName: connection.company_name,
-            companyNumber: connection.company_number,
-          },
+          connectionId: body.connectionId,
         })
       )
     }
@@ -183,7 +178,7 @@ export class QueriesController extends HTMLController {
         formStage: 'success',
         company: {
           companyName: connection.company_name,
-          companyNumber: body.companyNumber,
+          companyNumber: connection.company_number,
         },
       })
     )

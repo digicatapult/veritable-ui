@@ -57,7 +57,7 @@ describe('QueriesController', () => {
       const { args } = withQueriesMocks()
       const controller = new QueriesController(...args)
       const result = await controller
-        .scope3CarbonConsumptionStage({ companyNumber: '10000009', action: 'form' })
+        .scope3CarbonConsumptionStage({ connectionId: 'connection-id', action: 'form' })
         .then(toHTMLString)
 
       expect(result).to.equal('scope3_form_scope3')
@@ -68,7 +68,7 @@ describe('QueriesController', () => {
       const controller = new QueriesController(...args)
       const result = await controller
         .scope3CarbonConsumptionStage({
-          companyNumber: '10000009',
+          connectionId: 'connection-id',
           action: 'success',
           productId: 'SomeID',
           quantity: 111,
@@ -85,7 +85,7 @@ describe('QueriesController', () => {
       const controller = new QueriesController(...args)
       const result = await controller
         .scope3CarbonConsumptionStage({
-          companyNumber: '10000009',
+          connectionId: 'connection-id',
           action: 'success',
           productId: 'SomeID',
           quantity: 111,
@@ -102,7 +102,7 @@ describe('QueriesController', () => {
       const controller = new QueriesController(...args)
       const result = await controller
         .scope3CarbonConsumptionStage({
-          companyNumber: '10000009',
+          connectionId: 'connection-id',
           action: 'success',
           productId: 'SomeID',
           quantity: 111,
@@ -122,7 +122,7 @@ describe('QueriesController', () => {
       const controller = new QueriesController(...args)
       const result = await controller
         .scope3CarbonConsumptionStage({
-          companyNumber: '10000009',
+          connectionId: 'connection-id',
           action: 'success',
           productId: 'SomeID',
           quantity: 111,

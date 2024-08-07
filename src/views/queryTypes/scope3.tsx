@@ -11,7 +11,7 @@ type Scope3SelectProps = {
 }
 type Scope3FormProps = {
   formStage: 'form'
-  company: { companyNumber: string; companyName?: string }
+  connectionId: string
   productId?: string
   quantity?: number
 }
@@ -123,8 +123,8 @@ export default class Scope3CarbonConsumptionTemplates {
                           <input
                             type="checkbox"
                             class="company-checkbox"
-                            name="companyNumber"
-                            value={connection.company_number}
+                            name="connectionId"
+                            value={connection.id}
                             disabled={connection.status !== 'verified_both'}
                           ></input>
                         </td>
@@ -165,7 +165,7 @@ export default class Scope3CarbonConsumptionTemplates {
               hx-target="main"
               hx-swap="innerHTML"
             >
-              <input type="hidden" name="companyNumber" value={props.company.companyNumber} />
+              <input type="hidden" name="connectionId" value={props.connectionId} />
               <div class="input-container">
                 <label for="productId-input" class="input-label">
                   Product ID

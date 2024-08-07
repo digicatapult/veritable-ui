@@ -102,7 +102,10 @@ export default class DrpcEvents {
         connection_id: connection.id,
         status: 'pending_your_input',
         query_type: 'Scope 3 Carbon Consumption',
-        details: params,
+        details: {
+          productId: params.productId,
+          quantity: params.quantity,
+        },
       })
       queryId = query.id
 

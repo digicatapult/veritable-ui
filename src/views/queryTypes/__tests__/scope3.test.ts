@@ -11,10 +11,12 @@ describe('Scope3CarbonConsumptionTemplates', () => {
         formStage: 'companySelect',
         connections: [
           {
+            id: '1',
             company_name: 'company1',
             company_number: '111111111',
           },
           {
+            id: '2',
             company_name: 'company2',
             company_number: '222222222',
           },
@@ -38,10 +40,7 @@ describe('Scope3CarbonConsumptionTemplates', () => {
       const templates = new Scope3CarbonConsumptionTemplates()
       const rendered = await templates.newScope3CarbonConsumptionFormPage({
         formStage: 'form',
-        company: {
-          companyName: 'company1',
-          companyNumber: '111111111',
-        },
+        connectionId: 'connection-id',
       })
       expect(rendered).to.matchSnapshot()
     })
@@ -50,10 +49,7 @@ describe('Scope3CarbonConsumptionTemplates', () => {
       const templates = new Scope3CarbonConsumptionTemplates()
       const rendered = await templates.newScope3CarbonConsumptionFormPage({
         formStage: 'form',
-        company: {
-          companyName: 'company1',
-          companyNumber: '111111111',
-        },
+        connectionId: 'connection-id',
         productId: 'product-id',
         quantity: 123,
       })

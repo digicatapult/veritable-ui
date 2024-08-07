@@ -69,7 +69,7 @@ describe('DrpcEvents', function () {
             connection_id: 'connection-id',
             status: 'pending_your_input',
             query_type: 'Scope 3 Carbon Consumption',
-            details: { query: 'Scope 3 Carbon Consumption', productId: 'product-id', quantity: 42 },
+            details: { productId: 'product-id', quantity: 42 },
           },
         ])
         expect(stub.secondCall.args).to.deep.equal([
@@ -467,7 +467,7 @@ describe('DrpcEvents', function () {
             connection_id: 'connection-id',
             status: 'pending_your_input',
             query_type: 'Scope 3 Carbon Consumption',
-            details: { query: 'Scope 3 Carbon Consumption', productId: 'product-id', quantity: 42 },
+            details: { productId: 'product-id', quantity: 42 },
           },
         ])
       })
