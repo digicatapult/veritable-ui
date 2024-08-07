@@ -90,6 +90,7 @@ export const withQueriesMocks = (testOptions: Partial<QueryMockOptions> = {}) =>
     cloudagentMock,
     args: [
       scope3CarbonConsumptionTemplateMock,
+      scope3CarbonConsumptionResponseTemplateMock,
       queryTemplateMock,
       queryListTemplateMock,
       cloudagentMock as unknown as VeritableCloudagent,

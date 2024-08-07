@@ -136,7 +136,7 @@ describe('QueriesController', () => {
     it('should call db as expected', async () => {
       const { args, dbMock } = withQueriesMocks()
       const controller = new QueriesController(...args)
-      const spy = sinon.spy(dbMock, 'get')
+      const spy = dbMock.get
       await controller.scope3CarbonConsumptionResponse('SomeId').then(toHTMLString)
       const search = 'SomeId'
       expect(spy.firstCall.calledWith('query', { id: search })).to.equal(true)
