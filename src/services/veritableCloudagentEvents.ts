@@ -8,6 +8,12 @@ import VeritableCloudagent, { connectionParser, credentialParser } from '../mode
 import IndexedAsyncEventEmitter from '../utils/indexedAsyncEventEmitter.js'
 import { MapDiscriminatedUnion } from '../utils/types.js'
 
+const drpcRequestParser = z.object({
+  jsonrpc: z.string(),
+  method: z.string(),
+  params: z.record(z.any()).optional(),
+  id: z.string(),
+})
 const eventParser = z.discriminatedUnion('type', [
   z.object({
     type: z.literal('ConnectionStateChanged'),
@@ -24,7 +30,17 @@ const eventParser = z.discriminatedUnion('type', [
   z.object({ type: z.literal('BasicMessageStateChanged'), payload: z.object({}) }),
   z.object({ type: z.literal('ConnectionDidRotated'), payload: z.object({}) }),
   z.object({ type: z.literal('RevocationNotificationReceived'), payload: z.object({}) }),
-  z.object({ type: z.literal('DrpcRequestStateChanged'), payload: z.object({}) }),
+  z.object({
+    type: z.literal('DrpcRequestStateChanged'),
+    payload: z.object({
+      drpcMessageRecord: z.object({
+        request: drpcRequestParser.optional(),
+        connectionId: z.string(),
+        role: z.union([z.literal('client'), z.literal('server')]),
+        state: z.union([z.literal('request-sent'), z.literal('request-received'), z.literal('completed')]),
+      }),
+    }),
+  }),
   z.object({ type: z.literal('DrpcResponseStateChanged'), payload: z.object({}) }),
   z.object({ type: z.literal('ProofStateChanged'), payload: z.object({}) }),
   z.object({ type: z.literal('TrustPingReceivedEvent'), payload: z.object({}) }),
@@ -35,6 +51,10 @@ const eventParser = z.discriminatedUnion('type', [
 type WebSocketEvent = z.infer<typeof eventParser>
 type WebSocketEventMap = MapDiscriminatedUnion<WebSocketEvent, 'type'>
 type WebSocketEventNames = WebSocketEvent['type']
+
+declare const CloudagentOn: VeritableCloudagentEvents['on']
+export type eventData<T> = Parameters<typeof CloudagentOn<T>>[1]
+export type DrpcRequest = z.infer<typeof drpcRequestParser>
 
 @singleton()
 @injectable()
@@ -89,7 +109,7 @@ export default class VeritableCloudagentEvents extends IndexedAsyncEventEmitter<
 
         let id: string
         const type = data.type
-        this.logger.debug('WebSocket Message if of type %s', type)
+        this.logger.debug('WebSocket Message is of type %s', type)
         switch (type) {
           case 'ConnectionStateChanged':
             id = data.payload.connectionRecord.id
@@ -98,6 +118,14 @@ export default class VeritableCloudagentEvents extends IndexedAsyncEventEmitter<
           case 'CredentialStateChanged':
             id = data.payload.credentialRecord.id
             credentialSeen.add(id)
+            break
+          case 'DrpcRequestStateChanged':
+            const requestId = data.payload.drpcMessageRecord.request?.id
+            if (requestId === undefined) {
+              this.logger.trace('Skipping %s event with undefined id', type)
+              return
+            }
+            id = requestId
             break
           default:
             this.logger.trace('Skipping %s event', type)

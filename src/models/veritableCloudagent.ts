@@ -108,6 +108,19 @@ export const credentialFormatDataParser = z.object({
 })
 export type CredentialFormatData = z.infer<typeof credentialFormatDataParser>
 
+export const drpcResponseParser = z.object({
+  jsonrpc: z.literal('2.0'),
+  result: z.any().optional(),
+  error: z
+    .object({
+      code: z.number(),
+      message: z.string(),
+    })
+    .optional(),
+  id: z.string(),
+})
+export type DrpcResponse = z.infer<typeof drpcResponseParser>
+
 const connectionListParser = z.array(connectionParser)
 const credentialListParser = z.array(credentialParser)
 const schemaListParser = z.array(schemaParser)
@@ -291,6 +304,38 @@ export default class VeritableCloudagent {
     }
 
     return this.postRequest(`/v1/credentials/${credentialId}/accept-proposal`, body, this.buildParser(credentialParser))
+  }
+
+  public async submitDrpcRequest(
+    connectionId: string,
+    method: string,
+    params: Record<string, any>
+  ): Promise<DrpcResponse | undefined> {
+    const body = {
+      jsonrpc: '2.0',
+      method,
+      params,
+    }
+
+    const parser = this.buildParser(drpcResponseParser)
+    return this.postRequest(`/v1/drpc/${connectionId}/request`, body, (response) => {
+      if (response.status === 204) {
+        return undefined
+      }
+      return parser(response)
+    })
+  }
+
+  public async submitDrpcResponse(requestId: string, response: Omit<DrpcResponse, 'id' | 'jsonrpc'>): Promise<void> {
+    return this.postRequest(
+      `/v1/drpc/${requestId}/response`,
+      {
+        jsonrpc: '2.0',
+        result: response.result,
+        error: response.error,
+      },
+      () => {}
+    )
   }
 
   public async acceptCredentialOffer(credentialId: string): Promise<Credential> {

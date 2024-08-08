@@ -6,6 +6,7 @@ import {
   createDidResponse,
   createInviteSuccessResponse,
   createSchemaResponse,
+  drpcRequestResponse,
   getConnectionsSuccessResponse,
   invalidResponse,
   mockLogger,
@@ -519,6 +520,94 @@ describe('veritableCloudagent', () => {
             issuerId: 'issuerId',
             schemaId: 'schemaId',
           })
+        } catch (err) {
+          error = err
+        }
+        expect(error).instanceOf(InternalError)
+      })
+    })
+  })
+
+  describe('submitDrpcRequest', () => {
+    describe('success with response', function () {
+      withCloudagentMock('POST', `/v1/drpc/connection-id/request`, 200, drpcRequestResponse)
+
+      it('should give back drpc response', async () => {
+        const environment = new Env()
+        const cloudagent = new VeritableCloudagent(environment, mockLogger)
+        const response = await cloudagent.submitDrpcRequest('connection-id', 'method-name', { someKey: 'some-value' })
+        expect(response).deep.equal(drpcRequestResponse)
+      })
+    })
+
+    describe('success without response', function () {
+      withCloudagentMock('POST', `/v1/drpc/connection-id/request`, 204, {})
+
+      it('should give back undefined', async () => {
+        const environment = new Env()
+        const cloudagent = new VeritableCloudagent(environment, mockLogger)
+        const response = await cloudagent.submitDrpcRequest('connection-id', 'method-name', { someKey: 'some-value' })
+        expect(response).deep.equal(undefined)
+      })
+    })
+
+    describe('error (response code)', function () {
+      withCloudagentMock('POST', `/v1/drpc/connection-id/request`, 400, {})
+
+      it('should throw internal error', async () => {
+        const environment = new Env()
+        const cloudagent = new VeritableCloudagent(environment, mockLogger)
+
+        let error: unknown = null
+        try {
+          await cloudagent.submitDrpcRequest('connection-id', 'method-name', { someKey: 'some-value' })
+        } catch (err) {
+          error = err
+        }
+        expect(error).instanceOf(InternalError)
+      })
+    })
+
+    describe('error (response invalid)', function () {
+      withCloudagentMock('POST', `/v1/drpc/connection-id/request`, 200, invalidResponse)
+
+      it('should throw internal error', async () => {
+        const environment = new Env()
+        const cloudagent = new VeritableCloudagent(environment, mockLogger)
+
+        let error: unknown = null
+        try {
+          await cloudagent.submitDrpcRequest('connection-id', 'method-name', { someKey: 'some-value' })
+        } catch (err) {
+          error = err
+        }
+        expect(error).instanceOf(InternalError)
+      })
+    })
+  })
+
+  describe('submitDrpcResponse', () => {
+    describe('success', function () {
+      withCloudagentMock('POST', `/v1/drpc/request-id/response`, 200, {})
+
+      it('should give back undefined', async () => {
+        const environment = new Env()
+        const cloudagent = new VeritableCloudagent(environment, mockLogger)
+        const response = await cloudagent.submitDrpcResponse('request-id', { result: 'result' })
+        expect(response).deep.equal(undefined)
+      })
+    })
+
+    describe('error (response code)', function () {
+      withCloudagentMock('POST', `/v1/drpc/request-id/response`, 400, {})
+
+      it('should throw internal error', async () => {
+        const environment = new Env()
+        const cloudagent = new VeritableCloudagent(environment, mockLogger)
+
+        let error: unknown = null
+        try {
+          await cloudagent.submitDrpcResponse('request-id', { result: 'result' })
         } catch (err) {
           error = err
         }

@@ -106,7 +106,7 @@ describe('CheckDb helper function', () => {
     let { mockLogger } = withCheckDbMocks()
     let err: unknown = null
     try {
-      const result = checkDb(
+      checkDb(
         [
           {
             id: 'someId',
@@ -132,7 +132,7 @@ describe('CheckDb helper function', () => {
     let { mockLogger } = withCheckDbMocks()
     let err: unknown = null
     try {
-      const result = checkDb(
+      checkDb(
         [
           {
             id: 'someId',
