@@ -7,7 +7,7 @@ type HeaderLink = { name: string; url: string }
 type PageProps = {
   title: string
   heading: string
-  activePage: 'categories' | 'connections' | 'storage' | 'notifications' | 'settings'
+  activePage: 'categories' | 'queries' | 'connections' | 'certifications' | 'settings'
   headerLinks: HeaderLink[]
   stylesheets?: string[]
 }
@@ -66,24 +66,23 @@ const SideBar = ({ activePage }: { activePage: PageProps['activePage'] }): JSX.E
         style={{ ['--background-image' as string]: "url('/public/images/category.svg')" }}
       />
       <a
+        title="queries"
+        href="/queries"
+        data-active={activePage === 'queries'}
+        style={{ ['--background-image' as string]: "url('/public/images/query.svg')" }}
+      />
+      <a
+        title="certification"
+        href="#"
+        data-active={activePage === 'certifications'}
+        class="disabled"
+        style={{ ['--background-image' as string]: "url('/public/images/certification.svg')" }}
+      />
+      <a
         title="connections"
         href="/connection"
         data-active={activePage === 'connections'}
         style={{ ['--background-image' as string]: "url('/public/images/connection.svg')" }}
-      />
-      <a
-        title="storage"
-        href="#storage"
-        data-active={activePage === 'storage'}
-        class="disabled"
-        style={{ ['--background-image' as string]: "url('/public/images/folder.svg')" }}
-      />
-      <a
-        title="notifications"
-        href="#notification"
-        data-active={activePage === 'notifications'}
-        class="disabled"
-        style={{ ['--background-image' as string]: "url('/public/images/notification.svg')" }}
       />
       <a
         title="settings"
@@ -131,7 +130,13 @@ export const Page = (props: PropsWithChildren<PageProps>): JSX.Element => (
         <script src="/lib/htmx.org/htmx.min.js"></script>
         <script src="/lib/htmx-ext-json-enc/json-enc.js"></script>
         <script src="/public/scripts/auth-redirect.js"></script>
-        <link rel="icon" type="image/ico" sizes="48x48" href="/public/images/favicon.ico" />
+        <link rel="icon" type="image/ico" href="/public/images/favicon-dark.ico" media="(prefers-color-scheme: dark)" />
+        <link
+          rel="icon"
+          type="image/ico"
+          href="/public/images/favicon.ico"
+          media="(prefers-color-scheme: light), (prefers-color-scheme: no-preference)"
+        />
         <link rel="stylesheet" type="text/css" href="/public/styles/main.css" />
         <link rel="stylesheet" type="text/css" href="/public/styles/shared.css" />
         <link rel="stylesheet" type="text/css" href="/public/styles/mpa.css" />

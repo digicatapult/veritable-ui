@@ -9,7 +9,7 @@ export default class QueriesTemplates {
       <Page
         title="Veritable - Queries"
         heading="Queries"
-        activePage="categories"
+        activePage="queries"
         headerLinks={[
           { name: 'Query Management', url: '/queries' },
           { name: 'New', url: '/queries/new' },
