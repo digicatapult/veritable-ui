@@ -164,5 +164,60 @@ describe('QueriesController', () => {
 
       expect(result).to.equal('queriesResponse_template')
     })
+    it('should call page with stage error if rpc succeeds without response', async () => {
+      const { args, cloudagentMock } = withQueriesMocks()
+      cloudagentMock.submitDrpcRequest = sinon.stub().resolves(undefined)
+
+      const controller = new QueriesController(...args)
+
+      const result = await controller
+        .scope3CarbonConsumptionResponseSubmit({
+          companyId: '2345789',
+          action: 'success',
+          totalScope3CarbonEmissions: '25',
+          partialResponse: 1,
+          queryId: '5390af91-c551-4d74-b394-d8ae0805059e',
+        })
+        .then(toHTMLString)
+
+      expect(result).to.equal('scope3_error_scope3')
+    })
+    it('should call page with stage error if rpc fails', async () => {
+      const { args, cloudagentMock } = withQueriesMocks()
+      cloudagentMock.submitDrpcRequest = sinon.stub().rejects(new Error())
+
+      const controller = new QueriesController(...args)
+      const result = await controller
+        .scope3CarbonConsumptionResponseSubmit({
+          companyId: '2345789',
+          action: 'success',
+          totalScope3CarbonEmissions: '25',
+          partialResponse: 1,
+          queryId: '5390af91-c551-4d74-b394-d8ae0805059e',
+        })
+        .then(toHTMLString)
+
+      expect(result).to.equal('scope3_error_scope3')
+    })
+  })
+  it('should call page with stage error if rpc succeeds with error', async () => {
+    const { args, cloudagentMock } = withQueriesMocks()
+    cloudagentMock.submitDrpcRequest = sinon.stub().resolves({
+      error: new Error('error'),
+      id: 'request-id',
+    })
+
+    const controller = new QueriesController(...args)
+    const result = await controller
+      .scope3CarbonConsumptionResponseSubmit({
+        companyId: '2345789',
+        action: 'success',
+        totalScope3CarbonEmissions: '25',
+        partialResponse: 1,
+        queryId: '5390af91-c551-4d74-b394-d8ae0805059e',
+      })
+      .then(toHTMLString)
+
+    expect(result).to.equal('scope3_error_scope3')
   })
 })

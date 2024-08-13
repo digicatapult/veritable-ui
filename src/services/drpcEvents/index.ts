@@ -74,7 +74,6 @@ export default class DrpcEvents {
   }
 
   private async handleSubmitQueryRequest(request: DrpcRequest, agentConnectionId: string) {
-    console.log('here too')
     let queryId: string | null = null
     try {
       this.logger.info(
@@ -86,7 +85,6 @@ export default class DrpcEvents {
 
       let params: SubmitQueryRPCParams
       try {
-        console.log(request.params)
         params = submitQueryRpcParams.parse(request.params)
       } catch (err) {
         this.logger.warn('Invalid parameters received for request %s: %o', request.id, request.params)
@@ -157,7 +155,6 @@ export default class DrpcEvents {
   }
 
   private async handleSubmitQueryResponse(request: DrpcRequest, agentConnectionId: string) {
-    console.log('here')
     let queryId: string | null = null
     try {
       this.logger.info(
@@ -169,7 +166,6 @@ export default class DrpcEvents {
 
       let params: SubmitQueryRPCParams
       try {
-        console.log(request.params)
         params = submitQueryRpcParams.parse(request.params)
       } catch (err) {
         this.logger.warn('Invalid parameters received for request %s: %o', request.id, request.params)

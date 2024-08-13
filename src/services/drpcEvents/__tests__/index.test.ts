@@ -539,7 +539,6 @@ describe('DrpcEvents', function () {
       })
       it('should get the relevant connection correctly', function () {
         const stub = mocks.dbMock.get
-        console.log(stub)
         expect(stub.callCount).to.equal(2)
         expect(stub.firstCall.args).to.deep.equal(['connection', { agent_connection_id: 'agent-connection-id' }])
         expect(stub.secondCall.args).to.deep.equal(['query', { id: 'query-id' }])

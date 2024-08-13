@@ -241,7 +241,7 @@ export class QueriesController extends HTMLController {
     body: {
       companyId: UUID
       queryId: UUID
-      action: 'form' | 'success'
+      action: 'success'
       totalScope3CarbonEmissions: string
       partialResponse?: number
     }
@@ -267,7 +267,6 @@ export class QueriesController extends HTMLController {
       emissions: body.totalScope3CarbonEmissions,
       queryIdForResponse: queryRow.query_id_for_response,
     }
-    console.log(query)
     //send a drpc message with response
     let rpcResponse: DrpcResponse
     try {
