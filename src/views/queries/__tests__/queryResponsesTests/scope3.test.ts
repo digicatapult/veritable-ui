@@ -51,7 +51,7 @@ describe('QueryResponseTemplates', () => {
     it('should render sucess query response page', async () => {
       const templates = new Scope3CarbonConsumptionResponseTemplates()
       const rendered = await templates.newScope3CarbonConsumptionResponseFormPage('success', {
-        company_name: '<div>I own you</div>',
+        company_name: 'VER123',
         company_number: '3456789',
         status: 'verified_both',
         id: '11',
@@ -63,7 +63,5 @@ describe('QueryResponseTemplates', () => {
       })
       expect(rendered).to.matchSnapshot()
     })
-
-    //should there be an error response?
   })
 })
