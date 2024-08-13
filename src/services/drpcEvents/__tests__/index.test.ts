@@ -16,7 +16,18 @@ const goodRequest = {
     queryIdForResponse: 'fb45f64a-7c2b-43e8-85c2-da66a6899446',
   },
 }
-
+const goodResponse = {
+  id: 'request-id',
+  jsonrpc: '2.0',
+  method: 'submit_query_response',
+  params: {
+    query: 'Scope 3 Carbon Consumption',
+    productId: 'product-id',
+    quantity: 42,
+    emissions: '3456',
+    queryIdForResponse: 'query-id',
+  },
+}
 describe('DrpcEvents', function () {
   let clock: sinon.SinonFakeTimers
   before(function () {
@@ -26,7 +37,7 @@ describe('DrpcEvents', function () {
     clock.restore()
   })
 
-  describe('DrpcRequestStateChanged', function () {
+  describe('DrpcRequestStateChanged-requestReceived', function () {
     describe('happy path', function () {
       let mocks: ReturnType<typeof withDrpcEventMocks>
       beforeEach(async function () {
@@ -499,6 +510,64 @@ describe('DrpcEvents', function () {
               code: -32603,
               message: 'Internal error',
             },
+          },
+        ])
+      })
+    })
+  })
+  describe('DrpcRequestStateChanged-responseReceived', function () {
+    describe('happy path', function () {
+      let mocks: ReturnType<typeof withDrpcEventMocks>
+      beforeEach(async function () {
+        clock.reset()
+        mocks = withDrpcEventMocks()
+        const drpcEvents = new DrpcEvents(...mocks.args)
+        drpcEvents.start()
+        mocks.eventsMock.emit('DrpcRequestStateChanged', {
+          type: 'DrpcRequestStateChanged',
+          payload: {
+            drpcMessageRecord: {
+              request: goodResponse,
+              connectionId: 'agent-connection-id',
+              role: 'server',
+              state: 'request-received',
+            },
+          },
+        })
+
+        await clock.runAllAsync()
+      })
+      it('should get the relevant connection correctly', function () {
+        const stub = mocks.dbMock.get
+        console.log(stub)
+        expect(stub.callCount).to.equal(2)
+        expect(stub.firstCall.args).to.deep.equal(['connection', { agent_connection_id: 'agent-connection-id' }])
+        expect(stub.secondCall.args).to.deep.equal(['query', { id: 'query-id' }])
+      })
+
+      it('should call submitDrpcResponse correctly', function () {
+        const stub = mocks.cloudagentMock.submitDrpcResponse
+        expect(stub.callCount).to.equal(1)
+        expect(stub.firstCall.args).to.deep.equal(['request-id', { result: { state: 'accepted' } }])
+      })
+      it('should update a query in the database and insert a query_rpc', function () {
+        const stub = mocks.dbMock.update
+        const stub1 = mocks.dbMock.get
+        expect(stub.callCount).to.equal(1)
+        expect(stub1.callCount).to.equal(2)
+        expect(stub.firstCall.args).to.deep.equal([
+          'query',
+          { id: 'query-id' },
+          { query_response: '3456', status: 'resolved' },
+        ])
+        expect(stub.secondCall.args).to.deep.equal([
+          'query_rpc',
+          {
+            query_id: 'query-id',
+            method: 'submit_query_request',
+            role: 'server',
+            agent_rpc_id: 'request-id',
+            result: { state: 'accepted' },
           },
         ])
       })

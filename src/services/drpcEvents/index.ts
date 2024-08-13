@@ -181,7 +181,6 @@ export default class DrpcEvents {
         })
         return
       }
-
       const [connection] = await this.db.get('connection', { agent_connection_id: agentConnectionId })
       if (!connection) {
         this.logger.warn('Invalid connection for drpc message %s', agentConnectionId)
@@ -196,7 +195,6 @@ export default class DrpcEvents {
       }
       //update corresponding query
       this.logger.warn(queryRow)
-      console.log('before query update')
       const [query] = await this.db.update(
         'query',
         { id: queryRow.id },
@@ -204,7 +202,6 @@ export default class DrpcEvents {
       ) //do we want to save the full params object?
 
       queryId = query.id
-
       const result = {
         state: 'accepted',
       }
@@ -233,7 +230,6 @@ export default class DrpcEvents {
           }
         )
       }
-
       await this.cloudagent.submitDrpcResponse(request.id, {
         error: {
           code: drpcErrorCode.INTERNAL_ERROR,
