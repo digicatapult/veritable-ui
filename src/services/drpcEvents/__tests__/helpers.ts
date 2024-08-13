@@ -31,7 +31,6 @@ export const withDrpcEventMocks = (testOptions: Partial<QueryMockOptions> = {}) 
   }
   const dbMock = {
     get: sinon.stub().callsFake((tableName: 'connection' | 'query') => Promise.resolve(options.getRows[tableName])),
-    // get: sinon.stub().resolves([{ id: 'connection-id' }]),
     insert: sinon.stub().resolves([{ id: 'query-id' }]),
     update: sinon.stub().resolves([{ id: 'query-id' }]),
   }

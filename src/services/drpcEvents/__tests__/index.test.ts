@@ -553,6 +553,7 @@ describe('DrpcEvents', function () {
       it('should update a query in the database and insert a query_rpc', function () {
         const stub = mocks.dbMock.update
         const stub1 = mocks.dbMock.get
+        const stub2 = mocks.dbMock.insert
         expect(stub.callCount).to.equal(1)
         expect(stub1.callCount).to.equal(2)
         expect(stub.firstCall.args).to.deep.equal([
@@ -560,14 +561,289 @@ describe('DrpcEvents', function () {
           { id: 'query-id' },
           { query_response: '3456', status: 'resolved' },
         ])
-        expect(stub.secondCall.args).to.deep.equal([
+        expect(stub2.firstCall.args).to.deep.equal([
           'query_rpc',
           {
             query_id: 'query-id',
-            method: 'submit_query_request',
+            method: 'submit_query_response',
             role: 'server',
             agent_rpc_id: 'request-id',
             result: { state: 'accepted' },
+          },
+        ])
+      })
+    })
+    describe('missing response', function () {
+      let mocks: ReturnType<typeof withDrpcEventMocks>
+      beforeEach(async function () {
+        clock.reset()
+        mocks = withDrpcEventMocks()
+        const drpcEvents = new DrpcEvents(...mocks.args)
+        drpcEvents.start()
+        mocks.eventsMock.emit('DrpcRequestStateChanged', {
+          type: 'DrpcRequestStateChanged',
+          payload: {
+            drpcMessageRecord: {
+              connectionId: 'agent-connection-id',
+              role: 'server',
+              state: 'request-received',
+            },
+          },
+        })
+
+        await clock.runAllAsync()
+      })
+      it('should not call any db or cloudagent methods', function () {
+        const stubs = [
+          mocks.cloudagentMock.submitDrpcResponse,
+          mocks.dbMock.get,
+          mocks.dbMock.update,
+          mocks.dbMock.insert,
+        ]
+        for (const stub of stubs) {
+          expect(stub.callCount).to.equal(0)
+        }
+      })
+    })
+    describe('bad params for response', function () {
+      let mocks: ReturnType<typeof withDrpcEventMocks>
+      beforeEach(async function () {
+        clock.reset()
+        mocks = withDrpcEventMocks()
+        const drpcEvents = new DrpcEvents(...mocks.args)
+        drpcEvents.start()
+        mocks.eventsMock.emit('DrpcRequestStateChanged', {
+          type: 'DrpcRequestStateChanged',
+          payload: {
+            drpcMessageRecord: {
+              request: {
+                ...goodResponse,
+                params: {},
+              },
+              connectionId: 'agent-connection-id',
+              role: 'server',
+              state: 'request-received',
+            },
+          },
+        })
+
+        await clock.runAllAsync()
+      })
+
+      it('should submit an error response', function () {
+        const stub = mocks.cloudagentMock.submitDrpcResponse
+        expect(stub.callCount).to.equal(1)
+        expect(stub.firstCall.args).to.deep.equal([
+          'request-id',
+          {
+            error: {
+              code: -32602,
+              message: 'invalid params object',
+            },
+          },
+        ])
+      })
+
+      it('should not call any db', function () {
+        const stubs = [mocks.dbMock.get, mocks.dbMock.update, mocks.dbMock.insert]
+        for (const stub of stubs) {
+          expect(stub.callCount).to.equal(0)
+        }
+      })
+    })
+    describe('invalid query in response', function () {
+      let mocks: ReturnType<typeof withDrpcEventMocks>
+      beforeEach(async function () {
+        clock.reset()
+        mocks = withDrpcEventMocks()
+        const drpcEvents = new DrpcEvents(...mocks.args)
+        drpcEvents.start()
+        mocks.eventsMock.emit('DrpcRequestStateChanged', {
+          type: 'DrpcRequestStateChanged',
+          payload: {
+            drpcMessageRecord: {
+              request: {
+                ...goodResponse,
+                params: {
+                  ...goodRequest.params,
+                  query: 'invalid_query',
+                },
+              },
+              connectionId: 'agent-connection-id',
+              role: 'server',
+              state: 'request-received',
+            },
+          },
+        })
+
+        await clock.runAllAsync()
+      })
+
+      it('should submit an error response', function () {
+        const stub = mocks.cloudagentMock.submitDrpcResponse
+        expect(stub.callCount).to.equal(1)
+        expect(stub.firstCall.args).to.deep.equal([
+          'request-id',
+          {
+            error: {
+              code: -32602,
+              message: 'invalid params object',
+            },
+          },
+        ])
+      })
+    })
+    describe('unknown agent connection', function () {
+      let mocks: ReturnType<typeof withDrpcEventMocks>
+      beforeEach(async function () {
+        clock.reset()
+        mocks = withDrpcEventMocks()
+        mocks.dbMock.get = sinon.stub().resolves([])
+        const drpcEvents = new DrpcEvents(...mocks.args)
+        drpcEvents.start()
+        mocks.eventsMock.emit('DrpcRequestStateChanged', {
+          type: 'DrpcRequestStateChanged',
+          payload: {
+            drpcMessageRecord: {
+              request: goodResponse,
+              connectionId: 'invalid-agent-connection-id',
+              role: 'server',
+              state: 'request-received',
+            },
+          },
+        })
+
+        await clock.runAllAsync()
+      })
+
+      it('should get the relevant connection correctly', function () {
+        const stub = mocks.dbMock.get
+        expect(stub.callCount).to.equal(1)
+        expect(stub.firstCall.args).to.deep.equal([
+          'connection',
+          { agent_connection_id: 'invalid-agent-connection-id' },
+        ])
+      })
+
+      it('should not call any other db methods or submitDrpcResponse', function () {
+        const stubs = [mocks.cloudagentMock.submitDrpcResponse, mocks.dbMock.update, mocks.dbMock.insert]
+        for (const stub of stubs) {
+          expect(stub.callCount).to.equal(0)
+        }
+      })
+    })
+    describe('method throwing before query update', function () {
+      let mocks: ReturnType<typeof withDrpcEventMocks>
+      beforeEach(async function () {
+        clock.reset()
+        mocks = withDrpcEventMocks()
+        mocks.dbMock.get = sinon.stub().rejects(new Error())
+        const drpcEvents = new DrpcEvents(...mocks.args)
+        drpcEvents.start()
+        mocks.eventsMock.emit('DrpcRequestStateChanged', {
+          type: 'DrpcRequestStateChanged',
+          payload: {
+            drpcMessageRecord: {
+              request: goodResponse,
+              connectionId: 'agent-connection-id',
+              role: 'server',
+              state: 'request-received',
+            },
+          },
+        })
+
+        await clock.runAllAsync()
+      })
+
+      it('should get the relevant connection correctly', function () {
+        const stub = mocks.dbMock.get
+        expect(stub.callCount).to.equal(1)
+        expect(stub.firstCall.args).to.deep.equal(['connection', { agent_connection_id: 'agent-connection-id' }])
+      })
+
+      it('should submit an error response', function () {
+        const stub = mocks.cloudagentMock.submitDrpcResponse
+        expect(stub.callCount).to.equal(1)
+        expect(stub.firstCall.args).to.deep.equal([
+          'request-id',
+          {
+            error: {
+              code: -32603,
+              message: 'Internal error',
+            },
+          },
+        ])
+      })
+
+      it('should not call any other db methods', function () {
+        const stubs = [mocks.dbMock.update, mocks.dbMock.insert]
+        for (const stub of stubs) {
+          expect(stub.callCount).to.equal(0)
+        }
+      })
+    })
+    describe('method throwing after query update', function () {
+      let mocks: ReturnType<typeof withDrpcEventMocks>
+      beforeEach(async function () {
+        clock.reset()
+        mocks = withDrpcEventMocks()
+        mocks.cloudagentMock.submitDrpcResponse = sinon.stub().rejects(new Error())
+        const drpcEvents = new DrpcEvents(...mocks.args)
+        drpcEvents.start()
+        mocks.eventsMock.emit('DrpcRequestStateChanged', {
+          type: 'DrpcRequestStateChanged',
+          payload: {
+            drpcMessageRecord: {
+              request: goodResponse,
+              connectionId: 'agent-connection-id',
+              role: 'server',
+              state: 'request-received',
+            },
+          },
+        })
+
+        await clock.runAllAsync()
+      })
+
+      it('should get the relevant connection correctly', function () {
+        const stub = mocks.dbMock.get
+        expect(stub.callCount).to.equal(2)
+        expect(stub.firstCall.args).to.deep.equal(['connection', { agent_connection_id: 'agent-connection-id' }])
+        expect(stub.secondCall.args).to.deep.equal(['query', { id: 'query-id' }])
+      })
+
+      it('should insert into the database a query and query_rpc', function () {
+        const stub = mocks.dbMock.update
+        expect(stub.callCount).to.equal(2)
+        expect(stub.firstCall.args).to.deep.equal([
+          'query',
+          { id: 'query-id' },
+          { query_response: '3456', status: 'resolved' },
+        ])
+      })
+
+      it('should update the database marking the query as errored', function () {
+        const stub = mocks.dbMock.update
+        expect(stub.callCount).to.equal(2)
+        expect(stub.secondCall.args).to.deep.equal([
+          'query',
+          { id: 'query-id' },
+          {
+            status: 'errored',
+          },
+        ])
+      })
+
+      it('should submit an error response', function () {
+        const stub = mocks.cloudagentMock.submitDrpcResponse
+        expect(stub.callCount).to.equal(2)
+        expect(stub.secondCall.args).to.deep.equal([
+          'request-id',
+          {
+            error: {
+              code: -32603,
+              message: 'Internal error',
+            },
           },
         ])
       })
