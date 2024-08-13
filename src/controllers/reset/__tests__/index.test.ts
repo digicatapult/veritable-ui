@@ -22,10 +22,9 @@ const fixtures = {
     { id: 'some-invite-id-2', connection_id: 'some-connection-id-2' },
     { id: 'some-invite-id-3', connection_id: 'some-connection-id-3' },
   ],
-  query: [
-    /* TODO */
-  ],
+  query: [{ id: 'some-query-id-1' }],
   query_rpc: [
+    { id: 'some-query_rpc-id-1', query_id: 'some-query-id-1' },
     /* TODO */
   ],
   agent_connections: [{ id: 'some-agent-id-1' }, { id: 'some-agent-id-2' }, { id: 'some-agent-id-3' }],
@@ -144,7 +143,7 @@ describe('ResetController', () => {
       })
 
       it('gets list of local connections and connections with credentials from cloudagent', () => {
-        expect(dbMock.get.calledWith('connection')).to.be.equal(true)
+        expect(dbMock.delete.calledWith('connection')).to.be.equal(true)
         expect(cloudagentMock.getCredentialByConnectionId.calledWith('some-agent-id-1')).to.be.equal(true)
         expect(cloudagentMock.getConnectionById.calledWith('some-agent-id-1')).to.be.equal(true)
         expect(cloudagentMock.getCredentialByConnectionId.calledWith('some-agent-id-2')).to.be.equal(true)
@@ -173,12 +172,8 @@ describe('ResetController', () => {
         let { args } = withMocks(true)
         const controller = new ResetController(...args)
         sinon.stub(controller, <any>'isReset').callsFake(() => Promise.resolve(true))
+        result = (await controller.reset()) as unknown
 
-        try {
-          result = (await controller.reset()) as unknown
-        } catch (err) {
-          result = err
-        }
         expect(result).to.deep.equal({ statusCode: 200 })
       })
     })
