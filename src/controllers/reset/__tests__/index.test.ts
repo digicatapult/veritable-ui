@@ -24,8 +24,8 @@ const dbMock = {
 const cloudagentMock = {
   getConnectionById: sinon.stub().callsFake((id: string) => Promise.resolve([{ id }])),
   getCredentialByConnectionId: sinon.stub().callsFake((id: string) => Promise.resolve([[{ id }]])),
-  deleteConnection: sinon.stub(),
-  deleteCredential: sinon.stub(),
+  deleteConnection: sinon.stub().resolves(),
+  deleteCredential: sinon.stub().resolves(),
 }
 
 const withMocks = (DEMO_MODE: Boolean = true) => {
@@ -50,7 +50,7 @@ const withMocks = (DEMO_MODE: Boolean = true) => {
   }
 }
 
-describe.only('ResetController', () => {
+describe('ResetController', () => {
   let result: unknown
   afterEach(() => {
     sinon.restore()
