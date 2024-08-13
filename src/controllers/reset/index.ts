@@ -1,14 +1,12 @@
 import { Get, Hidden, Produces, Route, SuccessResponse } from 'tsoa'
-import { container, inject, injectable, singleton } from 'tsyringe'
+import { inject, injectable, singleton } from 'tsyringe'
 
 import { Env } from '../../env.js'
+import { BadRequestError } from '../../errors.js'
 import { Logger, type ILogger } from '../../logger.js'
 import Database from '../../models/db/index.js'
 import type { ConnectionRow } from '../../models/db/types.js'
 import VeritableCloudagent from '../../models/veritableCloudagent.js'
-
-const env = container.resolve(Env)
-const DEMO_MODE = env.get('DEMO_MODE')
 
 @singleton()
 @injectable()
@@ -18,6 +16,7 @@ const DEMO_MODE = env.get('DEMO_MODE')
 @Produces('text/html')
 export class ResetController {
   constructor(
+    private env: Env,
     private db: Database,
     private cloudagent: VeritableCloudagent,
     @inject(Logger) private logger: ILogger
@@ -31,11 +30,12 @@ export class ResetController {
    */
   @SuccessResponse(200)
   @Get('/')
-  public async listConnections(): Promise<{ statusCode: number }> {
+  public async reset(): Promise<{ statusCode: number }> {
+    const DEMO_MODE = this.env.get('DEMO_MODE')
     if (!DEMO_MODE) {
       this.logger.debug('Instance is not in DEMO_MODE')
 
-      return { statusCode: 400 }
+      throw new BadRequestError('DEMO_MODE is false')
     }
     /*
       - [x] get all connections
@@ -72,6 +72,7 @@ export class ResetController {
         return this.cloudagent.deleteCredential(id)
       })
     )
+
     await Promise.all(
       agent.connections.map(({ id }: { id: string }) => {
         this.logger.debug('deleting connection from cloudagent %s: ', id)
