@@ -7,25 +7,32 @@ import { Env } from '../../../env.js'
 import { BadRequestError, InternalError } from '../../../errors.js'
 import { ILogger } from '../../../logger.js'
 import Database from '../../../models/db/index.js'
+import { TABLE } from '../../../models/db/types.js'
 import VeritableCloudagent from '../../../models/veritableCloudagent.js'
 import { ResetController } from '../index.js'
 
 const fixtures = {
-  connections: [
+  connection: [
     { id: 'some-connection-id-1', agent_connection_id: 'some-agent-id-1' },
     { id: 'some-connection-id-2', agent_connection_id: 'some-agent-id-2' },
     { id: 'some-connection-id-3', agent_connection_id: 'some-agent-id-3' },
   ],
-  connection_invites: [
+  connection_invite: [
     { id: 'some-invite-id-1', connection_id: 'some-connection-id-1' },
     { id: 'some-invite-id-2', connection_id: 'some-connection-id-2' },
     { id: 'some-invite-id-3', connection_id: 'some-connection-id-3' },
   ],
+  query: [
+    /* TODO */
+  ],
+  query_rpc: [
+    /* TODO */
+  ],
 }
 
 const dbMock = {
-  get: sinon.stub(),
-  delete: sinon.stub(),
+  get: sinon.stub().callsFake((table: TABLE) => fixtures[table]),
+  delete: sinon.stub().resolves(),
 }
 
 const cloudagentMock = {
@@ -100,8 +107,8 @@ describe.only('ResetController', () => {
     describe('if DEMO_MODE = true', () => {
       before(async () => {
         sinon.restore()
-        dbMock.get.onFirstCall().resolves(fixtures.connections)
-        dbMock.get.onSecondCall().resolves(fixtures.connection_invites)
+        dbMock.get.onFirstCall().resolves(fixtures.connection)
+        dbMock.get.onSecondCall().resolves(fixtures.connection_invite)
         dbMock.get.onSecondCall().resolves([])
         dbMock.get.onThirdCall().resolves([])
         dbMock.get.onCall(4).resolves([])
@@ -120,7 +127,7 @@ describe.only('ResetController', () => {
         it('throws InternalError and returns error message', async () => {
           let { args } = withMocks()
           const controller = new ResetController(...args)
-          controller.isReset = sinon.stub().callsFake(() => Promise.resolve(false))
+          sinon.stub(controller, <any>'isReset').callsFake(() => Promise.resolve(false))
 
           try {
             result = (await controller.reset()) as unknown
@@ -137,7 +144,6 @@ describe.only('ResetController', () => {
 
       it('gets list of local connections and connections with credentials from cloudagent', () => {
         expect(dbMock.get.calledWith('connection')).to.be.equal(true)
-        expect(dbMock.get.calledWith('connection_invite')).to.be.equal(true)
         expect(cloudagentMock.getCredentialByConnectionId.calledWith('some-agent-id-1')).to.be.equal(true)
         expect(cloudagentMock.getConnectionById.calledWith('some-agent-id-1')).to.be.equal(true)
         expect(cloudagentMock.getCredentialByConnectionId.calledWith('some-agent-id-2')).to.be.equal(true)
@@ -150,7 +156,6 @@ describe.only('ResetController', () => {
 
       it('deletes connections and connection_invites locally', () => {
         expect(dbMock.delete.firstCall.args).to.deep.equal(['connection', {}])
-        expect(dbMock.delete.secondCall.args).to.deep.equal(['connection_invite', {}])
         expect(cloudagentMock.deleteCredential.firstCall.args).to.deep.equal(['some-agent-id-1'])
         expect(cloudagentMock.deleteCredential.secondCall.args).to.deep.equal(['some-agent-id-2'])
         expect(cloudagentMock.deleteCredential.thirdCall.args).to.deep.equal(['some-agent-id-3'])
@@ -166,7 +171,7 @@ describe.only('ResetController', () => {
       it('return 200', async () => {
         let { args } = withMocks(true)
         const controller = new ResetController(...args)
-        controller.isReset = sinon.stub().callsFake(() => Promise.resolve(true))
+        sinon.stub(controller, <any>'isReset').callsFake(() => Promise.resolve(true))
 
         try {
           result = (await controller.reset()) as unknown

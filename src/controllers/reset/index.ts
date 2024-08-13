@@ -1,16 +1,16 @@
-import { Get, Hidden, Produces, Route, SuccessResponse } from 'tsoa'
+import { Get, Hidden, Produces, Route, Security, SuccessResponse } from 'tsoa'
 import { inject, injectable, singleton } from 'tsyringe'
 
 import { Env } from '../../env.js'
 import { BadRequestError, InternalError } from '../../errors.js'
 import { Logger, type ILogger } from '../../logger.js'
 import Database from '../../models/db/index.js'
-import type { ConnectionRow } from '../../models/db/types.js'
+import type { ConnectionRow, TABLE } from '../../models/db/types.js'
 import VeritableCloudagent from '../../models/veritableCloudagent.js'
 
 @singleton()
 @injectable()
-// @Security('oauth2')
+@Security('oauth2')
 @Route('/reset')
 @Hidden()
 @Produces('text/html')
@@ -25,22 +25,16 @@ export class ResetController {
   }
 
   // would be nice to restore to prior reset
-  public async isReset(): Promise<boolean> {
+  private async isReset(): Promise<boolean> {
+    const tables: TABLE[] = ['connection', 'connection_invite', 'query', 'query_rpc']
     try {
       const items: number[] = await Promise.all([
-        await this.db.get('connection', {}).then((res) => res.length),
-        await this.db.get('connection_invite', {}).then((res) => res.length),
+        ...tables.map(async (table: TABLE) => await this.db.get(table).then((res) => res.length)),
         await this.cloudagent.getCredentials().then((res) => res.length),
         await this.cloudagent.getConnections().then((res) => res.length),
       ])
 
-      this.logger.debug(
-        'items that have been not deleted:connection %s, inviute %s, credentials %s, connections %s',
-        items[0],
-        items[1],
-        items[2],
-        items[3]
-      )
+      this.logger.debug('items found in this check: %j', { items })
 
       return (
         items.reduce((out: number, next: number) => {
@@ -68,13 +62,11 @@ export class ResetController {
     }
 
     try {
-      const connections = (await this.db.get('connection')) || []
+      const connections = await this.db.get('connection')
       this.logger.debug('found connection %j', { connections })
       const agentConnectionIds: string[] = connections
         .map((connection: ConnectionRow) => connection.agent_connection_id as string)
         .filter(Boolean)
-
-      this.logger.debug('found items: %j', { connections, agentConnectionIds })
 
       const agent = {
         credentials: await Promise.all(
@@ -89,6 +81,8 @@ export class ResetController {
         ),
       }
 
+      this.logger.debug('found items at cloudagent: %j', agent)
+
       await Promise.all([
         ...agent.credentials.map(({ id }: { id: string }) => {
           this.logger.debug('deleting credential from cloudagent %s: ', id)
@@ -99,7 +93,6 @@ export class ResetController {
           return this.cloudagent.deleteConnection(id)
         }),
         await this.db.delete('connection', {}),
-        await this.db.delete('connection_invite', {}),
       ])
 
       // confirm reset by calling isReset() method
