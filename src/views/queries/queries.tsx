@@ -28,20 +28,20 @@ export default class QueriesTemplates {
               Creates a query for calculating the total scope 3 carbon consumption for a given product or component.
             </p>
           </a>
-          <a class="query-item" onclick="#">
+          <a class="query-item disabled" onclick="#">
             <h1 class="query-header">Product Provenance</h1>
             <p class="query-text">
               Creates a query to assert that a product and its components are not coming from blacklisted areas.
             </p>
           </a>
-          <a class="query-item" onclick="#">
+          <a class="query-item  disabled" onclick="#">
             <h1 class="query-header">Aerospace Grade</h1>
             <p class="query-text">
               Creates a query to certify all components of a product are manufactured according to aerospace grade
               standards such as AS9100.
             </p>
           </a>
-          <a class="query-item" onclick="#">
+          <a class="query-item  disabled" onclick="#">
             <h1 class="query-header">ISO 9001 Compliance</h1>
             <p class="query-text">
               Creates a query to verify that all the companies involved in manufacturing a given product are ISO9001
