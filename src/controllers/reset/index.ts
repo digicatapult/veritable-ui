@@ -34,10 +34,18 @@ export class ResetController {
         await this.cloudagent.getConnections().then((res) => res.length),
       ])
 
+      this.logger.debug(
+        'items that have been not deleted:connection %s, inviute %s, credentials %s, connections %s',
+        items[0],
+        items[1],
+        items[2],
+        items[3]
+      )
+
       return (
         items.reduce((out: number, next: number) => {
           return out + next
-        }, 0) !== 0
+        }, 0) === 0
       )
     } catch (err: unknown) {
       this.logger.debug('%s', err)
@@ -61,6 +69,7 @@ export class ResetController {
 
     try {
       const connections = (await this.db.get('connection')) || []
+      this.logger.debug('found connection %j', { connections })
       const agentConnectionIds: string[] = connections
         .map((connection: ConnectionRow) => connection.agent_connection_id as string)
         .filter(Boolean)

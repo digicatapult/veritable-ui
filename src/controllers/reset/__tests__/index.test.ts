@@ -59,7 +59,7 @@ const withMocks = (DEMO_MODE: Boolean = true) => {
   }
 }
 
-describe('ResetController', () => {
+describe.only('ResetController', () => {
   let result: unknown
   before(() => {})
   afterEach(() => {
@@ -120,7 +120,7 @@ describe('ResetController', () => {
         it('throws InternalError and returns error message', async () => {
           let { args } = withMocks()
           const controller = new ResetController(...args)
-          controller.isReset = sinon.stub().callsFake(() => false)
+          controller.isReset = sinon.stub().callsFake(() => Promise.resolve(false))
 
           try {
             result = (await controller.reset()) as unknown
@@ -166,7 +166,7 @@ describe('ResetController', () => {
       it('return 200', async () => {
         let { args } = withMocks(true)
         const controller = new ResetController(...args)
-        controller.isReset = sinon.stub().callsFake(() => true)
+        controller.isReset = sinon.stub().callsFake(() => Promise.resolve(true))
 
         try {
           result = (await controller.reset()) as unknown
