@@ -69,7 +69,7 @@ export default class QueryListTemplates {
       <Page
         title="Veritable - Queries"
         heading="Query Management"
-        activePage="categories"
+        activePage="queries"
         headerLinks={[{ name: 'Query Management', url: '/queries' }]}
         stylesheets={['query.css']}
         hx-get="/queries"

@@ -9,6 +9,7 @@
   &:focus-visible {
     filter: blur(3px);
     opacity: 1;
+    cursor: not-allowed;
   }
 }
 
