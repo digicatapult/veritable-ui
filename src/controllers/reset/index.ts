@@ -5,8 +5,8 @@ import { Env } from '../../env.js'
 import { BadRequestError, InternalError } from '../../errors.js'
 import { Logger, type ILogger } from '../../logger.js'
 import Database from '../../models/db/index.js'
-import type { ConnectionRow, TABLE } from '../../models/db/types.js'
-import VeritableCloudagent from '../../models/veritableCloudagent.js'
+import type { TABLE } from '../../models/db/types.js'
+import VeritableCloudagent, { Connection } from '../../models/veritableCloudagent.js'
 
 @singleton()
 @injectable()
@@ -34,8 +34,6 @@ export class ResetController {
         await this.cloudagent.getConnections().then((res) => res.length),
       ])
 
-      this.logger.debug('items found in this check: %j', { items })
-
       return (
         items.reduce((out: number, next: number) => {
           return out + next
@@ -62,20 +60,15 @@ export class ResetController {
     }
 
     try {
-      const connections = await this.db.get('connection')
-      this.logger.debug('found connection %j', { connections })
-      const agentConnectionIds: string[] = connections
-        .map((connection: ConnectionRow) => connection.agent_connection_id as string)
-        .filter(Boolean)
-
+      const connections: Connection[] = await this.cloudagent.getConnections()
       const agent = {
         credentials: await Promise.all(
-          agentConnectionIds.map((id: string) => {
+          connections.map(({ id }: { id: string }) => {
             return this.cloudagent.getCredentialByConnectionId(id)
           })
         ).then((credentials) => credentials.reduce((prev, next) => prev.concat(next), [])),
         connections: await Promise.all(
-          agentConnectionIds.map((id: string) => {
+          connections.map(({ id }: { id: string }) => {
             return this.cloudagent.getConnectionById(id)
           })
         ),

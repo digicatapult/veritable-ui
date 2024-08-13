@@ -28,6 +28,7 @@ const fixtures = {
   query_rpc: [
     /* TODO */
   ],
+  agent_connections: [{ id: 'some-agent-id-1' }, { id: 'some-agent-id-2' }, { id: 'some-agent-id-3' }],
 }
 
 const dbMock = {
@@ -41,7 +42,7 @@ const cloudagentMock = {
   deleteConnection: sinon.stub(),
   deleteCredential: sinon.stub(),
   getCredentials: sinon.stub().callsFake(() => Promise.resolve([])),
-  getConnections: sinon.stub().resolves([]),
+  getConnections: sinon.stub().resolves(fixtures['agent_connections']),
 }
 
 const withMocks = (DEMO_MODE: Boolean = true) => {
@@ -66,7 +67,7 @@ const withMocks = (DEMO_MODE: Boolean = true) => {
   }
 }
 
-describe.only('ResetController', () => {
+describe('ResetController', () => {
   let result: unknown
   before(() => {})
   afterEach(() => {
@@ -165,10 +166,10 @@ describe.only('ResetController', () => {
 
       it('confirms that records have been removed', () => {
         expect(cloudagentMock.getCredentials.callCount).to.be.equal(1)
-        expect(cloudagentMock.getConnections.callCount).to.be.equal(1)
+        expect(cloudagentMock.getConnections.callCount).to.be.equal(2)
       })
 
-      it('return 200', async () => {
+      it('return(200', async () => {
         let { args } = withMocks(true)
         const controller = new ResetController(...args)
         sinon.stub(controller, <any>'isReset').callsFake(() => Promise.resolve(true))
