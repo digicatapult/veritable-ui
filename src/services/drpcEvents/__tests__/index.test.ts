@@ -13,6 +13,7 @@ const goodRequest = {
     query: 'Scope 3 Carbon Consumption',
     productId: 'product-id',
     quantity: 42,
+    queryIdForResponse: 'fb45f64a-7c2b-43e8-85c2-da66a6899446',
   },
 }
 
@@ -70,6 +71,8 @@ describe('DrpcEvents', function () {
             status: 'pending_your_input',
             query_type: 'Scope 3 Carbon Consumption',
             details: { productId: 'product-id', quantity: 42 },
+            query_id_for_response: 'fb45f64a-7c2b-43e8-85c2-da66a6899446',
+            query_response: null,
           },
         ])
         expect(stub.secondCall.args).to.deep.equal([
@@ -468,6 +471,8 @@ describe('DrpcEvents', function () {
             status: 'pending_your_input',
             query_type: 'Scope 3 Carbon Consumption',
             details: { productId: 'product-id', quantity: 42 },
+            query_id_for_response: 'fb45f64a-7c2b-43e8-85c2-da66a6899446',
+            query_response: null,
           },
         ])
       })

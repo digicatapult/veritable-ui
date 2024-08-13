@@ -12,6 +12,8 @@ const submitQueryRpcParams = z.discriminatedUnion('query', [
     query: z.literal('Scope 3 Carbon Consumption'),
     productId: z.string(),
     quantity: z.number().int().min(1),
+    queryIdForResponse: z.string(),
+    emissions: z.string().optional(),
   }),
 ])
 type SubmitQueryRPCParams = z.infer<typeof submitQueryRpcParams>
@@ -50,8 +52,11 @@ export default class DrpcEvents {
   }
 
   private async handleRequestReceived(request: DrpcRequest, agentConnectionId: string) {
-    if (request.method === 'submit_query_request') {
-      return await neverFail(this.handleSubmitQueryRequest(request, agentConnectionId))
+    switch (request.method) {
+      case 'submit_query_request':
+        return await neverFail(this.handleSubmitQueryRequest(request, agentConnectionId))
+      case 'submit_query_response':
+        return await neverFail(this.handleSubmitQueryResponse(request, agentConnectionId)) //new method I am making
     }
 
     return await this.handleInvalidMethod(request)
@@ -69,6 +74,7 @@ export default class DrpcEvents {
   }
 
   private async handleSubmitQueryRequest(request: DrpcRequest, agentConnectionId: string) {
+    console.log('here too')
     let queryId: string | null = null
     try {
       this.logger.info(
@@ -80,6 +86,7 @@ export default class DrpcEvents {
 
       let params: SubmitQueryRPCParams
       try {
+        console.log(request.params)
         params = submitQueryRpcParams.parse(request.params)
       } catch (err) {
         this.logger.warn('Invalid parameters received for request %s: %o', request.id, request.params)
@@ -106,6 +113,8 @@ export default class DrpcEvents {
           productId: params.productId,
           quantity: params.quantity,
         },
+        query_id_for_response: params.queryIdForResponse, //save to send back in response
+        query_response: null,
       })
       queryId = query.id
 
@@ -117,6 +126,93 @@ export default class DrpcEvents {
         query_id: query.id,
         method: 'submit_query_request',
         role: 'server',
+        agent_rpc_id: request.id,
+        result,
+      })
+    } catch (err) {
+      if (err instanceof Error) {
+        this.logger.warn('Error thrown whilst processing DRPC request %s', err.message)
+      } else {
+        this.logger.warn('Unknown error thrown whilst processing DRPC request')
+        this.logger.trace(`err: %o`, err)
+      }
+
+      if (queryId !== null) {
+        await this.db.update(
+          'query',
+          { id: queryId },
+          {
+            status: 'errored',
+          }
+        )
+      }
+
+      await this.cloudagent.submitDrpcResponse(request.id, {
+        error: {
+          code: drpcErrorCode.INTERNAL_ERROR,
+          message: `Internal error`,
+        },
+      })
+    }
+  }
+
+  private async handleSubmitQueryResponse(request: DrpcRequest, agentConnectionId: string) {
+    console.log('here')
+    let queryId: string | null = null
+    try {
+      this.logger.info(
+        'DRPC response (%s) received on connection %s of method %s',
+        request.id,
+        agentConnectionId,
+        request.method
+      )
+
+      let params: SubmitQueryRPCParams
+      try {
+        console.log(request.params)
+        params = submitQueryRpcParams.parse(request.params)
+      } catch (err) {
+        this.logger.warn('Invalid parameters received for request %s: %o', request.id, request.params)
+        await this.cloudagent.submitDrpcResponse(request.id, {
+          error: {
+            code: drpcErrorCode.INVALID_PARAMS,
+            message: `invalid params object`,
+          },
+        })
+        return
+      }
+
+      const [connection] = await this.db.get('connection', { agent_connection_id: agentConnectionId })
+      if (!connection) {
+        this.logger.warn('Invalid connection for drpc message %s', agentConnectionId)
+        return
+      }
+      //find corresponding query based on queryIdForResponse provided by responder,
+      //this should match a query id in our db
+      const [queryRow] = await this.db.get('query', { id: params.queryIdForResponse })
+      if (!connection) {
+        this.logger.warn('Invalid queryId for drpc message %s', params.queryIdForResponse)
+        return
+      }
+      //update corresponding query
+      this.logger.warn(queryRow)
+      console.log('before query update')
+      const [query] = await this.db.update(
+        'query',
+        { id: queryRow.id },
+        { query_response: params.emissions, status: 'resolved' }
+      ) //do we want to save the full params object?
+
+      queryId = query.id
+
+      const result = {
+        state: 'accepted',
+      }
+      await this.cloudagent.submitDrpcResponse(request.id, { result })
+      await this.db.insert('query_rpc', {
+        query_id: query.id,
+        method: 'submit_query_response',
+        role: 'server', //am I client here?
         agent_rpc_id: request.id,
         result,
       })

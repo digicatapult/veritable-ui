@@ -1,13 +1,14 @@
 import Html from '@kitajs/html'
 import { UUID } from 'crypto'
 import { singleton } from 'tsyringe'
+import { ConnectionRow } from '../../../models/db/types.js'
 import { FormButton, LinkButton, Page } from '../../common.js'
 
 export type Scope3FormStage = 'form' | 'success' | 'error'
 interface Scope3FormProps {
   formStage: Scope3FormStage
-  company: { companyNumber: string; companyName?: string }
-  connection_id?: string | UUID
+  company: ConnectionRow
+  queryId?: string | UUID
   productId?: string
   quantity?: number
   emissions?: string
@@ -19,8 +20,8 @@ export default class Scope3CarbonConsumptionResponseTemplates {
 
   public newScope3CarbonConsumptionResponseFormPage = (
     formStage: Scope3FormStage,
-
-    company: { companyName: string; companyNumber: string },
+    company: ConnectionRow,
+    queryId?: string | UUID,
     quantity?: number,
     productId?: string
   ) => {
@@ -33,7 +34,13 @@ export default class Scope3CarbonConsumptionResponseTemplates {
       >
         <div class="connections header"></div>
         <div class="card-body">
-          <this.scope3 formStage={formStage} company={company} productId={productId} quantity={quantity} />
+          <this.scope3
+            formStage={formStage}
+            company={company}
+            productId={productId}
+            quantity={quantity}
+            queryId={queryId}
+          />
         </div>
       </Page>
     )
@@ -72,9 +79,8 @@ export default class Scope3CarbonConsumptionResponseTemplates {
             >
               <p>Product ID: {Html.escapeHtml(props.productId)}</p>
               <p>Quantity: {Html.escapeHtml(props.quantity)}</p>
-              <input type="hidden" name="companyNumber" value={Html.escapeHtml(props.company.companyNumber)} />
-              <input type="hidden" name="companyName" value={Html.escapeHtml(props.company.companyName)} />
-              <input type="hidden" name="quantity" value={Html.escapeHtml(props.quantity?.toString())} />
+              <input type="hidden" name="companyId" value={Html.escapeHtml(props.company.id)} />
+              <input type="hidden" name="queryId" value={Html.escapeHtml(props.queryId)} />
               <div class="input-container">
                 <label for="total-scope-3-carbon-emissions-input" class="input-label">
                   Total Scope 3 carbon emissions
@@ -92,12 +98,7 @@ export default class Scope3CarbonConsumptionResponseTemplates {
               </div>
               <div class="input-container">
                 <label for="partial-response-input">Partial response</label>
-                <input
-                  id="partial-response-input"
-                  name="partialResponse"
-                  type="checkbox"
-                  value={props.quantity?.toString()}
-                ></input>
+                <input id="partial-response-input" name="partialResponse" type="checkbox"></input>
               </div>
               <p>
                 *If partial response checkbox is ticked, you must share this query with another supplier in your
@@ -114,7 +115,7 @@ export default class Scope3CarbonConsumptionResponseTemplates {
     return (
       <div id="new-query-confirmation-text">
         <p>
-          Your query Response has been shared with the following company: {Html.escapeHtml(props.company.companyName)}.
+          Your query Response has been shared with the following company: {Html.escapeHtml(props.company.company_name)}.
         </p>
         <p>Thank you for answering this query, there is no other action required.</p>
         <LinkButton disabled={false} text="Back to Home" href="/" icon={''} style="filled" />
@@ -126,7 +127,7 @@ export default class Scope3CarbonConsumptionResponseTemplates {
       <div id="new-query-confirmation-text">
         <p>
           There has been an error when responding to the querry by following company:{' '}
-          {Html.escapeHtml(props.company.companyName)}.
+          {Html.escapeHtml(props.company.company_name)}.
         </p>
         <p>Please try again or contact the respective company to resolve this issue.</p>
         <LinkButton disabled={false} text="Back to Home" href="/" icon={''} style="filled" />

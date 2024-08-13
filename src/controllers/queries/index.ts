@@ -6,15 +6,13 @@ import { Logger, type ILogger } from '../../logger.js'
 import { InvalidInputError } from '../../errors.js'
 import Database from '../../models/db/index.js'
 import { ConnectionRow, QueryRow, Where } from '../../models/db/types.js'
-import { COMPANY_NUMBER, UUID } from '../../models/strings.js'
+import { type UUID } from '../../models/strings.js'
 import VeritableCloudagent, { DrpcResponse } from '../../models/veritableCloudagent.js'
 import QueriesTemplates from '../../views/queries/queries.js'
 import QueryListTemplates from '../../views/queries/queriesList.js'
 import Scope3CarbonConsumptionResponseTemplates from '../../views/queries/queryResponses/scope3.js'
 import Scope3CarbonConsumptionTemplates from '../../views/queryTypes/scope3.js'
 import { HTML, HTMLController } from '../HTMLController.js'
-
-type NewFormStage = 'companySelect' | 'form' | 'success'
 
 type QueryStatus = 'resolved' | 'pending_your_input' | 'pending_their_input'
 interface Query {
@@ -142,7 +140,7 @@ export class QueriesController extends HTMLController {
       )
     }
 
-    const query = {
+    const localQuery = {
       productId: body.productId,
       quantity: body.quantity,
     }
@@ -150,8 +148,15 @@ export class QueriesController extends HTMLController {
       connection_id: connection.id,
       query_type: 'Scope 3 Carbon Consumption',
       status: 'pending_their_input',
-      details: query,
+      details: localQuery,
+      query_id_for_response: null,
+      query_response: null,
     })
+    const query = {
+      productId: body.productId,
+      quantity: body.quantity,
+      queryIdForResponse: queryRow.id, //this is for the responder to return with the response so we know what they are responding to
+    }
 
     let rpcResponse: DrpcResponse
     try {
@@ -215,16 +220,13 @@ export class QueriesController extends HTMLController {
       throw new Error(`There has been an issue retrieving the connection.`)
     }
     const connection = connections[0]
-
     return this.html(
       this.scope3CarbonConsumptionResponseTemplates.newScope3CarbonConsumptionResponseFormPage(
         'form',
-        {
-          companyName: connection.company_name,
-          companyNumber: connection.company_number,
-        },
-        2, //hardcoded - should come from query description
-        '05867ccc' //hardcoded - should come from query description
+        connection,
+        queryId,
+        query.details['quantity'],
+        query.details['productId']
       )
     )
   }
@@ -237,22 +239,77 @@ export class QueriesController extends HTMLController {
   public async scope3CarbonConsumptionResponseSubmit(
     @Body()
     body: {
-      companyNumber: COMPANY_NUMBER
-      companyName: string
-      productId?: string
-      quantity?: number
+      companyId: UUID
+      queryId: UUID
       action: 'form' | 'success'
       totalScope3CarbonEmissions: string
       partialResponse?: number
     }
   ): Promise<HTML> {
     this.logger.debug('query page requested')
+
+    const [connection] = await this.db.get('connection', { id: body.companyId, status: 'verified_both' }, [
+      ['updated_at', 'desc'],
+    ])
+    if (!connection) {
+      throw new InvalidInputError(`Invalid connection ${body.companyId}`)
+    }
+    if (!connection.agent_connection_id || connection.status !== 'verified_both') {
+      throw new InvalidInputError(`Cannot query unverified connection`)
+    }
+    const [queryRow] = await this.db.get('query', { id: body.queryId })
+    if (!queryRow.query_id_for_response) {
+      throw new InvalidInputError(`Missing queryId to respond to.`)
+    }
+    const query = {
+      productId: queryRow.details['productId'],
+      quantity: queryRow.details['quantity'],
+      emissions: body.totalScope3CarbonEmissions,
+      queryIdForResponse: queryRow.query_id_for_response,
+    }
+    console.log(query)
     //send a drpc message with response
+    let rpcResponse: DrpcResponse
+    try {
+      const maybeResponse = await this.cloudagent.submitDrpcRequest(
+        connection.agent_connection_id,
+        'submit_query_response',
+        {
+          query: 'Scope 3 Carbon Consumption',
+          ...query,
+        }
+      )
+      if (!maybeResponse) {
+        return await this.handleError(queryRow, connection)
+      }
+      rpcResponse = maybeResponse
+    } catch (err) {
+      return await this.handleError(queryRow, connection, undefined, err)
+    }
+    const { result, error, id: rpcId } = rpcResponse
+
+    await this.db.insert('query_rpc', {
+      agent_rpc_id: rpcId,
+      query_id: queryRow.id,
+      role: 'client', // am I still a client when I'm a 'responder'?
+      method: 'submit_query_request',
+      result,
+      error,
+    })
+    await this.db.update(
+      'query',
+      { id: body.queryId },
+      {
+        status: 'resolved',
+      }
+    )
+
+    if (!result || error) {
+      return await this.handleError(queryRow, connection, rpcId)
+    }
+
     return this.html(
-      this.scope3CarbonConsumptionResponseTemplates.newScope3CarbonConsumptionResponseFormPage('success', {
-        companyName: body.companyName,
-        companyNumber: body.companyNumber,
-      })
+      this.scope3CarbonConsumptionResponseTemplates.newScope3CarbonConsumptionResponseFormPage('success', connection)
     )
   }
 

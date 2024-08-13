@@ -154,13 +154,11 @@ describe('QueriesController', () => {
       const controller = new QueriesController(...args)
       const result = await controller
         .scope3CarbonConsumptionResponseSubmit({
-          companyNumber: '2345789',
-          companyName: 'Sample Company Name',
-          productId: 'SomeID',
-          quantity: 111,
+          companyId: '2345789',
           action: 'success',
           totalScope3CarbonEmissions: '25',
           partialResponse: 1,
+          queryId: '5390af91-c551-4d74-b394-d8ae0805059e',
         })
         .then(toHTMLString)
 

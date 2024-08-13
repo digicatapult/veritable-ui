@@ -9,11 +9,19 @@ describe('QueryResponseTemplates', () => {
       const rendered = await templates.newScope3CarbonConsumptionResponseFormPage(
         'form',
         {
-          companyName: 'test name',
-          companyNumber: '345test',
+          company_name: 'VER123',
+          company_number: '3456789',
+          status: 'verified_both',
+          id: '11',
+          agent_connection_id: 'agentId',
+          pin_tries_remaining_count: null,
+          pin_attempt_count: 0,
+          created_at: new Date(),
+          updated_at: new Date(),
         },
+        'xyz1234',
         2,
-        '05867ccc'
+        'cg34jdt'
       )
       expect(rendered).to.matchSnapshot()
     })
@@ -22,11 +30,19 @@ describe('QueryResponseTemplates', () => {
       const rendered = await templates.newScope3CarbonConsumptionResponseFormPage(
         'form',
         {
-          companyName: '<div>I own you</div>',
-          companyNumber: '345test',
+          company_name: '<div>I own you</div>',
+          company_number: '3456789',
+          status: 'verified_both',
+          id: '11',
+          agent_connection_id: 'agentId',
+          pin_tries_remaining_count: null,
+          pin_attempt_count: 0,
+          created_at: new Date(),
+          updated_at: new Date(),
         },
+        'xyz1234',
         2,
-        '05867ccc'
+        'cg34jdt'
       )
       expect(rendered).to.matchSnapshot()
     })
@@ -35,8 +51,15 @@ describe('QueryResponseTemplates', () => {
     it('should render sucess query response page', async () => {
       const templates = new Scope3CarbonConsumptionResponseTemplates()
       const rendered = await templates.newScope3CarbonConsumptionResponseFormPage('success', {
-        companyName: 'test name',
-        companyNumber: '345test',
+        company_name: '<div>I own you</div>',
+        company_number: '3456789',
+        status: 'verified_both',
+        id: '11',
+        agent_connection_id: 'agentId',
+        pin_tries_remaining_count: null,
+        pin_attempt_count: 0,
+        created_at: new Date(),
+        updated_at: new Date(),
       })
       expect(rendered).to.matchSnapshot()
     })
