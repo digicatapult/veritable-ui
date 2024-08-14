@@ -187,10 +187,6 @@ export default class VeritableCloudagent {
     )
   }
 
-  public async getConnectionById(id: string): Promise<Connection> {
-    return this.getRequest(`/v1/connections/${id}`, this.buildParser(connectionParser))
-  }
-
   public async getConnections(): Promise<Connection[]> {
     return this.getRequest('/v1/connections', this.buildParser(connectionListParser))
   }
