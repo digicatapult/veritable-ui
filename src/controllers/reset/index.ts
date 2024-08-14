@@ -6,7 +6,7 @@ import { BadRequestError, InternalError } from '../../errors.js'
 import { Logger, type ILogger } from '../../logger.js'
 import Database from '../../models/db/index.js'
 import type { TABLE } from '../../models/db/types.js'
-import VeritableCloudagent, { Connection } from '../../models/veritableCloudagent.js'
+import VeritableCloudagent, { Connection, Credential } from '../../models/veritableCloudagent.js'
 
 @singleton()
 @injectable()
@@ -61,27 +61,20 @@ export class ResetController {
 
     try {
       const connections: Connection[] = await this.cloudagent.getConnections()
-      const agent = {
-        credentials: await Promise.all(
-          connections.map(({ id }: { id: string }) => {
-            return this.cloudagent.getCredentialByConnectionId(id)
-          })
-        ).then((credentials) => credentials.reduce((prev, next) => prev.concat(next), [])),
-        connections: await Promise.all(
-          connections.map(({ id }: { id: string }) => {
-            return this.cloudagent.getConnectionById(id)
-          })
-        ),
-      }
+      const credentials: Credential[] = await Promise.all(
+        connections.map(({ id }: { id: string }) => {
+          return this.cloudagent.getCredentialByConnectionId(id)
+        })
+      ).then((credentials) => credentials.reduce((prev, next) => prev.concat(next), []))
 
-      this.logger.debug('found items at cloudagent: %j', agent)
+      this.logger.debug('found items at cloudagent: %j', { credentials, connections })
 
       await Promise.all([
-        ...agent.credentials.map(({ id }: { id: string }) => {
+        ...credentials.map(({ id }: { id: string }) => {
           this.logger.debug('deleting credential from cloudagent %s: ', id)
           return this.cloudagent.deleteCredential(id)
         }),
-        ...agent.connections.map(({ id }: { id: string }) => {
+        ...connections.map(({ id }: { id: string }) => {
           this.logger.debug('deleting connection from cloudagent %s: ', id)
           return this.cloudagent.deleteConnection(id)
         }),
