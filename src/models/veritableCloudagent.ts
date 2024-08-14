@@ -191,6 +191,10 @@ export default class VeritableCloudagent {
     return this.getRequest('/v1/connections', this.buildParser(connectionListParser))
   }
 
+  public async deleteCredential(id: string): Promise<void> {
+    return this.deleteRequest(`/v1/credentials/${id}`, () => {})
+  }
+
   public async deleteConnection(id: string): Promise<void> {
     return this.deleteRequest(`/v1/connections/${id}`, () => {})
   }
