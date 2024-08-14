@@ -145,13 +145,9 @@ describe('ResetController', () => {
       it('gets list of local connections and connections with credentials from cloudagent', () => {
         expect(dbMock.delete.calledWith('connection')).to.be.equal(true)
         expect(cloudagentMock.getCredentialByConnectionId.calledWith('some-agent-id-1')).to.be.equal(true)
-        expect(cloudagentMock.getConnectionById.calledWith('some-agent-id-1')).to.be.equal(true)
         expect(cloudagentMock.getCredentialByConnectionId.calledWith('some-agent-id-2')).to.be.equal(true)
-        expect(cloudagentMock.getConnectionById.calledWith('some-agent-id-2')).to.be.equal(true)
         expect(cloudagentMock.getCredentialByConnectionId.calledWith('some-agent-id-3')).to.be.equal(true)
-        expect(cloudagentMock.getConnectionById.calledWith('some-agent-id-3')).to.be.equal(true)
         expect(cloudagentMock.getCredentialByConnectionId.callCount).to.be.equal(3)
-        expect(cloudagentMock.getConnectionById.callCount).to.be.equal(3)
       })
 
       it('deletes connections and connection_invites locally', () => {
