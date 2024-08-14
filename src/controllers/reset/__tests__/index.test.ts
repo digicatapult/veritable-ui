@@ -37,8 +37,6 @@ const dbMock = {
 }
 
 const cloudagentMock = {
-  getConnectionById: sinon.stub().callsFake((id: string) => Promise.resolve([{ id }])),
-  getCredentialByConnectionId: sinon.stub().callsFake((id: string) => Promise.resolve([{ id }])),
   deleteConnection: sinon.stub(),
   deleteCredential: sinon.stub(),
   getCredentials: sinon.stub().callsFake(() => Promise.resolve(fixtures['agent_credentials'])),
@@ -100,8 +98,6 @@ describe('ResetController', () => {
       it('doest not call any cloudagents methods too', () => {
         expect(cloudagentMock.deleteConnection.callCount).to.be.equal(0)
         expect(cloudagentMock.deleteCredential.callCount).to.be.equal(0)
-        expect(cloudagentMock.getConnectionById.callCount).to.be.equal(0)
-        expect(cloudagentMock.getCredentialByConnectionId.callCount).to.be.equal(0)
       })
     })
 
