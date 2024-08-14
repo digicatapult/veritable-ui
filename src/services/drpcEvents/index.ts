@@ -56,7 +56,7 @@ export default class DrpcEvents {
       case 'submit_query_request':
         return await neverFail(this.handleSubmitQueryRequest(request, agentConnectionId))
       case 'submit_query_response':
-        return await neverFail(this.handleSubmitQueryResponse(request, agentConnectionId)) //new method I am making
+        return await neverFail(this.handleSubmitQueryResponse(request, agentConnectionId))
     }
 
     return await this.handleInvalidMethod(request)
@@ -111,7 +111,7 @@ export default class DrpcEvents {
           productId: params.productId,
           quantity: params.quantity,
         },
-        query_id_for_response: params.queryIdForResponse, //save to send back in response
+        response_id: params.queryIdForResponse, //save to send back in response
         query_response: null,
       })
       queryId = query.id
@@ -185,10 +185,15 @@ export default class DrpcEvents {
       //find corresponding query based on queryIdForResponse provided by responder,
       //this should match a query id in our db
       const [queryRow] = await this.db.get('query', { id: params.queryIdForResponse })
-      if (!connection) {
+      if (!queryRow) {
         this.logger.warn('Invalid queryId for drpc message %s', params.queryIdForResponse)
         return
       }
+      if (queryRow.query_response !== null) {
+        this.logger.warn('It appears this query: %s has already been answered.', params.queryIdForResponse)
+        return
+      }
+
       //update corresponding query
       this.logger.warn(queryRow)
       const [query] = await this.db.update(
@@ -205,7 +210,7 @@ export default class DrpcEvents {
       await this.db.insert('query_rpc', {
         query_id: query.id,
         method: 'submit_query_response',
-        role: 'server', //am I client here?
+        role: 'server',
         agent_rpc_id: request.id,
         result,
       })

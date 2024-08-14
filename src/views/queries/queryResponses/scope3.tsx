@@ -72,7 +72,7 @@ export default class Scope3CarbonConsumptionResponseTemplates {
             <p>What are the total Scope 3 carbon emissions for the product/component below? </p>
             <form
               id="scope-3-carbon-consumption"
-              hx-post={`/queries/scope-3-carbon-consumption-response/submit`}
+              hx-post={`/scope-3-carbon-consumption/${props.queryId}/response`}
               hx-select="main > *"
               hx-target="main"
               hx-swap="innerHTML"
@@ -80,7 +80,6 @@ export default class Scope3CarbonConsumptionResponseTemplates {
               <p>Product ID: {Html.escapeHtml(props.productId)}</p>
               <p>Quantity: {Html.escapeHtml(props.quantity)}</p>
               <input type="hidden" name="companyId" value={Html.escapeHtml(props.company.id)} />
-              <input type="hidden" name="queryId" value={Html.escapeHtml(props.queryId)} />
               <div class="input-container">
                 <label for="total-scope-3-carbon-emissions-input" class="input-label">
                   Total Scope 3 carbon emissions

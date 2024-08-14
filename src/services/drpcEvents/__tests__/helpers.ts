@@ -16,7 +16,7 @@ type QueryMockOptions = {
 const defaultOptions: QueryMockOptions = {
   getRows: {
     connection: [{ id: 'connection-id' }],
-    query: [{ id: 'query-id' }],
+    query: [{ id: 'query-id', query_response: null }],
   },
 }
 

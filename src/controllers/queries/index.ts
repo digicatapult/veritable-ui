@@ -3,7 +3,7 @@ import { inject, injectable, singleton } from 'tsyringe'
 
 import { Logger, type ILogger } from '../../logger.js'
 
-import { InvalidInputError } from '../../errors.js'
+import { InvalidInputError, NotFoundError } from '../../errors.js'
 import Database from '../../models/db/index.js'
 import { ConnectionRow, QueryRow, Where } from '../../models/db/types.js'
 import { type UUID } from '../../models/strings.js'
@@ -149,7 +149,7 @@ export class QueriesController extends HTMLController {
       query_type: 'Scope 3 Carbon Consumption',
       status: 'pending_their_input',
       details: localQuery,
-      query_id_for_response: null,
+      response_id: null,
       query_response: null,
     })
     const query = {
@@ -206,20 +206,20 @@ export class QueriesController extends HTMLController {
    * Retrieves the query response page
    */
   @SuccessResponse(200)
-  @Get('/scope-3-carbon-consumption-response/{queryId}')
+  @Get('/scope-3-carbon-consumption/{queryId}/response')
   public async scope3CarbonConsumptionResponse(@Path() queryId: UUID): Promise<HTML> {
-    this.logger.debug('query page requested')
-    //retrieve query
-    const queries = await this.db.get('query', { id: queryId })
-    if (queries.length < 1) {
-      throw new Error(`There has been an issue retrieving the query.`)
+    this.logger.debug('query response page requested %j', { queryId })
+    const [query] = await this.db.get('query', { id: queryId })
+
+    if (!query) {
+      throw new NotFoundError(`There has been an issue retrieving the query.`)
     }
-    const query = queries[0]
-    const connections = await this.db.get('connection', { id: query.connection_id })
-    if (connections.length < 1) {
-      throw new Error(`There has been an issue retrieving the connection.`)
+
+    const [connection] = await this.db.get('connection', { id: query.connection_id })
+    if (!connection) {
+      throw new InvalidInputError(`There has been an issue retrieving the connection.`)
     }
-    const connection = connections[0]
+
     return this.html(
       this.scope3CarbonConsumptionResponseTemplates.newScope3CarbonConsumptionResponseFormPage(
         'form',
@@ -235,12 +235,12 @@ export class QueriesController extends HTMLController {
    * Submits the query response page
    */
   @SuccessResponse(200)
-  @Post('/scope-3-carbon-consumption-response/submit')
+  @Post('/scope-3-carbon-consumption/{queryId}/response')
   public async scope3CarbonConsumptionResponseSubmit(
+    @Path() queryId: UUID,
     @Body()
     body: {
       companyId: UUID
-      queryId: UUID
       action: 'success'
       totalScope3CarbonEmissions: string
       partialResponse?: number
@@ -257,15 +257,15 @@ export class QueriesController extends HTMLController {
     if (!connection.agent_connection_id || connection.status !== 'verified_both') {
       throw new InvalidInputError(`Cannot query unverified connection`)
     }
-    const [queryRow] = await this.db.get('query', { id: body.queryId })
-    if (!queryRow.query_id_for_response) {
+    const [queryRow] = await this.db.get('query', { id: queryId })
+    if (!queryRow.response_id) {
       throw new InvalidInputError(`Missing queryId to respond to.`)
     }
     const query = {
       productId: queryRow.details['productId'],
       quantity: queryRow.details['quantity'],
       emissions: body.totalScope3CarbonEmissions,
-      queryIdForResponse: queryRow.query_id_for_response,
+      queryIdForResponse: queryRow.response_id,
     }
     //send a drpc message with response
     let rpcResponse: DrpcResponse
@@ -297,7 +297,7 @@ export class QueriesController extends HTMLController {
     })
     await this.db.update(
       'query',
-      { id: body.queryId },
+      { id: queryId },
       {
         status: 'resolved',
       }

@@ -139,7 +139,7 @@ export default class QueryListTemplates {
                         style="outlined"
                         disabled={false}
                         text="some action"
-                        href={`/queries/scope-3-carbon-consumption-response/${query.id}`}
+                        href={`/queries/scope-3-carbon-consumption/${query.id}/response`}
                       />
                     </td>
                   </tr>

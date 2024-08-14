@@ -153,12 +153,11 @@ describe('QueriesController', () => {
       const { args } = withQueriesMocks()
       const controller = new QueriesController(...args)
       const result = await controller
-        .scope3CarbonConsumptionResponseSubmit({
+        .scope3CarbonConsumptionResponseSubmit('5390af91-c551-4d74-b394-d8ae0805059e', {
           companyId: '2345789',
           action: 'success',
           totalScope3CarbonEmissions: '25',
           partialResponse: 1,
-          queryId: '5390af91-c551-4d74-b394-d8ae0805059e',
         })
         .then(toHTMLString)
 
@@ -171,12 +170,10 @@ describe('QueriesController', () => {
       const controller = new QueriesController(...args)
 
       const result = await controller
-        .scope3CarbonConsumptionResponseSubmit({
+        .scope3CarbonConsumptionResponseSubmit('5390af91-c551-4d74-b394-d8ae0805059e', {
           companyId: '2345789',
           action: 'success',
           totalScope3CarbonEmissions: '25',
-          partialResponse: 1,
-          queryId: '5390af91-c551-4d74-b394-d8ae0805059e',
         })
         .then(toHTMLString)
 
@@ -188,12 +185,11 @@ describe('QueriesController', () => {
 
       const controller = new QueriesController(...args)
       const result = await controller
-        .scope3CarbonConsumptionResponseSubmit({
+        .scope3CarbonConsumptionResponseSubmit('5390af91-c551-4d74-b394-d8ae0805059e', {
           companyId: '2345789',
           action: 'success',
           totalScope3CarbonEmissions: '25',
           partialResponse: 1,
-          queryId: '5390af91-c551-4d74-b394-d8ae0805059e',
         })
         .then(toHTMLString)
 
@@ -209,12 +205,11 @@ describe('QueriesController', () => {
 
     const controller = new QueriesController(...args)
     const result = await controller
-      .scope3CarbonConsumptionResponseSubmit({
+      .scope3CarbonConsumptionResponseSubmit('5390af91-c551-4d74-b394-d8ae0805059e', {
         companyId: '2345789',
         action: 'success',
         totalScope3CarbonEmissions: '25',
         partialResponse: 1,
-        queryId: '5390af91-c551-4d74-b394-d8ae0805059e',
       })
       .then(toHTMLString)
 
