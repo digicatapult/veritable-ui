@@ -61,11 +61,7 @@ export class ResetController {
 
     try {
       const connections: Connection[] = await this.cloudagent.getConnections()
-      const credentials: Credential[] = await Promise.all(
-        connections.map(({ id }: { id: string }) => {
-          return this.cloudagent.getCredentialByConnectionId(id)
-        })
-      ).then((credentials) => credentials.reduce((prev, next) => prev.concat(next), []))
+      const credentials: Credential[] = await this.cloudagent.getCredentials()
 
       this.logger.debug('found items at cloudagent: %j', { credentials, connections })
 
