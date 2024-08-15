@@ -72,7 +72,7 @@ export default class Scope3CarbonConsumptionResponseTemplates {
             <p>What are the total Scope 3 carbon emissions for the product/component below? </p>
             <form
               id="scope-3-carbon-consumption"
-              hx-post={`/scope-3-carbon-consumption/${props.queryId}/response`}
+              hx-post={`/queries/scope-3-carbon-consumption/${props.queryId}/response`}
               hx-select="main > *"
               hx-target="main"
               hx-swap="innerHTML"
