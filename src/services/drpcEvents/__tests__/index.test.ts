@@ -83,6 +83,7 @@ describe('DrpcEvents', function () {
             query_type: 'Scope 3 Carbon Consumption',
             details: { productId: 'product-id', quantity: 42 },
             response_id: 'fb45f64a-7c2b-43e8-85c2-da66a6899446',
+            role: 'responder',
             query_response: null,
           },
         ])
@@ -484,6 +485,7 @@ describe('DrpcEvents', function () {
             details: { productId: 'product-id', quantity: 42 },
             response_id: 'fb45f64a-7c2b-43e8-85c2-da66a6899446',
             query_response: null,
+            role: 'responder',
           },
         ])
       })

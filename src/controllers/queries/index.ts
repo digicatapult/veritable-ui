@@ -151,6 +151,7 @@ export class QueriesController extends HTMLController {
       details: localQuery,
       response_id: null,
       query_response: null,
+      role: 'requester',
     })
     const query = {
       productId: body.productId,
@@ -252,18 +253,16 @@ export class QueriesController extends HTMLController {
       ['updated_at', 'desc'],
     ])
     if (!connection) {
-      throw new InvalidInputError(`Invalid connection ${body.companyId}`)
+      throw new NotFoundError(`Invalid connection ${body.companyId}`)
     }
     if (!connection.agent_connection_id || connection.status !== 'verified_both') {
-      throw new InvalidInputError(`Cannot query unverified connection`)
+      throw new NotFoundError(`Cannot query unverified connection`)
     }
     const [queryRow] = await this.db.get('query', { id: queryId })
     if (!queryRow.response_id) {
-      throw new InvalidInputError(`Missing queryId to respond to.`)
+      throw new NotFoundError(`Missing queryId to respond to.`)
     }
     const query = {
-      productId: queryRow.details['productId'],
-      quantity: queryRow.details['quantity'],
       emissions: body.totalScope3CarbonEmissions,
       queryIdForResponse: queryRow.response_id,
     }

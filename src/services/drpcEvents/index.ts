@@ -13,10 +13,17 @@ const submitQueryRpcParams = z.discriminatedUnion('query', [
     productId: z.string(),
     quantity: z.number().int().min(1),
     queryIdForResponse: z.string(),
+  }),
+])
+const submitQueryResponseRpcParams = z.discriminatedUnion('query', [
+  z.object({
+    query: z.literal('Scope 3 Carbon Consumption'),
+    queryIdForResponse: z.string(),
     emissions: z.string().optional(),
   }),
 ])
 type SubmitQueryRPCParams = z.infer<typeof submitQueryRpcParams>
+type SubmitQueryResponseRPCParams = z.infer<typeof submitQueryResponseRpcParams>
 
 const drpcErrorCode = {
   METHOD_NOT_FOUND: -32601,
@@ -113,6 +120,7 @@ export default class DrpcEvents {
         },
         response_id: params.queryIdForResponse, //save to send back in response
         query_response: null,
+        role: 'responder',
       })
       queryId = query.id
 
@@ -164,9 +172,9 @@ export default class DrpcEvents {
         request.method
       )
 
-      let params: SubmitQueryRPCParams
+      let params: SubmitQueryResponseRPCParams
       try {
-        params = submitQueryRpcParams.parse(request.params)
+        params = submitQueryResponseRpcParams.parse(request.params)
       } catch (err) {
         this.logger.warn('Invalid parameters received for request %s: %o', request.id, request.params)
         await this.cloudagent.submitDrpcResponse(request.id, {

@@ -33,6 +33,7 @@ const insertQuery = z.object({
   details: z.record(z.any()),
   response_id: z.string().nullable(),
   query_response: z.string().nullable(),
+  role: z.enum(['requester', 'responder']),
 })
 const insertQueryRpc = z.object({
   query_id: z.string(),
