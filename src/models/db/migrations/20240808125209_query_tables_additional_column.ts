@@ -9,6 +9,7 @@ export async function up(knex: Knex): Promise<void> {
         useNative: true,
         enumName: 'query_role',
       })
+      .defaultTo('requester')
       .notNullable()
   })
 }

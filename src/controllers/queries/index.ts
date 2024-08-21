@@ -249,19 +249,29 @@ export class QueriesController extends HTMLController {
   ): Promise<HTML> {
     this.logger.debug('query page requested')
 
-    const [connection] = await this.db.get('connection', { id: body.companyId, status: 'verified_both' }, [
-      ['updated_at', 'desc'],
-    ])
+    const [connection]: ConnectionRow[] = await this.db.get(
+      'connection',
+      { id: body.companyId, status: 'verified_both' },
+      [['updated_at', 'desc']]
+    )
     if (!connection) {
-      throw new NotFoundError(`Invalid connection ${body.companyId}`)
+      throw new InvalidInputError(`Invalid connection ${body.companyId}`)
     }
     if (!connection.agent_connection_id || connection.status !== 'verified_both') {
-      throw new NotFoundError(`Cannot query unverified connection`)
+      throw new InvalidInputError(`Cannot query unverified connection`)
     }
-    const [queryRow] = await this.db.get('query', { id: queryId })
-    if (!queryRow.response_id) {
+
+    const [queryRow]: QueryRow[] = await this.db.get('query', { id: queryId })
+    if (!queryRow) {
+      throw new NotFoundError(`There has been an issue retrieving the query.`)
+    } else if (!queryRow.response_id) {
+      throw new InvalidInputError('Missing queryId to respond to.')
+    } else if (queryRow.connection_id !== connection.id) {
       throw new NotFoundError(`Missing queryId to respond to.`)
+    } else if (queryRow.status === 'errored') {
+      throw new InvalidInputError('Cannot process query with status - "errored"')
     }
+
     const query = {
       emissions: body.totalScope3CarbonEmissions,
       queryIdForResponse: queryRow.response_id,

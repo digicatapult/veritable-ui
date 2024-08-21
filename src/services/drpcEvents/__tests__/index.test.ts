@@ -543,7 +543,7 @@ describe('DrpcEvents', function () {
         const stub = mocks.dbMock.get
         expect(stub.callCount).to.equal(2)
         expect(stub.firstCall.args).to.deep.equal(['connection', { agent_connection_id: 'agent-connection-id' }])
-        expect(stub.secondCall.args).to.deep.equal(['query', { id: 'query-id' }])
+        expect(stub.secondCall.args).to.deep.equal(['query', { id: 'query-id', role: 'requester' }])
       })
 
       it('should call submitDrpcResponse correctly', function () {
@@ -810,28 +810,16 @@ describe('DrpcEvents', function () {
         const stub = mocks.dbMock.get
         expect(stub.callCount).to.equal(2)
         expect(stub.firstCall.args).to.deep.equal(['connection', { agent_connection_id: 'agent-connection-id' }])
-        expect(stub.secondCall.args).to.deep.equal(['query', { id: 'query-id' }])
+        expect(stub.secondCall.args).to.deep.equal(['query', { id: 'query-id', role: 'requester' }])
       })
 
       it('should insert into the database a query and query_rpc', function () {
         const stub = mocks.dbMock.update
-        expect(stub.callCount).to.equal(2)
+        expect(stub.callCount).to.equal(1)
         expect(stub.firstCall.args).to.deep.equal([
           'query',
           { id: 'query-id' },
           { query_response: '3456', status: 'resolved' },
-        ])
-      })
-
-      it('should update the database marking the query as errored', function () {
-        const stub = mocks.dbMock.update
-        expect(stub.callCount).to.equal(2)
-        expect(stub.secondCall.args).to.deep.equal([
-          'query',
-          { id: 'query-id' },
-          {
-            status: 'errored',
-          },
         ])
       })
 
