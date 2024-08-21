@@ -49,6 +49,7 @@ export const withCredentialEventsDepsMock = (opts: Partial<typeof defaultCredEve
   const eventMock = new EventEmitter()
   const dbMock = {
     update: sinon.stub().resolves(),
+    waitForCondition: sinon.stub().resolves(),
   }
 
   return {

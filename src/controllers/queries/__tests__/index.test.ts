@@ -132,4 +132,87 @@ describe('QueriesController', () => {
       expect(result).to.equal('scope3_error_scope3')
     })
   })
+  describe('query responses', () => {
+    it('should call db as expected', async () => {
+      const { args, dbMock } = withQueriesMocks()
+      const controller = new QueriesController(...args)
+      const spy = dbMock.get
+      await controller.scope3CarbonConsumptionResponse('SomeId').then(toHTMLString)
+      const search = 'SomeId'
+      expect(spy.firstCall.calledWith('query', { id: search })).to.equal(true)
+    })
+
+    it('should call query response page with stage FORM as expected', async () => {
+      const { args } = withQueriesMocks()
+      const controller = new QueriesController(...args)
+      const result = await controller.scope3CarbonConsumptionResponse('someId123').then(toHTMLString)
+
+      expect(result).to.equal('queriesResponse_template')
+    })
+    it('should call query response page with stage SUCCESS as expected', async () => {
+      const { args } = withQueriesMocks()
+      const controller = new QueriesController(...args)
+      const result = await controller
+        .scope3CarbonConsumptionResponseSubmit('5390af91-c551-4d74-b394-d8ae0805059e', {
+          companyId: '2345789',
+          action: 'success',
+          totalScope3CarbonEmissions: '25',
+          partialResponse: 1,
+        })
+        .then(toHTMLString)
+
+      expect(result).to.equal('queriesResponse_template')
+    })
+    it('should call page with stage error if rpc succeeds without response', async () => {
+      const { args, cloudagentMock } = withQueriesMocks()
+      cloudagentMock.submitDrpcRequest = sinon.stub().resolves(undefined)
+
+      const controller = new QueriesController(...args)
+
+      const result = await controller
+        .scope3CarbonConsumptionResponseSubmit('5390af91-c551-4d74-b394-d8ae0805059e', {
+          companyId: '2345789',
+          action: 'success',
+          totalScope3CarbonEmissions: '25',
+        })
+        .then(toHTMLString)
+
+      expect(result).to.equal('scope3_error_scope3')
+    })
+    it('should call page with stage error if rpc fails', async () => {
+      const { args, cloudagentMock } = withQueriesMocks()
+      cloudagentMock.submitDrpcRequest = sinon.stub().rejects(new Error())
+
+      const controller = new QueriesController(...args)
+      const result = await controller
+        .scope3CarbonConsumptionResponseSubmit('5390af91-c551-4d74-b394-d8ae0805059e', {
+          companyId: '2345789',
+          action: 'success',
+          totalScope3CarbonEmissions: '25',
+          partialResponse: 1,
+        })
+        .then(toHTMLString)
+
+      expect(result).to.equal('scope3_error_scope3')
+    })
+  })
+  it('should call page with stage error if rpc succeeds with error', async () => {
+    const { args, cloudagentMock } = withQueriesMocks()
+    cloudagentMock.submitDrpcRequest = sinon.stub().resolves({
+      error: new Error('error'),
+      id: 'request-id',
+    })
+
+    const controller = new QueriesController(...args)
+    const result = await controller
+      .scope3CarbonConsumptionResponseSubmit('5390af91-c551-4d74-b394-d8ae0805059e', {
+        companyId: '2345789',
+        action: 'success',
+        totalScope3CarbonEmissions: '25',
+        partialResponse: 1,
+      })
+      .then(toHTMLString)
+
+    expect(result).to.equal('scope3_error_scope3')
+  })
 })

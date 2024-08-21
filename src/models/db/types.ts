@@ -31,6 +31,9 @@ const insertQuery = z.object({
   query_type: z.string(),
   status: z.enum(['resolved', 'pending_your_input', 'pending_their_input', 'errored']),
   details: z.record(z.any()),
+  response_id: z.string().nullable(),
+  query_response: z.string().nullable(),
+  role: z.enum(['requester', 'responder']),
 })
 const insertQueryRpc = z.object({
   query_id: z.string(),

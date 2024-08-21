@@ -7,6 +7,7 @@ import { ConnectionRow, QueryRow } from '../../../models/db/types.js'
 import VeritableCloudagent from '../../../models/veritableCloudagent.js'
 import QueriesTemplates from '../../../views/queries/queries.js'
 import QueryListTemplates from '../../../views/queries/queriesList.js'
+import Scope3CarbonConsumptionResponseTemplates from '../../../views/queries/queryResponses/scope3.js'
 import Scope3CarbonConsumptionTemplates from '../../../views/queryTypes/scope3.js'
 
 type QueryStatus = 'resolved' | 'pending_your_input' | 'pending_their_input'
@@ -27,7 +28,15 @@ type QueryMockOptions = {
 const defaultOptions: QueryMockOptions = {
   getRows: {
     connection: [{ company_name: 'VER123', status: 'verified_both', id: '11', agent_connection_id: 'agentId' }],
-    query: [{ id: 'x', status: 'pending_their_input', connection_id: '11' }],
+    query: [
+      {
+        id: 'x',
+        status: 'pending_their_input',
+        connection_id: '11',
+        details: { quantity: 2, queryId: 'xyz123' },
+        response_id: '5390af91-c551-4d74-b394-d8ae0805059e',
+      },
+    ],
   },
 }
 
@@ -46,6 +55,10 @@ export const withQueriesMocks = (testOptions: Partial<QueryMockOptions> = {}) =>
   const scope3CarbonConsumptionTemplateMock = {
     newScope3CarbonConsumptionFormPage: (props: { formStage: string }) => templateListFake('scope3', props.formStage),
   } as unknown as Scope3CarbonConsumptionTemplates
+
+  const scope3CarbonConsumptionResponseTemplateMock = {
+    newScope3CarbonConsumptionResponseFormPage: () => templateFake('queriesResponse'),
+  } as unknown as Scope3CarbonConsumptionResponseTemplates
   const queryTemplateMock = {
     chooseQueryPage: () => templateFake('queries'),
   } as QueriesTemplates
@@ -57,7 +70,7 @@ export const withQueriesMocks = (testOptions: Partial<QueryMockOptions> = {}) =>
   }
   const queryListTemplateMock = {
     listPage: (queries: Query[]) => templateListFake('list', queries[0].company_name, queries[0].status),
-  } as QueryListTemplates
+  } as unknown as QueryListTemplates
   const mockLogger: ILogger = pino({ level: 'silent' })
   const dbMock = {
     get: sinon.stub().callsFake((tableName: 'connection' | 'query') => Promise.resolve(options.getRows[tableName])),
@@ -77,6 +90,7 @@ export const withQueriesMocks = (testOptions: Partial<QueryMockOptions> = {}) =>
 
   return {
     scope3CarbonConsumptionTemplateMock,
+    scope3CarbonConsumptionResponseTemplateMock,
     queryListTemplateMock,
     queryTemplateMock,
     mockLogger,
@@ -84,6 +98,7 @@ export const withQueriesMocks = (testOptions: Partial<QueryMockOptions> = {}) =>
     cloudagentMock,
     args: [
       scope3CarbonConsumptionTemplateMock,
+      scope3CarbonConsumptionResponseTemplateMock,
       queryTemplateMock,
       queryListTemplateMock,
       cloudagentMock as unknown as VeritableCloudagent,

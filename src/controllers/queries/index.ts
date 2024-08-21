@@ -1,17 +1,27 @@
-import { Body, Get, Post, Produces, Query, Route, Security, SuccessResponse } from 'tsoa'
+import { Body, Get, Path, Post, Produces, Query, Route, Security, SuccessResponse } from 'tsoa'
 import { inject, injectable, singleton } from 'tsyringe'
 
 import { Logger, type ILogger } from '../../logger.js'
 
-import { InvalidInputError } from '../../errors.js'
+import { InvalidInputError, NotFoundError } from '../../errors.js'
 import Database from '../../models/db/index.js'
 import { ConnectionRow, QueryRow, Where } from '../../models/db/types.js'
-import { UUID } from '../../models/strings.js'
+import { type UUID } from '../../models/strings.js'
 import VeritableCloudagent, { DrpcResponse } from '../../models/veritableCloudagent.js'
 import QueriesTemplates from '../../views/queries/queries.js'
 import QueryListTemplates from '../../views/queries/queriesList.js'
+import Scope3CarbonConsumptionResponseTemplates from '../../views/queries/queryResponses/scope3.js'
 import Scope3CarbonConsumptionTemplates from '../../views/queryTypes/scope3.js'
 import { HTML, HTMLController } from '../HTMLController.js'
+
+type QueryStatus = 'resolved' | 'pending_your_input' | 'pending_their_input'
+interface Query {
+  id: UUID
+  company_name: string
+  query_type: string
+  updated_at: Date
+  status: QueryStatus
+}
 
 @singleton()
 @injectable()
@@ -21,6 +31,7 @@ import { HTML, HTMLController } from '../HTMLController.js'
 export class QueriesController extends HTMLController {
   constructor(
     private scope3CarbonConsumptionTemplates: Scope3CarbonConsumptionTemplates,
+    private scope3CarbonConsumptionResponseTemplates: Scope3CarbonConsumptionResponseTemplates,
     private queriesTemplates: QueriesTemplates,
     private queryManagementTemplates: QueryListTemplates,
     private cloudagent: VeritableCloudagent,
@@ -129,7 +140,7 @@ export class QueriesController extends HTMLController {
       )
     }
 
-    const query = {
+    const localQuery = {
       productId: body.productId,
       quantity: body.quantity,
     }
@@ -137,8 +148,16 @@ export class QueriesController extends HTMLController {
       connection_id: connection.id,
       query_type: 'Scope 3 Carbon Consumption',
       status: 'pending_their_input',
-      details: query,
+      details: localQuery,
+      response_id: null,
+      query_response: null,
+      role: 'requester',
     })
+    const query = {
+      productId: body.productId,
+      quantity: body.quantity,
+      queryIdForResponse: queryRow.id, //this is for the responder to return with the response so we know what they are responding to
+    }
 
     let rpcResponse: DrpcResponse
     try {
@@ -184,6 +203,124 @@ export class QueriesController extends HTMLController {
     )
   }
 
+  /**
+   * Retrieves the query response page
+   */
+  @SuccessResponse(200)
+  @Get('/scope-3-carbon-consumption/{queryId}/response')
+  public async scope3CarbonConsumptionResponse(@Path() queryId: UUID): Promise<HTML> {
+    this.logger.debug('query response page requested %j', { queryId })
+    const [query] = await this.db.get('query', { id: queryId })
+
+    if (!query) {
+      throw new NotFoundError(`There has been an issue retrieving the query.`)
+    }
+
+    const [connection] = await this.db.get('connection', { id: query.connection_id })
+    if (!connection) {
+      throw new InvalidInputError(`There has been an issue retrieving the connection.`)
+    }
+
+    return this.html(
+      this.scope3CarbonConsumptionResponseTemplates.newScope3CarbonConsumptionResponseFormPage(
+        'form',
+        connection,
+        queryId,
+        query.details['quantity'],
+        query.details['productId']
+      )
+    )
+  }
+
+  /**
+   * Submits the query response page
+   */
+  @SuccessResponse(200)
+  @Post('/scope-3-carbon-consumption/{queryId}/response')
+  public async scope3CarbonConsumptionResponseSubmit(
+    @Path() queryId: UUID,
+    @Body()
+    body: {
+      companyId: UUID
+      action: 'success'
+      totalScope3CarbonEmissions: string
+      partialResponse?: number
+    }
+  ): Promise<HTML> {
+    this.logger.debug('query page requested')
+
+    const [connection]: ConnectionRow[] = await this.db.get(
+      'connection',
+      { id: body.companyId, status: 'verified_both' },
+      [['updated_at', 'desc']]
+    )
+    if (!connection) {
+      throw new InvalidInputError(`Invalid connection ${body.companyId}`)
+    }
+    if (!connection.agent_connection_id || connection.status !== 'verified_both') {
+      throw new InvalidInputError(`Cannot query unverified connection`)
+    }
+
+    const [queryRow]: QueryRow[] = await this.db.get('query', { id: queryId })
+    if (!queryRow) {
+      throw new NotFoundError(`There has been an issue retrieving the query.`)
+    } else if (!queryRow.response_id) {
+      throw new InvalidInputError('Missing queryId to respond to.')
+    } else if (queryRow.connection_id !== connection.id) {
+      throw new NotFoundError(`Missing queryId to respond to.`)
+    } else if (queryRow.status === 'errored') {
+      throw new InvalidInputError('Cannot process query with status - "errored"')
+    }
+
+    const query = {
+      emissions: body.totalScope3CarbonEmissions,
+      queryIdForResponse: queryRow.response_id,
+    }
+    //send a drpc message with response
+    let rpcResponse: DrpcResponse
+    try {
+      const maybeResponse = await this.cloudagent.submitDrpcRequest(
+        connection.agent_connection_id,
+        'submit_query_response',
+        {
+          query: 'Scope 3 Carbon Consumption',
+          ...query,
+        }
+      )
+      if (!maybeResponse) {
+        return await this.handleError(queryRow, connection)
+      }
+      rpcResponse = maybeResponse
+    } catch (err) {
+      return await this.handleError(queryRow, connection, undefined, err)
+    }
+    const { result, error, id: rpcId } = rpcResponse
+
+    await this.db.insert('query_rpc', {
+      agent_rpc_id: rpcId,
+      query_id: queryRow.id,
+      role: 'client', // am I still a client when I'm a 'responder'?
+      method: 'submit_query_request',
+      result,
+      error,
+    })
+    await this.db.update(
+      'query',
+      { id: queryId },
+      {
+        status: 'resolved',
+      }
+    )
+
+    if (!result || error) {
+      return await this.handleError(queryRow, connection, rpcId)
+    }
+
+    return this.html(
+      this.scope3CarbonConsumptionResponseTemplates.newScope3CarbonConsumptionResponseFormPage('success', connection)
+    )
+  }
+
   private async handleError(query: QueryRow, connection: ConnectionRow, rpcId?: string, error?: unknown) {
     if (rpcId) {
       this.logger.warn('Error in rpc response %s to query %s to connection %s', rpcId, query.id, connection.id)
@@ -224,6 +361,7 @@ function combineData(query_subset: QueryRow[], connections: ConnectionRow[]) {
       const company_name = connectionMap[query.connection_id]
 
       return {
+        id: query.id,
         company_name: company_name,
         query_type: query.query_type,
         updated_at: query.updated_at,

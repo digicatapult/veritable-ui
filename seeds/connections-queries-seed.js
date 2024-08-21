@@ -33,6 +33,7 @@ export async function prepareVariants() {
         status: 'verified_both',
         company_number: i.toString().padStart(8, '0'),
         company_name: `VER1553 company_name Name ${i.toString()}`,
+        agent_connection_id: `11dc8dac-1988-49f2-8761-ffedcbd81a91`,
       })
     } else if (i % 7 == 5) {
       variants10000.push({
@@ -71,21 +72,30 @@ export async function queryVariants(connections) {
         connection_id: connection.id,
         query_type: 'Type A',
         status: 'pending_your_input',
-        details: 'x',
+        details: {
+          quantity: 240,
+          productId: 'sfd',
+        },
       })
     } else if (i % 3 == 1) {
       queryVariants.push({
         connection_id: connection.id,
         query_type: 'Type B',
         status: 'resolved',
-        details: 'x',
+        details: {
+          quantity: 240,
+          productId: 'sfd',
+        },
       })
     } else if (i % 3 == 2) {
       queryVariants.push({
         connection_id: connection.id,
         query_type: 'Type A',
         status: 'pending_their_input',
-        details: 'x',
+        details: {
+          quantity: 240,
+          productId: 'sfd',
+        },
       })
     }
   }
