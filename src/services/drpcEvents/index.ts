@@ -81,6 +81,7 @@ export default class DrpcEvents {
   }
 
   private async handleSubmitQueryRequest(request: DrpcRequest, agentConnectionId: string) {
+    let queryId: string | null = null
     try {
       this.logger.info(
         'DRPC request (%s) received on connection %s of method %s',
@@ -162,7 +163,6 @@ export default class DrpcEvents {
   }
 
   private async handleSubmitQueryResponse(request: DrpcRequest, agentConnectionId: string) {
-    let queryId: string | null = null
     try {
       this.logger.info(
         'DRPC response (%s) received on connection %s of method %s',
