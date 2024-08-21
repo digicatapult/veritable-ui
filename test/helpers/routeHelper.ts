@@ -35,3 +35,16 @@ export const post = async (
   }
   return request(app).post(endpoint).send(body).set(headersWithToken)
 }
+
+export const get = async (
+  app: express.Express,
+  endpoint: string,
+  headers: Record<string, string> = {}
+): Promise<request.Test> => {
+  const token = await getToken()
+  const headersWithToken = {
+    authorization: `bearer ${token}`,
+    ...headers,
+  }
+  return request(app).get(endpoint).set(headersWithToken)
+}

@@ -1,5 +1,5 @@
 # syntax=docker/dockerfile:1.9
-FROM node:current-alpine as builder
+FROM node:current-alpine AS builder
 
 WORKDIR /veritable-ui
 
@@ -14,7 +14,7 @@ COPY . .
 RUN npm run build
 
 # service
-FROM node:current-alpine as service
+FROM node:current-alpine AS service
 
 WORKDIR /veritable-ui
 

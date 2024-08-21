@@ -8,6 +8,16 @@ export class DatabaseTimeoutError extends Error {
   }
 }
 
+export class BadRequestError extends HttpError {
+  constructor(message?: string) {
+    super(message)
+  }
+
+  public get code(): number {
+    return 400
+  }
+}
+
 export class NotFoundError extends HttpError {
   constructor(item: string) {
     super(`${item} - not found`)
