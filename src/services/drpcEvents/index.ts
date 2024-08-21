@@ -209,7 +209,6 @@ export default class DrpcEvents {
         { query_response: params.emissions, status: 'resolved' }
       )
 
-      queryId = query.id
       const result = {
         state: 'accepted',
       }
