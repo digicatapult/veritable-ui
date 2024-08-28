@@ -64,21 +64,22 @@ describe('QueryResponseTemplates', () => {
       })
       expect(rendered).to.matchSnapshot()
     })
-  })
-  it('should escape html in name', async () => {
-    const templates = new Scope3CarbonConsumptionResponseTemplates()
-    const rendered = await templates.newScope3CarbonConsumptionResponseFormPage('success', {
-      company_name: '<div>I own you</div>',
-      company_number: '3456789',
-      status: 'verified_both',
-      id: '11',
-      agent_connection_id: 'agentId',
-      pin_tries_remaining_count: null,
-      pin_attempt_count: 0,
-      created_at: new Date(),
-      updated_at: new Date(),
+
+    it('should escape html in name', async () => {
+      const templates = new Scope3CarbonConsumptionResponseTemplates()
+      const rendered = await templates.newScope3CarbonConsumptionResponseFormPage('success', {
+        company_name: '<div>I own you</div>',
+        company_number: '3456789',
+        status: 'verified_both',
+        id: '11',
+        agent_connection_id: 'agentId',
+        pin_tries_remaining_count: null,
+        pin_attempt_count: 0,
+        created_at: new Date(),
+        updated_at: new Date(),
+      })
+      expect(rendered).to.matchSnapshot()
     })
-    expect(rendered).to.matchSnapshot()
   })
   describe('viewing query response Tests', () => {
     it('should render resolved query to view response', async () => {
