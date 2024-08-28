@@ -96,6 +96,7 @@ services:
       - ISSUANCE_DID_POLICY=EXISTING_OR_NEW
       - ISSUANCE_SCHEMA_POLICY=EXISTING_OR_NEW
       - ISSUANCE_CRED_DEF_POLICY=EXISTING_OR_NEW
+      - DEMO_MODE=false
   postgres-veritable-ui-bob:
     image: postgres:16.4-alpine
     container_name: postgres-veritable-ui-bob

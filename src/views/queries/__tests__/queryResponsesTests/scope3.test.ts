@@ -6,9 +6,9 @@ describe('QueryResponseTemplates', () => {
   describe('newScope3CarbonConsumptionResponseFormPage Tests', () => {
     it('should render with test data', async () => {
       const templates = new Scope3CarbonConsumptionResponseTemplates()
-      const rendered = await templates.newScope3CarbonConsumptionResponseFormPage(
-        'form',
-        {
+      const rendered = await templates.newScope3CarbonConsumptionResponseFormPage({
+        formStage: 'form',
+        company: {
           company_name: 'VER123',
           company_number: '3456789',
           status: 'verified_both',
@@ -19,17 +19,17 @@ describe('QueryResponseTemplates', () => {
           created_at: new Date(),
           updated_at: new Date(),
         },
-        'xyz1234',
-        2,
-        'cg34jdt'
-      )
+        queryId: 'query-id-test',
+        quantity: 2,
+        productId: 'product-id-test'
+    })
       expect(rendered).to.matchSnapshot()
     })
     it('should escape html in name', async () => {
       const templates = new Scope3CarbonConsumptionResponseTemplates()
-      const rendered = await templates.newScope3CarbonConsumptionResponseFormPage(
-        'form',
-        {
+      const rendered = await templates.newScope3CarbonConsumptionResponseFormPage({
+        formStage: 'form',
+        company: {
           company_name: '<div>I own you</div>',
           company_number: '3456789',
           status: 'verified_both',
@@ -40,17 +40,17 @@ describe('QueryResponseTemplates', () => {
           created_at: new Date(),
           updated_at: new Date(),
         },
-        'xyz1234',
-        2,
-        'cg34jdt'
-      )
+        queryId: 'query-id-test-escape',
+        quantity: 2,
+        productId: 'product-id-test-escape'
+      })
       expect(rendered).to.matchSnapshot()
     })
   })
   describe('newQuerySuccess Tests', () => {
     it('should render sucess query response page', async () => {
       const templates = new Scope3CarbonConsumptionResponseTemplates()
-      const rendered = await templates.newScope3CarbonConsumptionResponseFormPage('success', {
+      const rendered = await templates.newScope3CarbonConsumptionResponseFormPage({ formStage: 'success', company: {
         company_name: 'VER123',
         company_number: '3456789',
         status: 'verified_both',
@@ -60,13 +60,13 @@ describe('QueryResponseTemplates', () => {
         pin_attempt_count: 0,
         created_at: new Date(),
         updated_at: new Date(),
-      })
+      }})
       expect(rendered).to.matchSnapshot()
     })
   })
   it('should escape html in name', async () => {
     const templates = new Scope3CarbonConsumptionResponseTemplates()
-    const rendered = await templates.newScope3CarbonConsumptionResponseFormPage('success', {
+    const rendered = await templates.newScope3CarbonConsumptionResponseFormPage({ formStage: 'success', company: {
       company_name: '<div>I own you</div>',
       company_number: '3456789',
       status: 'verified_both',
@@ -76,7 +76,7 @@ describe('QueryResponseTemplates', () => {
       pin_attempt_count: 0,
       created_at: new Date(),
       updated_at: new Date(),
-    })
+    }})
     expect(rendered).to.matchSnapshot()
   })
 })

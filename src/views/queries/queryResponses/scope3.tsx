@@ -8,6 +8,8 @@ export type Scope3FormStage = 'form' | 'success' | 'error'
 interface Scope3FormProps {
   formStage: Scope3FormStage
   company: ConnectionRow
+  connections?: ConnectionRow[]
+  partial?: boolean
   queryId?: string | UUID
   productId?: string
   quantity?: number
@@ -18,19 +20,27 @@ interface Scope3FormProps {
 export default class Scope3CarbonConsumptionResponseTemplates {
   constructor() {}
 
-  public newScope3CarbonConsumptionResponseFormPage = (
-    formStage: Scope3FormStage,
-    company: ConnectionRow,
-    queryId?: string | UUID,
-    quantity?: number,
-    productId?: string
-  ) => {
+  public newScope3CarbonConsumptionResponseFormPage = ({
+    formStage,
+    company,
+    queryId,
+    quantity,
+    productId,
+    partial,
+    connections,
+  }: Scope3FormProps) => {
     return (
       <Page
         title="Veritable - Select Company"
-        activePage="categories"
+        activePage="queries"
         heading="Select Company To Send Your Query To"
-        headerLinks={[{ name: 'Select Company', url: '/queries/scope-3-carbon-consumption-response' }]}
+        headerLinks={[
+          { name: 'Query Management', url: '/queries' },
+          {
+            name: `Query Request ${productId}`,
+            url: `/queries/scope-3-carbon-consumption/${queryId}/response`,
+          },
+        ]}
       >
         <div class="connections header"></div>
         <div class="card-body">
@@ -38,8 +48,10 @@ export default class Scope3CarbonConsumptionResponseTemplates {
             formStage={formStage}
             company={company}
             productId={productId}
-            quantity={quantity}
+            quantity={quantity || 0}
             queryId={queryId}
+            partial={partial}
+            connections={connections}
           />
         </div>
       </Page>
@@ -56,20 +68,28 @@ export default class Scope3CarbonConsumptionResponseTemplates {
     }
   }
 
-  public scope3CarbonConsumptionResponseFormPage = (props: Scope3FormProps) => {
+  public scope3CarbonConsumptionResponseFormPage = ({
+    partial = false,
+    connections = [],
+    ...props
+  }: Scope3FormProps) => {
     return (
-      <div>
-        <div class="container-scope3-carbon">
-          <div class="box1">
-            <h1>Scope 3 Carbon Consumption</h1>
-            <p class="query-text-carbon3-consumption">
-              Provide the total scope 3 carbon consumption for the specified products / component. If you do not have
-              all the required information, please forward this query to your suppliers, to aggregate their responses
-              before submitting the final total.{' '}
-            </p>
-          </div>
-          <div class="box2">
-            <p>What are the total Scope 3 carbon emissions for the product/component below? </p>
+      <div class="container-scope3-carbon">
+        <div class="scope3-co2-left">
+          <h1 id="scope3-co2-heading">Scope 3 Carbon Consumption</h1>
+          <p style={{ paddingRight: '50px' }} class="query-text-carbon3-consumption">
+            Provide the total scope 3 carbon consumption for the specified products / component.
+          </p>
+          <p class="query-text-carbon3-consumption">
+            If you do not have all the required information, please forward this query to your suppliers, to aggregate
+            their responses before submitting the final total.{' '}
+          </p>
+        </div>
+        <div class="scope3-co2-right">
+          <p class="query-text-carbon3-consumption">
+            What are the total Scope 3 carbon emissions for the product/component below?
+          </p>
+          <div hx-swap-oob="true" hx-swap="ignoreTitle:true" id="partial-query">
             <form
               id="scope-3-carbon-consumption"
               hx-post={`/queries/scope-3-carbon-consumption/${props.queryId}/response`}
@@ -77,32 +97,95 @@ export default class Scope3CarbonConsumptionResponseTemplates {
               hx-target="main"
               hx-swap="innerHTML"
             >
-              <p>Product ID: {Html.escapeHtml(props.productId)}</p>
-              <p>Quantity: {Html.escapeHtml(props.quantity)}</p>
+              <p>
+                Product ID: {props.productId}
+                <br />
+                Quantity: {props.quantity}
+              </p>
               <input type="hidden" name="companyId" value={Html.escapeHtml(props.company.id)} />
               <div class="input-container">
-                <label for="total-scope-3-carbon-emissions-input" class="input-label">
+                <label for="co2-emissions-input" class="input-label">
                   Total Scope 3 carbon emissions
                 </label>
-
                 <input
-                  id="total-scope-3-carbon-emissions-input"
+                  id="co2-emissions-input"
                   name="totalScope3CarbonEmissions"
                   placeholder="Value in kg CO2e (to be aggregated)"
-                  class="query-input-field"
+                  class={`input-with-label ${partial ? 'disabled' : ''}`}
                   type="text"
-                  required
                   value={props.emissions}
-                ></input>
+                  disabled={partial}
+                  required={!partial}
+                />
               </div>
               <div class="input-container">
+                <input
+                  hx-trigger="changed, click"
+                  hx-target="#partial-query"
+                  hx-get={`/queries/${props.queryId}/partial/${props.company.id}`}
+                  id="partial-response-input"
+                  name="partialQuery"
+                  type="checkbox"
+                  checked={partial}
+                />
                 <label for="partial-response-input">Partial response</label>
-                <input id="partial-response-input" name="partialResponse" type="checkbox"></input>
               </div>
-              <p>
+              <p style={{ fontStyle: 'italic', fontSize: '14px;' }}>
                 *If partial response checkbox is ticked, you must share this query with another supplier in your
                 network, where your responses will be aggregated.
               </p>
+              {partial && connections && (
+                <div class="query-partial-container list-page">
+                  <table>
+                    <thead>
+                      {['Select', 'Company Name', 'Product ID', 'Quantity'].map((name: string) => (
+                        <th>{name}</th>
+                      ))}
+                    </thead>
+                    <tbody hx-swap-oob="true">
+                      {connections.length == 0 ? (
+                        <tr>
+                          <td>No Connections found</td>
+                        </tr>
+                      ) : (
+                        connections.map(({ company_name, id }) => (
+                          <tr
+                          /* some nwe TODOs for the UI
+                            [ ] - ability to check/select table rows
+                            [ ] - table row should be disabled after select
+                            [ ] - checkbox background-color
+                            [ ] - form should require at least one item selected (checked)
+                            [ ] - test scenarios
+                            [ ] - updates everywhere else to address recent changes
+                          hx-trigger='changed, from:${id}'
+                          hx-get='get row and parse checkbox parameter on/off'
+                          hx-swap='outerHTML'
+                        */
+                          >
+                            <td>
+                              <input name={id} type="checkbox" />
+                            </td>
+                            <td>{company_name}</td>
+                            <td>
+                              <input
+                                name={`product-id-${id}`}
+                                placeholder="Product ID"
+                                class="input-basic"
+                                type="text"
+                                value={props.productId}
+                              />
+                            </td>
+                            <td>
+                              <input name={`quantity-${id}`} placeholder="Quantity" class="input-basic" type="number" />
+                            </td>
+                          </tr>
+                        ))
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+              <br />
               <FormButton name="action" value="success" text="Submit Query" style="filled" />
             </form>
           </div>
@@ -110,6 +193,7 @@ export default class Scope3CarbonConsumptionResponseTemplates {
       </div>
     )
   }
+
   private newQuerySuccess = (props: Scope3FormProps): JSX.Element => {
     return (
       <div id="new-query-confirmation-text">
@@ -121,6 +205,7 @@ export default class Scope3CarbonConsumptionResponseTemplates {
       </div>
     )
   }
+
   private newQueryError = (props: Scope3FormProps): JSX.Element => {
     return (
       <div id="new-query-confirmation-text">

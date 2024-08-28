@@ -60,7 +60,7 @@ export default class QueryListTemplates {
       case 'resolved':
         return <p>Received</p>
       default:
-        return <p>not sure</p>
+        return <p>unknown</p>
     }
   }
 

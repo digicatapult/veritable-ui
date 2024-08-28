@@ -157,7 +157,6 @@ describe('QueriesController', () => {
           companyId: '2345789',
           action: 'success',
           totalScope3CarbonEmissions: '25',
-          partialResponse: 1,
         })
         .then(toHTMLString)
 
@@ -189,7 +188,6 @@ describe('QueriesController', () => {
           companyId: '2345789',
           action: 'success',
           totalScope3CarbonEmissions: '25',
-          partialResponse: 1,
         })
         .then(toHTMLString)
 
@@ -209,7 +207,6 @@ describe('QueriesController', () => {
         companyId: '2345789',
         action: 'success',
         totalScope3CarbonEmissions: '25',
-        partialResponse: 1,
       })
       .then(toHTMLString)
 

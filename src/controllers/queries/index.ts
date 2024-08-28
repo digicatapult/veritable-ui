@@ -222,13 +222,60 @@ export class QueriesController extends HTMLController {
     }
 
     return this.html(
-      this.scope3CarbonConsumptionResponseTemplates.newScope3CarbonConsumptionResponseFormPage(
-        'form',
-        connection,
+      this.scope3CarbonConsumptionResponseTemplates.newScope3CarbonConsumptionResponseFormPage({
+        formStage: 'form',
+        company: connection,
         queryId,
-        query.details['quantity'],
-        query.details['productId']
+        quantity: query.details['quantity'],
+        productId: query.details['productId'],
+      })
+    )
+  }
+
+  /**
+   * Renders connections for partial query
+   * TODO >>>>>>
+   * [x] - get list of connections for that query_id
+   * [x] - re-use the existing table or render a new one
+   * [ ] - ability to select multiple connections to send a query to
+   * [x] - disable co2 input
+   * [x] - handle display:none table
+   */
+  @SuccessResponse(200)
+  @Get('/{queryId}/partial/{companyId}')
+  public async scope3CO2Partial(
+    @Path() queryId: UUID,
+    @Path() companyId: UUID,
+    @Query() partialQuery?: 'on'
+  ): Promise<HTML> {
+    const [query]: QueryRow[] = await this.db.get('query', { id: queryId })
+    const [company]: ConnectionRow[] = await this.db.get('connection', { id: companyId })
+    const connections: ConnectionRow[] = await this.db.get('connection', { status: 'verified_both' })
+    // due to very long names, re-assigning to a shorter variable (render)
+    const render = this.scope3CarbonConsumptionResponseTemplates.newScope3CarbonConsumptionResponseFormPage
+
+    if (partialQuery === 'on') {
+      return this.html(
+        render({
+          ...query.details,
+          company,
+          queryId,
+          partial: true,
+          connections,
+          formStage: 'form',
+        })
       )
+    }
+
+    return this.html(
+      render({
+        ...query.details,
+        company,
+        queryId,
+        partial: false,
+        connections,
+        formStage: 'form',
+      })
     )
   }
 
@@ -244,7 +291,6 @@ export class QueriesController extends HTMLController {
       companyId: UUID
       action: 'success'
       totalScope3CarbonEmissions: string
-      partialResponse?: number
     }
   ): Promise<HTML> {
     this.logger.debug('query page requested')
@@ -307,7 +353,10 @@ export class QueriesController extends HTMLController {
     }
 
     return this.html(
-      this.scope3CarbonConsumptionResponseTemplates.newScope3CarbonConsumptionResponseFormPage('success', connection)
+      this.scope3CarbonConsumptionResponseTemplates.newScope3CarbonConsumptionResponseFormPage({
+        formStage: 'success',
+        company: connection,
+      })
     )
   }
 
