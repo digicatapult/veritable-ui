@@ -4,6 +4,7 @@ import { UUID } from '../../models/strings.js'
 import { LinkButton, Page } from '../common.js'
 
 type QueryStatus = 'resolved' | 'pending_your_input' | 'pending_their_input' | 'errored'
+type QueryRole = 'responder' | 'requester'
 
 interface Query {
   id: UUID
@@ -11,7 +12,7 @@ interface Query {
   query_type: string
   updated_at: Date
   status: QueryStatus
-  role: 'responder' | 'requester'
+  role: QueryRole
 }
 @singleton()
 export default class QueryListTemplates {
@@ -63,6 +64,18 @@ export default class QueryListTemplates {
       default:
         return <p>not sure</p>
     }
+  }
+  private buttonText = (status: string | QueryStatus, role: QueryRole) => {
+    if (status === 'resolved' && role === 'requester') {
+      return 'View Response'
+    } else if (status === 'pending_their_input' && role === 'requester') {
+      return 'Awaiting Response'
+    } else if (status === 'pending_your_input' && role === 'responder') {
+      return 'Respond to query'
+    } else if (status === 'resolved' && role === 'responder') {
+      return 'no action required'
+    }
+    return 'not sure'
   }
 
   public listPage = (queries: Query[], search: string = '') => {
@@ -145,7 +158,7 @@ export default class QueryListTemplates {
                             ? true
                             : false
                         }
-                        text={query.status === 'resolved' ? 'View Respponse' : 'some action'}
+                        text={this.buttonText(query.status, query.role)}
                         href={
                           query.status === 'resolved' && query.role === 'requester'
                             ? `/queries/scope-3-carbon-consumption/${query.id}/view-response`
