@@ -78,6 +78,16 @@ export default class QueryListTemplates {
     return 'not sure'
   }
 
+  private isButtonDisabled = (status: string | QueryStatus, role: QueryRole) => {
+    if (status === 'resolved' && role === 'responder') {
+      return true
+    } else if (status === 'pending_their_input') {
+      return true
+    } else if (status === 'errored') {
+      return true
+    }
+  }
+
   public listPage = (queries: Query[], search: string = '') => {
     return (
       <Page
@@ -151,13 +161,7 @@ export default class QueryListTemplates {
                       <LinkButton
                         icon='url("/public/images/dot-icon.svg")'
                         style="outlined"
-                        disabled={
-                          (query.status === 'resolved' && query.role === 'responder') ||
-                          query.status === 'pending_their_input' ||
-                          query.status === 'errored'
-                            ? true
-                            : false
-                        }
+                        disabled={this.isButtonDisabled(query.status, query.role)}
                         text={this.buttonText(query.status, query.role)}
                         href={
                           query.status === 'resolved' && query.role === 'requester'
