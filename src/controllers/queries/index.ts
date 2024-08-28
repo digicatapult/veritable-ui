@@ -308,6 +308,7 @@ export class QueriesController extends HTMLController {
     if (!queryRow.response_id) {
       throw new NotFoundError(`Missing queryId to respond to.`)
     }
+
     const query = {
       emissions: body.totalScope3CarbonEmissions,
       queryIdForResponse: queryRow.response_id,

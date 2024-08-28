@@ -163,7 +163,6 @@ export default class DrpcEvents {
   }
 
   private async handleSubmitQueryResponse(request: DrpcRequest, agentConnectionId: string) {
-    let queryId: string | null = null
     try {
       this.logger.info(
         'DRPC response (%s) received on connection %s of method %s',
@@ -192,7 +191,7 @@ export default class DrpcEvents {
       }
       //find corresponding query based on queryIdForResponse provided by responder,
       //this should match a query id in our db
-      const [queryRow] = await this.db.get('query', { id: params.queryIdForResponse })
+      const [queryRow] = await this.db.get('query', { id: params.queryIdForResponse, role: 'requester' })
       if (!queryRow) {
         this.logger.warn('Invalid queryId for drpc message %s', params.queryIdForResponse)
         return
@@ -208,9 +207,8 @@ export default class DrpcEvents {
         'query',
         { id: queryRow.id },
         { query_response: params.emissions, status: 'resolved' }
-      ) //do we want to save the full params object?
+      )
 
-      queryId = query.id
       const result = {
         state: 'accepted',
       }
@@ -230,15 +228,7 @@ export default class DrpcEvents {
         this.logger.trace(`err: %o`, err)
       }
 
-      if (queryId !== null) {
-        await this.db.update(
-          'query',
-          { id: queryId },
-          {
-            status: 'errored',
-          }
-        )
-      }
+      // fire and forget? I think something we could handle at the errorsHandler (the global one)
       await this.cloudagent.submitDrpcResponse(request.id, {
         error: {
           code: drpcErrorCode.INTERNAL_ERROR,

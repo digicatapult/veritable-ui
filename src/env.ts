@@ -89,6 +89,7 @@ export const envConfig = {
   ISSUANCE_DID_POLICY: issuanceRecordValidator({ devDefault: 'EXISTING_OR_NEW' }),
   ISSUANCE_SCHEMA_POLICY: issuanceRecordValidator({ devDefault: 'EXISTING_OR_NEW' }),
   ISSUANCE_CRED_DEF_POLICY: issuanceRecordValidator({ devDefault: 'EXISTING_OR_NEW' }),
+  DEMO_MODE: envalid.bool({ devDefault: true, default: false }),
 }
 
 export type ENV_CONFIG = typeof envConfig
