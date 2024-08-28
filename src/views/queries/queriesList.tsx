@@ -11,6 +11,7 @@ interface Query {
   query_type: string
   updated_at: Date
   status: QueryStatus
+  role: 'responder' | 'requester'
 }
 @singleton()
 export default class QueryListTemplates {
@@ -137,9 +138,19 @@ export default class QueryListTemplates {
                       <LinkButton
                         icon='url("/public/images/dot-icon.svg")'
                         style="outlined"
-                        disabled={false}
-                        text="some action"
-                        href={`/queries/scope-3-carbon-consumption/${query.id}/response`}
+                        disabled={
+                          (query.status === 'resolved' && query.role === 'responder') ||
+                          query.status === 'pending_their_input' ||
+                          query.status === 'errored'
+                            ? true
+                            : false
+                        }
+                        text={query.status === 'resolved' ? 'View Respponse' : 'some action'}
+                        href={
+                          query.status === 'resolved' && query.role === 'requester'
+                            ? `/queries/scope-3-carbon-consumption/${query.id}/view-response`
+                            : `/queries/scope-3-carbon-consumption/${query.id}/response`
+                        }
                       />
                     </td>
                   </tr>

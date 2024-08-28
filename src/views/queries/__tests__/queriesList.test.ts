@@ -14,7 +14,14 @@ describe('ConnectionTemplates', () => {
     it('should render with single query', async () => {
       const templates = new QueryListTemplates()
       const rendered = await templates.listPage([
-        { id: 'someID', company_name: 'Company A', status: 'resolved', query_type: 'Type A', updated_at: sampleDate },
+        {
+          id: 'someID',
+          company_name: 'Company A',
+          status: 'resolved',
+          query_type: 'Type A',
+          updated_at: sampleDate,
+          role: 'requester',
+        },
       ])
       expect(rendered).to.matchSnapshot()
     })
@@ -27,6 +34,7 @@ describe('ConnectionTemplates', () => {
           status: 'resolved',
           query_type: 'Type A',
           updated_at: sampleDate,
+          role: 'requester',
         },
       ])
       expect(rendered).to.matchSnapshot()
@@ -34,13 +42,62 @@ describe('ConnectionTemplates', () => {
     it('should render multiple with each status', async () => {
       const templates = new QueryListTemplates()
       const rendered = await templates.listPage([
-        { id: 'someID', company_name: 'Company A', status: 'resolved', query_type: 'Type A', updated_at: sampleDate },
-        { id: 'someID', company_name: 'Company B', status: 'resolved', query_type: 'Type A', updated_at: sampleDate },
-        { id: 'someID', company_name: 'Company C', status: 'resolved', query_type: 'Type A', updated_at: sampleDate },
-        { id: 'someID', company_name: 'Company D', status: 'resolved', query_type: 'Type A', updated_at: sampleDate },
-        { id: 'someID', company_name: 'Company E', status: 'resolved', query_type: 'Type A', updated_at: sampleDate },
-        { id: 'someID', company_name: 'Company F', status: 'resolved', query_type: 'Type A', updated_at: sampleDate },
-        { id: 'someID', company_name: 'Company G', status: 'errored', query_type: 'Type A', updated_at: sampleDate },
+        {
+          id: 'someID',
+          company_name: 'Company A',
+          status: 'resolved',
+          query_type: 'Type A',
+          updated_at: sampleDate,
+          role: 'requester',
+        },
+        {
+          id: 'someID',
+          company_name: 'Company B',
+          status: 'resolved',
+          query_type: 'Type A',
+          updated_at: sampleDate,
+          role: 'requester',
+        },
+        {
+          id: 'someID',
+          company_name: 'Company C',
+          status: 'resolved',
+          query_type: 'Type A',
+          updated_at: sampleDate,
+          role: 'requester',
+        },
+        {
+          id: 'someID',
+          company_name: 'Company D',
+          status: 'resolved',
+          query_type: 'Type A',
+          updated_at: sampleDate,
+          role: 'requester',
+        },
+        {
+          id: 'someID',
+          company_name: 'Company E',
+          status: 'resolved',
+          query_type: 'Type A',
+          updated_at: sampleDate,
+          role: 'requester',
+        },
+        {
+          id: 'someID',
+          company_name: 'Company F',
+          status: 'resolved',
+          query_type: 'Type A',
+          updated_at: sampleDate,
+          role: 'requester',
+        },
+        {
+          id: 'someID',
+          company_name: 'Company G',
+          status: 'errored',
+          query_type: 'Type A',
+          updated_at: sampleDate,
+          role: 'requester',
+        },
       ])
       expect(rendered).to.matchSnapshot()
     })

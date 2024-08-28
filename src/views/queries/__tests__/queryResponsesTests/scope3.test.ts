@@ -1,6 +1,6 @@
 import { expect } from 'chai'
 import { describe } from 'mocha'
-import Scope3CarbonConsumptionResponseTemplates from '../../queryResponses/scope3.js'
+import Scope3CarbonConsumptionResponseTemplates from '../../queryResponses/respondToScope3.js'
 
 describe('QueryResponseTemplates', () => {
   describe('newScope3CarbonConsumptionResponseFormPage Tests', () => {

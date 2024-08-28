@@ -10,7 +10,8 @@ import { type UUID } from '../../models/strings.js'
 import VeritableCloudagent, { DrpcResponse } from '../../models/veritableCloudagent.js'
 import QueriesTemplates from '../../views/queries/queries.js'
 import QueryListTemplates from '../../views/queries/queriesList.js'
-import Scope3CarbonConsumptionResponseTemplates from '../../views/queries/queryResponses/scope3.js'
+import Scope3CarbonConsumptionResponseTemplates from '../../views/queries/queryResponses/respondToScope3.js'
+import Scope3CarbonConsumptionViewResponseTemplates from '../../views/queries/queryResponses/viewResponseToScope3.js'
 import Scope3CarbonConsumptionTemplates from '../../views/queryTypes/scope3.js'
 import { HTML, HTMLController } from '../HTMLController.js'
 
@@ -32,6 +33,7 @@ export class QueriesController extends HTMLController {
   constructor(
     private scope3CarbonConsumptionTemplates: Scope3CarbonConsumptionTemplates,
     private scope3CarbonConsumptionResponseTemplates: Scope3CarbonConsumptionResponseTemplates,
+    private scope3CarbonConsumptionViewResponseTemplates: Scope3CarbonConsumptionViewResponseTemplates,
     private queriesTemplates: QueriesTemplates,
     private queryManagementTemplates: QueryListTemplates,
     private cloudagent: VeritableCloudagent,
@@ -321,6 +323,38 @@ export class QueriesController extends HTMLController {
     )
   }
 
+  /**
+   * Retrieves the response to a query asked
+   */
+  @SuccessResponse(200)
+  @Get('/scope-3-carbon-consumption/{queryId}/view-response')
+  public async scope3CarbonConsumptionViewResponse(@Path() queryId: UUID): Promise<HTML> {
+    this.logger.debug('requested to view response to a query %j', { queryId })
+    const [query] = await this.db.get('query', { id: queryId })
+
+    if (!query) {
+      throw new NotFoundError(`There has been an issue retrieving the query.`)
+    }
+    if (query.query_response === null) {
+      throw new NotFoundError(`This query does not seem to have a response yet.`)
+    }
+
+    const [connection] = await this.db.get('connection', { id: query.connection_id })
+    if (!connection) {
+      throw new InvalidInputError(`There has been an issue retrieving the connection.`)
+    }
+
+    return this.html(
+      this.scope3CarbonConsumptionViewResponseTemplates.scope3CarbonConsumptionViewResponsePage({
+        company_name: connection.company_name,
+        quantity: query.details['quantity'],
+        productId: query.details['productId'],
+        emissions: query.query_response,
+        ...query,
+      })
+    )
+  }
+
   private async handleError(query: QueryRow, connection: ConnectionRow, rpcId?: string, error?: unknown) {
     if (rpcId) {
       this.logger.warn('Error in rpc response %s to query %s to connection %s', rpcId, query.id, connection.id)
@@ -366,6 +400,7 @@ function combineData(query_subset: QueryRow[], connections: ConnectionRow[]) {
         query_type: query.query_type,
         updated_at: query.updated_at,
         status: query.status,
+        role: query.role,
       }
     })
 }
