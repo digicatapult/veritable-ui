@@ -70,7 +70,9 @@ export default class Scope3CarbonConsumptionViewResponseTemplates {
                   <table>
                     <tr>
                       <td>Date Certified:</td>
-                      <td class="query-results-left-padding-table">{Html.escapeHtml(query.updated_at)}</td>
+                      <time class="query-results-left-padding-table">
+                        {Html.escapeHtml(new Date(query.updated_at).toISOString())}
+                      </time>
                     </tr>
                     <tr>
                       <td>Carbon Emissions:</td>
