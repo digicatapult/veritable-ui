@@ -82,13 +82,14 @@ describe('QueryResponseTemplates', () => {
     })
   })
   describe('viewing query response Tests', () => {
+    const sampleDate = new Date(Date.UTC(2024, 6, 4))
     it('should render resolved query to view response', async () => {
       const templates = new Scope3CarbonConsumptionViewResponseTemplates()
       const rendered = await templates.scope3CarbonConsumptionViewResponsePage({
         id: '11',
         company_name: 'VER123',
         query_type: 'Scope 3 query',
-        updated_at: new Date(),
+        updated_at: sampleDate,
         status: 'resolved',
         role: 'requester',
         quantity: '430',
@@ -103,7 +104,7 @@ describe('QueryResponseTemplates', () => {
         id: '11',
         company_name: '<div>VER123</div>',
         query_type: 'Scope 3 query',
-        updated_at: new Date(),
+        updated_at: sampleDate,
         status: 'resolved',
         role: 'requester',
         quantity: '<div>430</div>',
