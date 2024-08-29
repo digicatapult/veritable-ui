@@ -32,7 +32,6 @@ export default class Scope3CarbonConsumptionViewResponseTemplates {
       >
         <div class="connections header"></div>
         <div class="card-body">
-          {' '}
           <div class="container-scope3-carbon">
             <div class="box1">
               <h1>Scope 3 Carbon Consumption</h1>
