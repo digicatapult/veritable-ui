@@ -336,7 +336,7 @@ export class QueriesController extends HTMLController {
       throw new NotFoundError(`There has been an issue retrieving the query.`)
     }
     if (query.query_response === null) {
-      throw new NotFoundError(`This query does not seem to have a response yet.`)
+      throw new InvalidInputError(`This query does not seem to have a response yet.`)
     }
 
     const [connection] = await this.db.get('connection', { id: query.connection_id })

@@ -75,7 +75,7 @@ export default class QueryListTemplates {
     } else if (status === 'resolved' && role === 'responder') {
       return 'no action required'
     }
-    return 'not sure'
+    return 'no action available'
   }
 
   private isButtonDisabled = (status: string | QueryStatus, role: QueryRole) => {

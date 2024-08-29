@@ -43,7 +43,7 @@ describe('ConnectionTemplates', () => {
       const templates = new QueryListTemplates()
       const rendered = await templates.listPage([
         {
-          id: 'someID',
+          id: 'someID1',
           company_name: 'Company A',
           status: 'resolved',
           query_type: 'Type A',
@@ -51,7 +51,7 @@ describe('ConnectionTemplates', () => {
           role: 'requester',
         },
         {
-          id: 'someID',
+          id: 'someID2',
           company_name: 'Company B',
           status: 'resolved',
           query_type: 'Type A',
@@ -59,7 +59,7 @@ describe('ConnectionTemplates', () => {
           role: 'requester',
         },
         {
-          id: 'someID',
+          id: 'someID3',
           company_name: 'Company C',
           status: 'resolved',
           query_type: 'Type A',
@@ -67,7 +67,7 @@ describe('ConnectionTemplates', () => {
           role: 'requester',
         },
         {
-          id: 'someID',
+          id: 'someID4',
           company_name: 'Company D',
           status: 'resolved',
           query_type: 'Type A',
@@ -75,7 +75,7 @@ describe('ConnectionTemplates', () => {
           role: 'requester',
         },
         {
-          id: 'someID',
+          id: 'someID5',
           company_name: 'Company E',
           status: 'resolved',
           query_type: 'Type A',
@@ -83,7 +83,7 @@ describe('ConnectionTemplates', () => {
           role: 'requester',
         },
         {
-          id: 'someID',
+          id: 'someID6',
           company_name: 'Company F',
           status: 'resolved',
           query_type: 'Type A',
@@ -91,7 +91,7 @@ describe('ConnectionTemplates', () => {
           role: 'requester',
         },
         {
-          id: 'someID',
+          id: 'someID7',
           company_name: 'Company G',
           status: 'errored',
           query_type: 'Type A',
