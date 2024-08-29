@@ -27,7 +27,7 @@ export default class Scope3CarbonConsumptionViewResponseTemplates {
         heading="View response to your query"
         headerLinks={[
           { name: 'Queries', url: '/queries' },
-          { name: 'Query Request-someIdentifier', url: '/queries/query-response' },
+          { name: query.company_name, url: `/queries//scope-3-carbon-consumption/${query.id}/view-response` },
         ]}
       >
         <div class="connections header"></div>
