@@ -26,8 +26,8 @@
     "db:migrate": "npm run db:cmd -- migrate:latest",
     "db:rollback": "npm run db:cmd -- migrate:rollback",
     "db:seed": "npm run db:cmd -- seed:run",
-    "lint": "prettier -c ./src ./test ./seeds ./public",
-    "lint:fix": "npm run lint -- -w",
+    "lint": "eslint .",
+    "lint:fix": "npm run lint -- --fix",
     "xss-scan": "xss-scan"
   },
   "dependencies": {

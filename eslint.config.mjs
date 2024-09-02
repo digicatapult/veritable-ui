@@ -35,7 +35,6 @@ export default [
 
     rules: {
       'prettier/prettier': 'error',
-
       '@typescript-eslint/no-unused-vars': [
         'warn',
         {
@@ -45,21 +44,6 @@ export default [
 
       'no-console': 2,
       'no-duplicate-imports': 'warn',
-    },
-    ignores: [''],
-  },
-  {
-    files: ['**/*.test.ts', 'test/**/*.ts'],
-
-    languageOptions: {
-      globals: {
-        ...globals.mocha,
-      },
-    },
-
-    rules: {
-      'prettier/prettier': 'error',
-      '@typescript-eslint/no-explicit-any': 'off',
     },
   },
   {

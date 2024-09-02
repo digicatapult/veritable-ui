@@ -27,8 +27,9 @@ type IndexedEvent = { [eventIdentifierSymbol]: symbol }
  */
 export default abstract class IndexedAsyncEventEmitter<
   K extends string,
-  T extends Record<K, any>,
+  T extends Record<K, O>,
   I = string,
+  O extends object = object,
 > extends EventEmitter<{
   [key in keyof T]: T[key][]
 }> {

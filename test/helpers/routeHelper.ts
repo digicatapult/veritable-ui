@@ -18,7 +18,7 @@ const getToken = async () => {
     throw new Error(`Error getting token from keycloak ${tokenReq.statusText}`)
   }
 
-  const body = (await tokenReq.json()) as any
+  const body = await tokenReq.json()
   return body.access_token as string
 }
 

@@ -65,6 +65,11 @@ const withMocks = (DEMO_MODE: boolean = true) => {
   }
 }
 
+type ResetControllerPublic = ResetController & { isReset: ResetController['isReset'] }
+const stubIsReset = (controller: ResetController, val: boolean) => {
+  sinon.stub(controller as unknown as ResetControllerPublic, 'isReset').callsFake(() => Promise.resolve(val))
+}
+
 describe('ResetController', () => {
   let result: unknown
   before(() => {})
@@ -124,10 +129,10 @@ describe('ResetController', () => {
         it('throws InternalError and returns error message', async () => {
           const { args } = withMocks()
           const controller = new ResetController(...args)
-          sinon.stub(controller, <any>'isReset').callsFake(() => Promise.resolve(false))
+          stubIsReset(controller, false)
 
           try {
-            result = (await controller.reset()) as unknown
+            result = await controller.reset()
           } catch (err) {
             result = err
           }
@@ -164,8 +169,8 @@ describe('ResetController', () => {
       it('return(200', async () => {
         const { args } = withMocks(true)
         const controller = new ResetController(...args)
-        sinon.stub(controller, <any>'isReset').callsFake(() => Promise.resolve(true))
-        result = (await controller.reset()) as unknown
+        stubIsReset(controller, true)
+        result = await controller.reset()
 
         expect(result).to.deep.equal({ statusCode: 200 })
       })

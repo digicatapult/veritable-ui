@@ -5,7 +5,12 @@ import { Env } from '../../../env.js'
 
 const env = container.resolve(Env)
 
-export function withCloudagentMock(method: 'GET' | 'POST' | 'DELETE', path: string, code: number, responseBody: any) {
+export function withCloudagentMock(
+  method: 'GET' | 'POST' | 'DELETE',
+  path: string,
+  code: number,
+  responseBody: object | string
+) {
   let originalDispatcher: Dispatcher
   let agent: MockAgent
   beforeEach(function () {
