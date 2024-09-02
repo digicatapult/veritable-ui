@@ -73,6 +73,7 @@
     "@types/swagger-ui-express": "^4.1.6",
     "@types/ws": "^8.5.12",
     "@typescript-eslint/eslint-plugin": "^8.3.0",
+    "@typescript-eslint/parser": "^8.3.0",
     "chai": "^5.1.1",
     "chai-jest-snapshot": "^2.0.0",
     "depcheck": "^1.4.7",
@@ -88,7 +89,6 @@
     "supertest": "^7.0.0",
     "tsimp": "^2.0.11",
     "typescript": "^5.5.4",
-    "typescript-eslint": "^8.3.0",
     "undici": "^6.19.8"
   }
 }
