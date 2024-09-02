@@ -467,6 +467,27 @@ main {
   display: flex;
   flex-direction: column;
 }
+.box3 {
+  flex: 1;
+  display: flex;
+  flex-direction: row;
+}
+.box3 table {
+  font-size: 0.875rem;
+  border-collapse: collapse;
+}
+
+.max-height-table {
+  max-height: 100px;
+}
+
+.box3 td {
+  padding-bottom: 10px;
+}
+.query-results-left-padding-table {
+  padding-left: 30px;
+}
+
 #scope-3-carbon-consumption {
   display: flex;
   flex-direction: column;
@@ -578,5 +599,8 @@ main {
     text-align: left;
     position: relative;
     top: auto;
+  }
+  .max-height-table {
+    max-height: none;
   }
 }

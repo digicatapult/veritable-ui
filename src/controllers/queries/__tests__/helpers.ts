@@ -7,7 +7,8 @@ import { ConnectionRow, QueryRow } from '../../../models/db/types.js'
 import VeritableCloudagent from '../../../models/veritableCloudagent.js'
 import QueriesTemplates from '../../../views/queries/queries.js'
 import QueryListTemplates from '../../../views/queries/queriesList.js'
-import Scope3CarbonConsumptionResponseTemplates from '../../../views/queries/queryResponses/scope3.js'
+import Scope3CarbonConsumptionResponseTemplates from '../../../views/queries/queryResponses/respondToScope3.js'
+import Scope3CarbonConsumptionViewResponseTemplates from '../../../views/queries/queryResponses/viewResponseToScope3.js'
 import Scope3CarbonConsumptionTemplates from '../../../views/queryTypes/scope3.js'
 
 type QueryStatus = 'resolved' | 'pending_your_input' | 'pending_their_input'
@@ -55,6 +56,9 @@ export const withQueriesMocks = (testOptions: Partial<QueryMockOptions> = {}) =>
   const scope3CarbonConsumptionTemplateMock = {
     newScope3CarbonConsumptionFormPage: (props: { formStage: string }) => templateListFake('scope3', props.formStage),
   } as unknown as Scope3CarbonConsumptionTemplates
+  const scope3CarbonConsumptionViewResponseTemplates = {
+    scope3CarbonConsumptionViewResponsePage: () => templateListFake('scope3Response'),
+  } as unknown as Scope3CarbonConsumptionViewResponseTemplates
 
   const scope3CarbonConsumptionResponseTemplateMock = {
     newScope3CarbonConsumptionResponseFormPage: () => templateFake('queriesResponse'),
@@ -91,6 +95,7 @@ export const withQueriesMocks = (testOptions: Partial<QueryMockOptions> = {}) =>
   return {
     scope3CarbonConsumptionTemplateMock,
     scope3CarbonConsumptionResponseTemplateMock,
+    scope3CarbonConsumptionViewResponseTemplates,
     queryListTemplateMock,
     queryTemplateMock,
     mockLogger,
@@ -99,6 +104,7 @@ export const withQueriesMocks = (testOptions: Partial<QueryMockOptions> = {}) =>
     args: [
       scope3CarbonConsumptionTemplateMock,
       scope3CarbonConsumptionResponseTemplateMock,
+      scope3CarbonConsumptionViewResponseTemplates,
       queryTemplateMock,
       queryListTemplateMock,
       cloudagentMock as unknown as VeritableCloudagent,

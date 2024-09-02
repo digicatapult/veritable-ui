@@ -4,6 +4,7 @@ import { UUID } from '../../models/strings.js'
 import { LinkButton, Page } from '../common.js'
 
 type QueryStatus = 'resolved' | 'pending_your_input' | 'pending_their_input' | 'errored'
+type QueryRole = 'responder' | 'requester'
 
 interface Query {
   id: UUID
@@ -11,6 +12,7 @@ interface Query {
   query_type: string
   updated_at: Date
   status: QueryStatus
+  role: QueryRole
 }
 @singleton()
 export default class QueryListTemplates {
@@ -61,6 +63,28 @@ export default class QueryListTemplates {
         return <p>Received</p>
       default:
         return <p>not sure</p>
+    }
+  }
+  private buttonText = (status: string | QueryStatus, role: QueryRole) => {
+    if (status === 'resolved' && role === 'requester') {
+      return 'View Response'
+    } else if (status === 'pending_their_input' && role === 'requester') {
+      return 'Awaiting Response'
+    } else if (status === 'pending_your_input' && role === 'responder') {
+      return 'Respond to query'
+    } else if (status === 'resolved' && role === 'responder') {
+      return 'no action required'
+    }
+    return 'no action available'
+  }
+
+  private isButtonDisabled = (status: string | QueryStatus, role: QueryRole) => {
+    if (status === 'resolved' && role === 'responder') {
+      return true
+    } else if (status === 'pending_their_input') {
+      return true
+    } else if (status === 'errored') {
+      return true
     }
   }
 
@@ -137,9 +161,13 @@ export default class QueryListTemplates {
                       <LinkButton
                         icon='url("/public/images/dot-icon.svg")'
                         style="outlined"
-                        disabled={false}
-                        text="some action"
-                        href={`/queries/scope-3-carbon-consumption/${query.id}/response`}
+                        disabled={this.isButtonDisabled(query.status, query.role)}
+                        text={this.buttonText(query.status, query.role)}
+                        href={
+                          query.status === 'resolved' && query.role === 'requester'
+                            ? `/queries/scope-3-carbon-consumption/${query.id}/view-response`
+                            : `/queries/scope-3-carbon-consumption/${query.id}/response`
+                        }
                       />
                     </td>
                   </tr>
