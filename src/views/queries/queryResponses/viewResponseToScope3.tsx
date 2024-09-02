@@ -17,7 +17,6 @@ interface Query {
 }
 @singleton()
 export default class Scope3CarbonConsumptionViewResponseTemplates {
-  //should be renamed to something more readable?
   constructor() {}
   public scope3CarbonConsumptionViewResponsePage = (query: Query) => {
     return (
