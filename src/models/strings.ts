@@ -55,4 +55,4 @@ export const companyNumberRegex =
  * @example VGhpcyBpcyBzb21lIGV4YW1wbGUgdGV4dA
  */
 export type BASE_64_URL = string
-export const base64UrlRegex = /^[a-zA-Z0-9_\-]+$/
+export const base64UrlRegex = /^[a-zA-Z0-9_-]+$/

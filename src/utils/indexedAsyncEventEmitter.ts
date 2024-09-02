@@ -18,7 +18,7 @@ const defaultOptions: IndexedAsyncEventEmitterOptions = {
 }
 
 const eventIdentifierSymbol = Symbol('IndexedAsyncEventEmitter')
-type IndexedEvent = { [eventIdentifierSymbol]: Symbol }
+type IndexedEvent = { [eventIdentifierSymbol]: symbol }
 
 /**
  * Event emitter that will retry events where handlers reject.
@@ -32,8 +32,8 @@ export default abstract class IndexedAsyncEventEmitter<
 > extends EventEmitter<{
   [key in keyof T]: T[key][]
 }> {
-  private latestEventIdentifiers: { [key in keyof T]?: TwoWayMap<I, Symbol> } = {}
-  private retryCount = new WeakMap<Symbol, number>()
+  private latestEventIdentifiers: { [key in keyof T]?: TwoWayMap<I, symbol> } = {}
+  private retryCount = new WeakMap<symbol, number>()
 
   private options: IndexedAsyncEventEmitterOptions
   protected abstract logger: ILogger
@@ -83,7 +83,7 @@ export default abstract class IndexedAsyncEventEmitter<
 
     // if data is populated with the identifier symbol it must have previously been emitted.
     // clone the data so we don't mutate the ongoing event
-    let distinctArg = this.isIndexedEvent(arg) ? { ...arg } : arg
+    const distinctArg = this.isIndexedEvent(arg) ? { ...arg } : arg
 
     // generate a unique identifier for this emit
     const eventIdentifier = Symbol(`${eventName}-${index}`)

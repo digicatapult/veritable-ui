@@ -46,6 +46,7 @@ export default [
       'no-console': 2,
       'no-duplicate-imports': 'warn',
     },
+    ignores: [''],
   },
   {
     files: ['**/*.test.ts', 'test/**/*.ts'],
@@ -60,5 +61,8 @@ export default [
       'prettier/prettier': 'error',
       '@typescript-eslint/no-explicit-any': 'off',
     },
+  },
+  {
+    ignores: ['build/', '.tsimp/', 'public/scripts/'],
   },
 ]
