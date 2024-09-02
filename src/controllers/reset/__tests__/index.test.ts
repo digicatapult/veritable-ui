@@ -43,7 +43,7 @@ const cloudagentMock = {
   getConnections: sinon.stub().resolves(fixtures['agent_connections']),
 }
 
-const withMocks = (DEMO_MODE: Boolean = true) => {
+const withMocks = (DEMO_MODE: boolean = true) => {
   const mockLogger: ILogger = pino({ level: 'silent' })
   const mockEnv = {
     get: sinon.stub().callsFake((name: string) => {
@@ -75,7 +75,7 @@ describe('ResetController', () => {
   describe('/reset ', () => {
     describe('if DEMO_MODE is set to false', () => {
       before(async () => {
-        let { args } = withMocks(false)
+        const { args } = withMocks(false)
         const controller = new ResetController(...args)
 
         try {
@@ -109,7 +109,7 @@ describe('ResetController', () => {
         dbMock.get.onSecondCall().resolves([])
         dbMock.get.onThirdCall().resolves([])
         dbMock.get.onCall(4).resolves([])
-        let { args } = withMocks()
+        const { args } = withMocks()
 
         const controller = new ResetController(...args)
 
@@ -122,7 +122,7 @@ describe('ResetController', () => {
 
       describe('and if isReset() returns false', () => {
         it('throws InternalError and returns error message', async () => {
-          let { args } = withMocks()
+          const { args } = withMocks()
           const controller = new ResetController(...args)
           sinon.stub(controller, <any>'isReset').callsFake(() => Promise.resolve(false))
 
@@ -162,7 +162,7 @@ describe('ResetController', () => {
       })
 
       it('return(200', async () => {
-        let { args } = withMocks(true)
+        const { args } = withMocks(true)
         const controller = new ResetController(...args)
         sinon.stub(controller, <any>'isReset').callsFake(() => Promise.resolve(true))
         result = (await controller.reset()) as unknown
