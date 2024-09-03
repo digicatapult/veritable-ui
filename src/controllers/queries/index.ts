@@ -235,7 +235,11 @@ export class QueriesController extends HTMLController {
   }
 
   /**
-   * Renders connections table for partial queries
+   * @param param.queryId:UUID - query uuid identifier
+   * @param param.companyId:UUID - connection uuid identifier
+   * @param query.partialQuery:'on' - either render partial or not (checkbox state)
+   *
+   * @returns a table of connections for partial query
    */
   @SuccessResponse(200)
   @Get('/{queryId}/partial/{companyId}')
@@ -244,31 +248,26 @@ export class QueriesController extends HTMLController {
     @Path() companyId: UUID,
     @Query() partialQuery?: 'on'
   ): Promise<HTML> {
+    this.logger.debug('partial query response requested %j', { queryId, companyId })
     const [query]: QueryRow[] = await this.db.get('query', { id: queryId })
+    if (!query) throw new NotFoundError('query not found')
+
     const [company]: ConnectionRow[] = await this.db.get('connection', { id: companyId })
+    if (!company) throw new NotFoundError('company connection not found')
+
+    this.logger.debug('query and connection - are found %j', { company, query })
     const connections: ConnectionRow[] = await this.db.get('connection', { status: 'verified_both' })
+
     // due to very long names, re-assigning to a shorter variable (render)
     const render = this.scope3CarbonConsumptionResponseTemplates.newScope3CarbonConsumptionResponseFormPage
-
-    if (partialQuery === 'on') {
-      return this.html(
-        render({
-          ...query.details,
-          company,
-          queryId,
-          partial: true,
-          connections,
-          formStage: 'form',
-        })
-      )
-    }
+    this.logger.info('rendering partial query')
 
     return this.html(
       render({
         ...query.details,
         company,
         queryId,
-        partial: false,
+        partial: partialQuery === 'on' ? true : false,
         connections,
         formStage: 'form',
       })
@@ -276,14 +275,19 @@ export class QueriesController extends HTMLController {
   }
 
   /**
-   * Updates the partial row in scope 3 response page
+   * @param param.connectionId:UUID
+   * @param query.partialSelect:'on' - if it's selected by checkbox, then it would return 'on'
+   *
+   * @returns - a tabe row for partial query
    */
   @SuccessResponse(200)
   @Get('/partial-select/{connectionId}/')
   public async partialSelect(@Path() connectionId: UUID, @Query() partialSelect?: 'on'): Promise<HTML> {
     this.logger.debug('partial select %j', { connectionId })
     const [company]: ConnectionRow[] = await this.db.get('connection', { id: connectionId })
-    this.logger.debug('selected company: %j', { connectionId })
+    if (!company) throw new NotFoundError('connection not found')
+
+    this.logger.debug('selecting: %j', { connectionId })
     const checked: boolean = partialSelect === 'on' || false
 
     return this.html(
