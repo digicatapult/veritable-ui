@@ -212,4 +212,8 @@ describe('QueriesController', () => {
 
     expect(result).to.equal('scope3_error_scope3')
   })
+  describe('Partial Query', () => {
+    it('validates query and company/connection', () => {})
+    it('pulls connections and returns along with partial = true', () => {})
+  })
 })
