@@ -98,7 +98,7 @@ export default class Scope3CarbonConsumptionResponseTemplates {
               hx-swap="innerHTML"
             >
               <p>
-                Product ID: {props.productId}
+                Product ID: {Html.escapeHtml(props.productId)}
                 <br />
                 Quantity: {props.quantity}
               </p>
@@ -139,7 +139,7 @@ export default class Scope3CarbonConsumptionResponseTemplates {
                   <table>
                     <thead>
                       {['Select', 'Company Name', 'Product ID', 'Quantity'].map((name: string) => (
-                        <th>{name}</th>
+                        <th>{Html.escapeHtml(name)}</th>
                       ))}
                     </thead>
                     <tbody hx-swap-oob="true">
@@ -186,7 +186,7 @@ export default class Scope3CarbonConsumptionResponseTemplates {
             hx-target={`#tr-${props.id}`}
           />
         </td>
-        <td>{props.company_name}</td>
+        <td>{Html.escapeHtml(props.company_name)}</td>
         <td>
           <input
             name={`product-id-${props.id}`}
