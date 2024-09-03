@@ -233,13 +233,7 @@ export class QueriesController extends HTMLController {
   }
 
   /**
-   * Renders connections for partial query
-   * TODO >>>>>>
-   * [x] - get list of connections for that query_id
-   * [x] - re-use the existing table or render a new one
-   * [ ] - ability to select multiple connections to send a query to
-   * [x] - disable co2 input
-   * [x] - handle display:none table
+   * Renders connections table for partial queries
    */
   @SuccessResponse(200)
   @Get('/{queryId}/partial/{companyId}')
@@ -275,6 +269,27 @@ export class QueriesController extends HTMLController {
         partial: false,
         connections,
         formStage: 'form',
+      })
+    )
+  }
+
+  /**
+   * Updates the partial row in scope 3 response page
+   */
+  @SuccessResponse(200)
+  @Get('/partial-select/{connectionId}/')
+  public async partialSelect(@Path() connectionId: UUID, @Query() partialSelect?: 'on'): Promise<HTML> {
+    this.logger.debug('partial select %j', { connectionId })
+    const [company]: ConnectionRow[] = await this.db.get('connection', { id: connectionId })
+    this.logger.debug('selected company: %j', { connectionId })
+    const checked: boolean = partialSelect === 'on' || false
+
+    return this.html(
+      this.scope3CarbonConsumptionResponseTemplates.tableRow({
+        id: connectionId,
+        checked,
+        company_name: company.company_name,
+        company_number: company.company_number,
       })
     )
   }

@@ -21,8 +21,8 @@ describe('QueryResponseTemplates', () => {
         },
         queryId: 'query-id-test',
         quantity: 2,
-        productId: 'product-id-test'
-    })
+        productId: 'product-id-test',
+      })
       expect(rendered).to.matchSnapshot()
     })
     it('should escape html in name', async () => {
@@ -42,7 +42,7 @@ describe('QueryResponseTemplates', () => {
         },
         queryId: 'query-id-test-escape',
         quantity: 2,
-        productId: 'product-id-test-escape'
+        productId: 'product-id-test-escape',
       })
       expect(rendered).to.matchSnapshot()
     })
@@ -62,7 +62,7 @@ describe('QueryResponseTemplates', () => {
           pin_attempt_count: 0,
           created_at: new Date(),
           updated_at: new Date(),
-        }
+        },
       })
       expect(rendered).to.matchSnapshot()
     })
@@ -71,7 +71,7 @@ describe('QueryResponseTemplates', () => {
     const templates = new Scope3CarbonConsumptionResponseTemplates()
     const rendered = await templates.newScope3CarbonConsumptionResponseFormPage({
       formStage: 'success',
-        company: {
+      company: {
         company_name: '<div>I own you</div>',
         company_number: '3456789',
         status: 'verified_both',
@@ -81,7 +81,7 @@ describe('QueryResponseTemplates', () => {
         pin_attempt_count: 0,
         created_at: new Date(),
         updated_at: new Date(),
-      }
+      },
     })
     expect(rendered).to.matchSnapshot()
   })

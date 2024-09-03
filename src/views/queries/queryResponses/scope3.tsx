@@ -148,38 +148,7 @@ export default class Scope3CarbonConsumptionResponseTemplates {
                           <td>No Connections found</td>
                         </tr>
                       ) : (
-                        connections.map(({ company_name, id }) => (
-                          <tr
-                          /* some nwe TODOs for the UI
-                            [ ] - ability to check/select table rows
-                            [ ] - table row should be disabled after select
-                            [ ] - checkbox background-color
-                            [ ] - form should require at least one item selected (checked)
-                            [ ] - test scenarios
-                            [ ] - updates everywhere else to address recent changes
-                          hx-trigger='changed, from:${id}'
-                          hx-get='get row and parse checkbox parameter on/off'
-                          hx-swap='outerHTML'
-                        */
-                          >
-                            <td>
-                              <input name={id} type="checkbox" />
-                            </td>
-                            <td>{company_name}</td>
-                            <td>
-                              <input
-                                name={`product-id-${id}`}
-                                placeholder="Product ID"
-                                class="input-basic"
-                                type="text"
-                                value={props.productId}
-                              />
-                            </td>
-                            <td>
-                              <input name={`quantity-${id}`} placeholder="Quantity" class="input-basic" type="number" />
-                            </td>
-                          </tr>
-                        ))
+                        connections.map((connection) => this.tableRow(connection))
                       )}
                     </tbody>
                   </table>
@@ -191,6 +160,53 @@ export default class Scope3CarbonConsumptionResponseTemplates {
           </div>
         </div>
       </div>
+    )
+  }
+
+  public tableRow = ({
+    checked = false,
+    ...props
+  }: {
+    company_number: string
+    id: string
+    company_name: string
+    productId?: string
+    quantity?: number
+    checked?: boolean
+  }): JSX.Element => {
+    return (
+      <tr id={`tr-${props.id}`} hx-swap-oob="true">
+        <td>
+          <input
+            name={`partialSelect`}
+            type="checkbox"
+            hx-trigger="click"
+            checked={checked}
+            hx-get={`/queries/partial-select/${props.id}`}
+            hx-target={`#tr-${props.id}`}
+          />
+        </td>
+        <td>{props.company_name}</td>
+        <td>
+          <input
+            name={`product-id-${props.id}`}
+            placeholder="Product ID"
+            class={`input-basic ${checked ? '' : 'disabled'}`}
+            type="text"
+            value={props.productId}
+            required={checked}
+          />
+        </td>
+        <td>
+          <input
+            name={`quantity-${props.id}`}
+            placeholder="Quantity"
+            class={`input-basic ${checked ? '' : 'disabled'}`}
+            type="number"
+            required={checked}
+          />
+        </td>
+      </tr>
     )
   }
 
