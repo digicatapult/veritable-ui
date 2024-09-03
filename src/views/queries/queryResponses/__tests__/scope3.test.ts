@@ -1,7 +1,7 @@
 import { expect } from 'chai'
 import { describe } from 'mocha'
-import Scope3CarbonConsumptionResponseTemplates from '../scope3.js'
-import Scope3CarbonConsumptionViewResponseTemplates from '../viewResponseToScope3.js'
+import Scope3CarbonConsumptionResponseTemplates from '../../queryResponses/scope3.js'
+import Scope3CarbonConsumptionViewResponseTemplates from '../../queryResponses/viewResponseToScope3.js'
 
 describe('QueryResponseTemplates', () => {
   describe('newScope3CarbonConsumptionResponseFormPage Tests', () => {
@@ -10,19 +10,19 @@ describe('QueryResponseTemplates', () => {
       const rendered = await templates.newScope3CarbonConsumptionResponseFormPage({
         formStage: 'form',
         company: {
-          company_name: 'UNIT_TEST-01 ',
+          company_name: 'VER123',
           company_number: '3456789',
           status: 'verified_both',
-          id: '12155635-40ef-4bdb-1111-111111111111',
-          agent_connection_id: '12155635-40ef-4bdb-0000-111111111111',
-          pin_tries_remaining_count: 4,
-          pin_attempt_count: 1,
+          id: '11',
+          agent_connection_id: 'agentId',
+          pin_tries_remaining_count: null,
+          pin_attempt_count: 0,
           created_at: new Date(),
           updated_at: new Date(),
         },
-        queryId: '12155635-40ef-4bdb-2222-111111111111',
-        partial: true,
-        connections: [],
+        queryId: 'query-id-test',
+        quantity: 2,
+        productId: 'product-id-test',
       })
       expect(rendered).to.matchSnapshot()
     })
