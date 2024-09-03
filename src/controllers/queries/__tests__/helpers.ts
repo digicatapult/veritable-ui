@@ -7,7 +7,7 @@ import { ConnectionRow, QueryRow } from '../../../models/db/types.js'
 import VeritableCloudagent from '../../../models/veritableCloudagent.js'
 import QueriesTemplates from '../../../views/queries/queries.js'
 import QueryListTemplates from '../../../views/queries/queriesList.js'
-import Scope3CarbonConsumptionResponseTemplates from '../../../views/queries/queryResponses/respondToScope3.js'
+import Scope3CarbonConsumptionResponseTemplates from '../../../views/queries/queryResponses/scope3.js'
 import Scope3CarbonConsumptionViewResponseTemplates from '../../../views/queries/queryResponses/viewResponseToScope3.js'
 import Scope3CarbonConsumptionTemplates from '../../../views/queryTypes/scope3.js'
 
