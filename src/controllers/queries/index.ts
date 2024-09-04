@@ -8,11 +8,10 @@ import Database from '../../models/db/index.js'
 import { ConnectionRow, QueryRow, Where } from '../../models/db/types.js'
 import { type UUID } from '../../models/strings.js'
 import VeritableCloudagent, { DrpcResponse } from '../../models/veritableCloudagent.js'
+import Scope3CarbonConsumptionResponseTemplates from '../../views/queries/co2scope3.js'
+import Scope3CarbonConsumptionTemplates from '../../views/queries/newCo2scope3.js'
 import QueriesTemplates from '../../views/queries/queries.js'
 import QueryListTemplates from '../../views/queries/queriesList.js'
-import Scope3CarbonConsumptionResponseTemplates from '../../views/queries/responses/scope3.js'
-import Scope3CarbonConsumptionViewResponseTemplates from '../../views/queries/responses/viewResponseToScope3.js'
-import Scope3CarbonConsumptionTemplates from '../../views/queryTypes/scope3.js'
 import { HTML, HTMLController } from '../HTMLController.js'
 
 type QueryStatus = 'resolved' | 'pending_your_input' | 'pending_their_input'
@@ -33,7 +32,6 @@ export class QueriesController extends HTMLController {
   constructor(
     private scope3CarbonConsumptionTemplates: Scope3CarbonConsumptionTemplates,
     private scope3CarbonConsumptionResponseTemplates: Scope3CarbonConsumptionResponseTemplates,
-    private scope3CarbonConsumptionViewResponseTemplates: Scope3CarbonConsumptionViewResponseTemplates,
     private queriesTemplates: QueriesTemplates,
     private queryManagementTemplates: QueryListTemplates,
     private cloudagent: VeritableCloudagent,
@@ -389,7 +387,7 @@ export class QueriesController extends HTMLController {
   @Get('/scope-3-carbon-consumption/{queryId}/view-response')
   public async scope3CarbonConsumptionViewResponse(@Path() queryId: UUID): Promise<HTML> {
     this.logger.debug('requested to view response to a query %j', { queryId })
-    const [query] = await this.db.get('query', { id: queryId })
+    const [query]: QueryRow[] = await this.db.get('query', { id: queryId })
 
     if (!query) {
       throw new NotFoundError(`There has been an issue retrieving the query.`)
@@ -404,12 +402,13 @@ export class QueriesController extends HTMLController {
     }
 
     return this.html(
-      this.scope3CarbonConsumptionViewResponseTemplates.scope3CarbonConsumptionViewResponsePage({
+      this.scope3CarbonConsumptionResponseTemplates.view({
         company_name: connection.company_name,
         quantity: query.details['quantity'],
         productId: query.details['productId'],
         emissions: query.query_response,
         ...query,
+        id: query.id,
       })
     )
   }
