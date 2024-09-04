@@ -18,6 +18,7 @@ import {
   type EMAIL,
 } from '../../models/strings.js'
 import VeritableCloudagent from '../../models/veritableCloudagent.js'
+import { neverFail } from '../../utils/promises.js'
 import { FromInviteTemplates } from '../../views/newConnection/fromInvite.js'
 import { NewInviteFormStage, NewInviteTemplates } from '../../views/newConnection/newInvite.js'
 import { PinSubmissionTemplates } from '../../views/newConnection/pinSubmission.js'
@@ -255,7 +256,8 @@ export class NewConnectionController extends HTMLController {
     let wrappedInvite: Invite
     try {
       wrappedInvite = inviteParser.parse(JSON.parse(Buffer.from(invite, 'base64url').toString('utf8')))
-    } catch (_) {
+    } catch (err) {
+      this.logger.debug('Invitation not valid o%', err)
       return {
         type: 'error',
         message: 'Invitation is not valid',
@@ -364,19 +366,19 @@ export class NewConnectionController extends HTMLController {
     this.logger.debug('NEW_CONNECTION: sending emails')
     const inviteBase64 = Buffer.from(JSON.stringify(invite), 'utf8').toString('base64url')
 
-    try {
-      await this.email.sendMail('connection_invite', {
+    await neverFail(
+      this.email.sendMail('connection_invite', {
         to: email,
         invite: inviteBase64,
       })
-    } catch (_) {}
+    )
   }
 
   private async sendAdminEmail(company: CompanyProfile, pin: string) {
     this.logger.debug('NEW_CONNECTION: sending emails')
 
-    try {
-      await this.email.sendMail('connection_invite_admin', {
+    await neverFail(
+      this.email.sendMail('connection_invite_admin', {
         address: [
           company.company_name,
           company.registered_office_address.address_line_1,
@@ -393,7 +395,7 @@ export class NewConnectionController extends HTMLController {
           .join('\r\n'),
         pin,
       })
-    } catch (_) {}
+    )
   }
 
   private newInviteSuccessHtml(formStage: NewInviteFormStage, company: CompanyProfile, email: string) {

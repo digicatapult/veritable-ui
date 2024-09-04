@@ -29,14 +29,14 @@ describe('NewConnectionController', () => {
 
   describe('newConnectionForm', () => {
     it('should return rendered form template (fromInvite = false)', async () => {
-      let { args } = withNewConnectionMocks()
+      const { args } = withNewConnectionMocks()
       const controller = new NewConnectionController(...args)
       const result = await controller.newConnectionForm().then(toHTMLString)
       expect(result).to.equal('newInvitePage_message_newInvitePage')
     })
 
     it('should return rendered form template (fromInvite = true)', async () => {
-      let { args } = withNewConnectionMocks()
+      const { args } = withNewConnectionMocks()
       const controller = new NewConnectionController(...args)
       const result = await controller.newConnectionForm(true).then(toHTMLString)
       expect(result).to.equal('fromInvitePage_message_fromInvitePage')
@@ -45,14 +45,14 @@ describe('NewConnectionController', () => {
 
   describe('verifyCompanyForm', () => {
     it('should return form page when company number invalid', async () => {
-      let { args } = withNewConnectionMocks()
+      const { args } = withNewConnectionMocks()
       const controller = new NewConnectionController(...args)
       const result = await controller.verifyCompanyForm(invalidCompanyNumber).then(toHTMLString)
       expect(result).to.equal('newInvitePage_message_newInvitePage')
     })
 
     it('should return rendered error when company not found', async () => {
-      let { args } = withNewConnectionMocks()
+      const { args } = withNewConnectionMocks()
       const controller = new NewConnectionController(...args)
 
       const result = await controller.verifyCompanyForm(notFoundCompanyNumber).then(toHTMLString)
@@ -60,7 +60,7 @@ describe('NewConnectionController', () => {
     })
 
     it('should return rendered error when company already connected', async () => {
-      let { args } = withNewConnectionMocks()
+      const { args } = withNewConnectionMocks()
       const controller = new NewConnectionController(...args)
       const result = await controller.verifyCompanyForm(validExistingCompanyNumber).then(toHTMLString)
       expect(result).to.equal(
@@ -69,7 +69,7 @@ describe('NewConnectionController', () => {
     })
 
     it('should return rendered error when company registered office in dispute', async () => {
-      let { args } = withNewConnectionMocks()
+      const { args } = withNewConnectionMocks()
       const controller = new NewConnectionController(...args)
       const result = await controller.verifyCompanyForm(validCompanyNumberInDispute).then(toHTMLString)
       expect(result).to.equal(
@@ -78,14 +78,14 @@ describe('NewConnectionController', () => {
     })
 
     it('should return rendered error when company not active', async () => {
-      let { args } = withNewConnectionMocks()
+      const { args } = withNewConnectionMocks()
       const controller = new NewConnectionController(...args)
       const result = await controller.verifyCompanyForm(validCompanyNumberInactive).then(toHTMLString)
       expect(result).to.equal('companyFormInput_error--Company NAME4 is not active-form--00000004_companyFormInput')
     })
 
     it('should return success form', async () => {
-      let { args } = withNewConnectionMocks()
+      const { args } = withNewConnectionMocks()
       const controller = new NewConnectionController(...args)
       const result = await controller.verifyCompanyForm(validCompanyNumber).then(toHTMLString)
       expect(result).to.equal('companyFormInput_companyFound-NAME--form--00000001_companyFormInput')
@@ -94,49 +94,49 @@ describe('NewConnectionController', () => {
 
   describe('verifyInviteForm', () => {
     it('should rendered page when invite is empty', async () => {
-      let { args } = withNewConnectionMocks()
+      const { args } = withNewConnectionMocks()
       const controller = new NewConnectionController(...args)
       const result = await controller.verifyInviteForm('').then(toHTMLString)
       expect(result).to.equal('fromInvitePage_message_fromInvitePage')
     })
 
     it('should rendered error when invite invalid base64', async () => {
-      let { args } = withNewConnectionMocks()
+      const { args } = withNewConnectionMocks()
       const controller = new NewConnectionController(...args)
       const result = await controller.verifyInviteForm(invalidBase64Invite).then(toHTMLString)
       expect(result).to.equal('fromInviteForm_error--Invitation is not valid_fromInviteForm')
     })
 
     it('should rendered error when invite invalid format', async () => {
-      let { args } = withNewConnectionMocks()
+      const { args } = withNewConnectionMocks()
       const controller = new NewConnectionController(...args)
       const result = await controller.verifyInviteForm(invalidInvite).then(toHTMLString)
       expect(result).to.equal('fromInviteForm_error--Invitation is not valid_fromInviteForm')
     })
 
     it('should rendered error when company number invalid', async () => {
-      let { args } = withNewConnectionMocks()
+      const { args } = withNewConnectionMocks()
       const controller = new NewConnectionController(...args)
       const result = await controller.verifyInviteForm(invalidCompanyNumberInvite).then(toHTMLString)
       expect(result).to.equal('fromInviteForm_error--Invitation is not valid_fromInviteForm')
     })
 
     it('should return rendered error when company not found', async () => {
-      let { args } = withNewConnectionMocks()
+      const { args } = withNewConnectionMocks()
       const controller = new NewConnectionController(...args)
       const result = await controller.verifyInviteForm(notFoundCompanyNumberInvite).then(toHTMLString)
       expect(result).to.equal('fromInviteForm_error--Company number does not exist_fromInviteForm')
     })
 
     it('should return rendered error when company already connected', async () => {
-      let { args } = withNewConnectionMocks()
+      const { args } = withNewConnectionMocks()
       const controller = new NewConnectionController(...args)
       const result = await controller.verifyInviteForm(validExistingCompanyNumberInvite).then(toHTMLString)
       expect(result).to.equal('fromInviteForm_error--Connection already exists with NAME2_fromInviteForm')
     })
 
     it('should return rendered error when company registered office in dispute', async () => {
-      let { args } = withNewConnectionMocks()
+      const { args } = withNewConnectionMocks()
       const controller = new NewConnectionController(...args)
       const result = await controller.verifyInviteForm(validCompanyNumberInDisputeInvite).then(toHTMLString)
       expect(result).to.equal(
@@ -145,14 +145,14 @@ describe('NewConnectionController', () => {
     })
 
     it('should return rendered error when company not active', async () => {
-      let { args } = withNewConnectionMocks()
+      const { args } = withNewConnectionMocks()
       const controller = new NewConnectionController(...args)
       const result = await controller.verifyInviteForm(validCompanyNumberInactiveInvite).then(toHTMLString)
       expect(result).to.equal('fromInviteForm_error--Company NAME4 is not active_fromInviteForm')
     })
 
     it('should return success form', async () => {
-      let { args } = withNewConnectionMocks()
+      const { args } = withNewConnectionMocks()
       const controller = new NewConnectionController(...args)
       const result = await controller.verifyInviteForm(validCompanyNumberInvite).then(toHTMLString)
       expect(result).to.equal('fromInviteForm_companyFound-NAME-_fromInviteForm')
@@ -161,7 +161,7 @@ describe('NewConnectionController', () => {
 
   describe('submitNewInvite', () => {
     it('should return rendered error when company not found', async () => {
-      let { args } = withNewConnectionMocks()
+      const { args } = withNewConnectionMocks()
       const controller = new NewConnectionController(...args)
       const result = await controller
         .submitNewInvite({
@@ -176,7 +176,7 @@ describe('NewConnectionController', () => {
     })
 
     it('should return rendered error when company already connected', async () => {
-      let { args } = withNewConnectionMocks()
+      const { args } = withNewConnectionMocks()
       const controller = new NewConnectionController(...args)
       const result = await controller
         .submitNewInvite({
@@ -191,7 +191,7 @@ describe('NewConnectionController', () => {
     })
 
     it('should return rendered error when company registered office in dispute', async () => {
-      let { args } = withNewConnectionMocks()
+      const { args } = withNewConnectionMocks()
       const controller = new NewConnectionController(...args)
       const result = await controller
         .submitNewInvite({
@@ -206,7 +206,7 @@ describe('NewConnectionController', () => {
     })
 
     it('should return rendered error when company not active', async () => {
-      let { args } = withNewConnectionMocks()
+      const { args } = withNewConnectionMocks()
       const controller = new NewConnectionController(...args)
       const result = await controller
         .submitNewInvite({
@@ -221,7 +221,7 @@ describe('NewConnectionController', () => {
     })
 
     it('should return confirmation form if button is not Submit', async () => {
-      let { args } = withNewConnectionMocks()
+      const { args } = withNewConnectionMocks()
       const controller = new NewConnectionController(...args)
       const result = await controller
         .submitNewInvite({
@@ -236,7 +236,7 @@ describe('NewConnectionController', () => {
     })
 
     it('should return rendered error when unique constraint is violated', async () => {
-      let { mockTransactionDb, args } = withNewConnectionMocks()
+      const { mockTransactionDb, args } = withNewConnectionMocks()
 
       sinon
         .stub(mockTransactionDb, 'insert')
@@ -257,7 +257,7 @@ describe('NewConnectionController', () => {
     })
 
     it('should return success even if email send fails', async () => {
-      let { args, mockEmail } = withNewConnectionMocks()
+      const { args, mockEmail } = withNewConnectionMocks()
 
       sinon.stub(mockEmail, 'sendMail').rejects(new Error())
 
@@ -280,7 +280,7 @@ describe('NewConnectionController', () => {
       let result: string
 
       beforeEach(async () => {
-        let { mockTransactionDb, mockEmail, args } = withNewConnectionMocks()
+        const { mockTransactionDb, mockEmail, args } = withNewConnectionMocks()
 
         insertSpy = sinon.spy(mockTransactionDb, 'insert')
         emailSpy = sinon.spy(mockEmail, 'sendMail')
@@ -364,14 +364,14 @@ describe('NewConnectionController', () => {
 
   describe('submitFromInvite', () => {
     it('should rendered error when invite is empty', async () => {
-      let { args } = withNewConnectionMocks()
+      const { args } = withNewConnectionMocks()
       const controller = new NewConnectionController(...args)
       const result = await controller.submitFromInvite({ invite: '', action: 'createConnection' }).then(toHTMLString)
       expect(result).to.equal('fromInviteForm_error--Invitation is not valid_fromInviteForm')
     })
 
     it('should rendered error when invite invalid base64', async () => {
-      let { args } = withNewConnectionMocks()
+      const { args } = withNewConnectionMocks()
       const controller = new NewConnectionController(...args)
       const result = await controller
         .submitFromInvite({ invite: invalidBase64Invite, action: 'createConnection' })
@@ -380,7 +380,7 @@ describe('NewConnectionController', () => {
     })
 
     it('should rendered error when invite invalid format', async () => {
-      let { args } = withNewConnectionMocks()
+      const { args } = withNewConnectionMocks()
       const controller = new NewConnectionController(...args)
       const result = await controller
         .submitFromInvite({ invite: invalidInvite, action: 'createConnection' })
@@ -389,7 +389,7 @@ describe('NewConnectionController', () => {
     })
 
     it('should rendered error when company number invalid', async () => {
-      let { args } = withNewConnectionMocks()
+      const { args } = withNewConnectionMocks()
       const controller = new NewConnectionController(...args)
       const result = await controller
         .submitFromInvite({ invite: invalidCompanyNumberInvite, action: 'createConnection' })
@@ -398,7 +398,7 @@ describe('NewConnectionController', () => {
     })
 
     it('should return rendered error when company not found', async () => {
-      let { args } = withNewConnectionMocks()
+      const { args } = withNewConnectionMocks()
       const controller = new NewConnectionController(...args)
       const result = await controller
         .submitFromInvite({ invite: notFoundCompanyNumberInvite, action: 'createConnection' })
@@ -407,7 +407,7 @@ describe('NewConnectionController', () => {
     })
 
     it('should return rendered error when company already connected', async () => {
-      let { args } = withNewConnectionMocks()
+      const { args } = withNewConnectionMocks()
       const controller = new NewConnectionController(...args)
       const result = await controller
         .submitFromInvite({ invite: validExistingCompanyNumberInvite, action: 'createConnection' })
@@ -416,7 +416,7 @@ describe('NewConnectionController', () => {
     })
 
     it('should return rendered error when company registered office in dispute', async () => {
-      let { args } = withNewConnectionMocks()
+      const { args } = withNewConnectionMocks()
       const controller = new NewConnectionController(...args)
       const result = await controller
         .submitFromInvite({ invite: validCompanyNumberInDisputeInvite, action: 'createConnection' })
@@ -427,7 +427,7 @@ describe('NewConnectionController', () => {
     })
 
     it('should return rendered error when company not active', async () => {
-      let { args } = withNewConnectionMocks()
+      const { args } = withNewConnectionMocks()
       const controller = new NewConnectionController(...args)
       const result = await controller
         .submitFromInvite({ invite: validCompanyNumberInactiveInvite, action: 'createConnection' })
@@ -436,7 +436,7 @@ describe('NewConnectionController', () => {
     })
 
     it('should return rendered error when unique constraint is violated', async () => {
-      let { mockTransactionDb, args } = withNewConnectionMocks()
+      const { mockTransactionDb, args } = withNewConnectionMocks()
 
       sinon
         .stub(mockTransactionDb, 'insert')
@@ -454,7 +454,7 @@ describe('NewConnectionController', () => {
     })
 
     it('should return success even if email send fails', async () => {
-      let { args, mockEmail } = withNewConnectionMocks()
+      const { args, mockEmail } = withNewConnectionMocks()
 
       sinon.stub(mockEmail, 'sendMail').rejects(new Error())
 
@@ -476,7 +476,7 @@ describe('NewConnectionController', () => {
       let result: string
 
       beforeEach(async () => {
-        let { mockTransactionDb, mockEmail, args } = withNewConnectionMocks()
+        const { mockTransactionDb, mockEmail, args } = withNewConnectionMocks()
 
         insertSpy = sinon.spy(mockTransactionDb, 'insert')
         emailSpy = sinon.spy(mockEmail, 'sendMail')
