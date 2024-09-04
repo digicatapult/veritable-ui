@@ -323,11 +323,11 @@ export class QueriesController extends HTMLController {
       throw new NotFoundError(`Invalid connection ${body.companyId}`)
     }
     if (!connection.agent_connection_id || connection.status !== 'verified_both') {
-      throw new NotFoundError(`Cannot query unverified connection`)
+      throw new InvalidInputError(`Cannot query unverified connection`)
     }
     const [queryRow] = await this.db.get('query', { id: queryId })
     if (!queryRow.response_id) {
-      throw new NotFoundError(`Missing queryId to respond to.`)
+      throw new InvalidInputError(`Missing queryId to respond to.`)
     }
 
     const query = {

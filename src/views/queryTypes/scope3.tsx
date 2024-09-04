@@ -126,7 +126,7 @@ export default class Scope3CarbonConsumptionTemplates {
                             name="connectionId"
                             value={connection.id}
                             disabled={connection.status !== 'verified_both'}
-                          ></input>
+                          />
                         </td>
                         <td>{Html.escapeHtml(connection.company_name)}</td>
                       </tr>

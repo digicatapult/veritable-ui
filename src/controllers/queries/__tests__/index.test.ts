@@ -212,6 +212,16 @@ describe('QueriesController', () => {
 
     expect(result).to.equal('scope3_error_scope3')
   })
+  describe('viewing query responses', () => {
+    it('should call db as expected', async () => {
+      const { args, dbMock } = withQueriesMocks()
+      const controller = new QueriesController(...args)
+      const spy = dbMock.get
+      await controller.scope3CarbonConsumptionViewResponse('SomeId').then(toHTMLString)
+      const search = 'SomeId'
+      expect(spy.firstCall.calledWith('query', { id: search })).to.equal(true)
+    })
+  })
   describe('Partial Query', () => {
     it('validates query and company/connection', () => {})
     it('pulls connections and returns along with partial = true', () => {})
