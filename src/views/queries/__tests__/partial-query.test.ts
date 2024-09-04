@@ -1,7 +1,7 @@
 import { expect } from 'chai'
 import { describe } from 'mocha'
 import { ConnectionRow } from '../../../models/db/types.js'
-import Scope3CarbonConsumptionResponseTemplates from '../co2scope3.js'
+import Scope3CarbonConsumptionResponseTemplates from '../responseCo2scope3.js'
 
 const sampleDate = new Date(Date.UTC(2024, 6, 4))
 const connectionsExample: ConnectionRow[] = [

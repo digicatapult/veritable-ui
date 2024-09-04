@@ -8,20 +8,11 @@ import Database from '../../models/db/index.js'
 import { ConnectionRow, QueryRow, Where } from '../../models/db/types.js'
 import { type UUID } from '../../models/strings.js'
 import VeritableCloudagent, { DrpcResponse } from '../../models/veritableCloudagent.js'
-import Scope3CarbonConsumptionResponseTemplates from '../../views/queries/co2scope3.js'
-import Scope3CarbonConsumptionTemplates from '../../views/queries/newCo2scope3.js'
 import QueriesTemplates from '../../views/queries/queries.js'
 import QueryListTemplates from '../../views/queries/queriesList.js'
+import Scope3CarbonConsumptionTemplates from '../../views/queries/requestCo2scope3.js'
+import Scope3CarbonConsumptionResponseTemplates from '../../views/queries/responseCo2scope3.js'
 import { HTML, HTMLController } from '../HTMLController.js'
-
-type QueryStatus = 'resolved' | 'pending_your_input' | 'pending_their_input'
-interface Query {
-  id: UUID
-  company_name: string
-  query_type: string
-  updated_at: Date
-  status: QueryStatus
-}
 
 @singleton()
 @injectable()
