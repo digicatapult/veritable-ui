@@ -266,7 +266,8 @@ export class QueriesController extends HTMLController {
 
   /**
    * @param param.connectionId:UUID
-   * @param query.partialSelect:'on' - if it's selected by checkbox, then it would return 'on'
+   * @param query.partialSelect:'on' - if it's selected by checkbox, then it would add 'on' as a the query string
+   * to the URL: (http://localhost:3000/form?<checkbox_name>=on)
    *
    * @returns - a tabe row for partial query
    */
@@ -400,7 +401,6 @@ export class QueriesController extends HTMLController {
         productId: query.details['productId'],
         emissions: query.query_response,
         ...query,
-        id: query.id,
       })
     )
   }
