@@ -36,6 +36,32 @@ const customCssToInject: string = `
   .swagger-ui section.models { background-color: #f7f7f7; }
 `
 
+function getRedirectUrl(req: express.Request) {
+  const parsedUrl = new URL(req.originalUrl, env.get('PUBLIC_URL'))
+  if (parsedUrl.pathname !== '/auth/redirect') {
+    return req.originalUrl
+  }
+
+  const fallbackUrl = new URL('/', parsedUrl).toString()
+
+  const maybeState = parsedUrl.searchParams.get('state')
+  if (!maybeState) {
+    return fallbackUrl
+  }
+
+  const [cookieSuffix] = maybeState.split('.')
+  if (!cookieSuffix) {
+    return fallbackUrl
+  }
+
+  const { [`VERITABLE_REDIRECT.${cookieSuffix}`]: formerRedirect } = req.signedCookies
+  if (!formerRedirect) {
+    return fallbackUrl
+  }
+
+  return formerRedirect
+}
+
 export default async (startEvents: boolean = true) => {
   const logger = container.resolve<ILogger>(Logger)
 
@@ -101,7 +127,7 @@ export default async (startEvents: boolean = true) => {
 
       const redirect = new URL(`${env.get('PUBLIC_URL')}/auth/login`)
       redirect.search = new URLSearchParams({
-        path: req.originalUrl,
+        path: getRedirectUrl(req),
       }).toString()
 
       return res.redirect(302, redirect.toString())
