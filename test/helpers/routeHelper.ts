@@ -1,5 +1,15 @@
 import express from 'express'
 import request from 'supertest'
+import { z } from 'zod'
+
+const tokenSchema = z.object({
+  access_token: z.string(),
+  expires_in: z.number(),
+  refresh_expires_in: z.number(),
+  token_type: z.enum(['Bearer']), // Assuming "Bearer" is the only valid value
+  'not-before-policy': z.number(),
+  scope: z.string(),
+})
 
 const getToken = async () => {
   const tokenReq = await fetch('http://localhost:3080/realms/veritable/protocol/openid-connect/token', {
@@ -18,7 +28,8 @@ const getToken = async () => {
     throw new Error(`Error getting token from keycloak ${tokenReq.statusText}`)
   }
 
-  const body = await tokenReq.json()
+  const bodyNotParsed = await tokenReq.json()
+  const body = tokenSchema.parse(bodyNotParsed)
   return body.access_token as string
 }
 
