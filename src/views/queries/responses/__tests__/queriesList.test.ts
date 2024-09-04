@@ -1,6 +1,6 @@
 import { expect } from 'chai'
 import { describe, it } from 'mocha'
-import QueryListTemplates from '../queriesList.js'
+import QueryListTemplates from '../../queriesList.js'
 
 describe('ConnectionTemplates', () => {
   const sampleDate = new Date(Date.UTC(2024, 6, 4))

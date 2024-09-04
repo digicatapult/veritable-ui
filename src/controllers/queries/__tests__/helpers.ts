@@ -11,8 +11,8 @@ import QueriesTemplates from '../../../views/queries/queries.js'
 import QueryListTemplates from '../../../views/queries/queriesList.js'
 import Scope3CarbonConsumptionResponseTemplates, {
   Scope3FormProps,
-} from '../../../views/queries/queryResponses/scope3.js'
-import Scope3CarbonConsumptionViewResponseTemplates from '../../../views/queries/queryResponses/viewResponseToScope3.js'
+} from '../../../views/queries/responses/scope3.js'
+import Scope3CarbonConsumptionViewResponseTemplates from '../../../views/queries/responses/viewResponseToScope3.js'
 import Scope3CarbonConsumptionTemplates from '../../../views/queryTypes/scope3.js'
 
 type QueryStatus = 'resolved' | 'pending_your_input' | 'pending_their_input'

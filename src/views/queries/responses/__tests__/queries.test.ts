@@ -1,6 +1,6 @@
 import { expect } from 'chai'
 import { describe, it } from 'mocha'
-import QueriesTemplates from '../queries.js'
+import QueriesTemplates from '../../queries.js'
 
 describe('ConnectionTemplates', () => {
   describe('listPage', () => {

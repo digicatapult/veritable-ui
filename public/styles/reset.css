@@ -33,41 +33,6 @@ input:hover {
   border: 1px solid var(--accent-color);
 }
 
-input[type='checkbox'] {
-  display: inline-flex;
-  appearance: none;
-  background-color: #fff;
-  font: inherit;
-  color: var(--text-color-secondary);
-  width: 17px;
-  height: 17px;
-  border: 1px solid var(--text-color-secondary);
-  margin-right: 10px;
-  border-radius: 5px;
-  align-items: center;
-  justify-content: center;
-
-  &:hover {
-    border: 1px solid var(--accent-color);
-    background-color: rgba(86, 112, 241, 0.1);
-  }
-}
-
-input[type='checkbox']::before {
-  content: '';
-  border-radius: 3px;
-  width: 15px;
-  height: 15px;
-  transform: scale(0);
-  background-color: var(--accent-color);
-  background-size: cover;
-  background-image: url('/public/images/tick-white.svg');
-}
-
-input[type='checkbox']:checked::before {
-  transform: scale(1);
-}
-
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;

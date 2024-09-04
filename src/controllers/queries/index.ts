@@ -10,8 +10,8 @@ import { type UUID } from '../../models/strings.js'
 import VeritableCloudagent, { DrpcResponse } from '../../models/veritableCloudagent.js'
 import QueriesTemplates from '../../views/queries/queries.js'
 import QueryListTemplates from '../../views/queries/queriesList.js'
-import Scope3CarbonConsumptionResponseTemplates from '../../views/queries/queryResponses/scope3.js'
-import Scope3CarbonConsumptionViewResponseTemplates from '../../views/queries/queryResponses/viewResponseToScope3.js'
+import Scope3CarbonConsumptionResponseTemplates from '../../views/queries/responses/scope3.js'
+import Scope3CarbonConsumptionViewResponseTemplates from '../../views/queries/responses/viewResponseToScope3.js'
 import Scope3CarbonConsumptionTemplates from '../../views/queryTypes/scope3.js'
 import { HTML, HTMLController } from '../HTMLController.js'
 
@@ -320,7 +320,7 @@ export class QueriesController extends HTMLController {
       ['updated_at', 'desc'],
     ])
     if (!connection) {
-      throw new NotFoundError(`Invalid connection ${body.companyId}`)
+      throw new InvalidInputError(`Invalid connection ${body.companyId}`)
     }
     if (!connection.agent_connection_id || connection.status !== 'verified_both') {
       throw new InvalidInputError(`Cannot query unverified connection`)
