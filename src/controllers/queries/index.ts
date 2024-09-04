@@ -226,7 +226,8 @@ export class QueriesController extends HTMLController {
   /**
    * @param param.queryId:UUID - query uuid identifier
    * @param param.companyId:UUID - connection uuid identifier
-   * @param query.partialQuery:'on' - either render partial or not (checkbox state)
+   * @param query.partialQuery:'on' - either render partial. Checkbox state for checked it will
+   * add query string to the URL using the name of the input: (http://localhost:3000/form?<checkbox_name>=on)
    *
    * @returns a table of connections for partial query
    */

@@ -111,7 +111,7 @@ export const withQueriesMocks = (testOptions: Partial<QueryMockOptions> = {}) =>
   } as unknown as QueryListTemplates
   const mockLogger: ILogger = pino({ level: 'silent' })
   const dbMock = {
-    get: sinon.stub().callsFake((tableName: 'connection' | 'query', _) => Promise.resolve(options.getRows[tableName])),
+    get: sinon.stub().callsFake((tableName: 'connection' | 'query') => Promise.resolve(options.getRows[tableName])),
     update: sinon.stub().resolves(),
     insert: sinon.stub().resolves([
       {
