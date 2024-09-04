@@ -81,10 +81,15 @@ export class AuthController extends HTMLController {
 
   @Get('/redirect')
   @SuccessResponse(302, 'Redirect')
-  public async redirect(@Request() req: express.Request, @Query() state: string, @Query() code: string): Promise<void> {
+  public async redirect(
+    @Request() req: express.Request,
+    @Query() state: string,
+    @Query() code?: string,
+    @Query() error?: string
+  ): Promise<void> {
     const { res } = req
     if (!res) {
-      throw new InternalError()
+      throw new InternalError('Result not found on request')
     }
     const [cookieSuffix, redirectNonce] = state.split('.')
     if (!cookieSuffix || !redirectNonce) {
@@ -98,14 +103,21 @@ export class AuthController extends HTMLController {
       throw new ForbiddenError('State parameter did not match expected nonce')
     }
 
+    const redirect = cookieRedirect || `${this.env.get('PUBLIC_URL')}`
+
+    if (error || !code) {
+      this.logger.info('Unexpected error returned from keycloak error: %s code: %s', error, code)
+      // redirect to essentially retry the login flow. At some point we should maintain a count for these to then redirect to an error page
+      res.redirect(302, redirect)
+      return
+    }
+
     const { access_token, refresh_token } = await this.idp.getTokenFromCode(code, this.redirectUrl)
 
     res.clearCookie(`VERITABLE_NONCE.${cookieSuffix}`)
     res.clearCookie(`VERITABLE_REDIRECT.${cookieSuffix}`)
     res.cookie('VERITABLE_ACCESS_TOKEN', access_token, tokenCookieOpts)
     res.cookie('VERITABLE_REFRESH_TOKEN', refresh_token, tokenCookieOpts)
-
-    const redirect = cookieRedirect || `${this.env.get('PUBLIC_URL')}`
 
     this.logger.debug('auth redirect to %s', redirect)
     res.redirect(302, redirect)

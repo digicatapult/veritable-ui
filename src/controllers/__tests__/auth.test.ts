@@ -250,5 +250,23 @@ describe('AuthController', () => {
       expect(stub.calledOnce).equal(true)
       expect(stub.firstCall.args).deep.equal([302, 'http://www.example.com'])
     })
+
+    it('should redirect to without setting cookies on error', async function () {
+      const controller = new AuthController(mockEnv, idpMock, mockLogger)
+      const req = mkRequestMock()
+
+      await controller.redirect(
+        { ...req, signedCookies: { 'VERITABLE_NONCE.suffix': 'nonce' } } as unknown as express.Request,
+        'suffix.nonce',
+        undefined,
+        'error'
+      )
+
+      const stub = req.res.redirect
+      expect(stub.calledOnce).equal(true)
+      expect(stub.firstCall.args).deep.equal([302, 'http://www.example.com'])
+      expect(req.res.cookie.callCount).to.equal(0)
+      expect(req.res.clearCookie.callCount).to.equal(0)
+    })
   })
 })
