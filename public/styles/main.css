@@ -603,6 +603,14 @@ input[type='checkbox'] {
   }
 }
 
+input:focus {
+  outline: 2px solid var(--focus-color);
+}
+
+input:hover {
+  border: 1px solid var(--accent-color);
+}
+
 input[type='checkbox']::before {
   content: '';
   border-radius: 3px;
