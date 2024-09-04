@@ -56,19 +56,22 @@ export class AuthController extends HTMLController {
       throw new InternalError()
     }
 
-    // make random state
+    // make random state. We use a cookie suffix so we can handle multiple simultaneous pages on the same site
+    const cookieSuffix = randomBytes(16).toString('base64url')
     const nonce = randomBytes(32).toString('base64url')
-    res.cookie('VERITABLE_NONCE', nonce, nonceCookieOpts)
+    res.cookie(`VERITABLE_NONCE.${cookieSuffix}`, nonce, nonceCookieOpts)
 
-    // setup for final redirect
-    res.cookie('VERITABLE_REDIRECT', path, nonceCookieOpts)
+    // setup for final redirect. We also check if we're in a redirect loop where we'll redirect back to the redirect. If so just go to root
+    const parsedPath = new URL(path, this.env.get('PUBLIC_URL'))
+    const veritableRedirect = parsedPath.pathname === '/auth/redirect' ? this.env.get('PUBLIC_URL') : path
+    res.cookie(`VERITABLE_REDIRECT.${cookieSuffix}`, veritableRedirect, nonceCookieOpts)
 
     const redirect = new URL(this.idp.authorizationEndpoint('PUBLIC'))
     redirect.search = new URLSearchParams({
       response_type: 'code',
       client_id: this.env.get('IDP_CLIENT_ID'),
       redirect_uri: this.redirectUrl,
-      state: nonce,
+      state: `${cookieSuffix}.${nonce}`,
       scope: 'openid',
     }).toString()
 
@@ -78,26 +81,43 @@ export class AuthController extends HTMLController {
 
   @Get('/redirect')
   @SuccessResponse(302, 'Redirect')
-  public async redirect(@Request() req: express.Request, @Query() state: string, @Query() code: string): Promise<void> {
-    const {
-      res,
-      signedCookies: { VERITABLE_NONCE, VERITABLE_REDIRECT },
-    } = req
+  public async redirect(
+    @Request() req: express.Request,
+    @Query() state: string,
+    @Query() code?: string,
+    @Query() error?: string
+  ): Promise<void> {
+    const { res } = req
     if (!res) {
-      throw new InternalError()
+      throw new InternalError('Result not found on request')
     }
-    if (state !== VERITABLE_NONCE) {
-      throw new ForbiddenError()
+    const [cookieSuffix, redirectNonce] = state.split('.')
+    if (!cookieSuffix || !redirectNonce) {
+      throw new ForbiddenError('Format of state parameter incorrect')
+    }
+
+    const { [`VERITABLE_NONCE.${cookieSuffix}`]: cookieNonce, [`VERITABLE_REDIRECT.${cookieSuffix}`]: cookieRedirect } =
+      req.signedCookies
+
+    if (redirectNonce !== cookieNonce) {
+      throw new ForbiddenError('State parameter did not match expected nonce')
+    }
+
+    const redirect = cookieRedirect || `${this.env.get('PUBLIC_URL')}`
+
+    if (error || !code) {
+      this.logger.info('Unexpected error returned from keycloak error: %s code: %s', error, code)
+      // redirect to essentially retry the login flow. At some point we should maintain a count for these to then redirect to an error page
+      res.redirect(302, redirect)
+      return
     }
 
     const { access_token, refresh_token } = await this.idp.getTokenFromCode(code, this.redirectUrl)
 
-    res.clearCookie('VERITABLE_NONCE')
-    res.clearCookie('VERITABLE_REDIRECT')
+    res.clearCookie(`VERITABLE_NONCE.${cookieSuffix}`)
+    res.clearCookie(`VERITABLE_REDIRECT.${cookieSuffix}`)
     res.cookie('VERITABLE_ACCESS_TOKEN', access_token, tokenCookieOpts)
     res.cookie('VERITABLE_REFRESH_TOKEN', refresh_token, tokenCookieOpts)
-
-    const redirect = VERITABLE_REDIRECT || `${this.env.get('PUBLIC_URL')}`
 
     this.logger.debug('auth redirect to %s', redirect)
     res.redirect(302, redirect)
