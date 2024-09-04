@@ -31,7 +31,7 @@
     "xss-scan": "xss-scan"
   },
   "dependencies": {
-    "@digicatapult/tsoa-oauth-express": "^0.1.36",
+    "@digicatapult/tsoa-oauth-express": "^0.1.38",
     "@kitajs/html": "^4.2.1",
     "@kitajs/ts-html-plugin": "^4.0.2",
     "@tsoa/runtime": "^6.4.0",
