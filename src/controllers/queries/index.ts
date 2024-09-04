@@ -260,7 +260,7 @@ export class QueriesController extends HTMLController {
 
     // due to very long names, re-assigning to a shorter variable (render)
     const render = this.scope3CarbonConsumptionResponseTemplates.newScope3CarbonConsumptionResponseFormPage
-    this.logger.info('rendering partial query')
+    this.logger.info('rendering partial query %j', query.details)
 
     return this.html(
       render({
@@ -283,11 +283,11 @@ export class QueriesController extends HTMLController {
   @SuccessResponse(200)
   @Get('/partial-select/{connectionId}/')
   public async partialSelect(@Path() connectionId: UUID, @Query() partialSelect?: 'on'): Promise<HTML> {
-    this.logger.debug('partial select %j', { connectionId })
+    this.logger.debug('partial select %s', connectionId)
     const [company]: ConnectionRow[] = await this.db.get('connection', { id: connectionId })
     if (!company) throw new NotFoundError('connection not found')
 
-    this.logger.debug('selecting: %j', { connectionId })
+    this.logger.debug('selected: %j and will be returning an updated table row', { company })
     const checked: boolean = partialSelect === 'on' || false
 
     return this.html(
