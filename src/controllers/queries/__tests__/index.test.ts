@@ -1,8 +1,9 @@
 import { expect } from 'chai'
 import { describe, it } from 'mocha'
 import sinon from 'sinon'
+
 import { QueriesController } from '../index.js'
-import { toHTMLString, withQueriesMocks } from './helpers.js'
+import { mockIds, toHTMLString, withQueriesMocks } from './helpers.js'
 
 describe('QueriesController', () => {
   afterEach(() => {
@@ -223,7 +224,69 @@ describe('QueriesController', () => {
     })
   })
   describe('Partial Query', () => {
-    it('validates query and company/connection', () => {})
-    it('pulls connections and returns along with partial = true', () => {})
+    const { args, dbMock } = withQueriesMocks()
+    let result: string
+
+    before(async () => {
+      sinon.restore()
+
+      const controller = new QueriesController(...args)
+      result = await controller
+        .scope3CO2Partial(
+          mockIds.queryId, // url param
+          mockIds.companyId, // url param
+          'on' // partialSelect query string param
+        )
+        .then(toHTMLString)
+    })
+
+    afterEach(() => sinon.restore())
+
+    describe('if query string param [partialQuery] not provided', () => {
+      it('renders a regular form template', async () => {
+        const controller = new QueriesController(...args)
+        result = await controller
+          .scope3CO2Partial(
+            mockIds.queryId, // url param
+            mockIds.companyId // url param
+          )
+          .then(toHTMLString)
+
+        expect(result).to.be.equal('queriesResponse_template')
+      })
+    })
+
+    it('returns the correct HTML template', () => {
+      expect(result).to.contain('queriesResponse_template')
+    })
+
+    it('retrieves connections and query details from a database', async () => {
+      expect(dbMock.get.args).to.deep.equal([
+        ['query', { id: '00000000-0000-0000-0000-d8ae0805059e' }],
+        ['connection', { id: 'cccccccc-0001-0000-0000-d8ae0805059e' }],
+        ['connection', { status: 'verified_both' }],
+      ])
+    })
+
+    it('pulls connections and returns along with partial = true', async () => {
+      const formatted = JSON.parse(result.replace('queriesResponse_template-', ''))
+
+      expect(result).to.contain('queriesResponse_template-')
+      expect(formatted.partial).to.be.equal(true)
+      expect(formatted.connections).to.deep.equal([
+        {
+          agent_connection_id: 'aaaaaaaa-0000-0000-0000-d8ae0805059e',
+          company_name: 'PARTIAL_QUERY',
+          id: 'cccccccc-0000-0000-0000-d8ae0805059e',
+          status: 'verified_both',
+        },
+        {
+          agent_connection_id: 'aaaaaaaa-0000-0000-0000-d8ae0805059e',
+          company_name: 'VERIFIED_THEM',
+          id: 'cccccccc-0000-0000-0000-d8ae0805059e',
+          status: 'verified_them',
+        },
+      ])
+    })
   })
 })

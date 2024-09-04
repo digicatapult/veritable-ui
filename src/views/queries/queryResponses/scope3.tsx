@@ -5,7 +5,7 @@ import { ConnectionRow } from '../../../models/db/types.js'
 import { FormButton, LinkButton, Page } from '../../common.js'
 
 export type Scope3FormStage = 'form' | 'success' | 'error'
-interface Scope3FormProps {
+export interface Scope3FormProps {
   formStage: Scope3FormStage
   company: ConnectionRow
   connections?: ConnectionRow[]

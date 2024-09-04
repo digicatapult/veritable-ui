@@ -268,7 +268,7 @@ export class QueriesController extends HTMLController {
         company,
         queryId,
         partial: partialQuery === 'on' ? true : false,
-        connections,
+        connections: connections.filter(({ id }: ConnectionRow) => id !== companyId),
         formStage: 'form',
       })
     )

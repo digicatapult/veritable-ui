@@ -1,13 +1,17 @@
 import { Readable } from 'node:stream'
 import { pino } from 'pino'
 import sinon from 'sinon'
+
 import { ILogger } from '../../../logger.js'
 import Database from '../../../models/db/index.js'
 import { ConnectionRow, QueryRow } from '../../../models/db/types.js'
+import { UUID } from '../../../models/strings.js'
 import VeritableCloudagent from '../../../models/veritableCloudagent.js'
 import QueriesTemplates from '../../../views/queries/queries.js'
 import QueryListTemplates from '../../../views/queries/queriesList.js'
-import Scope3CarbonConsumptionResponseTemplates from '../../../views/queries/queryResponses/scope3.js'
+import Scope3CarbonConsumptionResponseTemplates, {
+  Scope3FormProps,
+} from '../../../views/queries/queryResponses/scope3.js'
 import Scope3CarbonConsumptionViewResponseTemplates from '../../../views/queries/queryResponses/viewResponseToScope3.js'
 import Scope3CarbonConsumptionTemplates from '../../../views/queryTypes/scope3.js'
 
@@ -26,14 +30,48 @@ type QueryMockOptions = {
     query: Partial<QueryRow>[]
   }
 }
+
+const mockIds: { [k: string]: UUID } = {
+  queryId: '00000000-0000-0000-0000-d8ae0805059e',
+  companyId: 'cccccccc-0001-0000-0000-d8ae0805059e',
+  connectionId: 'cccccccc-0000-0000-0000-d8ae0805059e',
+  agentConnectionId: 'aaaaaaaa-0000-0000-0000-d8ae0805059e',
+}
+
 const defaultOptions: QueryMockOptions = {
   getRows: {
-    connection: [{ company_name: 'VER123', status: 'verified_both', id: '11', agent_connection_id: 'agentId' }],
+    connection: [
+      {
+        company_name: 'VER123',
+        status: 'verified_both',
+        id: mockIds.companyId,
+        agent_connection_id: mockIds.agentConnectionId,
+      },
+      {
+        company_name: 'PARTIAL_QUERY',
+        status: 'verified_both',
+        id: mockIds.connectionId,
+        agent_connection_id: mockIds.agentConnectionId,
+      },
+      {
+        company_name: 'VERIFIED_THEM',
+        status: 'verified_them',
+        id: mockIds.connectionId,
+        agent_connection_id: mockIds.agentConnectionId,
+      },
+    ],
     query: [
       {
-        id: 'x',
+        id: mockIds.queryId,
         status: 'pending_their_input',
-        connection_id: '11',
+        connection_id: mockIds.connectionId,
+        details: { quantity: 2, queryId: 'xyz123' },
+        response_id: '5390af91-c551-4d74-b394-d8ae0805059e',
+      },
+      {
+        id: mockIds.queryId,
+        status: 'pending_your_input',
+        connection_id: mockIds.connectionId,
         details: { quantity: 2, queryId: 'xyz123' },
         response_id: '5390af91-c551-4d74-b394-d8ae0805059e',
       },
@@ -41,7 +79,8 @@ const defaultOptions: QueryMockOptions = {
   },
 }
 
-function templateFake(templateName: string) {
+function templateFake(templateName: string, props?: any) {
+  if (props?.partial) return Promise.resolve(`${templateName}_template-${JSON.stringify(props)}`)
   return Promise.resolve(`${templateName}_template`)
 }
 function templateListFake(templateName: string, ...args: any[]) {
@@ -61,7 +100,7 @@ export const withQueriesMocks = (testOptions: Partial<QueryMockOptions> = {}) =>
   } as unknown as Scope3CarbonConsumptionViewResponseTemplates
 
   const scope3CarbonConsumptionResponseTemplateMock = {
-    newScope3CarbonConsumptionResponseFormPage: () => templateFake('queriesResponse'),
+    newScope3CarbonConsumptionResponseFormPage: (props: Scope3FormProps) => templateFake('queriesResponse', props),
   } as unknown as Scope3CarbonConsumptionResponseTemplates
   const queryTemplateMock = {
     chooseQueryPage: () => templateFake('queries'),
@@ -77,7 +116,7 @@ export const withQueriesMocks = (testOptions: Partial<QueryMockOptions> = {}) =>
   } as unknown as QueryListTemplates
   const mockLogger: ILogger = pino({ level: 'silent' })
   const dbMock = {
-    get: sinon.stub().callsFake((tableName: 'connection' | 'query') => Promise.resolve(options.getRows[tableName])),
+    get: sinon.stub().callsFake((tableName: 'connection' | 'query', {}) => Promise.resolve(options.getRows[tableName])),
     update: sinon.stub().resolves(),
     insert: sinon.stub().resolves([
       {
@@ -121,3 +160,5 @@ export const toHTMLString = async (stream: Readable) => {
   }
   return Buffer.concat(chunks).toString('utf8')
 }
+
+export { mockIds }
