@@ -43,7 +43,7 @@ const cloudagentMock = {
   getConnections: sinon.stub().resolves(fixtures['agent_connections']),
 }
 
-const withMocks = (DEMO_MODE: Boolean = true) => {
+const withMocks = (DEMO_MODE: boolean = true) => {
   const mockLogger: ILogger = pino({ level: 'silent' })
   const mockEnv = {
     get: sinon.stub().callsFake((name: string) => {
@@ -65,6 +65,11 @@ const withMocks = (DEMO_MODE: Boolean = true) => {
   }
 }
 
+type ResetControllerPublic = ResetController & { isReset: ResetController['isReset'] }
+const stubIsReset = (controller: ResetController, val: boolean) => {
+  sinon.stub(controller as unknown as ResetControllerPublic, 'isReset').callsFake(() => Promise.resolve(val))
+}
+
 describe('ResetController', () => {
   let result: unknown
   before(() => {})
@@ -75,7 +80,7 @@ describe('ResetController', () => {
   describe('/reset ', () => {
     describe('if DEMO_MODE is set to false', () => {
       before(async () => {
-        let { args } = withMocks(false)
+        const { args } = withMocks(false)
         const controller = new ResetController(...args)
 
         try {
@@ -109,7 +114,7 @@ describe('ResetController', () => {
         dbMock.get.onSecondCall().resolves([])
         dbMock.get.onThirdCall().resolves([])
         dbMock.get.onCall(4).resolves([])
-        let { args } = withMocks()
+        const { args } = withMocks()
 
         const controller = new ResetController(...args)
 
@@ -122,12 +127,12 @@ describe('ResetController', () => {
 
       describe('and if isReset() returns false', () => {
         it('throws InternalError and returns error message', async () => {
-          let { args } = withMocks()
+          const { args } = withMocks()
           const controller = new ResetController(...args)
-          sinon.stub(controller, <any>'isReset').callsFake(() => Promise.resolve(false))
+          stubIsReset(controller, false)
 
           try {
-            result = (await controller.reset()) as unknown
+            result = await controller.reset()
           } catch (err) {
             result = err
           }
@@ -162,10 +167,10 @@ describe('ResetController', () => {
       })
 
       it('return(200', async () => {
-        let { args } = withMocks(true)
+        const { args } = withMocks(true)
         const controller = new ResetController(...args)
-        sinon.stub(controller, <any>'isReset').callsFake(() => Promise.resolve(true))
-        result = (await controller.reset()) as unknown
+        stubIsReset(controller, true)
+        result = await controller.reset()
 
         expect(result).to.deep.equal({ statusCode: 200 })
       })

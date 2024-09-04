@@ -10,10 +10,11 @@ export type templateName = keyof templateParams
 export type templateHandlers = {
   [key in templateName]: (env: Env, ...params: templateParams[key]) => Promise<SendMailOptions>
 }
-type ExtractParam<F extends { template: (env: Env, ...args: any) => any }> = F['template'] extends (
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type ExtractParam<F extends { template: (env: Env, ...args: any[]) => unknown }> = F['template'] extends (
   env: Env,
   ...params: infer P
-) => any
+) => unknown
   ? P
   : never
 

@@ -68,7 +68,7 @@ export const withEstablishedConnectionFromUs = function (context: {
     await cleanupRemote()
 
     const email = container.resolve(EmailService)
-    emailSendStub = sinon.stub(email, 'sendMail')
+    emailSendStub = sinon.stub(email, 'sendMail').resolves()
     await post(context.app, '/connection/new/create-invitation', {
       companyNumber: validCompanyNumber,
       email: 'alice@example.com',

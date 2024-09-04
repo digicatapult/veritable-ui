@@ -3,8 +3,12 @@ import { inject, injectable, singleton } from 'tsyringe'
 import { ZodType, z } from 'zod'
 import { Logger, type ILogger } from '../../logger.js'
 import Database from '../../models/db/index.js'
-import type { Credential, CredentialFormatData, Schema } from '../../models/veritableCloudagent.js'
-import VeritableCloudagent from '../../models/veritableCloudagent.js'
+import {
+  default as VeritableCloudagent,
+  type Credential,
+  type CredentialFormatData,
+  type Schema,
+} from '../../models/veritableCloudagent.js'
 import VeritableCloudagentEvents, { eventData } from '../veritableCloudagentEvents.js'
 import CompanyDetailsV1Handler from './companyDetailsV1.js'
 import { CredentialEventHandler, CredentialEventHandlerBase } from './types.js'
@@ -91,6 +95,7 @@ export default class CredentialEvents {
         }
       } catch (err) {
         this.logger.debug('There has been an error receiving problem report %s', record)
+        this.logger.debug('Problem report error o%', err)
         return
       }
 

@@ -13,12 +13,12 @@ const cleanupShared = async function (agent: VeritableCloudagent) {
 }
 
 export async function cleanupCloudagent() {
-  let agent = container.resolve(VeritableCloudagent)
+  const agent = container.resolve(VeritableCloudagent)
   await cleanupShared(agent)
 }
 
 export function withBobCloudAgentInvite(context: { invite: string }) {
-  let agent = new VeritableCloudagent(
+  const agent = new VeritableCloudagent(
     {
       get(name) {
         if (name === 'CLOUDAGENT_ADMIN_ORIGIN') {
@@ -46,7 +46,7 @@ export function withBobCloudAgentInvite(context: { invite: string }) {
 }
 
 export function withBobCloudagentAcceptInvite(context: { inviteUrl: string }) {
-  let agent = new VeritableCloudagent(
+  const agent = new VeritableCloudagent(
     {
       get(name) {
         if (name === 'CLOUDAGENT_ADMIN_ORIGIN') {

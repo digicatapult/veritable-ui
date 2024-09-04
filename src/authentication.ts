@@ -2,9 +2,11 @@ import mkExpressAuthentication, { type AuthOptions } from '@digicatapult/tsoa-oa
 import type * as express from 'express'
 import { container } from 'tsyringe'
 
+import { ILogger, Logger } from './logger.js'
 import IDPService from './models/idpService.js'
 
 const idp = container.resolve(IDPService)
+const logger = container.resolve<ILogger>(Logger)
 
 const tokenCookieOpts: express.CookieOptions = {
   sameSite: true,
@@ -41,6 +43,7 @@ const tokenStore: AuthOptions = {
       res.cookie('VERITABLE_REFRESH_TOKEN', refresh_token, tokenCookieOpts)
       return true
     } catch (err) {
+      logger.debug('Error refreshing token o%', err)
       return false
     }
   },

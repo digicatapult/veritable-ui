@@ -24,22 +24,25 @@ export default class EmailService {
   private buildTransport(): typeof this.transportSendMail {
     switch (this.env.get('EMAIL_TRANSPORT')) {
       case 'STREAM':
-        const transport = nodemailer.createTransport({
-          streamTransport: true,
-          buffer: true,
-          newline: 'unix',
-        })
-        const logger = this.logger
-        return async function sendMail(this: typeof transport, options: SendMailOptions) {
-          const info = await this.sendMail(options)
-
-          logger.info('Sending email with message id %s', info.messageId)
-          logger.debug(`email envelope %s (from: %s, to %s)`, info.messageId, info.envelope.from, info.envelope.to)
-          logger.debug(`email contents %s: %s`, info.messageId, info.message.toString('utf8'))
-
-          return info
-        }.bind(transport)
+        return this.buildStreamTransport()
     }
+  }
+  private buildStreamTransport(): typeof this.transportSendMail {
+    const transport = nodemailer.createTransport({
+      streamTransport: true,
+      buffer: true,
+      newline: 'unix',
+    })
+    const logger = this.logger
+    return async function sendMail(this: typeof transport, options: SendMailOptions) {
+      const info = await this.sendMail(options)
+
+      logger.info('Sending email with message id %s', info.messageId)
+      logger.debug(`email envelope %s (from: %s, to %s)`, info.messageId, info.envelope.from, info.envelope.to)
+      logger.debug(`email contents %s: %s`, info.messageId, info.message.toString('utf8'))
+
+      return info
+    }.bind(transport)
   }
 
   async sendMail<T extends templateName>(name: T, ...params: templateParams[T]): Promise<void> {

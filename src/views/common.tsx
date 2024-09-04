@@ -1,6 +1,5 @@
-import type { PropsWithChildren } from '@kitajs/html'
-import { escapeHtml } from '@kitajs/html'
 /// <reference types="@kitajs/html/all-types.d.ts" />
+import { escapeHtml, type PropsWithChildren } from '@kitajs/html'
 
 type HeaderLink = { name: string; url: string }
 

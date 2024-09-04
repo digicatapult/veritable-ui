@@ -440,18 +440,19 @@ export class QueriesController extends HTMLController {
 }
 
 function combineData(query_subset: QueryRow[], connections: ConnectionRow[]) {
-  const connectionMap: Record<string, string> = {}
+  const connectionMap: Map<string, string> = new Map()
   for (const connection of connections) {
     if (connection.id) {
-      connectionMap[connection.id] = connection.company_name
+      connectionMap.set(connection.id, connection.company_name)
     }
   }
 
   return query_subset
-    .filter((query) => connectionMap.hasOwnProperty(query.connection_id)) // Filter out queries without a matching connection
     .map((query) => {
-      const company_name = connectionMap[query.connection_id]
-
+      const company_name = connectionMap.get(query.connection_id)
+      if (!company_name) {
+        return undefined
+      }
       return {
         id: query.id,
         company_name: company_name,
@@ -461,4 +462,5 @@ function combineData(query_subset: QueryRow[], connections: ConnectionRow[]) {
         role: query.role,
       }
     })
+    .filter((query) => query !== undefined) // Filter out queries without a matching connection
 }

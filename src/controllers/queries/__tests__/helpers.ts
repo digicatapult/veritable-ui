@@ -80,7 +80,7 @@ function templateFake(templateName: string, props?: any) {
   if (props?.partial) return Promise.resolve(`${templateName}_template-${JSON.stringify(props)}`)
   return Promise.resolve(`${templateName}_template`)
 }
-function templateListFake(templateName: string, ...args: any[]) {
+function templateListFake(templateName: string, ...args: unknown[]) {
   return Promise.resolve([templateName, args.join('-'), templateName].join('_'))
 }
 export const withQueriesMocks = (testOptions: Partial<QueryMockOptions> = {}) => {
