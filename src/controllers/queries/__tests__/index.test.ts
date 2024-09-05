@@ -246,7 +246,7 @@ describe('QueriesController', () => {
         const controller = new QueriesController(...args)
         result = await controller
           .scope3CO2Partial(
-            mockIds.queryId, // url param
+            mockIds.queryId // url param
           )
           .then(toHTMLString)
 

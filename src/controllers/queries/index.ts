@@ -233,15 +233,12 @@ export class QueriesController extends HTMLController {
    */
   @SuccessResponse(200)
   @Get('/{queryId}/partial/{companyId}')
-  public async scope3CO2Partial(
-    @Path() queryId: UUID,
-    @Query() partialQuery?: 'on'
-  ): Promise<HTML> {
+  public async scope3CO2Partial(@Path() queryId: UUID, @Query() partialQuery?: 'on'): Promise<HTML> {
     this.logger.debug('partial query response requested %s', queryId)
     const [query]: QueryRow[] = await this.db.get('query', { id: queryId })
     if (!query) throw new NotFoundError('query not found')
 
-    const [company]: ConnectionRow[] = await this.db.get('connection', { id: query.connection_id})
+    const [company]: ConnectionRow[] = await this.db.get('connection', { id: query.connection_id })
     if (!company) throw new NotFoundError('company connection not found')
 
     this.logger.debug('query and connection - are found %j', { company, query })
