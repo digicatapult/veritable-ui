@@ -76,7 +76,9 @@ export default class Scope3CarbonConsumptionViewResponseTemplates {
                     </tr>
                     <tr>
                       <td>Carbon Emissions:</td>
-                      <td class="query-results-left-padding-table">{Html.escapeHtml(query.emissions)}</td>
+                      <td class="query-results-left-padding-table">
+                        {Html.escapeHtml(query.emissions)} metric tonnes of Carbon Dioxide (CO2) equivalent
+                      </td>
                     </tr>
                   </table>
                 </div>
