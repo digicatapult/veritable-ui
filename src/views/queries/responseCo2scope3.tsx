@@ -136,7 +136,7 @@ export default class Scope3CarbonConsumptionResponseTemplates {
                 <input
                   hx-trigger="changed, click"
                   hx-target="#partial-query"
-                  hx-get={`/queries/${props.queryId}/partial/${props.company.id}`}
+                  hx-get={`/queries/${props.queryId}/partial}`}
                   id="partial-response-input"
                   name="partialQuery"
                   type="checkbox"

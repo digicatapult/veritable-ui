@@ -234,7 +234,6 @@ describe('QueriesController', () => {
       result = await controller
         .scope3CO2Partial(
           mockIds.queryId, // url param
-          mockIds.companyId, // url param
           'on' // partialSelect query string param
         )
         .then(toHTMLString)
@@ -248,7 +247,6 @@ describe('QueriesController', () => {
         result = await controller
           .scope3CO2Partial(
             mockIds.queryId, // url param
-            mockIds.companyId // url param
           )
           .then(toHTMLString)
 

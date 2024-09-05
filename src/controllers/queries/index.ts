@@ -235,14 +235,13 @@ export class QueriesController extends HTMLController {
   @Get('/{queryId}/partial/{companyId}')
   public async scope3CO2Partial(
     @Path() queryId: UUID,
-    @Path() companyId: UUID,
     @Query() partialQuery?: 'on'
   ): Promise<HTML> {
-    this.logger.debug('partial query response requested %j', { queryId, companyId })
+    this.logger.debug('partial query response requested %s', queryId)
     const [query]: QueryRow[] = await this.db.get('query', { id: queryId })
     if (!query) throw new NotFoundError('query not found')
 
-    const [company]: ConnectionRow[] = await this.db.get('connection', { id: companyId })
+    const [company]: ConnectionRow[] = await this.db.get('connection', { id: query.connection_id})
     if (!company) throw new NotFoundError('company connection not found')
 
     this.logger.debug('query and connection - are found %j', { company, query })
@@ -258,7 +257,7 @@ export class QueriesController extends HTMLController {
         company,
         queryId,
         partial: partialQuery === 'on' ? true : false,
-        connections: connections.filter(({ id }: ConnectionRow) => id !== companyId),
+        connections: connections.filter(({ id }: ConnectionRow) => id !== query.connection_id),
         formStage: 'form',
       })
     )

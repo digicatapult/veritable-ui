@@ -61,7 +61,7 @@ const defaultOptions: QueryMockOptions = {
       {
         id: mockIds.queryId,
         status: 'pending_their_input',
-        connection_id: mockIds.connectionId,
+        connection_id: mockIds.companyId,
         details: { quantity: 2, queryId: 'xyz123' },
         response_id: '5390af91-c551-4d74-b394-d8ae0805059e',
       },
