@@ -2,6 +2,8 @@ import type { PropsWithChildren } from '@kitajs/html'
 import { escapeHtml } from '@kitajs/html'
 /// <reference types="@kitajs/html/all-types.d.ts" />
 
+import { Env } from '../env.js'
+
 type HeaderLink = { name: string; url: string }
 
 type PageProps = {
@@ -56,9 +58,15 @@ export const FormButton = (props: FormButtonProps): JSX.Element => (
  * @returns JSX - Sidarbar
  */
 const SideBar = ({ activePage }: { activePage: PageProps['activePage'] }): JSX.Element => {
+  const title = new Env().get('API_SWAGGER_TITLE').slice(0, 1)
+  const backgroundColor = new Env().get('API_SWAGGER_BG_COLOR')
+
   return (
     <nav id="side-bar">
       <img src="/public/images/logo-square.svg" />
+      <div class="profile-icon" style={{ backgroundColor }}>
+        {title}
+      </div>
       <a
         title="categories"
         href="/"

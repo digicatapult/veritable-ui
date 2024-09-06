@@ -81,6 +81,8 @@ services:
       - LOG_LEVEL=trace
       - DB_HOST=postgres-veritable-ui-bob
       - DB_NAME=veritable-ui
+      - API_SWAGGER_TITLE=Bob
+      - API_SWAGGER_BG_COLOR=#ff3131
       - PUBLIC_URL=http://localhost:3001
       - CLOUDAGENT_ADMIN_ORIGIN=http://veritable-cloudagent-bob:3000
       - CLOUDAGENT_ADMIN_WS_ORIGIN=ws://veritable-cloudagent-bob:3000
