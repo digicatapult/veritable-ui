@@ -5,7 +5,7 @@ import { checkDb } from '../helpers.js'
 import { withCheckDbMocks } from './helpers.js'
 describe('CheckDb helper function', () => {
   it('should return an error message', async () => {
-    let { mockLogger } = withCheckDbMocks()
+    const { mockLogger } = withCheckDbMocks()
     const result = checkDb(
       [
         {
@@ -30,7 +30,7 @@ describe('CheckDb helper function', () => {
     })
   })
   it('should return a success message', async () => {
-    let { mockLogger } = withCheckDbMocks()
+    const { mockLogger } = withCheckDbMocks()
     const result = checkDb(
       [
         {
@@ -51,7 +51,7 @@ describe('CheckDb helper function', () => {
     expect(result).to.deep.equal({ localPinAttempts: 4, message: 'Success', nextScreen: 'success' })
   })
   it('should return an error message maximum pin entry tries reached', async () => {
-    let { mockLogger } = withCheckDbMocks()
+    const { mockLogger } = withCheckDbMocks()
     const result = checkDb(
       [
         {
@@ -77,7 +77,7 @@ describe('CheckDb helper function', () => {
     })
   })
   it('should return an error message on 1st wrong pin attempt', async () => {
-    let { mockLogger } = withCheckDbMocks()
+    const { mockLogger } = withCheckDbMocks()
     const result = checkDb(
       [
         {
@@ -103,7 +103,7 @@ describe('CheckDb helper function', () => {
     })
   })
   it('should throw an error if the database becomes inconsistent with our initial value', async () => {
-    let { mockLogger } = withCheckDbMocks()
+    const { mockLogger } = withCheckDbMocks()
     let err: unknown = null
     try {
       checkDb(
@@ -129,7 +129,7 @@ describe('CheckDb helper function', () => {
     expect(err).to.be.instanceOf(InternalError)
   })
   it('should throw an error if the database becomes inconsistent with our initial value', async () => {
-    let { mockLogger } = withCheckDbMocks()
+    const { mockLogger } = withCheckDbMocks()
     let err: unknown = null
     try {
       checkDb(

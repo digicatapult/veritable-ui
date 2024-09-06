@@ -79,12 +79,9 @@ const Zod = {
   },
 }
 
-const { connection } = Zod
-const { query } = Zod
-
-export type InsertConnection = z.infer<typeof connection.insert>
-export type ConnectionRow = z.infer<typeof connection.get>
-export type QueryRow = z.infer<typeof query.get>
+export type InsertConnection = z.infer<typeof Zod.connection.insert>
+export type ConnectionRow = z.infer<typeof Zod.connection.get>
+export type QueryRow = z.infer<typeof Zod.query.get>
 
 export type TABLES_TUPLE = typeof tablesList
 export type TABLE = TABLES_TUPLE[number]

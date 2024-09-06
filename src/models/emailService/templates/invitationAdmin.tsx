@@ -4,7 +4,7 @@ import { Env } from '../../../env.js'
 
 export default {
   name: 'connection_invite_admin' as const,
-  template: async function (env: Env, params: { pin: string; address: String }): Promise<SendMailOptions> {
+  template: async function (env: Env, params: { pin: string; address: string }): Promise<SendMailOptions> {
     return {
       to: env.get('EMAIL_ADMIN_ADDRESS'),
       from: env.get('EMAIL_FROM_ADDRESS'),

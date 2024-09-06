@@ -52,6 +52,7 @@ type WebSocketEvent = z.infer<typeof eventParser>
 type WebSocketEventMap = MapDiscriminatedUnion<WebSocketEvent, 'type'>
 type WebSocketEventNames = WebSocketEvent['type']
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 declare const CloudagentOn: VeritableCloudagentEvents['on']
 export type eventData<T> = Parameters<typeof CloudagentOn<T>>[1]
 export type DrpcRequest = z.infer<typeof drpcRequestParser>
@@ -104,6 +105,7 @@ export default class VeritableCloudagentEvents extends IndexedAsyncEventEmitter<
           data = eventParser.parse(JSON.parse(ev.data.toString()))
         } catch (err) {
           this.logger.warn('Unusable event received %o', ev.data)
+          this.logger.debug('Parser error %o', err)
           return
         }
 
@@ -120,12 +122,11 @@ export default class VeritableCloudagentEvents extends IndexedAsyncEventEmitter<
             credentialSeen.add(id)
             break
           case 'DrpcRequestStateChanged':
-            const requestId = data.payload.drpcMessageRecord.request?.id
-            if (requestId === undefined) {
+            if (data.payload.drpcMessageRecord.request?.id === undefined) {
               this.logger.trace('Skipping %s event with undefined id', type)
               return
             }
-            id = requestId
+            id = data.payload.drpcMessageRecord.request?.id
             break
           default:
             this.logger.trace('Skipping %s event', type)

@@ -44,7 +44,7 @@ const defaultOptions: QueryMockOptions = {
 function templateFake(templateName: string) {
   return Promise.resolve(`${templateName}_template`)
 }
-function templateListFake(templateName: string, ...args: any[]) {
+function templateListFake(templateName: string, ...args: unknown[]) {
   return Promise.resolve([templateName, args.join('-'), templateName].join('_'))
 }
 export const withQueriesMocks = (testOptions: Partial<QueryMockOptions> = {}) => {

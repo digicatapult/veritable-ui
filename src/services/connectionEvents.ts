@@ -4,6 +4,7 @@ import { Logger, type ILogger } from '../logger.js'
 import Database from '../models/db/index.js'
 import VeritableCloudagentEvents from './veritableCloudagentEvents.js'
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 declare const CloudagentOn: VeritableCloudagentEvents['on']
 type eventData<T> = Parameters<typeof CloudagentOn<T>>[1]
 

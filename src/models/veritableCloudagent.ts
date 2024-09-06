@@ -301,7 +301,7 @@ export default class VeritableCloudagent {
   public async submitDrpcRequest(
     connectionId: string,
     method: string,
-    params: Record<string, any>
+    params: Record<string, unknown>
   ): Promise<DrpcResponse | undefined> {
     const body = {
       jsonrpc: '2.0',

@@ -22,7 +22,7 @@ import {
   validExistingCompanyNumber,
 } from './fixtures.js'
 
-function templateFake(templateName: string, ...args: any[]) {
+function templateFake(templateName: string, ...args: unknown[]) {
   return Promise.resolve([templateName, args.join('-'), templateName].join('_'))
 }
 
@@ -120,7 +120,7 @@ export const withNewConnectionMocks = () => {
       if (where?.id === '4a5d4085-5924-43c6-b60d-754440332e3d') return [validConnection]
       return []
     },
-    withTransaction: (fn: Function) => {
+    withTransaction: (fn: (arg: unknown) => unknown) => {
       return Promise.resolve(fn(mockTransactionDb))
     },
   } as unknown as Database
@@ -160,10 +160,11 @@ export const withNewConnectionMocks = () => {
     },
   } as unknown as VeritableCloudagent
   const mockEmail = {
-    sendMail: () => {},
+    sendMail: () => Promise.resolve(),
   } as unknown as EmailService
   const mockNewInvite = {
     newInviteFormPage: (feedback: FormFeedback) => templateFake('newInvitePage', feedback.type),
+    // eslint-disable-next-line  @typescript-eslint/no-explicit-any
     newInviteForm: ({ feedback, formStage, email, companyNumber }: any) =>
       templateFake(
         'companyFormInput',
@@ -177,6 +178,7 @@ export const withNewConnectionMocks = () => {
   } as unknown as NewInviteTemplates
   const mockFromInvite = {
     fromInviteFormPage: (feedback: FormFeedback) => templateFake('fromInvitePage', feedback.type),
+    // eslint-disable-next-line  @typescript-eslint/no-explicit-any
     fromInviteForm: ({ feedback }: any) =>
       templateFake(
         'fromInviteForm',
