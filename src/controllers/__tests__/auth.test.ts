@@ -259,7 +259,6 @@ describe('AuthController', () => {
         { ...req, signedCookies: { 'VERITABLE_NONCE.suffix': 'nonce' } } as unknown as express.Request,
         'suffix.nonce',
         undefined,
-        'error'
       )
 
       const stub = req.res.redirect
