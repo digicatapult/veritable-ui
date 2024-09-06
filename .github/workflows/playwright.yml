@@ -1,0 +1,47 @@
+name: Playwright Tests
+on:
+  push:
+    branches-ignore: ['main']
+jobs:
+  test:
+    timeout-minutes: 60
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20.x
+      - name: Cache Node.js modules
+        uses: actions/cache@v4
+        with:
+          path: ~/.npm # npm cache files are stored in `~/.npm` on Linux/macOS
+          key: ${{ runner.OS }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.OS }}-node-
+            ${{ runner.OS }}-
+      - name: Install Packages
+        run: npm ci
+      - name: Build tsoa
+        run: npm run tsoa:build
+      - name: touch env
+        run: touch .env
+      - name: Setup dependencies
+        run: docker compose up -d
+      - name: Sleep
+        uses: kibertoad/wait-action@1.0.1
+        with:
+          time: '30s'
+      - name: Run database migrations
+        run: npm run db:migrate
+        env:
+          NODE_ENV: test
+      - name: Install Playwright Browsers
+        run: npx playwright install --with-deps
+      - name: Run Playwright tests
+        run: npx playwright test
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 30
