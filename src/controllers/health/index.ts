@@ -14,7 +14,7 @@ type Response = {
 
 @singleton()
 @injectable()
-@Route('/reset')
+@Route('/health')
 @Hidden()
 export class HealthController {
   constructor(
