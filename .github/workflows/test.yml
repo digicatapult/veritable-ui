@@ -1,4 +1,4 @@
-name: Lint and Test
+name: e2e test Test
 
 on:
   push:
