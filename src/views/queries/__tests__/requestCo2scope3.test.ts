@@ -1,7 +1,7 @@
 import { expect } from 'chai'
 import { describe, test } from 'mocha'
 import { ConnectionRow } from '../../../models/db/types.js'
-import Scope3CarbonConsumptionTemplates from '../scope3.js'
+import Scope3CarbonConsumptionTemplates from '../requestCo2scope3.js'
 
 describe('Scope3CarbonConsumptionTemplates', () => {
   describe('newScope3CarbonConsumptionFormPage', () => {
