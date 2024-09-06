@@ -110,6 +110,7 @@ This is the list of all environment variables including brief description
 | ISSUANCE_DID_POLICY            | y        | EXISTING_OR_NEW                                                | DID and either create or use existing: [CREATE_NEW, FIND_EXIStING, EXISTING_OR_NEW, did:somedid] |
 | ISSUANCE_SCHEMA_POLICY         | y        | EXISTING_OR_NEW                                                | Same as above but for credential schema                                                          |
 | ISSUANCE_CRED_DEF_POLICY       | y        | EXISTING_OR_NEW                                                | Same as above but this is for credential definitions                                             |
+| DEMO_MODE                      | y        | true                                                           | Enables or disables the `/reset` endpoint
 
 ## Testing
 Currently this repository consist of two test types: [**integration**, **unit**] and we are using a combination of `mocha`, `chai` and `sinon` frameworks

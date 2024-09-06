@@ -126,7 +126,7 @@ export default class Scope3CarbonConsumptionTemplates {
                             name="connectionId"
                             value={connection.id}
                             disabled={connection.status !== 'verified_both'}
-                          ></input>
+                          />
                         </td>
                         <td>{Html.escapeHtml(connection.company_name)}</td>
                       </tr>
@@ -148,13 +148,13 @@ export default class Scope3CarbonConsumptionTemplates {
     return (
       <div>
         <div class="container-scope3-carbon">
-          <div class="box1">
+          <div class="scope3-co2-left">
             <h1>Scope 3 Carbon Consumption</h1>
             <p class="query-text-carbon3-consumption">
               Creates a query for calculating the total scope 3 carbon consumption for a given product or component.
             </p>
           </div>
-          <div class="box2">
+          <div class="scope3-co2-right">
             <p>
               Choose the product that you want to apply the query “What is your scope 1, 2, 3 carbon consumption?” to.
             </p>
@@ -175,7 +175,7 @@ export default class Scope3CarbonConsumptionTemplates {
                   id="productId-input"
                   name="productId"
                   placeholder="BX20001"
-                  class="query-input-field"
+                  class="input-label"
                   type="text"
                   required
                   value={props.productId}
@@ -193,8 +193,8 @@ export default class Scope3CarbonConsumptionTemplates {
                   placeholder="123"
                   pattern="^\d+$"
                   required
-                  value={props.quantity?.toString()}
-                  class="query-input-field"
+                  value={props?.quantity?.toString()}
+                  class="input-label"
                 ></input>
                 <p class="additional-input-label">Quantity of product</p>
               </div>

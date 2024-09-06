@@ -1,13 +1,11 @@
 import Html from '@kitajs/html'
 import { singleton } from 'tsyringe'
-import { UUID } from '../../models/strings.js'
 import { LinkButton, Page } from '../common.js'
 
 type QueryStatus = 'resolved' | 'pending_your_input' | 'pending_their_input' | 'errored'
 type QueryRole = 'responder' | 'requester'
-
-interface Query {
-  id: UUID
+type Query = {
+  id: string
   company_name: string
   query_type: string
   updated_at: Date
@@ -62,7 +60,7 @@ export default class QueryListTemplates {
       case 'resolved':
         return <p>Received</p>
       default:
-        return <p>not sure</p>
+        return <p>unknown</p>
     }
   }
   private buttonText = (status: string | QueryStatus, role: QueryRole) => {

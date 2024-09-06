@@ -10,19 +10,9 @@ import { type UUID } from '../../models/strings.js'
 import VeritableCloudagent, { DrpcResponse } from '../../models/veritableCloudagent.js'
 import QueriesTemplates from '../../views/queries/queries.js'
 import QueryListTemplates from '../../views/queries/queriesList.js'
-import Scope3CarbonConsumptionResponseTemplates from '../../views/queries/queryResponses/respondToScope3.js'
-import Scope3CarbonConsumptionViewResponseTemplates from '../../views/queries/queryResponses/viewResponseToScope3.js'
-import Scope3CarbonConsumptionTemplates from '../../views/queryTypes/scope3.js'
+import Scope3CarbonConsumptionTemplates from '../../views/queries/requestCo2scope3.js'
+import Scope3CarbonConsumptionResponseTemplates from '../../views/queries/responseCo2scope3.js'
 import { HTML, HTMLController } from '../HTMLController.js'
-
-type QueryStatus = 'resolved' | 'pending_your_input' | 'pending_their_input'
-interface Query {
-  id: UUID
-  company_name: string
-  query_type: string
-  updated_at: Date
-  status: QueryStatus
-}
 
 @singleton()
 @injectable()
@@ -33,7 +23,6 @@ export class QueriesController extends HTMLController {
   constructor(
     private scope3CarbonConsumptionTemplates: Scope3CarbonConsumptionTemplates,
     private scope3CarbonConsumptionResponseTemplates: Scope3CarbonConsumptionResponseTemplates,
-    private scope3CarbonConsumptionViewResponseTemplates: Scope3CarbonConsumptionViewResponseTemplates,
     private queriesTemplates: QueriesTemplates,
     private queryManagementTemplates: QueryListTemplates,
     private cloudagent: VeritableCloudagent,
@@ -224,13 +213,77 @@ export class QueriesController extends HTMLController {
     }
 
     return this.html(
-      this.scope3CarbonConsumptionResponseTemplates.newScope3CarbonConsumptionResponseFormPage(
-        'form',
-        connection,
+      this.scope3CarbonConsumptionResponseTemplates.newScope3CarbonConsumptionResponseFormPage({
+        formStage: 'form',
+        company: connection,
         queryId,
-        query.details['quantity'],
-        query.details['productId']
-      )
+        quantity: query.details['quantity'],
+        productId: query.details['productId'],
+      })
+    )
+  }
+
+  /**
+   * @param param.queryId:UUID - query uuid identifier
+   * @param param.companyId:UUID - connection uuid identifier
+   * @param query.partialQuery:'on' - either render partial. Checkbox state for checked it will
+   * add query string to the URL using the name of the input: (http://localhost:3000/form?<checkbox_name>=on)
+   *
+   * @returns a table of connections for partial query
+   */
+  @SuccessResponse(200)
+  @Get('/{queryId}/partial/{companyId}')
+  public async scope3CO2Partial(@Path() queryId: UUID, @Query() partialQuery?: 'on'): Promise<HTML> {
+    this.logger.debug('partial query response requested %s', queryId)
+    const [query]: QueryRow[] = await this.db.get('query', { id: queryId })
+    if (!query) throw new NotFoundError('query not found')
+
+    const [company]: ConnectionRow[] = await this.db.get('connection', { id: query.connection_id })
+    if (!company) throw new NotFoundError('company connection not found')
+
+    this.logger.debug('query and connection - are found %j', { company, query })
+    const connections: ConnectionRow[] = await this.db.get('connection', { status: 'verified_both' })
+
+    // due to very long names, re-assigning to a shorter variable (render)
+    const render = this.scope3CarbonConsumptionResponseTemplates.newScope3CarbonConsumptionResponseFormPage
+    this.logger.info('rendering partial query %j', query.details)
+
+    return this.html(
+      render({
+        ...query.details,
+        company,
+        queryId,
+        partial: partialQuery === 'on' ? true : false,
+        connections: connections.filter(({ id }: ConnectionRow) => id !== query.connection_id),
+        formStage: 'form',
+      })
+    )
+  }
+
+  /**
+   * @param param.connectionId:UUID
+   * @param query.partialSelect:'on' - if it's selected by checkbox, then it would add 'on' as a the query string
+   * to the URL: (http://localhost:3000/form?<checkbox_name>=on)
+   *
+   * @returns - a tabe row for partial query
+   */
+  @SuccessResponse(200)
+  @Get('/partial-select/{connectionId}/')
+  public async partialSelect(@Path() connectionId: UUID, @Query() partialSelect?: 'on'): Promise<HTML> {
+    this.logger.debug('partial select %s', connectionId)
+    const [company]: ConnectionRow[] = await this.db.get('connection', { id: connectionId })
+    if (!company) throw new NotFoundError('connection not found')
+
+    this.logger.debug('selected: %j and will be returning an updated table row', { company })
+    const checked: boolean = partialSelect === 'on' || false
+
+    return this.html(
+      this.scope3CarbonConsumptionResponseTemplates.tableRow({
+        id: connectionId,
+        checked,
+        company_name: company.company_name,
+        company_number: company.company_number,
+      })
     )
   }
 
@@ -246,32 +299,22 @@ export class QueriesController extends HTMLController {
       companyId: UUID
       action: 'success'
       totalScope3CarbonEmissions: string
-      partialResponse?: number
     }
   ): Promise<HTML> {
     this.logger.debug('query page requested')
 
-    const [connection]: ConnectionRow[] = await this.db.get(
-      'connection',
-      { id: body.companyId, status: 'verified_both' },
-      [['updated_at', 'desc']]
-    )
+    const [connection] = await this.db.get('connection', { id: body.companyId, status: 'verified_both' }, [
+      ['updated_at', 'desc'],
+    ])
     if (!connection) {
       throw new InvalidInputError(`Invalid connection ${body.companyId}`)
     }
     if (!connection.agent_connection_id || connection.status !== 'verified_both') {
       throw new InvalidInputError(`Cannot query unverified connection`)
     }
-
-    const [queryRow]: QueryRow[] = await this.db.get('query', { id: queryId })
-    if (!queryRow) {
-      throw new NotFoundError(`There has been an issue retrieving the query.`)
-    } else if (!queryRow.response_id) {
-      throw new InvalidInputError('Missing queryId to respond to.')
-    } else if (queryRow.connection_id !== connection.id) {
-      throw new NotFoundError(`Missing queryId to respond to.`)
-    } else if (queryRow.status === 'errored') {
-      throw new InvalidInputError('Cannot process query with status - "errored"')
+    const [queryRow] = await this.db.get('query', { id: queryId })
+    if (!queryRow.response_id) {
+      throw new InvalidInputError(`Missing queryId to respond to.`)
     }
 
     const query = {
@@ -319,7 +362,10 @@ export class QueriesController extends HTMLController {
     }
 
     return this.html(
-      this.scope3CarbonConsumptionResponseTemplates.newScope3CarbonConsumptionResponseFormPage('success', connection)
+      this.scope3CarbonConsumptionResponseTemplates.newScope3CarbonConsumptionResponseFormPage({
+        formStage: 'success',
+        company: connection,
+      })
     )
   }
 
@@ -330,7 +376,7 @@ export class QueriesController extends HTMLController {
   @Get('/scope-3-carbon-consumption/{queryId}/view-response')
   public async scope3CarbonConsumptionViewResponse(@Path() queryId: UUID): Promise<HTML> {
     this.logger.debug('requested to view response to a query %j', { queryId })
-    const [query] = await this.db.get('query', { id: queryId })
+    const [query]: QueryRow[] = await this.db.get('query', { id: queryId })
 
     if (!query) {
       throw new NotFoundError(`There has been an issue retrieving the query.`)
@@ -345,7 +391,7 @@ export class QueriesController extends HTMLController {
     }
 
     return this.html(
-      this.scope3CarbonConsumptionViewResponseTemplates.scope3CarbonConsumptionViewResponsePage({
+      this.scope3CarbonConsumptionResponseTemplates.view({
         company_name: connection.company_name,
         quantity: query.details['quantity'],
         productId: query.details['productId'],
