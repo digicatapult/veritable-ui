@@ -23,6 +23,8 @@ jobs:
         run: npm ci
       - name: Build tsoa
         run: npm run tsoa:build
+      - name: Build
+        run: npm run build
       - name: touch env
         run: touch .env
       - name: Setup dependencies
