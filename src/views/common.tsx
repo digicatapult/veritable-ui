@@ -64,7 +64,7 @@ const SideBar = ({ activePage }: { activePage: PageProps['activePage'] }): JSX.E
     <nav id="side-bar">
       <img src="/public/images/logo-square.svg" />
       <div class="profile-icon" style={{ backgroundColor }}>
-        {title}
+        {escapeHtml(title)}
       </div>
       <a
         title="categories"
