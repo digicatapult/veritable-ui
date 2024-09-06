@@ -35,6 +35,8 @@ jobs:
         run: npm run db:migrate
         env:
           NODE_ENV: test
+      - name: start
+        run: npm run start
       - name: Install Playwright Browsers
         run: npx playwright install --with-deps
       - name: Run Playwright tests
