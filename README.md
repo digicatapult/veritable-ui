@@ -146,6 +146,11 @@ E2e tests are placed at root level in the e2e directory. To run them simply brin
 ```sh
 npm run test:e2e
 ```
+A browser window will pop up where you can run tests and follow their progress. Alternatively you can run: 
+```sh
+npm run playwright:test
+```
+This will run the tests without the ui. 
 
 ## Database
 This service is dependant on postgreSQL which will sync up across all nodes and will update cloudagent when needed. We use `knex` wrapper for wrapping [create, read, write, update] database quries. We also have different models for inserting and returning data which gives us a control of sensitive data or data we do not want to get along the record. We also use **zod** for enchanted validation. It's currently used in `src/models/db/types.ts` file.
