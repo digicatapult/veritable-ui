@@ -3,6 +3,7 @@ build
 src/swagger.json
 src/routes.ts
 dist
+ctrf/
 
 .npm
 .env
@@ -15,3 +16,7 @@ npm-debug.log*
 .tsimp
 
 .DS_Store
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/

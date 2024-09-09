@@ -93,6 +93,77 @@ jobs:
       - name: Run tests
         run: npm run ${{ matrix.command }}
 
+  e2e-tests:
+    timeout-minutes: 60
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20.x
+      - name: Cache Node.js modules
+        uses: actions/cache@v4
+        with:
+          path: ~/.npm # npm cache files are stored in `~/.npm` on Linux/macOS
+          key: ${{ runner.OS }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.OS }}-node-
+            ${{ runner.OS }}-
+      - name: Install Packages
+        run: npm ci
+      - name: Build tsoa
+        run: npm run tsoa:build
+      - name: Build
+        run: npm run build
+      - name: touch env
+        run: touch .env
+      - name: Setup dependencies
+        run: docker compose up -d
+      - name: Sleep
+        uses: kibertoad/wait-action@1.0.1
+        with:
+          time: '30s'
+      - name: Run database migrations
+        run: npm run db:migrate
+        env:
+          NODE_ENV: test
+      - name: Start server in detached mode
+        run: nohup npm run start &
+        env:
+          PORT: 3000
+          LOG_LEVEL: debug
+          DB_HOST: localhost
+          DB_NAME: veritable-ui
+          DB_USERNAME: postgres
+          DB_PASSWORD: postgres
+          DB_PORT: 5432
+          COOKIE_SESSION_KEYS: '["secret"]'
+          PUBLIC_URL: http://localhost:3000
+          IDP_CLIENT_ID: veritable-ui
+          IDP_PUBLIC_URL_PREFIX: http://localhost:3080/realms/veritable/protocol/openid-connect
+          IDP_INTERNAL_URL_PREFIX: http://localhost:3080/realms/veritable/protocol/openid-connect
+          CLOUDAGENT_ADMIN_ORIGIN: http://localhost:3100
+          CLOUDAGENT_ADMIN_WS_ORIGIN: ws://localhost:3100
+          INVITATION_PIN_SECRET: secret
+          INVITATION_FROM_COMPANY_NUMBER: 07964699
+          ISSUANCE_DID_POLICY: EXISTING_OR_NEW
+          ISSUANCE_SCHEMA_POLICY: EXISTING_OR_NEW
+          ISSUANCE_CRED_DEF_POLICY: EXISTING_OR_NEW
+          COMPANY_PROFILE_API_KEY: apikey
+      - name: Install Playwright Browsers
+        run: npx playwright install --with-deps
+      - name: Run Playwright tests
+        run: npm run test:playwright
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 90
+      - name: Publish CTRF Test Summary Results
+        run: npx github-actions-ctrf ctrf/ctrf-report.json
+        if: always()
+
   check-version:
     name: 'Check version'
     runs-on: ubuntu-latest
@@ -112,7 +183,7 @@ jobs:
 
   publish:
     name: 'Publish package'
-    needs: [preconditions, static-checks, tests, check-version]
+    needs: [preconditions, static-checks, tests, e2e-tests, check-version]
     runs-on: ubuntu-latest
     if: ${{ needs.check-version.outputs.is_new_version == 'true' }}
 
