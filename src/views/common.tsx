@@ -1,7 +1,10 @@
 /// <reference types="@kitajs/html/all-types.d.ts" />
 import { escapeHtml, type PropsWithChildren } from '@kitajs/html'
+import { container } from 'tsyringe'
 
 import { Env } from '../env.js'
+
+const env = container.resolve(Env)
 
 type HeaderLink = { name: string; url: string }
 
@@ -57,8 +60,8 @@ export const FormButton = (props: FormButtonProps): JSX.Element => (
  * @returns JSX - Sidarbar
  */
 const SideBar = ({ activePage }: { activePage: PageProps['activePage'] }): JSX.Element => {
-  const title = new Env().get('API_SWAGGER_TITLE').slice(0, 1)
-  const backgroundColor = new Env().get('API_SWAGGER_BG_COLOR')
+  const title = env.get('API_SWAGGER_TITLE').slice(0, 1)
+  const backgroundColor = env.get('API_SWAGGER_BG_COLOR')
 
   return (
     <nav id="side-bar">
