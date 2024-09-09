@@ -64,8 +64,8 @@ export const envConfig = {
   DB_PORT: envalid.port({ default: 5432 }),
   COOKIE_SESSION_KEYS: strArrayValidator({ devDefault: ['secret'] }),
   PUBLIC_URL: envalid.url({ devDefault: 'http://localhost:3000' }),
-  API_SWAGGER_BG_COLOR: envalid.str({ devDefault: '#ff3131', default: '#ffffff' }),
-  API_SWAGGER_TITLE: envalid.str({ devDefault: 'Bob', default: 'veritable' }),
+  API_SWAGGER_BG_COLOR: envalid.str({ devDefault: '#38b6ff', default: '#ffffff' }),
+  API_SWAGGER_TITLE: envalid.str({ devDefault: 'Alice', default: 'veritable' }),
   API_SWAGGER_HEADING: envalid.str({ default: 'Veritable' }),
   IDP_CLIENT_ID: envalid.str({ devDefault: 'veritable-ui' }),
   IDP_PUBLIC_URL_PREFIX: envalid.url({
