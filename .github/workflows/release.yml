@@ -183,7 +183,7 @@ jobs:
 
   publish:
     name: 'Publish package'
-    needs: [preconditions, static-checks, tests, check-version]
+    needs: [preconditions, static-checks, tests, e2e-tests, check-version]
     runs-on: ubuntu-latest
     if: ${{ needs.check-version.outputs.is_new_version == 'true' }}
 
