@@ -5,9 +5,9 @@ type HeaderLink = { name: string; url: string }
 
 type PageProps = {
   title: string
-  heading: string
   activePage: 'categories' | 'queries' | 'connections' | 'certifications' | 'settings'
   headerLinks: HeaderLink[]
+  heading?: string
   stylesheets?: string[]
 }
 
@@ -147,7 +147,7 @@ export const Page = (props: PropsWithChildren<PageProps>): JSX.Element => (
       <body hx-ext="json-enc">
         <SideBar activePage={props.activePage} />
         <main>
-          <ContentHeader heading={props.heading} headerLinks={props.headerLinks} />
+          {props.heading && <ContentHeader heading={props.heading as string} headerLinks={props.headerLinks} />}
           <div id="content-main" {...extractHtmxProps(props)}>
             {props.children}
           </div>
