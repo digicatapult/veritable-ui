@@ -3,6 +3,7 @@ build
 src/swagger.json
 src/routes.ts
 dist
+ctrf/
 
 .npm
 .env
