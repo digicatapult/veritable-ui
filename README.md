@@ -140,6 +140,12 @@ Integration tests can be run locally by executing the below command
 npm run test:integration
 ```
 
+### e3e Testing
+E2e tests are placed at root level in the e2e directory. To run them simply bring up the project in dev mode and then run locally using command: 
+```sh
+npm run test:e2e
+```
+
 ## Database
 This service is dependant on postgreSQL which will sync up across all nodes and will update cloudagent when needed. We use `knex` wrapper for wrapping [create, read, write, update] database quries. We also have different models for inserting and returning data which gives us a control of sensitive data or data we do not want to get along the record. We also use **zod** for enchanted validation. It's currently used in `src/models/db/types.ts` file.
 
@@ -171,4 +177,3 @@ You can find Bob's UI on `localhost:3001` and Alice's on `localhost:3000`.
 On Bob's UI go to `Connections > Invite New Connection` and enter a valid Company House Number (for testing purposes we have been using Digital Catapult's). Enter an email and submit your invite. Then in the list of Bob's connections you should see a new connection in 'Pending' state. Then go to Docker -> container called `Bob` in it's logs you will find a generated invite and also a pin code.
 You will enter the invitation and pin into Alice's UI in `Connections > Add From Invitation`.
 NOTE: you will need to format the Invitation Text. You need to remove any datetime stamps from the logs, remove spaces and equal signs and make sure that there are no leading ot trailing spaces when pasted to the form.
-
