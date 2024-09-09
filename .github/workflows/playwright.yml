@@ -61,12 +61,24 @@ jobs:
           ISSUANCE_CRED_DEF_POLICY: EXISTING_OR_NEW
           COMPANY_PROFILE_API_KEY: apikey
       - name: Install Playwright Browsers
-        run: npx playwright install --with-deps
+        run: npm run playwright:install
       - name: Run Playwright tests
-        run: npx playwright test
+        run: npm run playwright:test
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: playwright-report
           path: playwright-report/
           retention-days: 30
+      - name: Publish CTRF Test Summary Results
+        run: npx github-actions-ctrf summary path-to-your-ctrf-report.json
+        if: always()
+      - name: Publish CTRF Detailed Test Summary Results
+        run: npx github-actions-ctrf tests path-to-your-ctrf-report.json
+        if: always()
+      - name: Publish CTRF Failed Test Summary Results
+        run: npx github-actions-ctrf failed path-to-your-ctrf-report.json
+        if: always()
+      - name: Publish CTRF Flaky Test Summary Results
+        run: npx github-actions-ctrf flaky path-to-your-ctrf-report.json
+        if: always()
