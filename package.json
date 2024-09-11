@@ -20,7 +20,7 @@
     "build": "npm run tsoa:build && tsc",
     "tsoa:build": "tsoa spec-and-routes",
     "tsoa:watch": "node --watch-path=./src ./node_modules/.bin/tsoa -- spec-and-routes",
-    "dev": "npm run tsoa:watch & NODE_ENV=dev node --import=tsimp/import --watch src/index.ts | pino-colada",
+    "dev": "npm run tsoa:watch & NODE_ENV=dev node --import=tsimp/import --watch src/index.ts",
     "dev:init": "NODE_ENV=dev node --import=tsimp/import src/init.ts | pino-colada",
     "init": "node build/init.js",
     "start": "node build/index.js",

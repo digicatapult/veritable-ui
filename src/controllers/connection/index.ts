@@ -80,9 +80,9 @@ export class ConnectionController extends HTMLController {
   @SuccessResponse(200)
   @Post('/{connectionId}/pin-submission')
   public async submitPinCode(
+    @Request() req: express.Request,
     @Body() body: { action: 'submitPinCode'; pin: PIN_CODE | string; stepCount?: number },
-    @Path() connectionId: UUID,
-    @Request() req: express.Request
+    @Path() connectionId: UUID
   ): Promise<HTML> {
     this.logger = this.logger.child({ req_id: req?.id })
     this.logger.debug('PIN_SUBMISSION POST: %o', { body })

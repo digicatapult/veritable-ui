@@ -1,4 +1,5 @@
 import { expect } from 'chai'
+import express from 'express'
 import { describe, it } from 'mocha'
 import { pino } from 'pino'
 import { Env } from '../../../env.js'
@@ -18,7 +19,7 @@ const mockEnv = {
 describe('HealthController', () => {
   it('returns status ok along with title and public url', async () => {
     const controller = new HealthController(mockEnv, mockLogger)
-    const res = await controller.get('unit-test')
+    const res = await controller.get({ id: 'unit-test_req-id' } as express.Request, 'unit-test')
     expect(res).to.deep.equal({
       status: 'ok',
       details: {
