@@ -90,7 +90,6 @@ export class AuthController extends HTMLController {
     @Query() code?: string,
     @Query() error?: string
   ): Promise<void> {
-    this.logger = this.logger.child({ req_id: req.id })
     const { res } = req
     if (!res) {
       throw new InternalError('Result not found on request')

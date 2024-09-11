@@ -421,7 +421,7 @@ export class QueriesController extends HTMLController {
     const [query]: QueryRow[] = await this.db.get('query', { id: queryId })
 
     if (!query) throw new NotFoundError(`There has been an issue retrieving the query.`)
-    if (!query.query_response) throw new InvalidInputError(`This query does not seem to have a response yet.`)
+    if (query.query_response === null) throw new InvalidInputError(`This query does not seem to have a response yet.`)
 
     const [connection] = await this.db.get('connection', { id: query.connection_id })
     if (!connection) throw new InvalidInputError(`There has been an issue retrieving the connection.`)

@@ -221,9 +221,8 @@ describe('QueriesController', () => {
       const { args, dbMock } = withQueriesMocks()
       const controller = new QueriesController(...args)
       const spy = dbMock.get
-      await controller.scope3CarbonConsumptionViewResponse(mockReq, 'SomeId').then(toHTMLString)
-      const search = 'SomeId'
-      expect(spy.firstCall.calledWith('query', { id: search })).to.equal(true)
+      await controller.scope3CarbonConsumptionViewResponse(mockReq, mockIds.queryId).then(toHTMLString)
+      expect(spy.firstCall.calledWith('query', { id: mockIds.queryId })).to.equal(true)
     })
   })
   describe('Partial Query', () => {
