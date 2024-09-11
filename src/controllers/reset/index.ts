@@ -1,4 +1,5 @@
-import { Get, Hidden, Produces, Route, Security, SuccessResponse } from 'tsoa'
+import express from 'express'
+import { Get, Hidden, Produces, Request, Route, Security, SuccessResponse } from 'tsoa'
 import { inject, injectable, singleton } from 'tsyringe'
 
 import { Env } from '../../env.js'
@@ -51,11 +52,11 @@ export class ResetController {
    */
   @SuccessResponse(200)
   @Get('/')
-  public async reset(): Promise<{ statusCode: number }> {
+  public async reset(@Request() req: express.Request): Promise<{ statusCode: number }> {
+    this.logger = this.logger.child({ req_id: req })
     const DEMO_MODE = this.env.get('DEMO_MODE')
     if (!DEMO_MODE) {
-      this.logger.debug('Instance is not in DEMO_MODE')
-
+      this.logger.debug('bad request DEMO_MODE=%s', DEMO_MODE)
       throw new BadRequestError('DEMO_MODE is false')
     }
 
@@ -63,7 +64,7 @@ export class ResetController {
       const connections: Connection[] = await this.cloudagent.getConnections()
       const credentials: Credential[] = await this.cloudagent.getCredentials()
 
-      this.logger.debug('found items at cloudagent: %j', { credentials, connections })
+      this.logger.debug('items found: %j', { credentials, connections })
 
       await Promise.all([
         ...credentials.map(({ id }: { id: string }) => {
@@ -79,6 +80,7 @@ export class ResetController {
 
       // confirm reset by calling isReset() method
       if (!(await this.isReset())) {
+        this.logger.warn('reset isReset() check has hailed')
         throw new InternalError('reset failed')
       }
 

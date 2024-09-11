@@ -1,4 +1,5 @@
-import { Get, Produces, Route, Security, SuccessResponse } from 'tsoa'
+import express from 'express'
+import { Get, Produces, Request, Route, Security, SuccessResponse } from 'tsoa'
 import { inject, injectable, singleton } from 'tsyringe'
 
 import { Logger, type ILogger } from '../logger.js'
@@ -25,8 +26,8 @@ export class HomepageController extends HTMLController {
    */
   @SuccessResponse(200)
   @Get('/')
-  public async homepage(): Promise<HTML> {
-    this.logger.debug('homepagepage requested')
+  public async homepage(@Request() req: express.Request): Promise<HTML> {
+    this.logger = this.logger.child({ req_id: req.id })
 
     return this.html(this.homepageTemplates.homepage())
   }

@@ -51,6 +51,7 @@ export class AuthController extends HTMLController {
   @Get('/login')
   @SuccessResponse(302, 'Redirect')
   public async login(@Request() req: express.Request, @Query() path: string): Promise<void> {
+    this.logger = this.logger.child({ req_id: req.id })
     const { res } = req
     if (!res) {
       throw new InternalError()
@@ -60,11 +61,13 @@ export class AuthController extends HTMLController {
     const cookieSuffix = randomBytes(16).toString('base64url')
     const nonce = randomBytes(32).toString('base64url')
     res.cookie(`VERITABLE_NONCE.${cookieSuffix}`, nonce, nonceCookieOpts)
+    this.logger.debug('storing VERITABLE_NONCE cookie %s', cookieSuffix)
 
     // setup for final redirect. We also check if we're in a redirect loop where we'll redirect back to the redirect. If so just go to root
     const parsedPath = new URL(path, this.env.get('PUBLIC_URL'))
     const veritableRedirect = parsedPath.pathname === '/auth/redirect' ? this.env.get('PUBLIC_URL') : path
     res.cookie(`VERITABLE_REDIRECT.${cookieSuffix}`, veritableRedirect, nonceCookieOpts)
+    this.logger.debug('storing VERITABLE_REDIRECT cookie %s', cookieSuffix)
 
     const redirect = new URL(this.idp.authorizationEndpoint('PUBLIC'))
     redirect.search = new URLSearchParams({
@@ -87,12 +90,14 @@ export class AuthController extends HTMLController {
     @Query() code?: string,
     @Query() error?: string
   ): Promise<void> {
+    this.logger = this.logger.child({ req_id: req.id })
     const { res } = req
     if (!res) {
       throw new InternalError('Result not found on request')
     }
     const [cookieSuffix, redirectNonce] = state.split('.')
     if (!cookieSuffix || !redirectNonce) {
+      this.logger.debug('incorect format of state parameter %j', { cookieSuffix, redirectNonce })
       throw new ForbiddenError('Format of state parameter incorrect')
     }
 

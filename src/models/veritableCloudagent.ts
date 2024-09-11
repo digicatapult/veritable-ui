@@ -310,7 +310,7 @@ export default class VeritableCloudagent {
     }
 
     const parser = this.buildParser(drpcResponseParser)
-    return this.postRequest(`/v1/drpc/${connectionId}/request`, body, (response) => {
+    return this.postRequest(`/v1/drpc/${connectionId}/request?timeout=50000`, body, (response) => {
       if (response.status === 204) {
         return undefined
       }
