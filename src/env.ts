@@ -85,7 +85,7 @@ export const envConfig = {
   }),
   COMPANY_HOUSE_API_URL: envalid.str({ default: 'https://api.company-information.service.gov.uk' }),
   COMPANY_PROFILE_API_KEY: envalid.str(),
-  EMAIL_TRANSPORT: envalid.str({ devDefault: 'SMTP_EMAIL', default: 'SMTP_EMAIL', choices: ['STREAM', 'SMTP_EMAIL'] }),
+  EMAIL_TRANSPORT: envalid.str({ default: 'STREAM', choices: ['STREAM', 'SMTP_EMAIL'] }),
   EMAIL_FROM_ADDRESS: envalid.email({ default: 'hello@veritable.com' }),
   EMAIL_ADMIN_ADDRESS: envalid.email({ default: 'admin@veritable.com' }),
   SMTP_HOST: envalid.str({ devDefault: 'localhost' }),

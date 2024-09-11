@@ -140,6 +140,14 @@ services:
       - POSTGRES_HOST=postgres-veritable-cloudagent-bob
       - WALLET_ID=bob
       - WALLET_KEY=bob-key
+  # -------------------- email -------------------------------#
+  smtp4dev:
+    image: rnwood/smtp4dev
+    container_name: smtp4dev
+    ports:
+      - '5000:80' # Port for accessing smtp4dev's web interface
+      - '2525:25' # Port for SMTP connections
+    restart: always
 
 volumes:
   ipfs:
