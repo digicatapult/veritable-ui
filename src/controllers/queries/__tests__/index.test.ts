@@ -12,6 +12,7 @@ describe('QueriesController', () => {
   afterEach(() => {
     sinon.restore()
   })
+
   describe('queries', () => {
     it('should match the snapshot of the rendered query page', async () => {
       const { args } = withQueriesMocks()
@@ -27,6 +28,7 @@ describe('QueriesController', () => {
       expect(spy.firstCall.calledWith('connection', [], [['updated_at', 'desc']])).to.equal(true)
       expect(spy.secondCall.calledWith('query', {}, [['updated_at', 'desc']])).to.equal(true)
     })
+
     it('should call db as expected', async () => {
       const { dbMock, args } = withQueriesMocks()
       const controller = new QueriesController(...args)
@@ -153,6 +155,7 @@ describe('QueriesController', () => {
 
       expect(result).to.equal('queriesResponse_template')
     })
+
     it('should call query response page with stage SUCCESS as expected', async () => {
       const { args } = withQueriesMocks()
       const controller = new QueriesController(...args)
@@ -166,6 +169,7 @@ describe('QueriesController', () => {
 
       expect(result).to.equal('queriesResponse_template')
     })
+
     it('should call page with stage error if rpc succeeds without response', async () => {
       const { args, cloudagentMock } = withQueriesMocks()
       cloudagentMock.submitDrpcRequest = sinon.stub().resolves(undefined)
@@ -182,6 +186,7 @@ describe('QueriesController', () => {
 
       expect(result).to.equal('scope3_error_scope3')
     })
+
     it('should call page with stage error if rpc fails', async () => {
       const { args, cloudagentMock } = withQueriesMocks()
       cloudagentMock.submitDrpcRequest = sinon.stub().rejects(new Error())
@@ -198,6 +203,7 @@ describe('QueriesController', () => {
       expect(result).to.equal('scope3_error_scope3')
     })
   })
+
   it('should call page with stage error if rpc succeeds with error', async () => {
     const { args, cloudagentMock } = withQueriesMocks()
     cloudagentMock.submitDrpcRequest = sinon.stub().resolves({
@@ -216,6 +222,7 @@ describe('QueriesController', () => {
 
     expect(result).to.equal('scope3_error_scope3')
   })
+
   describe('viewing query responses', () => {
     it('should call db as expected', async () => {
       const { args, dbMock } = withQueriesMocks()
@@ -225,6 +232,7 @@ describe('QueriesController', () => {
       expect(spy.firstCall.calledWith('query', { id: mockIds.queryId })).to.equal(true)
     })
   })
+
   describe('Partial Query', () => {
     const { args, dbMock } = withQueriesMocks()
     let result: string
