@@ -67,7 +67,6 @@ describe('SMTP email', () => {
     })
 
     it('should send an email via SMTP', async () => {
-      console.log(process.env.EMAIL_TRANSPORT)
       const options = {
         hostname: 'localhost',
         port: 5000,
