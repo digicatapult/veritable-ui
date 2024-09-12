@@ -50,17 +50,17 @@ export class QueriesController extends HTMLController {
     const query: Where<'connection'> = []
     if (search) {
       query.push(['company_name', 'ILIKE', `%${search}%`])
-      this.logger.debug('retrieving data... %j', query)
+      this.logger.debug('retrieving data... %j', JSON.stringify(query))
     }
-
     const connections = await this.db.get('connection', query, [['updated_at', 'desc']])
+
     const query_subset = await this.db.get('query', {}, [['updated_at', 'desc']])
 
     const queries = combineData(query_subset, connections)
     this.logger.debug('found and combined queries %j', queries)
 
     this.setHeader('HX-Replace-Url', search ? `/queries?search=${encodeURIComponent(search)}` : `/queries`)
-    return this.html(this.queryManagementTemplates.listPage(queries, search))
+    return this.html(this.queryManagementTemplates.listPage(queries, search?.toString()))
   }
 
   /**
@@ -72,7 +72,7 @@ export class QueriesController extends HTMLController {
     const query: Where<'connection'> = []
     if (search) {
       query.push(['company_name', 'ILIKE', `%${search}%`])
-      this.logger.debug('retrieving data... %j', query)
+      this.logger.debug('retrieving data... %j', JSON.stringify(query))
     }
 
     const connections = await this.db.get('connection', query, [['updated_at', 'desc']])

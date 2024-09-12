@@ -1,4 +1,5 @@
-import { Get, Header, Hidden, Route, SuccessResponse } from 'tsoa'
+import express from 'express'
+import { Get, Hidden, Request, Route, SuccessResponse } from 'tsoa'
 import { inject, injectable, singleton } from 'tsyringe'
 
 import { Env } from '../../env.js'
@@ -28,8 +29,8 @@ export class HealthController {
    */
   @SuccessResponse(200)
   @Get('/')
-  public get(@Header('User-Agent') agent: string): Response {
-    this.logger.debug('health endpoint from %s <-> user-agent', agent)
+  public get(@Request() req?: express.Request | undefined): Response {
+    this.logger.debug('request from %s agent', req?.headers['user-agent'])
 
     return {
       status: 'ok',

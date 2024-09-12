@@ -37,9 +37,11 @@ export class ConnectionController extends HTMLController {
    */
   @SuccessResponse(200)
   @Get('/')
-  public async listConnections(@Query() search?: string): Promise<HTML> {
-    const query = search ? [['company_name', 'ILIKE', `%${search}%`]] : {}
-    const connections = await this.db.get('connection', query, [['updated_at', 'desc']])
+  public async listConnections(@Query() search: string = ''): Promise<HTML> {
+    const connections =
+      search !== ''
+        ? await this.db.get('connection', [['company_name', 'ILIKE', `%${search}%`]], [['updated_at', 'desc']])
+        : await this.db.get('connection', {}, [['updated_at', 'desc']])
 
     this.setHeader('HX-Replace-Url', search ? `/connection?search=${encodeURIComponent(search)}` : `/connection`)
     return this.html(this.connectionTemplates.listPage(connections, search))
@@ -128,6 +130,7 @@ export class ConnectionController extends HTMLController {
 
   private async verifyReceiveConnection(agentConnectionId: string, profile: CompanyProfile, pin: string) {
     this.logger.trace('verifyReceiveConnection(): called', { agentConnectionId, profile, pin })
+
     await this.cloudagent.proposeCredential(agentConnectionId, {
       schemaName: 'COMPANY_DETAILS',
       schemaVersion: '1.0.0',
@@ -161,11 +164,12 @@ export class ConnectionController extends HTMLController {
         this.logger
       )
       if (finalState === undefined) {
-        throw new InternalError()
+        throw new InternalError(`finalState is ${finalState}`)
       }
       return finalState
     } catch (err) {
-      this.logger.warn('unknown error occured %j', err)
+      this.logger.warn('unknown error occured %s', err?.toString())
+
       if (err instanceof DatabaseTimeoutError) {
         return {
           localPinAttempts: initialPinAttemptsRemaining,
@@ -173,8 +177,8 @@ export class ConnectionController extends HTMLController {
           nextScreen: 'error' as const,
         }
       }
-      this.logger.debug(`There has been an unexpected error waiting for pin response.`)
-      throw new InternalError(`There has been an unexpected error waiting for pin response.`)
+      this.logger.info(`There has been an unexpected error waiting for pin response.`)
+      throw new InternalError(err?.toString())
     }
   }
 }
