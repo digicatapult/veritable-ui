@@ -92,7 +92,7 @@ export const envConfig = {
   SMTP_PORT: envalid.str({ devDefault: '2525' }),
   SMTP_SECURE: envalid.bool({ devDefault: false, default: true }), // smtp4dev does not use TLS by default so false in dev mode
   SMTP_USER: envalid.str({ devDefault: '' }), // no auth required by default for smtp4dev
-  SMTP_PASS: envalid.str({ devDefault: '' }), // no auth required by default for smtp4dev
+  SMTP_PASS: envalid.str({ devDefault: '' }),
   CLOUDAGENT_ADMIN_ORIGIN: envalid.url({ devDefault: 'http://localhost:3100' }),
   CLOUDAGENT_ADMIN_WS_ORIGIN: envalid.url({ devDefault: 'ws://localhost:3100' }),
   INVITATION_PIN_SECRET: pinSecretValidator({ devDefault: Buffer.from('secret', 'utf8') }),

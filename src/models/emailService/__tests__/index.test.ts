@@ -49,17 +49,15 @@ describe('EmailService', () => {
   })
 
   describe('sendMail: SMTP', () => {
-    let createTransportStub: sinon.SinonStub
     let sendMailStub: sinon.SinonStub
     beforeEach(() => {
-      // Mock nodemailer.createTransport
       sendMailStub = sinon.stub().resolves({
         messageId: '12345',
         envelope: { from: 'hello@veritable.com', to: ['user@example.com'] },
         response: '250 OK',
       })
-
-      createTransportStub = sinon.stub(nodemailer, 'createTransport').returns({
+      // Mock nodemailer.createTransport
+      sinon.stub(nodemailer, 'createTransport').returns({
         sendMail: sendMailStub,
         verify: sinon.stub().yields(null, true), // Simulate a successful SMTP connection
       } as unknown as nodemailer.Transporter)

@@ -20,11 +20,11 @@ const ToSchema = z.array(z.string())
 
 const EmailItemSchema = z.object({
   isRelayed: z.boolean(),
-  deliveredTo: z.string().email(), // Ensure this is a valid email address
-  id: z.string().uuid(), // Ensure this is a valid UUID
+  deliveredTo: z.string().email(),
+  id: z.string().uuid(),
   from: z.string().email(),
   to: ToSchema,
-  receivedDate: z.string().datetime(), // Ensure this is a valid datetime string
+  receivedDate: z.string().datetime(),
   subject: z.string(),
   attachmentCount: z.number().int(),
   isUnread: z.boolean(),
@@ -35,10 +35,7 @@ const EmailResponseSchema = z.object({
 
 describe('SMTP email', () => {
   let server: { app: express.Express; cloudagentEvents: VeritableCloudagentEvents }
-  afterEach(async () => {
-    await cleanup()
-    await clearSmtp4devMessages()
-  })
+
   withCompanyHouseMock()
 
   describe('create invitation and check it has been registered in the email server (happy path)', function () {
@@ -60,6 +57,8 @@ describe('SMTP email', () => {
     })
 
     afterEach(async () => {
+      await cleanup()
+      await clearSmtp4devMessages()
       await cleanupCloudagent()
       server.cloudagentEvents.stop()
       process.env.EMAIL_TRANSPORT = 'STREAM'
@@ -88,6 +87,7 @@ describe('SMTP email', () => {
               const results = parsedMessages['results']
               expect(results).to.be.an('array')
               expect(results).length(2)
+
               // Invite email assertions
               const inviteEmail = results.find((msg) => msg.subject === 'Veritable invite')
               if (inviteEmail) {
@@ -103,7 +103,7 @@ describe('SMTP email', () => {
                 expect(adminEmail.to).to.have.lengthOf(1)
                 expect(adminEmail.to[0]).to.contain('admin@veritable.com')
               } else {
-                throw new Error('No email found with the subject "Veritable invite".')
+                throw new Error('No email found with the subject "Action required: process veritable invitation".')
               }
 
               resolve(true)
@@ -125,7 +125,7 @@ describe('SMTP email', () => {
       const options = {
         hostname: 'localhost',
         port: 5000,
-        path: '/api/messages/*', // Correct endpoint to delete all messages
+        path: '/api/messages/*', // Delete all messages
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
