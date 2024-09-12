@@ -14,6 +14,7 @@ const mkMockLogger = () => {
   const logger = {
     info: sinon.stub<Parameters<pino.LogFn>, ReturnType<pino.LogFn>>(),
     debug: sinon.stub<Parameters<pino.LogFn>, ReturnType<pino.LogFn>>(),
+    trace: sinon.stub<Parameters<pino.LogFn>, ReturnType<pino.LogFn>>(),
   }
   return logger
 }
@@ -60,7 +61,8 @@ describe('EmailService', () => {
       await emailService.sendMail('connection_invite', { to: 'user@example.com', invite: '1234567890987654321' })
 
       expect(logger.info.callCount).to.equal(1)
-      expect(logger.debug.callCount).to.equal(4)
+      expect(logger.debug.callCount).to.equal(3)
+      expect(logger.trace.callCount).to.equal(2)
     })
   })
 })
