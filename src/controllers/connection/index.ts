@@ -127,6 +127,7 @@ export class ConnectionController extends HTMLController {
   }
 
   private async verifyReceiveConnection(agentConnectionId: string, profile: CompanyProfile, pin: string) {
+    this.logger.trace('verifyReceiveConnection(): called', { agentConnectionId, profile, pin })
     await this.cloudagent.proposeCredential(agentConnectionId, {
       schemaName: 'COMPANY_DETAILS',
       schemaVersion: '1.0.0',
@@ -147,6 +148,8 @@ export class ConnectionController extends HTMLController {
     })
   }
   private async pollPinSubmission(connectionId: string, initialPinAttemptsRemaining: number | null) {
+    this.logger.trace('pollPinSubmission(): called %j', { connectionId, initialPinAttemptsRemaining })
+
     try {
       const finalState = checkDb(
         await this.db.waitForCondition(
@@ -162,6 +165,7 @@ export class ConnectionController extends HTMLController {
       }
       return finalState
     } catch (err) {
+      this.logger.warn('unknown error occured %j', err)
       if (err instanceof DatabaseTimeoutError) {
         return {
           localPinAttempts: initialPinAttemptsRemaining,

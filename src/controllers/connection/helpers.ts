@@ -3,10 +3,11 @@ import { ILogger } from '../../logger.js'
 import { ConnectionRow } from '../../models/db/types.js'
 
 export const checkDb = (rows: ConnectionRow[], initialPinAttemptsRemaining: number | null, logger: ILogger) => {
+  logger.trace('check(): called, %j', { rows, initialPinAttemptsRemaining, logger })
   const [connectionCheck] = rows
 
   if (connectionCheck.status === 'verified_us' || connectionCheck.status === 'verified_both') {
-    logger.debug('Pin has been verified.')
+    logger.debug('Pin has been verified. [%s]', connectionCheck.status)
 
     return {
       localPinAttempts: connectionCheck.pin_tries_remaining_count,
@@ -15,7 +16,7 @@ export const checkDb = (rows: ConnectionRow[], initialPinAttemptsRemaining: numb
     }
   }
   if (connectionCheck.pin_tries_remaining_count === 0) {
-    logger.debug('Maximum number of pin attempts has been reached.')
+    logger.debug('Maximum number of pin attempts has been reached. [%s]', connectionCheck.pin_tries_remaining_count)
     return {
       localPinAttempts: connectionCheck.pin_tries_remaining_count,
       message:
@@ -48,5 +49,6 @@ export const checkDb = (rows: ConnectionRow[], initialPinAttemptsRemaining: numb
     }
   }
 
+  logger.error('unexpected error occured: %j', { connectionCheck })
   throw new InternalError('Pin tries remaining count has increased unexpectedly.')
 }

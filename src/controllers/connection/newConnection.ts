@@ -337,6 +337,7 @@ export class NewConnectionController extends HTMLController {
     invitationId: string,
     agentConnectionId: string | null
   ): Promise<{ type: 'success'; connectionId: string } | { type: 'error'; error: string }> {
+    this.logger.trace('insertNewConnection(): called %j', { company, pinHash, invitationId, agentConnectionId })
     try {
       let connectionId: string = ''
       await this.db.withTransaction(async (db) => {
@@ -359,6 +360,8 @@ export class NewConnectionController extends HTMLController {
         connectionId = record.id
       })
 
+      this.logger.debug('successfully updated %s connection', connectionId)
+
       return { type: 'success', connectionId }
     } catch (err) {
       if (
@@ -376,6 +379,7 @@ export class NewConnectionController extends HTMLController {
 
   private async sendNewConnectionEmail(email: string, invite: { companyNumber: string; inviteUrl: string }) {
     const inviteBase64 = Buffer.from(JSON.stringify(invite), 'utf8').toString('base64url')
+    this.logger.debug('sending connection_invite email to %s %j', invite)
 
     await neverFail(
       this.email.sendMail('connection_invite', {
@@ -386,6 +390,8 @@ export class NewConnectionController extends HTMLController {
   }
 
   private async sendAdminEmail(company: CompanyProfile, pin: string) {
+    this.logger.debug('sending connection_invite_admin email %j', { company, pin })
+
     await neverFail(
       this.email.sendMail('connection_invite_admin', {
         address: [
@@ -408,6 +414,8 @@ export class NewConnectionController extends HTMLController {
   }
 
   private newInviteSuccessHtml(formStage: NewInviteFormStage, company: CompanyProfile, email: string) {
+    this.logger.trace('newInviteSuccessHtml(): called %j', { formStage, email, company })
+
     return this.html(
       this.newInvite.newInviteForm({
         feedback: {
@@ -422,6 +430,8 @@ export class NewConnectionController extends HTMLController {
   }
 
   private newInviteErrorHtml(error: string, email?: string, companyNumber?: string) {
+    this.logger.trace('newInviteErrorHtml(): called %j', { error, email, companyNumber })
+
     return this.html(
       this.newInvite.newInviteForm({
         feedback: {
@@ -436,10 +446,19 @@ export class NewConnectionController extends HTMLController {
   }
 
   private receivePinSubmissionHtml(connectionId: string) {
-    return this.html(this.pinSubmission.renderPinForm({ connectionId, continuationFromInvite: true }))
+    this.logger.trace('receivePinSubmissionHtml(): called connectionId: %s', connectionId)
+
+    return this.html(
+      this.pinSubmission.renderPinForm({
+        connectionId,
+        continuationFromInvite: true,
+      })
+    )
   }
 
   private receiveInviteErrorHtml(message: string) {
+    this.logger.trace('receiveInviteErrorHtml(): called error: %s', message)
+
     return this.html(
       this.fromInvite.fromInviteForm({
         feedback: {
