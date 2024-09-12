@@ -1,5 +1,4 @@
 import { expect } from 'chai'
-import express from 'express'
 import { describe, it } from 'mocha'
 import { pino } from 'pino'
 import sinon from 'sinon'
@@ -37,7 +36,6 @@ const dbMock = {
   delete: sinon.stub().resolves(),
 }
 
-const mockReq = { id: 'test-unit_req-id' } as express.Request
 const cloudagentMock = {
   deleteConnection: sinon.stub(),
   deleteCredential: sinon.stub(),
@@ -86,7 +84,7 @@ describe('ResetController', () => {
         const controller = new ResetController(...args)
 
         try {
-          result = (await controller.reset(mockReq)) as unknown
+          result = (await controller.reset()) as unknown
         } catch (err) {
           result = err
         }
@@ -121,7 +119,7 @@ describe('ResetController', () => {
         const controller = new ResetController(...args)
 
         try {
-          result = (await controller.reset(mockReq)) as unknown
+          result = (await controller.reset()) as unknown
         } catch (err) {
           result = err
         }
@@ -134,7 +132,7 @@ describe('ResetController', () => {
           stubIsReset(controller, false)
 
           try {
-            result = await controller.reset(mockReq)
+            result = await controller.reset()
           } catch (err) {
             result = err
           }
@@ -172,7 +170,7 @@ describe('ResetController', () => {
         const { args } = withMocks(true)
         const controller = new ResetController(...args)
         stubIsReset(controller, true)
-        result = await controller.reset(mockReq)
+        result = await controller.reset()
 
         expect(result).to.deep.equal({ statusCode: 200 })
       })

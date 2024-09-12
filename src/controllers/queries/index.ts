@@ -1,5 +1,4 @@
-import express from 'express'
-import { Body, Get, Path, Post, Produces, Query, Request, Route, Security, SuccessResponse } from 'tsoa'
+import { Body, Get, Path, Post, Produces, Query, Route, Security, SuccessResponse } from 'tsoa'
 import { inject, injectable, singleton } from 'tsyringe'
 
 import { Logger, type ILogger } from '../../logger.js'
@@ -47,8 +46,7 @@ export class QueriesController extends HTMLController {
    */
   @SuccessResponse(200)
   @Get('/')
-  public async queryManagement(@Request() req: express.Request, @Query() search?: string): Promise<HTML> {
-    this.logger = this.logger.child({ req_id: req.id })
+  public async queryManagement(@Query() search?: string): Promise<HTML> {
     const query: Where<'connection'> = []
     if (search) {
       query.push(['company_name', 'ILIKE', `%${search}%`])
@@ -70,8 +68,7 @@ export class QueriesController extends HTMLController {
    */
   @SuccessResponse(200)
   @Get('/new/scope-3-carbon-consumption')
-  public async scope3CarbonConsumption(@Request() req: express.Request, @Query() search?: string): Promise<HTML> {
-    this.logger = this.logger.child({ req_id: req.id })
+  public async scope3CarbonConsumption(@Query() search?: string): Promise<HTML> {
     const query: Where<'connection'> = []
     if (search) {
       query.push(['company_name', 'ILIKE', `%${search}%`])
@@ -102,7 +99,6 @@ export class QueriesController extends HTMLController {
   @SuccessResponse(200)
   @Post('/new/scope-3-carbon-consumption/stage')
   public async scope3CarbonConsumptionStage(
-    @Request() req: express.Request,
     @Body()
     body:
       | {
@@ -116,7 +112,6 @@ export class QueriesController extends HTMLController {
           action: 'success'
         }
   ) {
-    this.logger = this.logger.child({ req_id: req.id })
     const [connection] = await this.db.get('connection', { id: body.connectionId, status: 'verified_both' }, [
       ['updated_at', 'desc'],
     ])
@@ -215,8 +210,7 @@ export class QueriesController extends HTMLController {
    */
   @SuccessResponse(200)
   @Get('/scope-3-carbon-consumption/{queryId}/response')
-  public async scope3CarbonConsumptionResponse(@Request() req: express.Request, @Path() queryId: UUID): Promise<HTML> {
-    this.logger = this.logger.child({ req_id: req.id })
+  public async scope3CarbonConsumptionResponse(@Path() queryId: UUID): Promise<HTML> {
     this.logger.debug('query response page requested %j', { queryId })
     const [query] = await this.db.get('query', { id: queryId })
 
@@ -254,12 +248,7 @@ export class QueriesController extends HTMLController {
    */
   @SuccessResponse(200)
   @Get('/{queryId}/partial/{companyId}')
-  public async scope3CO2Partial(
-    @Request() req: express.Request,
-    @Path() queryId: UUID,
-    @Query() partialQuery?: 'on'
-  ): Promise<HTML> {
-    this.logger = this.logger.child({ req_id: req.id })
+  public async scope3CO2Partial(@Path() queryId: UUID, @Query() partialQuery?: 'on'): Promise<HTML> {
     this.logger.debug('partial query response requested %s', queryId)
     const [query]: QueryRow[] = await this.db.get('query', { id: queryId })
     if (!query) throw new NotFoundError('query not found')
@@ -295,12 +284,7 @@ export class QueriesController extends HTMLController {
    */
   @SuccessResponse(200)
   @Get('/partial-select/{connectionId}/')
-  public async partialSelect(
-    @Request() req: express.Request,
-    @Path() connectionId: UUID,
-    @Query() partialSelect?: 'on'
-  ): Promise<HTML> {
-    this.logger = this.logger.child({ req_id: req.id })
+  public async partialSelect(@Path() connectionId: UUID, @Query() partialSelect?: 'on'): Promise<HTML> {
     this.logger.debug('partial select %s', connectionId)
     const [company]: ConnectionRow[] = await this.db.get('connection', { id: connectionId })
     if (!company) throw new NotFoundError('connection not found')
@@ -324,7 +308,6 @@ export class QueriesController extends HTMLController {
   @SuccessResponse(200)
   @Post('/scope-3-carbon-consumption/{queryId}/response')
   public async scope3CarbonConsumptionResponseSubmit(
-    @Request() req: express.Request,
     @Path() queryId: UUID,
     @Body()
     body: {
@@ -333,7 +316,6 @@ export class QueriesController extends HTMLController {
       totalScope3CarbonEmissions: string
     }
   ): Promise<HTML> {
-    this.logger = this.logger.child({ req_id: req.id })
     this.logger.debug('query page requested %j', { queryId, body })
 
     const [connection] = await this.db.get('connection', { id: body.companyId, status: 'verified_both' }, [
@@ -412,11 +394,7 @@ export class QueriesController extends HTMLController {
    */
   @SuccessResponse(200)
   @Get('/scope-3-carbon-consumption/{queryId}/view-response')
-  public async scope3CarbonConsumptionViewResponse(
-    @Request() req: express.Request,
-    @Path() queryId: UUID
-  ): Promise<HTML> {
-    this.logger = this.logger.child({ req_id: req.id })
+  public async scope3CarbonConsumptionViewResponse(@Path() queryId: UUID): Promise<HTML> {
     this.logger.debug('gathering data for [%s] query response page', queryId)
     const [query]: QueryRow[] = await this.db.get('query', { id: queryId })
 

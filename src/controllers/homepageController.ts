@@ -1,8 +1,5 @@
-import express from 'express'
-import { Get, Produces, Request, Route, Security, SuccessResponse } from 'tsoa'
-import { inject, injectable, singleton } from 'tsyringe'
-
-import { Logger, type ILogger } from '../logger.js'
+import { Get, Produces, Route, Security, SuccessResponse } from 'tsoa'
+import { injectable, singleton } from 'tsyringe'
 
 import HomepageTemplates from '../views/homepage/homepage.js'
 import { HTML, HTMLController } from './HTMLController.js'
@@ -13,12 +10,8 @@ import { HTML, HTMLController } from './HTMLController.js'
 @Route('/')
 @Produces('text/html')
 export class HomepageController extends HTMLController {
-  constructor(
-    private homepageTemplates: HomepageTemplates,
-    @inject(Logger) private logger: ILogger
-  ) {
+  constructor(private homepageTemplates: HomepageTemplates) {
     super()
-    this.logger = logger.child({ controller: '/' })
   }
 
   /**
@@ -26,9 +19,7 @@ export class HomepageController extends HTMLController {
    */
   @SuccessResponse(200)
   @Get('/')
-  public async homepage(@Request() req: express.Request): Promise<HTML> {
-    this.logger = this.logger.child({ req_id: req.id })
-
+  public async homepage(): Promise<HTML> {
     return this.html(this.homepageTemplates.homepage())
   }
 }

@@ -1,5 +1,4 @@
-import express from 'express'
-import { Body, Get, Path, Post, Produces, Query, Request, Route, Security, SuccessResponse } from 'tsoa'
+import { Body, Get, Path, Post, Produces, Query, Route, Security, SuccessResponse } from 'tsoa'
 import { inject, injectable, singleton } from 'tsyringe'
 
 import { pinCodeRegex, type PIN_CODE, type UUID } from '../../models/strings.js'
@@ -38,8 +37,7 @@ export class ConnectionController extends HTMLController {
    */
   @SuccessResponse(200)
   @Get('/')
-  public async listConnections(@Request() req: express.Request, @Query() search?: string): Promise<HTML> {
-    this.logger.debug('connections page requested', req.id)
+  public async listConnections(@Query() search?: string): Promise<HTML> {
     const query = search ? [['company_name', 'ILIKE', `%${search}%`]] : {}
     const connections = await this.db.get('connection', query, [['updated_at', 'desc']])
 
@@ -55,12 +53,8 @@ export class ConnectionController extends HTMLController {
    */
   @SuccessResponse(200)
   @Get('/{connectionId}/pin-submission')
-  public async renderPinCode(
-    @Request() req: express.Request,
-    @Path() connectionId: UUID,
-    @Query() pin?: PIN_CODE | string
-  ): Promise<HTML> {
-    this.logger.debug('PIN_SUBMISSION GET: %o', { connectionId, pin, id: req.id })
+  public async renderPinCode(@Path() connectionId: UUID, @Query() pin?: PIN_CODE | string): Promise<HTML> {
+    this.logger.debug('PIN_SUBMISSION GET: %o', { connectionId, pin })
 
     const [connection]: ConnectionRow[] = await this.db.get('connection', { id: connectionId })
     if (!connection) {
@@ -78,11 +72,10 @@ export class ConnectionController extends HTMLController {
   @SuccessResponse(200)
   @Post('/{connectionId}/pin-submission')
   public async submitPinCode(
-    @Request() req: express.Request,
     @Body() body: { action: 'submitPinCode'; pin: PIN_CODE | string; stepCount?: number },
     @Path() connectionId: UUID
   ): Promise<HTML> {
-    this.logger.debug('PIN_SUBMISSION POST: %o', { body, id: req.id })
+    this.logger.debug('PIN_SUBMISSION POST: %o', { body })
     const { pin } = body
 
     if (!pin.match(pinCodeRegex)) {

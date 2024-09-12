@@ -3,10 +3,10 @@ import type * as express from 'express'
 import { randomBytes } from 'node:crypto'
 import { Get, Hidden, Produces, Query, Request, Route, SuccessResponse } from 'tsoa'
 import { inject, injectable, singleton } from 'tsyringe'
+import { Logger, type ILogger } from '../logger.js'
 
 import { Env } from '../env.js'
 import { ForbiddenError, InternalError } from '../errors.js'
-import { Logger, type ILogger } from '../logger.js'
 import IDPService from '../models/idpService.js'
 import { HTMLController } from './HTMLController.js'
 
@@ -41,6 +41,7 @@ export class AuthController extends HTMLController {
   ) {
     super()
     this.redirectUrl = `${env.get('PUBLIC_URL')}/auth/redirect`
+    this.logger = logger.child({ controller: '/auth' })
   }
 
   /**

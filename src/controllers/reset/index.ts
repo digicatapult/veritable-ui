@@ -1,5 +1,4 @@
-import express from 'express'
-import { Get, Hidden, Produces, Request, Route, Security, SuccessResponse } from 'tsoa'
+import { Get, Hidden, Produces, Route, Security, SuccessResponse } from 'tsoa'
 import { inject, injectable, singleton } from 'tsyringe'
 
 import { Env } from '../../env.js'
@@ -52,8 +51,7 @@ export class ResetController {
    */
   @SuccessResponse(200)
   @Get('/')
-  public async reset(@Request() req: express.Request): Promise<{ statusCode: number }> {
-    this.logger = this.logger.child({ req_id: req })
+  public async reset(): Promise<{ statusCode: number }> {
     const DEMO_MODE = this.env.get('DEMO_MODE')
     if (!DEMO_MODE) {
       this.logger.debug('bad request DEMO_MODE=%s', DEMO_MODE)

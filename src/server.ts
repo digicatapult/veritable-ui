@@ -91,9 +91,9 @@ export default async (startEvents: boolean = true) => {
       logger,
       serializers: {
         // removing cookie from being logged since it contains refresh and access token
-        req: ({ headers: { cookie, ...noCookieHeaders }, ...req }: { headers: { cookie: string } }) => ({
+        req: ({ headers, ...req }: { headers: Record<string, string> }) => ({
           ...req,
-          headers: noCookieHeaders,
+          headers: {},
         }),
         res: (res) => {
           res.headers['set-cookie'] = undefined
@@ -103,9 +103,13 @@ export default async (startEvents: boolean = true) => {
       genReqId: function (req: express.Request, res: express.Response): UUID {
         const id: UUID = (req.headers['x-request-id'] as UUID) || (req.id as UUID) || randomUUID()
 
-        logger.setBindings({ req_id: id })
+        if (!logger.bindings().req_id) logger.setBindings({ req_id: id })
         res.setHeader('x-request-id', id)
         return id
+      },
+      quietReqLogger: true,
+      customAttributeKeys: {
+        reqId: 'req_id',
       },
     })
   )

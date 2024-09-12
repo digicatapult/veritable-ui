@@ -1,7 +1,6 @@
 import argon2 from 'argon2'
-import express from 'express'
 import { randomInt } from 'node:crypto'
-import { Body, Get, Post, Produces, Query, Request, Route, Security, SuccessResponse } from 'tsoa'
+import { Body, Get, Post, Produces, Query, Route, Security, SuccessResponse } from 'tsoa'
 import { inject, injectable, singleton } from 'tsyringe'
 import { z } from 'zod'
 
@@ -86,11 +85,7 @@ export class NewConnectionController extends HTMLController {
    */
   @SuccessResponse(200)
   @Get('/verify-company')
-  public async verifyCompanyForm(
-    @Request() req: express.Request,
-    @Query() companyNumber: COMPANY_NUMBER | string
-  ): Promise<HTML> {
-    this.logger = this.logger.child({ req_id: req.id })
+  public async verifyCompanyForm(@Query() companyNumber: COMPANY_NUMBER | string): Promise<HTML> {
     this.logger.debug('verifying %s company number', companyNumber)
 
     if (!companyNumber.match(companyNumberRegex)) {
@@ -121,8 +116,7 @@ export class NewConnectionController extends HTMLController {
    */
   @SuccessResponse(200)
   @Get('/verify-invite')
-  public async verifyInviteForm(@Request() req: express.Request, @Query() invite: BASE_64_URL | string): Promise<HTML> {
-    this.logger = this.logger.child({ req_id: req.id })
+  public async verifyInviteForm(@Query() invite: BASE_64_URL | string): Promise<HTML> {
     if (invite === '') {
       return this.newConnectionForm(true)
     }
@@ -157,7 +151,6 @@ export class NewConnectionController extends HTMLController {
   @SuccessResponse(200)
   @Post('/create-invitation')
   public async submitNewInvite(
-    @Request() req: express.Request,
     @Body()
     body: {
       companyNumber: COMPANY_NUMBER
@@ -165,7 +158,6 @@ export class NewConnectionController extends HTMLController {
       action: 'back' | 'continue' | 'submit'
     }
   ): Promise<HTML> {
-    this.logger = this.logger.child({ req_id: req.id })
     // lookup company by number
     const companyOrError = await this.lookupCompany(body.companyNumber)
     if (companyOrError.type === 'error') {
@@ -220,14 +212,12 @@ export class NewConnectionController extends HTMLController {
   @SuccessResponse(200)
   @Post('/receive-invitation')
   public async submitFromInvite(
-    @Request() req: express.Request,
     @Body()
     body: {
       invite: BASE_64_URL | string
       action: 'createConnection'
     }
   ): Promise<HTML> {
-    this.logger = this.logger.child({ req_id: req.id })
     if (body.invite && !body.invite.match(base64UrlRegex)) {
       this.logger.warn('invitation is not valid %j', body)
       return this.receiveInviteErrorHtml('Invitation is not valid')
@@ -283,7 +273,7 @@ export class NewConnectionController extends HTMLController {
     try {
       wrappedInvite = inviteParser.parse(JSON.parse(Buffer.from(invite, 'base64url').toString('utf8')))
     } catch (err) {
-      this.logger.debug('Invitation not valid o%', err)
+      this.logger.debug('unknown error occured %j', err)
       return {
         type: 'error',
         message: 'Invitation is not valid',
@@ -304,8 +294,6 @@ export class NewConnectionController extends HTMLController {
   private async lookupCompany(
     companyNumber: COMPANY_NUMBER
   ): Promise<{ type: 'success'; company: CompanyProfile } | { type: 'error'; message: string }> {
-    this.logger.debug('COMPANY_LOOKUP: %s', companyNumber)
-
     const companySearch = await this.companyHouseEntity.getCompanyProfileByCompanyNumber(companyNumber)
     if (companySearch.type === 'notFound') {
       return {
@@ -349,8 +337,6 @@ export class NewConnectionController extends HTMLController {
     invitationId: string,
     agentConnectionId: string | null
   ): Promise<{ type: 'success'; connectionId: string } | { type: 'error'; error: string }> {
-    this.logger.debug('NEW_CONNECTION: invite id %s', invitationId)
-
     try {
       let connectionId: string = ''
       await this.db.withTransaction(async (db) => {
@@ -389,7 +375,6 @@ export class NewConnectionController extends HTMLController {
   }
 
   private async sendNewConnectionEmail(email: string, invite: { companyNumber: string; inviteUrl: string }) {
-    this.logger.debug('NEW_CONNECTION: sending emails')
     const inviteBase64 = Buffer.from(JSON.stringify(invite), 'utf8').toString('base64url')
 
     await neverFail(
@@ -401,8 +386,6 @@ export class NewConnectionController extends HTMLController {
   }
 
   private async sendAdminEmail(company: CompanyProfile, pin: string) {
-    this.logger.debug('NEW_CONNECTION: sending emails')
-
     await neverFail(
       this.email.sendMail('connection_invite_admin', {
         address: [
