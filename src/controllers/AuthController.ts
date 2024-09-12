@@ -33,15 +33,13 @@ const tokenCookieOpts: express.CookieOptions = {
 @Hidden()
 export class AuthController extends HTMLController {
   private redirectUrl: string
-  private logger: ILogger
 
   constructor(
     private env: Env,
     private idp: IDPService,
-    @inject(Logger) logger: ILogger
+    @inject(Logger) private logger: ILogger
   ) {
     super()
-    this.logger = logger.child({ controller: '/auth' })
     this.redirectUrl = `${env.get('PUBLIC_URL')}/auth/redirect`
   }
 
@@ -51,7 +49,6 @@ export class AuthController extends HTMLController {
   @Get('/login')
   @SuccessResponse(302, 'Redirect')
   public async login(@Request() req: express.Request, @Query() path: string): Promise<void> {
-    this.logger = this.logger.child({ req_id: req.id })
     const { res } = req
     if (!res) {
       throw new InternalError()

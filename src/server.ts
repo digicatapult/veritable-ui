@@ -101,8 +101,9 @@ export default async (startEvents: boolean = true) => {
         },
       },
       genReqId: function (req: express.Request, res: express.Response): UUID {
-        const id: UUID = ((req.id as UUID) || (req.headers['x-request-id'] as UUID)) ?? randomUUID()
+        const id: UUID = (req.headers['x-request-id'] as UUID) || (req.id as UUID) || randomUUID()
 
+        logger.setBindings({ req_id: id })
         res.setHeader('x-request-id', id)
         return id
       },
