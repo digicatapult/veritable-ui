@@ -14,7 +14,7 @@ import { cleanup } from '../helpers/db.js'
 import { post } from '../helpers/routeHelper.js'
 import { delay, delayAndReject } from '../helpers/util.js'
 
-describe('pin-submission', function () {
+describe('Test:pin-submission', function () {
   const db = container.resolve(Database)
 
   afterEach(async () => {
