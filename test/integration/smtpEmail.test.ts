@@ -4,9 +4,14 @@ import { describe, it } from 'mocha'
 
 import http from 'http'
 import { z } from 'zod'
+import createHttpServer from '../../src/server.js'
 import VeritableCloudagentEvents from '../../src/services/veritableCloudagentEvents.js'
+import { cleanupCloudagent } from '../helpers/cloudagent.js'
 import { withCompanyHouseMock } from '../helpers/companyHouse.js'
-import { setupSmtpTestEnvironment } from '../helpers/smtp.js'
+import { cleanup } from '../helpers/db.js'
+import { validCompanyNumber } from '../helpers/fixtures.js'
+import { post } from '../helpers/routeHelper.js'
+import { clearSmtp4devMessages, setupSmtpTestEnvironment } from '../helpers/smtp.js'
 
 const ToSchema = z.array(z.string())
 
@@ -31,8 +36,24 @@ describe('SMTP email', () => {
   withCompanyHouseMock()
 
   describe('create invitation and check it has been registered in the email server (happy path)', function () {
-    server = setupSmtpTestEnvironment(server)
+    setupSmtpTestEnvironment()
+    beforeEach(async () => {
+      await cleanup()
+      await cleanupCloudagent()
+      server = await createHttpServer()
+      await post(server.app, '/connection/new/create-invitation', {
+        companyNumber: validCompanyNumber,
+        email: 'alice@example.com',
+        action: 'submit',
+      })
+    })
 
+    afterEach(async () => {
+      await cleanup()
+      await clearSmtp4devMessages()
+      await cleanupCloudagent()
+      server.cloudagentEvents.stop()
+    })
     it('should send an email via SMTP', async () => {
       const options = {
         hostname: 'localhost',
