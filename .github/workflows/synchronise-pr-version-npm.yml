@@ -13,4 +13,7 @@ jobs:
     uses: digicatapult/shared-workflows/.github/workflows/synchronise-pr-version-npm.yml@main
     with:
       pr-number: ${{ github.event.pull_request.number }}
-      trunk-branch: "main"
+      trunk-branch: 'main'
+    secrets:
+      bot-id: ${{ secrets.BOT_ID }}
+      bot-key: ${{ secrets.BOT_KEY }}
