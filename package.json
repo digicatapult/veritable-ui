@@ -33,13 +33,13 @@
     "xss-scan": "xss-scan"
   },
   "dependencies": {
-    "@digicatapult/tsoa-oauth-express": "^0.1.39",
+    "@digicatapult/tsoa-oauth-express": "^0.1.41",
     "@kitajs/html": "^4.2.1",
     "@kitajs/ts-html-plugin": "^4.0.2",
     "@tsoa/runtime": "^6.4.0",
     "@types/compression": "^1.7.5",
     "argon2": "^0.41.1",
-    "body-parser": "^1.20.2",
+    "body-parser": "^2.0.0",
     "compression": "^1.7.4",
     "cookie-parser": "^1.4.6",
     "dotenv": "^16.4.5",
@@ -60,7 +60,7 @@
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.1.0",
-    "@eslint/js": "^9.9.1",
+    "@eslint/js": "^9.10.0",
     "@playwright/test": "^1.47.0",
     "@types/body-parser": "^1.19.5",
     "@types/chai": "^4.3.19",
@@ -80,7 +80,7 @@
     "chai": "^5.1.1",
     "chai-jest-snapshot": "^2.0.0",
     "depcheck": "^1.4.7",
-    "eslint": "^9.9.1",
+    "eslint": "^9.10.0",
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-prettier": "^5.2.1",
     "globals": "^15.9.0",
