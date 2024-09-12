@@ -17,7 +17,7 @@ import { delay } from '../helpers/util.js'
 
 const db = container.resolve(Database)
 
-describe('Test:NewConnectionController', () => {
+describe('NewConnectionController', () => {
   let server: { app: express.Express; cloudagentEvents: VeritableCloudagentEvents }
 
   afterEach(async () => {

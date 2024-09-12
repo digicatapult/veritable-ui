@@ -99,9 +99,9 @@ services:
       - ISSUANCE_SCHEMA_POLICY=EXISTING_OR_NEW
       - ISSUANCE_CRED_DEF_POLICY=EXISTING_OR_NEW
       - DEMO_MODE=true
-      - SMTP_HOST=localhost
+      - SMTP_HOST=smtp4dev
       - SMTP_PASS=
-      - SMTP_PORT=2525
+      - SMTP_PORT=25
       - SMTP_USER=
   postgres-veritable-ui-bob:
     image: postgres:16.4-alpine

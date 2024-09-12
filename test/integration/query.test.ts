@@ -16,7 +16,7 @@ import { withVerifiedConnection } from '../helpers/connection.js'
 import { post } from '../helpers/routeHelper.js'
 import { delay } from '../helpers/util.js'
 
-describe('Test:query submission', function () {
+describe('query submission', function () {
   const db = container.resolve(Database)
 
   afterEach(async () => {

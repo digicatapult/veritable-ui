@@ -5,22 +5,10 @@ import { pino } from 'pino'
 import sinon from 'sinon'
 
 import nodemailer from 'nodemailer'
-import { Env } from '../../../env.js'
 
 import type { ILogger } from '../../../logger.js'
 import EmailService from '../index.js'
-
-const mockEnvStream: Env = {
-  get: (name: string) => {
-    if (name === 'EMAIL_TRANSPORT') return 'STREAM'
-  },
-} as Env
-
-const mockEnvSmtpEmail: Env = {
-  get: (name: string) => {
-    if (name === 'EMAIL_TRANSPORT') return 'SMTP_EMAIL'
-  },
-} as Env
+import { mockEnvSmtpEmail, mockEnvStream } from './helpers/mocks.js'
 
 const mkMockLogger = () => {
   const logger = {

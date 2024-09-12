@@ -15,7 +15,7 @@ import { withCompanyHouseMock } from '../helpers/companyHouse.js'
 import { withVerifiedConnection } from '../helpers/connection.js'
 import { get } from '../helpers/routeHelper.js'
 
-describe('Test:integration test for /reset endpoint', function () {
+describe('integration test for /reset endpoint', function () {
   const db = container.resolve(Database)
   const cloudagent = container.resolve(VeritableCloudagent)
 

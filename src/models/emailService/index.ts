@@ -23,11 +23,12 @@ export default class EmailService {
 
   private buildTransport(): typeof this.transportSendMail {
     const logger = this.logger
-    logger.debug('Checking transport method')
     switch (this.env.get('EMAIL_TRANSPORT')) {
       case 'STREAM':
+        logger.debug('Initialising EMAIL_TRANSPORT of type: STREAM')
         return this.buildStreamTransport()
       case 'SMTP_EMAIL':
+        logger.debug('Initialising EMAIL_TRANSPORT of type: SMTP_EMAIL')
         return this.buildSmtpTransport()
       default:
         throw new Error('Unsupported email transport type')
@@ -57,6 +58,9 @@ export default class EmailService {
       secure: this.env.get('SMTP_SECURE'), // true for 465, false for other ports
     })
     const logger = this.logger
+    logger.debug(
+      `Initialising with SMTP_HOST: ${this.env.get('SMTP_HOST')}, SMTP_PORT: ${this.env.get('SMTP_PORT')}, SMTP_SECURE:${this.env.get('SMTP_SECURE')}`
+    )
     // Verify connection
     transport.verify(function (error, success) {
       if (error) {
@@ -70,8 +74,8 @@ export default class EmailService {
       const info = await this.sendMail(options)
 
       logger.info('Sending email via SMTP with message id %s', info.messageId)
-      logger.debug(`email envelope %s (from: %s, to %s)`, info.messageId, info.envelope.from, info.envelope.to)
-      logger.debug(`email contents %s: %s`, info.messageId, info.response.toString())
+      logger.trace('email envelope %s (from: %s, to: %s)', info.messageId, info.envelope.from, info.envelope.to)
+      logger.trace('email contents %s: %s', info.messageId, info.response.toString())
 
       return info
     }.bind(transport)
