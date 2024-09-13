@@ -143,6 +143,10 @@ jobs:
           ISSUANCE_SCHEMA_POLICY: EXISTING_OR_NEW
           ISSUANCE_CRED_DEF_POLICY: EXISTING_OR_NEW
           COMPANY_PROFILE_API_KEY: apikey
+          SMTP_HOST: localhost
+          SMTP_PASS: ''
+          SMTP_PORT: 2525
+          SMTP_USER: ''
       - name: Install Playwright Browsers
         run: npx playwright install --with-deps
       - name: Run Playwright tests

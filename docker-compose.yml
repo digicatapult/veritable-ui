@@ -1,5 +1,5 @@
 services:
-  # -------------------- shared -------------------------------# 
+  # -------------------- shared -------------------------------#
   keycloak:
     image: quay.io/keycloak/keycloak:25.0.4
     container_name: keycloak
@@ -17,7 +17,7 @@ services:
     volumes:
       - ipfs:/data/ipfs
 
-  # -------------------- alice -------------------------------# 
+  # -------------------- alice -------------------------------#
   postgres-veritable-ui-alice:
     image: postgres:16.4-alpine
     container_name: postgres-veritable-ui-alice
@@ -66,9 +66,9 @@ services:
     depends_on:
       - postgres-veritable-ui-bob
       - veritable-cloudagent-bob
-    ports: 
+    ports:
       - 3001:3000
-    command: > 
+    command: >
       sh -c "
         npm i -g pino-colada
         node ./node_modules/.bin/knex migrate:latest
@@ -99,6 +99,10 @@ services:
       - ISSUANCE_SCHEMA_POLICY=EXISTING_OR_NEW
       - ISSUANCE_CRED_DEF_POLICY=EXISTING_OR_NEW
       - DEMO_MODE=true
+      - SMTP_HOST=smtp4dev
+      - SMTP_PASS=
+      - SMTP_PORT=25
+      - SMTP_USER=
   postgres-veritable-ui-bob:
     image: postgres:16.4-alpine
     container_name: postgres-veritable-ui-bob
@@ -136,6 +140,14 @@ services:
       - POSTGRES_HOST=postgres-veritable-cloudagent-bob
       - WALLET_ID=bob
       - WALLET_KEY=bob-key
+  # -------------------- email -------------------------------#
+  smtp4dev:
+    image: rnwood/smtp4dev
+    container_name: smtp4dev
+    ports:
+      - '5000:80' # Port for accessing smtp4dev's web interface
+      - '2525:25' # Port for SMTP connections
+    restart: always
 
 volumes:
   ipfs:

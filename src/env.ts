@@ -85,9 +85,14 @@ export const envConfig = {
   }),
   COMPANY_HOUSE_API_URL: envalid.str({ default: 'https://api.company-information.service.gov.uk' }),
   COMPANY_PROFILE_API_KEY: envalid.str(),
-  EMAIL_TRANSPORT: envalid.str({ default: 'STREAM', choices: ['STREAM'] }),
+  EMAIL_TRANSPORT: envalid.str({ default: 'STREAM', choices: ['STREAM', 'SMTP_EMAIL'] }),
   EMAIL_FROM_ADDRESS: envalid.email({ default: 'hello@veritable.com' }),
   EMAIL_ADMIN_ADDRESS: envalid.email({ default: 'admin@veritable.com' }),
+  SMTP_HOST: envalid.str({ devDefault: 'localhost' }),
+  SMTP_PORT: envalid.str({ devDefault: '2525' }),
+  SMTP_SECURE: envalid.bool({ devDefault: false, default: true }), // smtp4dev does not use TLS by default so false in dev mode
+  SMTP_USER: envalid.str({ devDefault: '' }), // no auth required by default for smtp4dev
+  SMTP_PASS: envalid.str({ devDefault: '' }),
   CLOUDAGENT_ADMIN_ORIGIN: envalid.url({ devDefault: 'http://localhost:3100' }),
   CLOUDAGENT_ADMIN_WS_ORIGIN: envalid.url({ devDefault: 'ws://localhost:3100' }),
   INVITATION_PIN_SECRET: pinSecretValidator({ devDefault: Buffer.from('secret', 'utf8') }),
