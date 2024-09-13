@@ -1,9 +1,8 @@
 import express from 'express'
 import { Get, Hidden, Request, Route, SuccessResponse } from 'tsoa'
-import { inject, injectable, singleton } from 'tsyringe'
+import { injectable, singleton } from 'tsyringe'
 
 import { Env } from '../../env.js'
-import { Logger, type ILogger } from '../../logger.js'
 
 type Response = {
   status: 'ok'
@@ -18,19 +17,14 @@ type Response = {
 @Route('/health')
 @Hidden()
 export class HealthController {
-  constructor(
-    private env: Env,
-    @inject(Logger) private logger: ILogger
-  ) {
-    this.logger = logger.child({ controller: '/health' })
-  }
+  constructor(private env: Env) {}
   /**
    * Retrieves the connection list page
    */
   @SuccessResponse(200)
   @Get('/')
-  public get(@Request() req?: express.Request | undefined): Response {
-    this.logger.debug('request from %s agent', req?.headers['user-agent'])
+  public get(@Request() req: express.Request): Response {
+    req.log.debug('request from %s agent', req?.headers['user-agent'])
 
     return {
       status: 'ok',

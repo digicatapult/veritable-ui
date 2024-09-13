@@ -4,6 +4,8 @@ import sinon from 'sinon'
 
 import { toHTMLString, withNewConnectionMocks } from './helpers.js'
 
+import { Request } from 'express'
+import { mockLogger } from '../../__tests__/helpers.js'
 import { NewConnectionController } from '../newConnection.js'
 import {
   invalidBase64Invite,
@@ -23,6 +25,8 @@ import {
 } from './fixtures.js'
 
 describe('NewConnectionController', () => {
+  const req: object = { log: mockLogger }
+
   afterEach(() => {
     sinon.restore()
   })
@@ -31,14 +35,14 @@ describe('NewConnectionController', () => {
     it('should return rendered form template (fromInvite = false)', async () => {
       const { args } = withNewConnectionMocks()
       const controller = new NewConnectionController(...args)
-      const result = await controller.newConnectionForm().then(toHTMLString)
+      const result = await controller.newConnectionForm(req as Request).then(toHTMLString)
       expect(result).to.equal('newInvitePage_message_newInvitePage')
     })
 
     it('should return rendered form template (fromInvite = true)', async () => {
       const { args } = withNewConnectionMocks()
       const controller = new NewConnectionController(...args)
-      const result = await controller.newConnectionForm(true).then(toHTMLString)
+      const result = await controller.newConnectionForm(req as Request, true).then(toHTMLString)
       expect(result).to.equal('fromInvitePage_message_fromInvitePage')
     })
   })
@@ -47,7 +51,7 @@ describe('NewConnectionController', () => {
     it('should return form page when company number invalid', async () => {
       const { args } = withNewConnectionMocks()
       const controller = new NewConnectionController(...args)
-      const result = await controller.verifyCompanyForm(invalidCompanyNumber).then(toHTMLString)
+      const result = await controller.verifyCompanyForm(req as Request, invalidCompanyNumber).then(toHTMLString)
       expect(result).to.equal('newInvitePage_message_newInvitePage')
     })
 
@@ -55,14 +59,14 @@ describe('NewConnectionController', () => {
       const { args } = withNewConnectionMocks()
       const controller = new NewConnectionController(...args)
 
-      const result = await controller.verifyCompanyForm(notFoundCompanyNumber).then(toHTMLString)
+      const result = await controller.verifyCompanyForm(req as Request, notFoundCompanyNumber).then(toHTMLString)
       expect(result).to.equal('companyFormInput_error--Company number does not exist-form--00000000_companyFormInput')
     })
 
     it('should return rendered error when company already connected', async () => {
       const { args } = withNewConnectionMocks()
       const controller = new NewConnectionController(...args)
-      const result = await controller.verifyCompanyForm(validExistingCompanyNumber).then(toHTMLString)
+      const result = await controller.verifyCompanyForm(req as Request, validExistingCompanyNumber).then(toHTMLString)
       expect(result).to.equal(
         'companyFormInput_error--Connection already exists with NAME2-form--00000002_companyFormInput'
       )
@@ -71,7 +75,7 @@ describe('NewConnectionController', () => {
     it('should return rendered error when company registered office in dispute', async () => {
       const { args } = withNewConnectionMocks()
       const controller = new NewConnectionController(...args)
-      const result = await controller.verifyCompanyForm(validCompanyNumberInDispute).then(toHTMLString)
+      const result = await controller.verifyCompanyForm(req as Request, validCompanyNumberInDispute).then(toHTMLString)
       expect(result).to.equal(
         'companyFormInput_error--Cannot validate company NAME3 as address is currently in dispute-form--00000003_companyFormInput'
       )
@@ -80,14 +84,14 @@ describe('NewConnectionController', () => {
     it('should return rendered error when company not active', async () => {
       const { args } = withNewConnectionMocks()
       const controller = new NewConnectionController(...args)
-      const result = await controller.verifyCompanyForm(validCompanyNumberInactive).then(toHTMLString)
+      const result = await controller.verifyCompanyForm(req as Request, validCompanyNumberInactive).then(toHTMLString)
       expect(result).to.equal('companyFormInput_error--Company NAME4 is not active-form--00000004_companyFormInput')
     })
 
     it('should return success form', async () => {
       const { args } = withNewConnectionMocks()
       const controller = new NewConnectionController(...args)
-      const result = await controller.verifyCompanyForm(validCompanyNumber).then(toHTMLString)
+      const result = await controller.verifyCompanyForm(req as Request, validCompanyNumber).then(toHTMLString)
       expect(result).to.equal('companyFormInput_companyFound-NAME--form--00000001_companyFormInput')
     })
   })
@@ -96,49 +100,53 @@ describe('NewConnectionController', () => {
     it('should rendered page when invite is empty', async () => {
       const { args } = withNewConnectionMocks()
       const controller = new NewConnectionController(...args)
-      const result = await controller.verifyInviteForm('').then(toHTMLString)
+      const result = await controller.verifyInviteForm(req as Request, '').then(toHTMLString)
       expect(result).to.equal('fromInvitePage_message_fromInvitePage')
     })
 
     it('should rendered error when invite invalid base64', async () => {
       const { args } = withNewConnectionMocks()
       const controller = new NewConnectionController(...args)
-      const result = await controller.verifyInviteForm(invalidBase64Invite).then(toHTMLString)
+      const result = await controller.verifyInviteForm(req as Request, invalidBase64Invite).then(toHTMLString)
       expect(result).to.equal('fromInviteForm_error--Invitation is not valid_fromInviteForm')
     })
 
     it('should rendered error when invite invalid format', async () => {
       const { args } = withNewConnectionMocks()
       const controller = new NewConnectionController(...args)
-      const result = await controller.verifyInviteForm(invalidInvite).then(toHTMLString)
+      const result = await controller.verifyInviteForm(req as Request, invalidInvite).then(toHTMLString)
       expect(result).to.equal('fromInviteForm_error--Invitation is not valid_fromInviteForm')
     })
 
     it('should rendered error when company number invalid', async () => {
       const { args } = withNewConnectionMocks()
       const controller = new NewConnectionController(...args)
-      const result = await controller.verifyInviteForm(invalidCompanyNumberInvite).then(toHTMLString)
+      const result = await controller.verifyInviteForm(req as Request, invalidCompanyNumberInvite).then(toHTMLString)
       expect(result).to.equal('fromInviteForm_error--Invitation is not valid_fromInviteForm')
     })
 
     it('should return rendered error when company not found', async () => {
       const { args } = withNewConnectionMocks()
       const controller = new NewConnectionController(...args)
-      const result = await controller.verifyInviteForm(notFoundCompanyNumberInvite).then(toHTMLString)
+      const result = await controller.verifyInviteForm(req as Request, notFoundCompanyNumberInvite).then(toHTMLString)
       expect(result).to.equal('fromInviteForm_error--Company number does not exist_fromInviteForm')
     })
 
     it('should return rendered error when company already connected', async () => {
       const { args } = withNewConnectionMocks()
       const controller = new NewConnectionController(...args)
-      const result = await controller.verifyInviteForm(validExistingCompanyNumberInvite).then(toHTMLString)
+      const result = await controller
+        .verifyInviteForm(req as Request, validExistingCompanyNumberInvite)
+        .then(toHTMLString)
       expect(result).to.equal('fromInviteForm_error--Connection already exists with NAME2_fromInviteForm')
     })
 
     it('should return rendered error when company registered office in dispute', async () => {
       const { args } = withNewConnectionMocks()
       const controller = new NewConnectionController(...args)
-      const result = await controller.verifyInviteForm(validCompanyNumberInDisputeInvite).then(toHTMLString)
+      const result = await controller
+        .verifyInviteForm(req as Request, validCompanyNumberInDisputeInvite)
+        .then(toHTMLString)
       expect(result).to.equal(
         'fromInviteForm_error--Cannot validate company NAME3 as address is currently in dispute_fromInviteForm'
       )
@@ -147,14 +155,16 @@ describe('NewConnectionController', () => {
     it('should return rendered error when company not active', async () => {
       const { args } = withNewConnectionMocks()
       const controller = new NewConnectionController(...args)
-      const result = await controller.verifyInviteForm(validCompanyNumberInactiveInvite).then(toHTMLString)
+      const result = await controller
+        .verifyInviteForm(req as Request, validCompanyNumberInactiveInvite)
+        .then(toHTMLString)
       expect(result).to.equal('fromInviteForm_error--Company NAME4 is not active_fromInviteForm')
     })
 
     it('should return success form', async () => {
       const { args } = withNewConnectionMocks()
       const controller = new NewConnectionController(...args)
-      const result = await controller.verifyInviteForm(validCompanyNumberInvite).then(toHTMLString)
+      const result = await controller.verifyInviteForm(req as Request, validCompanyNumberInvite).then(toHTMLString)
       expect(result).to.equal('fromInviteForm_companyFound-NAME-_fromInviteForm')
     })
   })
@@ -164,7 +174,7 @@ describe('NewConnectionController', () => {
       const { args } = withNewConnectionMocks()
       const controller = new NewConnectionController(...args)
       const result = await controller
-        .submitNewInvite({
+        .submitNewInvite(req as Request, {
           companyNumber: notFoundCompanyNumber,
           email: 'alice@example.com',
           action: 'continue',
@@ -179,7 +189,7 @@ describe('NewConnectionController', () => {
       const { args } = withNewConnectionMocks()
       const controller = new NewConnectionController(...args)
       const result = await controller
-        .submitNewInvite({
+        .submitNewInvite(req as Request, {
           companyNumber: validExistingCompanyNumber,
           email: 'alice@example.com',
           action: 'continue',
@@ -194,7 +204,7 @@ describe('NewConnectionController', () => {
       const { args } = withNewConnectionMocks()
       const controller = new NewConnectionController(...args)
       const result = await controller
-        .submitNewInvite({
+        .submitNewInvite(req as Request, {
           companyNumber: validCompanyNumberInDispute,
           email: 'alice@example.com',
           action: 'continue',
@@ -209,7 +219,7 @@ describe('NewConnectionController', () => {
       const { args } = withNewConnectionMocks()
       const controller = new NewConnectionController(...args)
       const result = await controller
-        .submitNewInvite({
+        .submitNewInvite(req as Request, {
           companyNumber: validCompanyNumberInactive,
           email: 'alice@example.com',
           action: 'continue',
@@ -224,7 +234,7 @@ describe('NewConnectionController', () => {
       const { args } = withNewConnectionMocks()
       const controller = new NewConnectionController(...args)
       const result = await controller
-        .submitNewInvite({
+        .submitNewInvite(req as Request, {
           companyNumber: validCompanyNumber,
           email: 'alice@example.com',
           action: 'continue',
@@ -244,7 +254,7 @@ describe('NewConnectionController', () => {
 
       const controller = new NewConnectionController(...args)
       const result = await controller
-        .submitNewInvite({
+        .submitNewInvite(req as Request, {
           companyNumber: validCompanyNumber,
           email: 'alice@example.com',
           action: 'submit',
@@ -263,7 +273,7 @@ describe('NewConnectionController', () => {
 
       const controller = new NewConnectionController(...args)
       const result = await controller
-        .submitNewInvite({
+        .submitNewInvite(req as Request, {
           companyNumber: validCompanyNumber,
           email: 'alice@example.com',
           action: 'submit',
@@ -288,7 +298,7 @@ describe('NewConnectionController', () => {
 
         const controller = new NewConnectionController(...args)
         result = await controller
-          .submitNewInvite({
+          .submitNewInvite(req as Request, {
             companyNumber: validCompanyNumber,
             email: 'alice@example.com',
             action: 'submit',
@@ -366,7 +376,9 @@ describe('NewConnectionController', () => {
     it('should rendered error when invite is empty', async () => {
       const { args } = withNewConnectionMocks()
       const controller = new NewConnectionController(...args)
-      const result = await controller.submitFromInvite({ invite: '', action: 'createConnection' }).then(toHTMLString)
+      const result = await controller
+        .submitFromInvite(req as Request, { invite: '', action: 'createConnection' })
+        .then(toHTMLString)
       expect(result).to.equal('fromInviteForm_error--Invitation is not valid_fromInviteForm')
     })
 
@@ -374,7 +386,7 @@ describe('NewConnectionController', () => {
       const { args } = withNewConnectionMocks()
       const controller = new NewConnectionController(...args)
       const result = await controller
-        .submitFromInvite({ invite: invalidBase64Invite, action: 'createConnection' })
+        .submitFromInvite(req as Request, { invite: invalidBase64Invite, action: 'createConnection' })
         .then(toHTMLString)
       expect(result).to.equal('fromInviteForm_error--Invitation is not valid_fromInviteForm')
     })
@@ -383,7 +395,7 @@ describe('NewConnectionController', () => {
       const { args } = withNewConnectionMocks()
       const controller = new NewConnectionController(...args)
       const result = await controller
-        .submitFromInvite({ invite: invalidInvite, action: 'createConnection' })
+        .submitFromInvite(req as Request, { invite: invalidInvite, action: 'createConnection' })
         .then(toHTMLString)
       expect(result).to.equal('fromInviteForm_error--Invitation is not valid_fromInviteForm')
     })
@@ -392,7 +404,7 @@ describe('NewConnectionController', () => {
       const { args } = withNewConnectionMocks()
       const controller = new NewConnectionController(...args)
       const result = await controller
-        .submitFromInvite({ invite: invalidCompanyNumberInvite, action: 'createConnection' })
+        .submitFromInvite(req as Request, { invite: invalidCompanyNumberInvite, action: 'createConnection' })
         .then(toHTMLString)
       expect(result).to.equal('fromInviteForm_error--Invitation is not valid_fromInviteForm')
     })
@@ -401,7 +413,7 @@ describe('NewConnectionController', () => {
       const { args } = withNewConnectionMocks()
       const controller = new NewConnectionController(...args)
       const result = await controller
-        .submitFromInvite({ invite: notFoundCompanyNumberInvite, action: 'createConnection' })
+        .submitFromInvite(req as Request, { invite: notFoundCompanyNumberInvite, action: 'createConnection' })
         .then(toHTMLString)
       expect(result).to.equal('fromInviteForm_error--Company number does not exist_fromInviteForm')
     })
@@ -410,7 +422,7 @@ describe('NewConnectionController', () => {
       const { args } = withNewConnectionMocks()
       const controller = new NewConnectionController(...args)
       const result = await controller
-        .submitFromInvite({ invite: validExistingCompanyNumberInvite, action: 'createConnection' })
+        .submitFromInvite(req as Request, { invite: validExistingCompanyNumberInvite, action: 'createConnection' })
         .then(toHTMLString)
       expect(result).to.equal('fromInviteForm_error--Connection already exists with NAME2_fromInviteForm')
     })
@@ -419,7 +431,7 @@ describe('NewConnectionController', () => {
       const { args } = withNewConnectionMocks()
       const controller = new NewConnectionController(...args)
       const result = await controller
-        .submitFromInvite({ invite: validCompanyNumberInDisputeInvite, action: 'createConnection' })
+        .submitFromInvite(req as Request, { invite: validCompanyNumberInDisputeInvite, action: 'createConnection' })
         .then(toHTMLString)
       expect(result).to.equal(
         'fromInviteForm_error--Cannot validate company NAME3 as address is currently in dispute_fromInviteForm'
@@ -430,7 +442,7 @@ describe('NewConnectionController', () => {
       const { args } = withNewConnectionMocks()
       const controller = new NewConnectionController(...args)
       const result = await controller
-        .submitFromInvite({ invite: validCompanyNumberInactiveInvite, action: 'createConnection' })
+        .submitFromInvite(req as Request, { invite: validCompanyNumberInactiveInvite, action: 'createConnection' })
         .then(toHTMLString)
       expect(result).to.equal('fromInviteForm_error--Company NAME4 is not active_fromInviteForm')
     })
@@ -444,7 +456,7 @@ describe('NewConnectionController', () => {
 
       const controller = new NewConnectionController(...args)
       const result = await controller
-        .submitFromInvite({
+        .submitFromInvite(req as Request, {
           invite: validCompanyNumberInvite,
           action: 'createConnection',
         })
@@ -460,7 +472,7 @@ describe('NewConnectionController', () => {
 
       const controller = new NewConnectionController(...args)
       const result = await controller
-        .submitFromInvite({
+        .submitFromInvite(req as Request, {
           invite: validCompanyNumberInvite,
           action: 'createConnection',
         })
@@ -484,7 +496,7 @@ describe('NewConnectionController', () => {
 
         const controller = new NewConnectionController(...args)
         result = await controller
-          .submitFromInvite({
+          .submitFromInvite(req as Request, {
             invite: validCompanyNumberInvite,
             action: 'createConnection',
           })

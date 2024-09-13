@@ -1,14 +1,14 @@
 import { expect } from 'chai'
 import { describe, it } from 'mocha'
-import { pino } from 'pino'
 import sinon from 'sinon'
 
+import { Request } from 'express'
 import { Env } from '../../../env.js'
 import { BadRequestError, InternalError } from '../../../errors.js'
-import { ILogger } from '../../../logger.js'
 import Database from '../../../models/db/index.js'
 import { TABLE } from '../../../models/db/types.js'
 import VeritableCloudagent from '../../../models/veritableCloudagent.js'
+import { mockLogger } from '../../__tests__/helpers.js'
 import { ResetController } from '../index.js'
 
 const fixtures = {
@@ -44,7 +44,6 @@ const cloudagentMock = {
 }
 
 const withMocks = (DEMO_MODE: boolean = true) => {
-  const mockLogger: ILogger = pino({ level: 'silent' })
   const mockEnv = {
     get: sinon.stub().callsFake((name: string) => {
       if (name === 'DEMO_MODE') return DEMO_MODE
@@ -53,14 +52,12 @@ const withMocks = (DEMO_MODE: boolean = true) => {
 
   return {
     mockEnv,
-    mockLogger,
     dbMock,
     cloudagentMock,
     args: [
       mockEnv as unknown as Env,
       dbMock as unknown as Database,
       cloudagentMock as unknown as VeritableCloudagent,
-      mockLogger,
     ] as const,
   }
 }
@@ -72,6 +69,8 @@ const stubIsReset = (controller: ResetController, val: boolean) => {
 
 describe('ResetController', () => {
   let result: unknown
+  const req: object = { log: mockLogger }
+
   before(() => {})
   afterEach(() => {
     sinon.restore()
@@ -84,7 +83,7 @@ describe('ResetController', () => {
         const controller = new ResetController(...args)
 
         try {
-          result = (await controller.reset()) as unknown
+          result = (await controller.reset(req as Request)) as unknown
         } catch (err) {
           result = err
         }
@@ -119,7 +118,7 @@ describe('ResetController', () => {
         const controller = new ResetController(...args)
 
         try {
-          result = (await controller.reset()) as unknown
+          result = (await controller.reset(req as Request)) as unknown
         } catch (err) {
           result = err
         }
@@ -132,7 +131,7 @@ describe('ResetController', () => {
           stubIsReset(controller, false)
 
           try {
-            result = await controller.reset()
+            result = await controller.reset(req as Request)
           } catch (err) {
             result = err
           }
@@ -170,7 +169,7 @@ describe('ResetController', () => {
         const { args } = withMocks(true)
         const controller = new ResetController(...args)
         stubIsReset(controller, true)
-        result = await controller.reset()
+        result = await controller.reset(req as Request)
 
         expect(result).to.deep.equal({ statusCode: 200 })
       })

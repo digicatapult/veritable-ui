@@ -1,6 +1,7 @@
-import { Get, Produces, Route, Security, SuccessResponse } from 'tsoa'
+import { Get, Produces, Request, Route, Security, SuccessResponse } from 'tsoa'
 import { injectable, singleton } from 'tsyringe'
 
+import express from 'express'
 import HomepageTemplates from '../views/homepage/homepage.js'
 import { HTML, HTMLController } from './HTMLController.js'
 
@@ -19,7 +20,9 @@ export class HomepageController extends HTMLController {
    */
   @SuccessResponse(200)
   @Get('/')
-  public async homepage(): Promise<HTML> {
+  public async homepage(@Request() req: express.Request): Promise<HTML> {
+    req.log.trace('rendering homepage')
+
     return this.html(this.homepageTemplates.homepage())
   }
 }

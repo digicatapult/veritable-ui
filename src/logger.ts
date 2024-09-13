@@ -5,6 +5,7 @@ import { Env } from './env.js'
 
 export const Logger = Symbol('Logger')
 export type ILogger = ReturnType<typeof pino>
+export type BasicLogger = pino.Logger
 
 let instance: ILogger | null = null
 container.register<ILogger>(Logger, {

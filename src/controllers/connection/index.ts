@@ -1,11 +1,12 @@
-import { Body, Get, Path, Post, Produces, Query, Route, Security, SuccessResponse } from 'tsoa'
-import { inject, injectable, singleton } from 'tsyringe'
+import express from 'express'
+import { Body, Get, Path, Post, Produces, Query, Request, Route, Security, SuccessResponse } from 'tsoa'
+import { singleton } from 'tsyringe'
 
 import { pinCodeRegex, type PIN_CODE, type UUID } from '../../models/strings.js'
 import ConnectionTemplates from '../../views/connection/connection.js'
 
 import { DatabaseTimeoutError, InternalError, InvalidInputError, NotFoundError } from '../../errors.js'
-import { Logger, type ILogger } from '../../logger.js'
+import { BasicLogger } from '../../logger.js'
 import CompanyHouseEntity, { CompanyProfile } from '../../models/companyHouseEntity.js'
 import Database from '../../models/db/index.js'
 import { ConnectionRow } from '../../models/db/types.js'
@@ -15,7 +16,6 @@ import { HTML, HTMLController } from '../HTMLController.js'
 import { checkDb } from './helpers.js'
 
 @singleton()
-@injectable()
 @Security('oauth2')
 @Route('/connection')
 @Produces('text/html')
@@ -25,11 +25,9 @@ export class ConnectionController extends HTMLController {
     private cloudagent: VeritableCloudagent,
     private companyHouse: CompanyHouseEntity,
     private connectionTemplates: ConnectionTemplates,
-    private pinSubmission: PinSubmissionTemplates,
-    @inject(Logger) private logger: ILogger
+    private pinSubmission: PinSubmissionTemplates
   ) {
     super()
-    this.logger = logger.child({ controller: '/connection' })
   }
 
   /**
@@ -37,12 +35,13 @@ export class ConnectionController extends HTMLController {
    */
   @SuccessResponse(200)
   @Get('/')
-  public async listConnections(@Query() search: string = ''): Promise<HTML> {
+  public async listConnections(@Request() req: express.Request, @Query() search: string = ''): Promise<HTML> {
     const connections =
       search !== ''
         ? await this.db.get('connection', [['company_name', 'ILIKE', `%${search}%`]], [['updated_at', 'desc']])
         : await this.db.get('connection', {}, [['updated_at', 'desc']])
 
+    req.log.debug('returning connections page %j', { connections, search })
     this.setHeader('HX-Replace-Url', search ? `/connection?search=${encodeURIComponent(search)}` : `/connection`)
     return this.html(this.connectionTemplates.listPage(connections, search))
   }
@@ -55,13 +54,19 @@ export class ConnectionController extends HTMLController {
    */
   @SuccessResponse(200)
   @Get('/{connectionId}/pin-submission')
-  public async renderPinCode(@Path() connectionId: UUID, @Query() pin?: PIN_CODE | string): Promise<HTML> {
-    this.logger.debug('PIN_SUBMISSION GET: %o', { connectionId, pin })
+  public async renderPinCode(
+    @Request() req: express.Request,
+    @Path() connectionId: UUID,
+    @Query() pin?: PIN_CODE | string
+  ): Promise<HTML> {
+    req.log.trace('pin submission form', { connectionId, pin })
 
     const [connection]: ConnectionRow[] = await this.db.get('connection', { id: connectionId })
     if (!connection) {
       throw new NotFoundError(`[connection]: ${connectionId}`)
     }
+
+    req.log.debug('rendering pin code form for connection %j', { connection })
 
     return this.html(this.pinSubmission.renderPinForm({ connectionId, pin: pin ?? '', continuationFromInvite: false }))
   }
@@ -74,18 +79,19 @@ export class ConnectionController extends HTMLController {
   @SuccessResponse(200)
   @Post('/{connectionId}/pin-submission')
   public async submitPinCode(
+    @Request() req: express.Request,
     @Body() body: { action: 'submitPinCode'; pin: PIN_CODE | string; stepCount?: number },
     @Path() connectionId: UUID
   ): Promise<HTML> {
-    this.logger.debug('PIN_SUBMISSION POST: %o', { body })
+    req.log.debug('PIN_SUBMISSION POST: %o', { body })
     const { pin } = body
 
     if (!pin.match(pinCodeRegex)) {
+      req.log.trace('pin %s did not match a %s regex', pin, pinCodeRegex)
       return this.html(this.pinSubmission.renderPinForm({ connectionId, pin, continuationFromInvite: false }))
     }
 
     const profile = await this.companyHouse.localCompanyHouseProfile()
-
     const [connection]: ConnectionRow[] = await this.db.get('connection', { id: connectionId })
 
     if (!connection) throw new NotFoundError(`[connection]: ${connectionId}`)
@@ -94,20 +100,25 @@ export class ConnectionController extends HTMLController {
     if (!agentConnectionId) throw new InvalidInputError('Cannot verify PIN on a pending connection')
     //check initial db state of pin_tries_remaining_counts
 
-    await this.verifyReceiveConnection(agentConnectionId, profile, pin)
+    req.log.debug('verifying a new connection', { agentConnectionId, profile, pin })
+    await this.verifyReceiveConnection(req.log, agentConnectionId, profile, pin)
 
     // loading spinner for htmx
-    const localPinAttemptCount = await this.pollPinSubmission(connectionId, connection.pin_tries_remaining_count)
+    const localPinAttemptCount = await this.pollPinSubmission(
+      req.log,
+      connectionId,
+      connection.pin_tries_remaining_count
+    )
 
     if (localPinAttemptCount.nextScreen === 'success') {
-      this.logger.debug('Rendering sucess screen')
+      req.log.trace('pin %s accepted and redering success page', pin)
 
       return this.html(
         this.pinSubmission.renderSuccess({ companyName: connection.company_name, stepCount: body.stepCount ?? 2 })
       )
     }
     if (localPinAttemptCount.nextScreen === 'error') {
-      this.logger.debug('Render error screen with message coming from poll Pin submission')
+      req.log.debug('Render error screen with message coming from poll Pin submission')
 
       return this.html(
         this.pinSubmission.renderError({
@@ -128,8 +139,13 @@ export class ConnectionController extends HTMLController {
     )
   }
 
-  private async verifyReceiveConnection(agentConnectionId: string, profile: CompanyProfile, pin: string) {
-    this.logger.trace('verifyReceiveConnection(): called', { agentConnectionId, profile, pin })
+  private async verifyReceiveConnection(
+    logger: BasicLogger,
+    agentConnectionId: string,
+    profile: CompanyProfile,
+    pin: string
+  ) {
+    logger.trace('verifyReceiveConnection(): called for credential proposal', { agentConnectionId, profile, pin })
 
     await this.cloudagent.proposeCredential(agentConnectionId, {
       schemaName: 'COMPANY_DETAILS',
@@ -150,25 +166,27 @@ export class ConnectionController extends HTMLController {
       ],
     })
   }
-  private async pollPinSubmission(connectionId: string, initialPinAttemptsRemaining: number | null) {
-    this.logger.trace('pollPinSubmission(): called %j', { connectionId, initialPinAttemptsRemaining })
+  private async pollPinSubmission(
+    logger: BasicLogger,
+    connectionId: string,
+    initialPinAttemptsRemaining: number | null
+  ) {
+    logger.trace('pollPinSubmission(): called for database checks %j', { connectionId, initialPinAttemptsRemaining })
 
     try {
       const finalState = checkDb(
-        await this.db.waitForCondition(
-          'connection',
-          (rows) => !!checkDb(rows, initialPinAttemptsRemaining, this.logger),
-          { id: connectionId }
-        ),
+        await this.db.waitForCondition('connection', (rows) => !!checkDb(rows, initialPinAttemptsRemaining, logger), {
+          id: connectionId,
+        }),
         initialPinAttemptsRemaining,
-        this.logger
+        logger
       )
       if (finalState === undefined) {
         throw new InternalError(`finalState is ${finalState}`)
       }
       return finalState
     } catch (err) {
-      this.logger.warn('unknown error occured %s', err?.toString())
+      logger.warn('unknown error occured %s', err?.toString())
 
       if (err instanceof DatabaseTimeoutError) {
         return {
@@ -177,7 +195,7 @@ export class ConnectionController extends HTMLController {
           nextScreen: 'error' as const,
         }
       }
-      this.logger.info(`There has been an unexpected error waiting for pin response.`)
+      logger.info(`There has been an unexpected error waiting for pin response.`)
       throw new InternalError(err?.toString())
     }
   }

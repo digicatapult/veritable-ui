@@ -96,7 +96,7 @@ export default async (startEvents: boolean = true) => {
           headers: {},
         }),
         res: (res) => {
-          res.headers['set-cookie'] = undefined
+          delete res.headers
           return res
         },
       },
@@ -104,6 +104,7 @@ export default async (startEvents: boolean = true) => {
         const id: UUID = (req.headers['x-request-id'] as UUID) || (req.id as UUID) || randomUUID()
 
         if (!logger.bindings().req_id) logger.setBindings({ req_id: id })
+
         res.setHeader('x-request-id', id)
         return id
       },

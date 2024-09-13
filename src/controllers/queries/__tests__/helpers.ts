@@ -1,8 +1,6 @@
 import { Readable } from 'node:stream'
-import { pino } from 'pino'
 import sinon from 'sinon'
 
-import { ILogger } from '../../../logger.js'
 import Database from '../../../models/db/index.js'
 import { ConnectionRow, QueryRow } from '../../../models/db/types.js'
 import { UUID } from '../../../models/strings.js'
@@ -113,7 +111,6 @@ export const withQueriesMocks = (testOptions: Partial<QueryMockOptions> = {}) =>
   const queryListTemplateMock = {
     listPage: (queries: Query[]) => templateListFake('list', queries[0].company_name, queries[0].status),
   } as unknown as QueryListTemplates
-  const mockLogger: ILogger = pino({ level: 'silent' })
   const dbMock = {
     get: sinon.stub().callsFake((tableName: 'connection' | 'query') => Promise.resolve(options.getRows[tableName])),
     update: sinon.stub().resolves(),
@@ -135,7 +132,6 @@ export const withQueriesMocks = (testOptions: Partial<QueryMockOptions> = {}) =>
     scope3CarbonConsumptionResponseTemplateMock,
     queryListTemplateMock,
     queryTemplateMock,
-    mockLogger,
     dbMock,
     cloudagentMock,
     args: [
@@ -145,7 +141,6 @@ export const withQueriesMocks = (testOptions: Partial<QueryMockOptions> = {}) =>
       queryListTemplateMock,
       cloudagentMock as unknown as VeritableCloudagent,
       dbMock as unknown as Database,
-      mockLogger,
     ] as const,
   }
 }
