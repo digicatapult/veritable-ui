@@ -91,7 +91,7 @@ export default async (startEvents: boolean = true) => {
       logger,
       serializers: {
         // removing cookie from being logged since it contains refresh and access token
-        req: ({ headers, ...req }: { headers: Record<string, string> }) => ({
+        req: ({ id, headers, ...req }: { id: UUID, headers: Record<string, string> }) => ({
           ...req,
           headers: {},
         }),
