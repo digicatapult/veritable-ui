@@ -8,7 +8,7 @@ import { QueriesController } from '../index.js'
 import { mockIds, toHTMLString, withQueriesMocks } from './helpers.js'
 
 describe('QueriesController', () => {
-  const req: object = { log: mockLogger }
+  const req = { log: mockLogger } as unknown as Request
 
   afterEach(() => {
     sinon.restore()
@@ -25,7 +25,7 @@ describe('QueriesController', () => {
       const { dbMock, args } = withQueriesMocks()
       const controller = new QueriesController(...args)
       const spy = dbMock.get
-      await controller.queryManagement(req as Request).then(toHTMLString)
+      await controller.queryManagement(req).then(toHTMLString)
       expect(spy.firstCall.calledWith('connection', [], [['updated_at', 'desc']])).to.equal(true)
       expect(spy.secondCall.calledWith('query', {}, [['updated_at', 'desc']])).to.equal(true)
     })
@@ -34,7 +34,7 @@ describe('QueriesController', () => {
       const { dbMock, args } = withQueriesMocks()
       const controller = new QueriesController(...args)
       const spy = dbMock.get
-      await controller.queryManagement(req as Request, 'VER123').then(toHTMLString)
+      await controller.queryManagement(req, 'VER123').then(toHTMLString)
       const search = 'VER123'
       const query = search ? [['company_name', 'ILIKE', `%${search}%`]] : {}
       expect(spy.firstCall.calledWith('connection', query, [['updated_at', 'desc']])).to.equal(true)
@@ -46,7 +46,7 @@ describe('QueriesController', () => {
       const { dbMock, args } = withQueriesMocks()
       const controller = new QueriesController(...args)
       const spy = dbMock.get
-      await controller.scope3CarbonConsumption(req as Request).then(toHTMLString)
+      await controller.scope3CarbonConsumption(req).then(toHTMLString)
       expect(spy.firstCall.calledWith('connection', [], [['updated_at', 'desc']])).to.equal(true)
     })
 
@@ -54,7 +54,7 @@ describe('QueriesController', () => {
       const { dbMock, args } = withQueriesMocks()
       const controller = new QueriesController(...args)
       const spy = dbMock.get
-      await controller.scope3CarbonConsumption(req as Request, 'VER123').then(toHTMLString)
+      await controller.scope3CarbonConsumption(req, 'VER123').then(toHTMLString)
       const search = 'VER123'
       const query = search ? [['company_name', 'ILIKE', `%${search}%`]] : {}
       expect(spy.firstCall.calledWith('connection', query, [['updated_at', 'desc']])).to.equal(true)
@@ -64,7 +64,7 @@ describe('QueriesController', () => {
       const { args } = withQueriesMocks()
       const controller = new QueriesController(...args)
       const result = await controller
-        .scope3CarbonConsumptionStage(req as Request, { connectionId: 'connection-id', action: 'form' })
+        .scope3CarbonConsumptionStage(req, { connectionId: 'connection-id', action: 'form' })
         .then(toHTMLString)
 
       expect(result).to.equal('scope3_form_scope3')
@@ -74,7 +74,7 @@ describe('QueriesController', () => {
       const { args } = withQueriesMocks()
       const controller = new QueriesController(...args)
       const result = await controller
-        .scope3CarbonConsumptionStage(req as Request, {
+        .scope3CarbonConsumptionStage(req, {
           connectionId: 'connection-id',
           action: 'success',
           productId: 'SomeID',
@@ -91,7 +91,7 @@ describe('QueriesController', () => {
 
       const controller = new QueriesController(...args)
       const result = await controller
-        .scope3CarbonConsumptionStage(req as Request, {
+        .scope3CarbonConsumptionStage(req, {
           connectionId: 'connection-id',
           action: 'success',
           productId: 'SomeID',
@@ -108,7 +108,7 @@ describe('QueriesController', () => {
 
       const controller = new QueriesController(...args)
       const result = await controller
-        .scope3CarbonConsumptionStage(req as Request, {
+        .scope3CarbonConsumptionStage(req, {
           connectionId: 'connection-id',
           action: 'success',
           productId: 'SomeID',
@@ -128,7 +128,7 @@ describe('QueriesController', () => {
 
       const controller = new QueriesController(...args)
       const result = await controller
-        .scope3CarbonConsumptionStage(req as Request, {
+        .scope3CarbonConsumptionStage(req, {
           connectionId: 'connection-id',
           action: 'success',
           productId: 'SomeID',
@@ -144,7 +144,7 @@ describe('QueriesController', () => {
       const { args, dbMock } = withQueriesMocks()
       const controller = new QueriesController(...args)
       const spy = dbMock.get
-      await controller.scope3CarbonConsumptionResponse(req as Request, 'SomeId').then(toHTMLString)
+      await controller.scope3CarbonConsumptionResponse(req, 'SomeId').then(toHTMLString)
       const search = 'SomeId'
       expect(spy.firstCall.calledWith('query', { id: search })).to.equal(true)
     })
@@ -152,7 +152,7 @@ describe('QueriesController', () => {
     it('should call query response page with stage FORM as expected', async () => {
       const { args } = withQueriesMocks()
       const controller = new QueriesController(...args)
-      const result = await controller.scope3CarbonConsumptionResponse(req as Request, 'someId123').then(toHTMLString)
+      const result = await controller.scope3CarbonConsumptionResponse(req, 'someId123').then(toHTMLString)
 
       expect(result).to.equal('queriesResponse_template')
     })
@@ -161,7 +161,7 @@ describe('QueriesController', () => {
       const { args } = withQueriesMocks()
       const controller = new QueriesController(...args)
       const result = await controller
-        .scope3CarbonConsumptionResponseSubmit(req as Request, '5390af91-c551-4d74-b394-d8ae0805059e', {
+        .scope3CarbonConsumptionResponseSubmit(req, '5390af91-c551-4d74-b394-d8ae0805059e', {
           companyId: '2345789',
           action: 'success',
           totalScope3CarbonEmissions: '25',
@@ -178,7 +178,7 @@ describe('QueriesController', () => {
       const controller = new QueriesController(...args)
 
       const result = await controller
-        .scope3CarbonConsumptionResponseSubmit(req as Request, '5390af91-c551-4d74-b394-d8ae0805059e', {
+        .scope3CarbonConsumptionResponseSubmit(req, '5390af91-c551-4d74-b394-d8ae0805059e', {
           companyId: '2345789',
           action: 'success',
           totalScope3CarbonEmissions: '25',
@@ -194,7 +194,7 @@ describe('QueriesController', () => {
 
       const controller = new QueriesController(...args)
       const result = await controller
-        .scope3CarbonConsumptionResponseSubmit(req as Request, '5390af91-c551-4d74-b394-d8ae0805059e', {
+        .scope3CarbonConsumptionResponseSubmit(req, '5390af91-c551-4d74-b394-d8ae0805059e', {
           companyId: '2345789',
           action: 'success',
           totalScope3CarbonEmissions: '25',
@@ -214,7 +214,7 @@ describe('QueriesController', () => {
 
     const controller = new QueriesController(...args)
     const result = await controller
-      .scope3CarbonConsumptionResponseSubmit(req as Request, '5390af91-c551-4d74-b394-d8ae0805059e', {
+      .scope3CarbonConsumptionResponseSubmit(req, '5390af91-c551-4d74-b394-d8ae0805059e', {
         companyId: '2345789',
         action: 'success',
         totalScope3CarbonEmissions: '25',
@@ -229,7 +229,7 @@ describe('QueriesController', () => {
       const { args, dbMock } = withQueriesMocks()
       const controller = new QueriesController(...args)
       const spy = dbMock.get
-      await controller.scope3CarbonConsumptionViewResponse(req as Request, mockIds.queryId).then(toHTMLString)
+      await controller.scope3CarbonConsumptionViewResponse(req, mockIds.queryId).then(toHTMLString)
       expect(spy.firstCall.calledWith('query', { id: mockIds.queryId })).to.equal(true)
     })
   })
@@ -244,7 +244,7 @@ describe('QueriesController', () => {
       const controller = new QueriesController(...args)
       result = await controller
         .scope3CO2Partial(
-          req as Request,
+          req,
           mockIds.queryId, // url param
           'on' // partialSelect query string param
         )
@@ -258,7 +258,7 @@ describe('QueriesController', () => {
         const controller = new QueriesController(...args)
         result = await controller
           .scope3CO2Partial(
-            req as Request,
+            req,
             mockIds.queryId // url param
           )
           .then(toHTMLString)

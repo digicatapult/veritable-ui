@@ -69,7 +69,7 @@ const stubIsReset = (controller: ResetController, val: boolean) => {
 
 describe('ResetController', () => {
   let result: unknown
-  const req: object = { log: mockLogger }
+  const req = { log: mockLogger } as unknown as Request
 
   before(() => {})
   afterEach(() => {
@@ -83,7 +83,7 @@ describe('ResetController', () => {
         const controller = new ResetController(...args)
 
         try {
-          result = (await controller.reset(req as Request)) as unknown
+          result = (await controller.reset(req)) as unknown
         } catch (err) {
           result = err
         }
@@ -118,7 +118,7 @@ describe('ResetController', () => {
         const controller = new ResetController(...args)
 
         try {
-          result = (await controller.reset(req as Request)) as unknown
+          result = (await controller.reset(req)) as unknown
         } catch (err) {
           result = err
         }
@@ -131,7 +131,7 @@ describe('ResetController', () => {
           stubIsReset(controller, false)
 
           try {
-            result = await controller.reset(req as Request)
+            result = await controller.reset(req)
           } catch (err) {
             result = err
           }
@@ -169,7 +169,7 @@ describe('ResetController', () => {
         const { args } = withMocks(true)
         const controller = new ResetController(...args)
         stubIsReset(controller, true)
-        result = await controller.reset(req as Request)
+        result = await controller.reset(req)
 
         expect(result).to.deep.equal({ statusCode: 200 })
       })

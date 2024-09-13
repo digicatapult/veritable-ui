@@ -2,7 +2,7 @@ import type * as express from 'express'
 
 import { randomBytes } from 'node:crypto'
 import { Get, Hidden, Produces, Query, Request, Route, SuccessResponse } from 'tsoa'
-import { singleton } from 'tsyringe'
+import { injectable, singleton } from 'tsyringe'
 
 import { Env } from '../env.js'
 import { ForbiddenError, InternalError } from '../errors.js'
@@ -26,6 +26,7 @@ const tokenCookieOpts: express.CookieOptions = {
 }
 
 @singleton()
+@injectable()
 @Route('/auth')
 @Produces('text/html')
 @Hidden()
