@@ -3,7 +3,7 @@ import { pino } from 'pino'
 
 import sinon from 'sinon'
 import { Env } from '../../../env.js'
-import type { BasicLogger } from '../../../logger.js'
+import { ILogger } from '../../../logger.js'
 import CompanyHouseEntity from '../../../models/companyHouseEntity.js'
 import Database from '../../../models/db/index.js'
 import { ConnectionRow } from '../../../models/db/types.js'
@@ -227,7 +227,7 @@ export const withNewConnectionMocks = () => {
 }
 
 export const withCheckDbMocks = () => {
-  const mockLogger: BasicLogger = pino({ level: 'silent' })
+  const mockLogger: ILogger = pino({ level: 'silent' })
   return {
     mockLogger,
     args: [mockLogger] as const,

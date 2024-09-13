@@ -3,11 +3,11 @@ import express from 'express'
 import { describe, it } from 'mocha'
 import { pino } from 'pino'
 import { Env } from '../../../env.js'
-import { BasicLogger } from '../../../logger.js'
 
+import { ILogger } from '../../../logger.js'
 import { HealthController } from '../index.js'
 
-const mockLogger: BasicLogger = pino({ level: 'silent' }).child({ HealthController: 'UNIT:TEST' })
+const mockLogger: ILogger = pino({ level: 'silent' }).child({ HealthController: 'UNIT:TEST' })
 const mockEnv = {
   get: (name: string) => {
     if (name === 'PUBLIC_URL') return 'http://www.exampl.com'

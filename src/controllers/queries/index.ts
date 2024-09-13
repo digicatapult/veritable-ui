@@ -2,8 +2,8 @@ import express from 'express'
 import { Body, Get, Path, Post, Produces, Query, Request, Route, Security, SuccessResponse } from 'tsoa'
 import { singleton } from 'tsyringe'
 
+import pino from 'pino'
 import { InvalidInputError, NotFoundError } from '../../errors.js'
-import { BasicLogger } from '../../logger.js'
 import Database from '../../models/db/index.js'
 import { ConnectionRow, QueryRow, Where } from '../../models/db/types.js'
 import { type UUID } from '../../models/strings.js'
@@ -428,7 +428,7 @@ export class QueriesController extends HTMLController {
   }
 
   private async handleError(
-    logger: BasicLogger,
+    logger: pino.Logger,
     query: QueryRow,
     connection: ConnectionRow,
     rpcId?: string,

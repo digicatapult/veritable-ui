@@ -2,9 +2,9 @@ import express from 'express'
 import { Get, Hidden, Produces, Request, Route, Security, SuccessResponse } from 'tsoa'
 import { singleton } from 'tsyringe'
 
+import pino from 'pino'
 import { Env } from '../../env.js'
 import { BadRequestError, InternalError } from '../../errors.js'
-import { type BasicLogger } from '../../logger.js'
 import Database from '../../models/db/index.js'
 import type { TABLE } from '../../models/db/types.js'
 import VeritableCloudagent, { Connection, Credential } from '../../models/veritableCloudagent.js'
@@ -22,7 +22,7 @@ export class ResetController {
   ) {}
 
   // would be nice to restore to prior reset
-  private async isReset(logger: BasicLogger): Promise<boolean> {
+  private async isReset(logger: pino.Logger): Promise<boolean> {
     const tables: TABLE[] = ['connection', 'connection_invite', 'query', 'query_rpc']
     try {
       const items: number[] = await Promise.all([
