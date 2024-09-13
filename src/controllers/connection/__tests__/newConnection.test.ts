@@ -287,13 +287,14 @@ describe('NewConnectionController', () => {
         clock = sinon.useFakeTimers(100)
 
         const controller = new NewConnectionController(...args)
-        result = await controller
-          .submitNewInvite({
-            companyNumber: validCompanyNumber,
-            email: 'alice@example.com',
-            action: 'submit',
-          })
-          .then(toHTMLString)
+        const stream = await controller.submitNewInvite({
+          companyNumber: validCompanyNumber,
+          email: 'alice@example.com',
+          action: 'submit',
+        })
+
+        clock.restore()
+        result = await toHTMLString(stream)
       })
 
       afterEach(() => {
@@ -483,12 +484,13 @@ describe('NewConnectionController', () => {
         clock = sinon.useFakeTimers(100)
 
         const controller = new NewConnectionController(...args)
-        result = await controller
-          .submitFromInvite({
-            invite: validCompanyNumberInvite,
-            action: 'createConnection',
-          })
-          .then(toHTMLString)
+        const stream = await controller.submitFromInvite({
+          invite: validCompanyNumberInvite,
+          action: 'createConnection',
+        })
+
+        clock.restore()
+        result = await toHTMLString(stream)
       })
 
       afterEach(() => {
