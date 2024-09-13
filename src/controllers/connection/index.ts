@@ -1,4 +1,5 @@
 import express from 'express'
+import { pino } from 'pino'
 import { Body, Get, Path, Post, Produces, Query, Request, Route, Security, SuccessResponse } from 'tsoa'
 import { singleton } from 'tsyringe'
 
@@ -6,7 +7,7 @@ import { pinCodeRegex, type PIN_CODE, type UUID } from '../../models/strings.js'
 import ConnectionTemplates from '../../views/connection/connection.js'
 
 import { DatabaseTimeoutError, InternalError, InvalidInputError, NotFoundError } from '../../errors.js'
-import { BasicLogger } from '../../logger.js'
+import { ILogger } from '../../logger.js'
 import CompanyHouseEntity, { CompanyProfile } from '../../models/companyHouseEntity.js'
 import Database from '../../models/db/index.js'
 import { ConnectionRow } from '../../models/db/types.js'
@@ -105,7 +106,7 @@ export class ConnectionController extends HTMLController {
 
     // loading spinner for htmx
     const localPinAttemptCount = await this.pollPinSubmission(
-      req.log,
+      req.log.child({ called: 'this.pollPinSubmission' }),
       connectionId,
       connection.pin_tries_remaining_count
     )
@@ -140,7 +141,7 @@ export class ConnectionController extends HTMLController {
   }
 
   private async verifyReceiveConnection(
-    logger: BasicLogger,
+    logger: pino.Logger,
     agentConnectionId: string,
     profile: CompanyProfile,
     pin: string
@@ -166,11 +167,7 @@ export class ConnectionController extends HTMLController {
       ],
     })
   }
-  private async pollPinSubmission(
-    logger: BasicLogger,
-    connectionId: string,
-    initialPinAttemptsRemaining: number | null
-  ) {
+  private async pollPinSubmission(logger: ILogger, connectionId: string, initialPinAttemptsRemaining: number | null) {
     logger.trace('pollPinSubmission(): called for database checks %j', { connectionId, initialPinAttemptsRemaining })
 
     try {

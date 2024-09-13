@@ -1,12 +1,12 @@
 import argon2 from 'argon2'
 import express from 'express'
 import { randomInt } from 'node:crypto'
+import { pino } from 'pino'
 import { Body, Get, Post, Produces, Query, Request, Route, Security, SuccessResponse } from 'tsoa'
 import { singleton } from 'tsyringe'
 import { z } from 'zod'
 
 import { Env } from '../../env.js'
-import { type BasicLogger } from '../../logger.js'
 import CompanyHouseEntity, { CompanyProfile } from '../../models/companyHouseEntity.js'
 import Database from '../../models/db/index.js'
 import EmailService from '../../models/emailService/index.js'
@@ -270,7 +270,7 @@ export class NewConnectionController extends HTMLController {
   }
 
   private async decodeInvite(
-    logger: BasicLogger,
+    logger: pino.Logger,
     invite: BASE_64_URL
   ): Promise<{ type: 'success'; inviteUrl: string; company: CompanyProfile } | { type: 'error'; message: string }> {
     let wrappedInvite: Invite
@@ -297,7 +297,7 @@ export class NewConnectionController extends HTMLController {
   }
 
   private async lookupCompany(
-    logger: BasicLogger,
+    logger: pino.Logger,
     companyNumber: COMPANY_NUMBER
   ): Promise<{ type: 'success'; company: CompanyProfile } | { type: 'error'; message: string }> {
     logger.trace('lookupCompany(): called %s', companyNumber)

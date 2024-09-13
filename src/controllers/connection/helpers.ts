@@ -1,8 +1,8 @@
 import { InternalError } from '../../errors.js'
-import { BasicLogger } from '../../logger.js'
+import { ILogger } from '../../logger.js'
 import { ConnectionRow } from '../../models/db/types.js'
 
-export const checkDb = (rows: ConnectionRow[], initialPinAttemptsRemaining: number | null, logger: BasicLogger) => {
+export const checkDb = (rows: ConnectionRow[], initialPinAttemptsRemaining: number | null, logger: ILogger) => {
   logger.trace('check(): called, %j', { rows, initialPinAttemptsRemaining, logger })
   const [connectionCheck] = rows
 
