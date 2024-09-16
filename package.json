@@ -20,7 +20,7 @@
     "build": "npm run tsoa:build && swc ./src -d ./build --strip-leading-paths --copy-files",
     "tsoa:build": "tsoa spec-and-routes",
     "tsoa:watch": "node --watch-path=./src ./node_modules/.bin/tsoa -- spec-and-routes",
-    "dev": "npm run tsoa:watch & NODE_ENV=dev node --import @swc-node/register/esm-register --watch src/index.ts | pino-colada",
+    "dev": "npm run tsoa:watch & SWCRC=true NODE_ENV=dev node --import @swc-node/register/esm-register --enable-source-maps --watch src/index.ts | pino-colada",
     "dev:init": "NODE_ENV=dev node --import @swc-node/register/esm-register src/init.ts | pino-colada",
     "init": "node build/init.js",
     "start": "node build/index.js",
