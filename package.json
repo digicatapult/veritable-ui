@@ -20,11 +20,11 @@
     "build": "npm run tsoa:build && tsc",
     "tsoa:build": "tsoa spec-and-routes",
     "tsoa:watch": "node --watch-path=./src ./node_modules/.bin/tsoa -- spec-and-routes",
-    "dev": "npm run tsoa:watch & NODE_ENV=dev node --import=tsimp/import --watch src/index.ts | pino-colada",
-    "dev:init": "NODE_ENV=dev node --import=tsimp/import src/init.ts | pino-colada",
+    "dev": "npm run tsoa:watch & NODE_ENV=dev node --import=@digicatapult/tsimp/import --watch src/index.ts | pino-colada",
+    "dev:init": "NODE_ENV=dev node --import=@digicatapult/tsimp/import src/init.ts | pino-colada",
     "init": "node build/init.js",
     "start": "node build/index.js",
-    "db:cmd": "node --import=tsimp/import ./node_modules/.bin/knex",
+    "db:cmd": "node --import=@digicatapult/tsimp/import ./node_modules/.bin/knex",
     "db:migrate": "npm run db:cmd -- migrate:latest",
     "db:rollback": "npm run db:cmd -- migrate:rollback",
     "db:seed": "npm run db:cmd -- seed:run",
@@ -91,7 +91,7 @@
     "prettier-plugin-organize-imports": "^4.0.0",
     "sinon": "^19.0.0",
     "supertest": "^7.0.0",
-    "tsimp": "^2.0.11",
+    "@digicatapult/tsimp": "^2.0.12",
     "typescript": "^5.6.2",
     "undici": "^6.19.8"
   }
