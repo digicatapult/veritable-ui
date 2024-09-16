@@ -59,7 +59,6 @@
     "zod": "^3.23.8"
   },
   "devDependencies": {
-    "@digicatapult/tsimp": "^2.0.12",
     "@eslint/eslintrc": "^3.1.0",
     "@eslint/js": "^9.10.0",
     "@playwright/test": "^1.47.0",
