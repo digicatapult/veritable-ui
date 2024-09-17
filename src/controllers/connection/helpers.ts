@@ -16,7 +16,10 @@ export const checkDb = (rows: ConnectionRow[], initialPinAttemptsRemaining: numb
     }
   }
   if (connectionCheck.pin_tries_remaining_count === 0) {
-    logger.debug('maximum number of pin attempts has been reached. Remaining attempts: [%s]', connectionCheck.pin_tries_remaining_count)
+    logger.debug(
+      'maximum number of pin attempts has been reached. Remaining attempts: [%s]',
+      connectionCheck.pin_tries_remaining_count
+    )
     return {
       localPinAttempts: connectionCheck.pin_tries_remaining_count,
       message:
