@@ -37,7 +37,7 @@ export class ResetController {
         }, 0) === 0
       )
     } catch (err: unknown) {
-      logger.warn('error occured while restting %s', err)
+      logger.warn('error occured while resting %s', err)
 
       return false
     }
