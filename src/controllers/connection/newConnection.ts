@@ -92,6 +92,7 @@ export class NewConnectionController extends HTMLController {
     req.log.debug('verifying %s company number', companyNumber)
 
     if (!companyNumber.match(companyNumberRegex)) {
+      req.log.info('company %s number did not match %s regex', companyNumber, companyNumberRegex)
       return this.newConnectionForm(req)
     }
 
@@ -126,13 +127,13 @@ export class NewConnectionController extends HTMLController {
     req.log.debug('new invite [%s] received', invite)
 
     if (!invite.match(base64UrlRegex)) {
-      req.log.warn('submitted invitation is not in base64 %s', invite)
+      req.log.info('submitted invitation is not in base64 %s', invite)
       return this.receiveInviteErrorHtml('Invitation is not valid')
     }
 
     const inviteOrError = await this.decodeInvite(req.log, invite)
     if (inviteOrError.type === 'error') {
-      req.log.warn('unable to decode this invitation %j', inviteOrError)
+      req.log.info('unable to decode this invitation %j', inviteOrError)
       return this.receiveInviteErrorHtml(inviteOrError.message)
     }
 
@@ -173,11 +174,11 @@ export class NewConnectionController extends HTMLController {
     // if we're not at the final submission return next stage
     const formStage: NewInviteFormStage = submitToFormStage[body.action]
     if (formStage !== 'success') {
-      req.log.trace('rendering a final stage [%s] of new connection', formStage)
+      req.log.info('rendering a final stage [%s] of new connection', formStage)
       return this.newInviteSuccessHtml(formStage, company, body.email)
     }
 
-    req.log.debug('NEW_CONNECTION: details %s (%s)', company.company_name, company.company_number)
+    req.log.info('new connection details %s (%s)', company.company_name, company.company_number)
 
     // otherwise we're doing final submit. Generate pin and oob invitation
     const pin = randomInt(1e6).toString(10).padStart(6, '0')
@@ -186,7 +187,7 @@ export class NewConnectionController extends HTMLController {
       this.cloudagent.createOutOfBandInvite({ companyName: company.company_name }),
     ])
 
-    req.log.debug('invite created, inserting new connection %j', { company, pinHash, invite })
+    req.log.info('invite created, inserting new connection %j', { company, pinHash, invite })
     // insert the connection
     const dbResult = await this.insertNewConnection(company, pinHash, invite.outOfBandRecord.id, null)
     if (dbResult.type === 'error') {
@@ -199,13 +200,13 @@ export class NewConnectionController extends HTMLController {
       inviteUrl: invite.invitationUrl,
     }
 
-    req.log.debug('sending connection_invite email to %s %j', body.email, wrappedInvitation)
+    req.log.info('sending connection_invite email to %s %j', body.email, wrappedInvitation)
     await this.sendNewConnectionEmail(body.email, wrappedInvitation)
-    req.log.debug('sending connection_invite_admin email %j', { company, pin })
+    req.log.info('sending connection_invite_admin email %j', { company, pin })
     await this.sendAdminEmail(company, pin)
 
     // return the success response
-    req.log.info('NEW_CONNECTION: complete: %s', dbResult.connectionId)
+    req.log.info('new connection, is complete: %s', dbResult.connectionId)
     return this.newInviteSuccessHtml(formStage, company, body.email)
   }
 
@@ -227,15 +228,15 @@ export class NewConnectionController extends HTMLController {
       return this.receiveInviteErrorHtml('Invitation is not valid')
     }
 
-    req.log.trace('decoding invite %s', body.invite)
+    req.log.info('decoding invite %s', body.invite)
     const inviteOrError = await this.decodeInvite(req.log, body.invite || '')
     if (inviteOrError.type === 'error') {
       req.log.warn('unable to decode invitation %j', inviteOrError)
       return this.receiveInviteErrorHtml(inviteOrError.message)
     }
 
-    req.log.debug(
-      'NEW_CONNECTION: details %s (%s)',
+    req.log.info(
+      'new connection: details %s (%s)',
       inviteOrError.company.company_name,
       inviteOrError.company.company_number
     )
@@ -250,7 +251,7 @@ export class NewConnectionController extends HTMLController {
       }),
     ])
 
-    req.log.debug('invite created, inserting new connection %j', { pinHash, invite })
+    req.log.info('invite created, inserting new connection %j', { pinHash, invite })
     const dbResult = await this.insertNewConnection(
       inviteOrError.company,
       pinHash,
@@ -264,7 +265,7 @@ export class NewConnectionController extends HTMLController {
 
     await this.sendAdminEmail(inviteOrError.company, pin)
 
-    req.log.debug('NEW_CONNECTION: complete: %s', dbResult.connectionId)
+    req.log.info('new connection: complete: %s', dbResult.connectionId)
     this.setHeader('HX-Replace-Url', `/connection/${dbResult.connectionId}/pin-submission`)
     return this.receivePinSubmissionHtml(dbResult.connectionId)
   }
@@ -277,7 +278,7 @@ export class NewConnectionController extends HTMLController {
     try {
       wrappedInvite = inviteParser.parse(JSON.parse(Buffer.from(invite, 'base64url').toString('utf8')))
     } catch (err) {
-      logger.debug('unknown error occured %j', err)
+      logger.info('unknown error occured %j', err)
       return {
         type: 'error',
         message: 'Invitation is not valid',
@@ -285,7 +286,7 @@ export class NewConnectionController extends HTMLController {
     }
 
     if (!wrappedInvite.companyNumber.match(companyNumberRegex)) {
-      logger.trace('company number did not match a %s regex', companyNumberRegex)
+      logger.info('company number did not match a %s regex', companyNumberRegex)
       return { type: 'error', message: 'Invitation is not valid' }
     }
 
@@ -300,21 +301,20 @@ export class NewConnectionController extends HTMLController {
     logger: pino.Logger,
     companyNumber: COMPANY_NUMBER
   ): Promise<{ type: 'success'; company: CompanyProfile } | { type: 'error'; message: string }> {
-    logger.trace('lookupCompany(): called %s', companyNumber)
     const companySearch = await this.companyHouseEntity.getCompanyProfileByCompanyNumber(companyNumber)
     if (companySearch.type === 'notFound') {
-      logger.trace('%s company not found', companySearch)
+      logger.info('%s company not found', companySearch)
       return {
         type: 'error',
         message: 'Company number does not exist',
       }
     }
     const company = companySearch.company
-    logger.debug('company by %s number was found %j', companyNumber, company)
+    logger.info('company by %s number was found %j', companyNumber, company)
 
     const existingConnections = await this.db.get('connection', { company_number: companyNumber })
     if (existingConnections.length !== 0) {
-      logger.debug('connection already exists %j', existingConnections)
+      logger.info('connection already exists %j', existingConnections)
       return {
         type: 'error',
         message: `Connection already exists with ${company.company_name}`,
@@ -322,7 +322,7 @@ export class NewConnectionController extends HTMLController {
     }
 
     if (company.registered_office_is_in_dispute) {
-      logger.debug("company's is in dispute %o", company)
+      logger.info("company's is in dispute %o", company)
       return {
         type: 'error',
         message: `Cannot validate company ${company.company_name} as address is currently in dispute`,
@@ -330,7 +330,7 @@ export class NewConnectionController extends HTMLController {
     }
 
     if (company.company_status !== 'active') {
-      logger.debug('company is not active %j', company)
+      logger.info('company is not active %j', company)
       return {
         type: 'error',
         message: `Company ${company.company_name} is not active`,

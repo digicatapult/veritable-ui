@@ -60,14 +60,14 @@ export class ConnectionController extends HTMLController {
     @Path() connectionId: UUID,
     @Query() pin?: PIN_CODE | string
   ): Promise<HTML> {
-    req.log.trace('pin submission form', { connectionId, pin })
+    req.log.debug('pin submission form', { connectionId, pin })
 
     const [connection]: ConnectionRow[] = await this.db.get('connection', { id: connectionId })
     if (!connection) {
       throw new NotFoundError(`[connection]: ${connectionId}`)
     }
 
-    req.log.debug('rendering pin code form for connection %j', { connection })
+    req.log.info('rendering pin code form for connection %j', { connection })
 
     return this.html(this.pinSubmission.renderPinForm({ connectionId, pin: pin ?? '', continuationFromInvite: false }))
   }
@@ -84,11 +84,11 @@ export class ConnectionController extends HTMLController {
     @Body() body: { action: 'submitPinCode'; pin: PIN_CODE | string; stepCount?: number },
     @Path() connectionId: UUID
   ): Promise<HTML> {
-    req.log.debug('PIN_SUBMISSION POST: %o', { body })
+    req.log.debug('pin submission POST request body %o', { body })
     const { pin } = body
 
     if (!pin.match(pinCodeRegex)) {
-      req.log.trace('pin %s did not match a %s regex', pin, pinCodeRegex)
+      req.log.info('pin %s did not match a %s regex', pin, pinCodeRegex)
       return this.html(this.pinSubmission.renderPinForm({ connectionId, pin, continuationFromInvite: false }))
     }
 
@@ -101,7 +101,7 @@ export class ConnectionController extends HTMLController {
     if (!agentConnectionId) throw new InvalidInputError('Cannot verify PIN on a pending connection')
     //check initial db state of pin_tries_remaining_counts
 
-    req.log.debug('verifying a new connection', { agentConnectionId, profile, pin })
+    req.log.info('verifying a new connection', { agentConnectionId, profile, pin })
     await this.verifyReceiveConnection(req.log, agentConnectionId, profile, pin)
 
     // loading spinner for htmx
@@ -112,14 +112,14 @@ export class ConnectionController extends HTMLController {
     )
 
     if (localPinAttemptCount.nextScreen === 'success') {
-      req.log.trace('pin %s accepted and redering success page', pin)
+      req.log.debug('pin %s accepted and redering success page', pin)
 
       return this.html(
         this.pinSubmission.renderSuccess({ companyName: connection.company_name, stepCount: body.stepCount ?? 2 })
       )
     }
     if (localPinAttemptCount.nextScreen === 'error') {
-      req.log.debug('Render error screen with message coming from poll Pin submission')
+      req.log.info('Render error screen with message coming from poll Pin submission')
 
       return this.html(
         this.pinSubmission.renderError({
@@ -146,7 +146,7 @@ export class ConnectionController extends HTMLController {
     profile: CompanyProfile,
     pin: string
   ) {
-    logger.trace('verifyReceiveConnection(): called for credential proposal', { agentConnectionId, profile, pin })
+    logger.debug('verifyReceiveConnection(): called for credential proposal', { agentConnectionId, profile, pin })
 
     await this.cloudagent.proposeCredential(agentConnectionId, {
       schemaName: 'COMPANY_DETAILS',
@@ -192,7 +192,6 @@ export class ConnectionController extends HTMLController {
           nextScreen: 'error' as const,
         }
       }
-      logger.info(`There has been an unexpected error waiting for pin response.`)
       throw new InternalError(err?.toString())
     }
   }

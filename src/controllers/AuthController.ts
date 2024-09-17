@@ -56,13 +56,13 @@ export class AuthController extends HTMLController {
     const cookieSuffix = randomBytes(16).toString('base64url')
     const nonce = randomBytes(32).toString('base64url')
     res.cookie(`VERITABLE_NONCE.${cookieSuffix}`, nonce, nonceCookieOpts)
-    req.log.debug('storing VERITABLE_NONCE cookie %s', cookieSuffix)
+    req.log.info('storing VERITABLE_NONCE cookie %s', cookieSuffix)
 
     // setup for final redirect. We also check if we're in a redirect loop where we'll redirect back to the redirect. If so just go to root
     const parsedPath = new URL(path, this.env.get('PUBLIC_URL'))
     const veritableRedirect = parsedPath.pathname === '/auth/redirect' ? this.env.get('PUBLIC_URL') : path
     res.cookie(`VERITABLE_REDIRECT.${cookieSuffix}`, veritableRedirect, nonceCookieOpts)
-    req.log.debug('storing VERITABLE_REDIRECT cookie %s', cookieSuffix)
+    req.log.info('storing VERITABLE_REDIRECT cookie %s', cookieSuffix)
 
     const redirect = new URL(this.idp.authorizationEndpoint('PUBLIC'))
     redirect.search = new URLSearchParams({
@@ -73,7 +73,7 @@ export class AuthController extends HTMLController {
       scope: 'openid',
     }).toString()
 
-    req.log.debug('login redirect to %s', redirect)
+    req.log.info('login redirect to %s', redirect)
     res.redirect(302, redirect.toString())
   }
 
@@ -91,7 +91,7 @@ export class AuthController extends HTMLController {
     }
     const [cookieSuffix, redirectNonce] = state.split('.')
     if (!cookieSuffix || !redirectNonce) {
-      req.log.debug('incorect format of state parameter %j', { cookieSuffix, redirectNonce })
+      req.log.info('incorect format of state parameter %j', { cookieSuffix, redirectNonce })
       throw new ForbiddenError('Format of state parameter incorrect')
     }
 
@@ -113,6 +113,9 @@ export class AuthController extends HTMLController {
 
     const { access_token, refresh_token } = await this.idp.getTokenFromCode(code, this.redirectUrl)
 
+    req.log.debug(
+      'resetting cookies: VERITABLE_NONCE, VERITABLE_REDIRECT, VERITABLE_ACCESS_TOKEN, VERITABLE_REFRESH_TOKEN'
+    )
     res.clearCookie(`VERITABLE_NONCE.${cookieSuffix}`)
     res.clearCookie(`VERITABLE_REDIRECT.${cookieSuffix}`)
     res.cookie('VERITABLE_ACCESS_TOKEN', access_token, tokenCookieOpts)

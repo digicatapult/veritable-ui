@@ -51,7 +51,7 @@ export class ResetController {
   public async reset(@Request() req: express.Request): Promise<{ statusCode: number }> {
     const DEMO_MODE = this.env.get('DEMO_MODE')
     if (!DEMO_MODE) {
-      req.log.debug('bad request DEMO_MODE=%s', DEMO_MODE)
+      req.log.info('bad request DEMO_MODE=%s', DEMO_MODE)
       throw new BadRequestError('DEMO_MODE is false')
     }
 
@@ -59,7 +59,7 @@ export class ResetController {
       const connections: Connection[] = await this.cloudagent.getConnections()
       const credentials: Credential[] = await this.cloudagent.getCredentials()
 
-      req.log.debug('items found: %j', { credentials, connections })
+      req.log.info('items to be deleted: %j', { credentials, connections })
 
       await Promise.all([
         ...credentials.map(({ id }: { id: string }) => {
@@ -73,9 +73,10 @@ export class ResetController {
         await this.db.delete('connection', {}),
       ])
 
+      req.log.debug('item have been delete and running check to confirm')
       // confirm reset by calling isReset() method
       if (!(await this.isReset(req.log))) {
-        req.log.warn('reset isReset() check has hailed')
+        req.log.warn('reset isReset() check has failed')
         throw new InternalError('reset failed')
       }
 

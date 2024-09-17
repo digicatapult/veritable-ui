@@ -7,7 +7,7 @@ export const checkDb = (rows: ConnectionRow[], initialPinAttemptsRemaining: numb
   const [connectionCheck] = rows
 
   if (connectionCheck.status === 'verified_us' || connectionCheck.status === 'verified_both') {
-    logger.debug('Pin has been verified. [%s]', connectionCheck.status)
+    logger.info('Pin has been verified. [%s]', connectionCheck.status)
 
     return {
       localPinAttempts: connectionCheck.pin_tries_remaining_count,
@@ -25,11 +25,11 @@ export const checkDb = (rows: ConnectionRow[], initialPinAttemptsRemaining: numb
     }
   }
   if (initialPinAttemptsRemaining === connectionCheck.pin_tries_remaining_count) {
-    logger.debug(`Polling: No change in db detected.`)
+    logger.info(`Polling: No change in db detected.`)
     return undefined
   }
   if (initialPinAttemptsRemaining === null && connectionCheck.pin_tries_remaining_count !== null) {
-    logger.debug(`Pin was invalid remaining attempts number:${connectionCheck.pin_tries_remaining_count}.`)
+    logger.info(`Pin was invalid remaining attempts number:${connectionCheck.pin_tries_remaining_count}.`)
     return {
       localPinAttempts: connectionCheck.pin_tries_remaining_count,
       message: `Sorry, your code is invalid. You have ${connectionCheck.pin_tries_remaining_count} attempts left before the PIN expires.`,
@@ -41,7 +41,7 @@ export const checkDb = (rows: ConnectionRow[], initialPinAttemptsRemaining: numb
   }
 
   if (connectionCheck.pin_tries_remaining_count < initialPinAttemptsRemaining) {
-    logger.debug(`Pin was invalid remaining attempts number:${connectionCheck.pin_tries_remaining_count}.`)
+    logger.info(`Pin was invalid remaining attempts number:${connectionCheck.pin_tries_remaining_count}.`)
     return {
       localPinAttempts: connectionCheck.pin_tries_remaining_count,
       message: `Sorry, your code is invalid. You have ${connectionCheck.pin_tries_remaining_count} attempts left before the PIN expires.`,
@@ -49,6 +49,6 @@ export const checkDb = (rows: ConnectionRow[], initialPinAttemptsRemaining: numb
     }
   }
 
-  logger.error('unexpected error occured: %j', { connectionCheck })
+  logger.warn('unexpected error occured: %j', { connectionCheck })
   throw new InternalError('Pin tries remaining count has increased unexpectedly.')
 }
