@@ -117,7 +117,7 @@ export class Env<KS extends ENV_KEYS = ENV_KEYS> implements PartialEnv<KS> {
 
   constructor() {
     if (process.env.NODE_ENV === 'test') {
-      dotenv.config({ path: 'test/test.env' })
+      dotenv.config({ path: 'test.env' })
     } else {
       dotenv.config()
     }

@@ -1,0 +1,6 @@
+{
+  "timeout": 5000,
+  "exit": true,
+  "extension": "ts",
+  "file": ["build/test/init.js"]
+}

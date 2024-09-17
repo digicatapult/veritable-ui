@@ -13,7 +13,6 @@ npm-debug.log*
 *.pid
 *.seed
 *.pid.lock
-.tsimp
 
 .DS_Store
 /test-results/

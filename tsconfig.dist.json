@@ -1,13 +1,14 @@
 {
   "compilerOptions": {
-    "outDir": "build"
+    "outDir": "dist",
   },
   "extends": "./tsconfig.common.json",
   "include": [
     "src",
+    "src/swagger.json"
+  ],
+  "exclude": [
     "test",
-    "src/swagger.json",
-    "test/mocharc.json",
-    "test/test.env"
+    "**/__tests__"
   ]
 }

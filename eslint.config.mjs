@@ -47,6 +47,6 @@ export default [
     },
   },
   {
-    ignores: ['build/', '.tsimp/', 'public/scripts/'],
+    ignores: ['build/', 'dist/', 'public/scripts/'],
   },
 ]

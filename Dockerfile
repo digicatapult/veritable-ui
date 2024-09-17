@@ -11,7 +11,7 @@ COPY tsconfig.json ./
 
 RUN npm ci
 COPY . .
-RUN npm run build
+RUN npm run build:dist
 
 # service
 FROM node:current-alpine AS service
@@ -26,7 +26,7 @@ RUN npm ci --omit-dev
 
 COPY public ./public
 COPY knexfile.js ./
-COPY --from=builder /veritable-ui/build ./build
+COPY --from=builder /veritable-ui/dist ./dist
 
 EXPOSE 80
 CMD [ "npm", "start" ]

@@ -13,7 +13,7 @@ export const pgConfig = {
     max: 10,
   },
   migrations: {
-    directory: './src/models/db/migrations',
+    directory: './build/src/models/db/migrations',
     tableName: 'migrations',
   },
   seeds: {
@@ -34,7 +34,7 @@ const config = {
       database: process.env.DB_NAME,
     },
     migrations: {
-      directory: './build/models/db/migrations',
+      directory: './dist/models/db/migrations',
     },
   },
 }
