@@ -442,15 +442,15 @@ export class QueriesController extends HTMLController {
     error?: unknown
   ) {
     if (rpcId) {
-      logger.warn('Error in rpc response %s to query %s to connection %s', rpcId, query.id, connection.id)
+      logger.warn('error in rpc response %s to query %s to connection %s', rpcId, query.id, connection.id)
     } else {
-      logger.warn('Error submitting query %s to connection %s', query.id, connection.id)
+      logger.warn('error submitting query %s to connection %s', query.id, connection.id)
     }
     if (error instanceof Error) {
-      logger.debug('Message: %s', error.message)
-      logger.trace('Stack: %o', error.stack)
+      logger.debug('message: %s', error.message)
+      logger.trace('stack: %o', error.stack)
     } else {
-      logger.debug('Error: %o', error)
+      logger.debug('error: %o', error)
     }
 
     await this.db.update('query', { id: query.id }, { status: 'errored' })

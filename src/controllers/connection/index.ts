@@ -119,7 +119,7 @@ export class ConnectionController extends HTMLController {
       )
     }
     if (localPinAttemptCount.nextScreen === 'error') {
-      req.log.info('Render error screen with message coming from poll Pin submission')
+      req.log.info('render error screen with message coming from poll Pin submission')
 
       return this.html(
         this.pinSubmission.renderError({

@@ -7,7 +7,7 @@ export const checkDb = (rows: ConnectionRow[], initialPinAttemptsRemaining: numb
   const [connectionCheck] = rows
 
   if (connectionCheck.status === 'verified_us' || connectionCheck.status === 'verified_both') {
-    logger.info('Pin has been verified. [%s]', connectionCheck.status)
+    logger.info('pin has been verified. [%s]', connectionCheck.status)
 
     return {
       localPinAttempts: connectionCheck.pin_tries_remaining_count,
@@ -16,7 +16,7 @@ export const checkDb = (rows: ConnectionRow[], initialPinAttemptsRemaining: numb
     }
   }
   if (connectionCheck.pin_tries_remaining_count === 0) {
-    logger.debug('Maximum number of pin attempts has been reached. [%s]', connectionCheck.pin_tries_remaining_count)
+    logger.debug('maximum number of pin attempts has been reached. Remaining attempts: [%s]', connectionCheck.pin_tries_remaining_count)
     return {
       localPinAttempts: connectionCheck.pin_tries_remaining_count,
       message:
@@ -25,11 +25,11 @@ export const checkDb = (rows: ConnectionRow[], initialPinAttemptsRemaining: numb
     }
   }
   if (initialPinAttemptsRemaining === connectionCheck.pin_tries_remaining_count) {
-    logger.info(`Polling: No change in db detected.`)
+    logger.info(`polling: No change in db detected.`)
     return undefined
   }
   if (initialPinAttemptsRemaining === null && connectionCheck.pin_tries_remaining_count !== null) {
-    logger.info(`Pin was invalid remaining attempts number:${connectionCheck.pin_tries_remaining_count}.`)
+    logger.info(`pin was invalid remaining attempts number:${connectionCheck.pin_tries_remaining_count}.`)
     return {
       localPinAttempts: connectionCheck.pin_tries_remaining_count,
       message: `Sorry, your code is invalid. You have ${connectionCheck.pin_tries_remaining_count} attempts left before the PIN expires.`,
@@ -41,7 +41,7 @@ export const checkDb = (rows: ConnectionRow[], initialPinAttemptsRemaining: numb
   }
 
   if (connectionCheck.pin_tries_remaining_count < initialPinAttemptsRemaining) {
-    logger.info(`Pin was invalid remaining attempts number:${connectionCheck.pin_tries_remaining_count}.`)
+    logger.info(`pin was invalid remaining attempts number:${connectionCheck.pin_tries_remaining_count}.`)
     return {
       localPinAttempts: connectionCheck.pin_tries_remaining_count,
       message: `Sorry, your code is invalid. You have ${connectionCheck.pin_tries_remaining_count} attempts left before the PIN expires.`,

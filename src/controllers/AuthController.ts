@@ -105,7 +105,7 @@ export class AuthController extends HTMLController {
     const redirect = cookieRedirect || `${this.env.get('PUBLIC_URL')}`
 
     if (error || !code) {
-      req.log.info('Unexpected error returned from keycloak error: %s code: %s', error, code)
+      req.log.info('unexpected error returned from keycloak error: %s code: %s', error, code)
       // redirect to essentially retry the login flow. At some point we should maintain a count for these to then redirect to an error page
       res.redirect(302, redirect)
       return
