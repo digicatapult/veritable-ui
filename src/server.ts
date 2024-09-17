@@ -7,10 +7,12 @@ import { pinoHttp as requestLogger } from 'pino-http'
 import { SwaggerUiOptions, serve, setup } from 'swagger-ui-express'
 import { container } from 'tsyringe'
 
+import { randomUUID } from 'crypto'
 import { ValidateError } from 'tsoa'
 import { Env } from './env.js'
 import { ForbiddenError, HttpError } from './errors.js'
 import { ILogger, Logger } from './logger.js'
+import { UUID } from './models/strings.js'
 import { RegisterRoutes } from './routes.js'
 import ConnectionEvents from './services/connectionEvents.js'
 import CredentialEvents from './services/credentialEvents/index.js'
@@ -87,6 +89,27 @@ export default async (startEvents: boolean = true) => {
   app.use(
     requestLogger({
       logger,
+      serializers: {
+        // removing cookie from being logged since it contains refresh and access token
+        req: ({ id, headers, ...req }: { id: UUID; headers: Record<string, string> }) => ({
+          ...req,
+          headers: {},
+        }),
+        res: (res) => {
+          delete res.headers
+          return res
+        },
+      },
+      genReqId: function (req: express.Request, res: express.Response): UUID {
+        const id: UUID = (req.headers['x-request-id'] as UUID) || (req.id as UUID) || randomUUID()
+
+        res.setHeader('x-request-id', id)
+        return id
+      },
+      quietReqLogger: true,
+      customAttributeKeys: {
+        reqId: 'req_id',
+      },
     })
   )
 
@@ -112,10 +135,10 @@ export default async (startEvents: boolean = true) => {
     next: express.NextFunction
   ): express.Response | void {
     if (err instanceof Error) {
-      logger.debug('API error: %s', err.message)
-      logger.trace('API error: stack %j', err.stack)
+      req.log.debug('API error: %s', err.message)
+      req.log.trace('API error: stack %j', err.stack)
     } else {
-      logger.debug('API error: %s', err?.toString())
+      req.log.debug('API error: %s', err?.toString())
     }
 
     if (err instanceof ForbiddenError || err instanceof OauthError) {
@@ -140,7 +163,7 @@ export default async (startEvents: boolean = true) => {
     }
 
     if (err instanceof ValidateError) {
-      logger.warn(`Caught Validation Error for ${req.path}:`, err.fields)
+      req.log.warn(`Caught Validation Error for ${req.path}:`, err.fields)
       return res.status(422).json({
         message: 'Validation Failed',
         details: err?.fields,

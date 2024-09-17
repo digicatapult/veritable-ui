@@ -3,10 +3,11 @@ import { ILogger } from '../../logger.js'
 import { ConnectionRow } from '../../models/db/types.js'
 
 export const checkDb = (rows: ConnectionRow[], initialPinAttemptsRemaining: number | null, logger: ILogger) => {
+  logger.trace('check(): called, %j', { rows, initialPinAttemptsRemaining, logger })
   const [connectionCheck] = rows
 
   if (connectionCheck.status === 'verified_us' || connectionCheck.status === 'verified_both') {
-    logger.debug('Pin has been verified.')
+    logger.info('pin has been verified. [%s]', connectionCheck.status)
 
     return {
       localPinAttempts: connectionCheck.pin_tries_remaining_count,
@@ -15,7 +16,10 @@ export const checkDb = (rows: ConnectionRow[], initialPinAttemptsRemaining: numb
     }
   }
   if (connectionCheck.pin_tries_remaining_count === 0) {
-    logger.debug('Maximum number of pin attempts has been reached.')
+    logger.debug(
+      'maximum number of pin attempts has been reached. Remaining attempts: [%s]',
+      connectionCheck.pin_tries_remaining_count
+    )
     return {
       localPinAttempts: connectionCheck.pin_tries_remaining_count,
       message:
@@ -24,11 +28,11 @@ export const checkDb = (rows: ConnectionRow[], initialPinAttemptsRemaining: numb
     }
   }
   if (initialPinAttemptsRemaining === connectionCheck.pin_tries_remaining_count) {
-    logger.debug(`Polling: No change in db detected.`)
+    logger.info(`polling: No change in db detected.`)
     return undefined
   }
   if (initialPinAttemptsRemaining === null && connectionCheck.pin_tries_remaining_count !== null) {
-    logger.debug(`Pin was invalid remaining attempts number:${connectionCheck.pin_tries_remaining_count}.`)
+    logger.info(`pin was invalid remaining attempts number:${connectionCheck.pin_tries_remaining_count}.`)
     return {
       localPinAttempts: connectionCheck.pin_tries_remaining_count,
       message: `Sorry, your code is invalid. You have ${connectionCheck.pin_tries_remaining_count} attempts left before the PIN expires.`,
@@ -40,7 +44,7 @@ export const checkDb = (rows: ConnectionRow[], initialPinAttemptsRemaining: numb
   }
 
   if (connectionCheck.pin_tries_remaining_count < initialPinAttemptsRemaining) {
-    logger.debug(`Pin was invalid remaining attempts number:${connectionCheck.pin_tries_remaining_count}.`)
+    logger.info(`pin was invalid remaining attempts number:${connectionCheck.pin_tries_remaining_count}.`)
     return {
       localPinAttempts: connectionCheck.pin_tries_remaining_count,
       message: `Sorry, your code is invalid. You have ${connectionCheck.pin_tries_remaining_count} attempts left before the PIN expires.`,
@@ -48,5 +52,6 @@ export const checkDb = (rows: ConnectionRow[], initialPinAttemptsRemaining: numb
     }
   }
 
+  logger.warn('unexpected error occured: %j', { connectionCheck })
   throw new InternalError('Pin tries remaining count has increased unexpectedly.')
 }

@@ -3,7 +3,7 @@ import { pino } from 'pino'
 
 import sinon from 'sinon'
 import { Env } from '../../../env.js'
-import type { ILogger } from '../../../logger.js'
+import { ILogger } from '../../../logger.js'
 import CompanyHouseEntity from '../../../models/companyHouseEntity.js'
 import Database from '../../../models/db/index.js'
 import { ConnectionRow } from '../../../models/db/types.js'
@@ -35,7 +35,6 @@ export const withConnectionMocks = (
     listPage: (connections: ConnectionRow[]) =>
       templateFake('list', connections[0].company_name, connections[0].status),
   }
-  const mockLogger: ILogger = pino({ level: 'silent' })
   const dbMock = {
     get: () => [
       {
@@ -91,7 +90,6 @@ export const withConnectionMocks = (
 
   return {
     templateMock,
-    mockLogger,
     dbMock,
     cloudagentMock,
     args: [
@@ -100,13 +98,11 @@ export const withConnectionMocks = (
       companyHouseMock as unknown as CompanyHouseEntity,
       templateMock as ConnectionTemplates,
       pinSubmission as unknown as PinSubmissionTemplates,
-      mockLogger,
     ] as const,
   }
 }
 
 export const withNewConnectionMocks = () => {
-  const mockLogger: ILogger = pino({ level: 'silent' })
   const mockTransactionDb = {
     insert: () => Promise.resolve([{ id: '42' }]),
     get: () => Promise.resolve([validConnection]),
@@ -217,7 +213,6 @@ export const withNewConnectionMocks = () => {
     mockFromInvite,
     mockPinForm,
     mockEnv,
-    mockLogger,
     args: [
       mockDb,
       mockCompanyHouseEntity,
@@ -227,7 +222,6 @@ export const withNewConnectionMocks = () => {
       mockFromInvite,
       mockPinForm,
       mockEnv,
-      mockLogger,
     ] as const,
   }
 }
