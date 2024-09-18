@@ -47,7 +47,7 @@ async function checkEmails(): Promise<{ inviteEmail: Emails; adminEmail: Emails 
     const req = http.request(options, (res) => {
       let data = ''
       res.on('data', (chunk) => (data += chunk))
-      res.on('end', () => {
+      res.on('end', async () => {
         try {
           const messages = JSON.parse(data)
           const parsedMessages = EmailResponseSchema.parse(messages)
@@ -56,7 +56,8 @@ async function checkEmails(): Promise<{ inviteEmail: Emails; adminEmail: Emails 
           expect(Array.isArray(results)).toBeTruthy()
           expect(results).toHaveLength(2)
           // Get the adminEmail and inviteEmail from validateEmails
-          const { inviteEmail, adminEmail } = validateEmails(results)
+          console.log(results)
+          const { inviteEmail, adminEmail } = await validateEmails(results)
 
           resolve({ inviteEmail, adminEmail })
         } catch (error) {
@@ -71,10 +72,10 @@ async function checkEmails(): Promise<{ inviteEmail: Emails; adminEmail: Emails 
 }
 
 // Function that checks specific email content and returns both emails
-function validateEmails(results: Emails[]): {
+async function validateEmails(results: Emails[]): Promise<{
   inviteEmail: Emails
   adminEmail: Emails
-} {
+}> {
   // Invite email assertions
   const inviteEmail = results.find((msg) => msg.subject === 'Veritable invite')
   if (inviteEmail) {
