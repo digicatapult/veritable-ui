@@ -21,6 +21,7 @@ const idpMock = {
 } as unknown as IDPService
 
 const mkRequestMock = () => ({
+  log: mockLogger,
   res: {
     clearCookie: sinon.stub(),
     cookie: sinon.stub(),
@@ -36,7 +37,7 @@ describe('AuthController', () => {
 
   describe('login', () => {
     it("should error if res isn't present on req", async () => {
-      const controller = new AuthController(mockEnv, idpMock, mockLogger)
+      const controller = new AuthController(mockEnv, idpMock)
 
       let error: unknown
       try {
@@ -49,7 +50,7 @@ describe('AuthController', () => {
     })
 
     it('should set 2 cookies', async () => {
-      const controller = new AuthController(mockEnv, idpMock, mockLogger)
+      const controller = new AuthController(mockEnv, idpMock)
       const req = mkRequestMock()
 
       await controller.login(req as unknown as express.Request, '/example')
@@ -59,7 +60,7 @@ describe('AuthController', () => {
     })
 
     it('should set nonce cookie correctly', async () => {
-      const controller = new AuthController(mockEnv, idpMock, mockLogger)
+      const controller = new AuthController(mockEnv, idpMock)
       const req = mkRequestMock()
 
       await controller.login(req as unknown as express.Request, '/example')
@@ -77,7 +78,7 @@ describe('AuthController', () => {
     })
 
     it('should set redirect cookie correctly', async () => {
-      const controller = new AuthController(mockEnv, idpMock, mockLogger)
+      const controller = new AuthController(mockEnv, idpMock)
       const req = mkRequestMock()
 
       await controller.login(req as unknown as express.Request, '/example')
@@ -95,7 +96,7 @@ describe('AuthController', () => {
     })
 
     it('should set redirect cookie to # if in redirect loop', async () => {
-      const controller = new AuthController(mockEnv, idpMock, mockLogger)
+      const controller = new AuthController(mockEnv, idpMock)
       const req = mkRequestMock()
 
       await controller.login(req as unknown as express.Request, '/auth/redirect?foo=bar')
@@ -113,7 +114,7 @@ describe('AuthController', () => {
     })
 
     it('should redirect to the correct location', async () => {
-      const controller = new AuthController(mockEnv, idpMock, mockLogger)
+      const controller = new AuthController(mockEnv, idpMock)
       const req = mkRequestMock()
 
       await controller.login(req as unknown as express.Request, '/example')
@@ -141,7 +142,7 @@ describe('AuthController', () => {
 
   describe('redirect', () => {
     it("should error if res isn't present on req", async () => {
-      const controller = new AuthController(mockEnv, idpMock, mockLogger)
+      const controller = new AuthController(mockEnv, idpMock)
 
       let error: unknown
       try {
@@ -154,7 +155,7 @@ describe('AuthController', () => {
     })
 
     it('should error if state format is incorrect', async () => {
-      const controller = new AuthController(mockEnv, idpMock, mockLogger)
+      const controller = new AuthController(mockEnv, idpMock)
       const req = mkRequestMock()
 
       let error: unknown
@@ -168,7 +169,7 @@ describe('AuthController', () => {
     })
 
     it("should error if state doesn't match nonce", async () => {
-      const controller = new AuthController(mockEnv, idpMock, mockLogger)
+      const controller = new AuthController(mockEnv, idpMock)
       const req = mkRequestMock()
 
       let error: unknown
@@ -182,7 +183,7 @@ describe('AuthController', () => {
     })
 
     it('should clear cookies', async () => {
-      const controller = new AuthController(mockEnv, idpMock, mockLogger)
+      const controller = new AuthController(mockEnv, idpMock)
       const req = mkRequestMock()
 
       await controller.redirect(req as unknown as express.Request, 'suffix.nonce', '1234')
@@ -194,7 +195,7 @@ describe('AuthController', () => {
     })
 
     it('should set token cookies', async () => {
-      const controller = new AuthController(mockEnv, idpMock, mockLogger)
+      const controller = new AuthController(mockEnv, idpMock)
       const req = mkRequestMock()
 
       await controller.redirect(req as unknown as express.Request, 'suffix.nonce', '1234')
@@ -226,7 +227,7 @@ describe('AuthController', () => {
     })
 
     it('should redirect to the correct url if cookie present', async function () {
-      const controller = new AuthController(mockEnv, idpMock, mockLogger)
+      const controller = new AuthController(mockEnv, idpMock)
       const req = mkRequestMock()
 
       await controller.redirect(req as unknown as express.Request, 'suffix.nonce', '1234')
@@ -237,7 +238,7 @@ describe('AuthController', () => {
     })
 
     it('should redirect to / url if cookie not present', async function () {
-      const controller = new AuthController(mockEnv, idpMock, mockLogger)
+      const controller = new AuthController(mockEnv, idpMock)
       const req = mkRequestMock()
 
       await controller.redirect(
@@ -252,7 +253,7 @@ describe('AuthController', () => {
     })
 
     it('should redirect to without setting cookies on error', async function () {
-      const controller = new AuthController(mockEnv, idpMock, mockLogger)
+      const controller = new AuthController(mockEnv, idpMock)
       const req = mkRequestMock()
 
       await controller.redirect(

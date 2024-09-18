@@ -1,8 +1,8 @@
-import { Body, Get, Path, Post, Produces, Query, Route, Security, SuccessResponse } from 'tsoa'
-import { inject, injectable, singleton } from 'tsyringe'
+import express from 'express'
+import { Body, Get, Path, Post, Produces, Query, Request, Route, Security, SuccessResponse } from 'tsoa'
+import { singleton } from 'tsyringe'
 
-import { Logger, type ILogger } from '../../logger.js'
-
+import pino from 'pino'
 import { InvalidInputError, NotFoundError } from '../../errors.js'
 import Database from '../../models/db/index.js'
 import { ConnectionRow, QueryRow, Where } from '../../models/db/types.js'
@@ -15,7 +15,6 @@ import Scope3CarbonConsumptionResponseTemplates from '../../views/queries/respon
 import { HTML, HTMLController } from '../HTMLController.js'
 
 @singleton()
-@injectable()
 @Security('oauth2')
 @Route('/queries')
 @Produces('text/html')
@@ -26,11 +25,9 @@ export class QueriesController extends HTMLController {
     private queriesTemplates: QueriesTemplates,
     private queryManagementTemplates: QueryListTemplates,
     private cloudagent: VeritableCloudagent,
-    private db: Database,
-    @inject(Logger) private logger: ILogger
+    private db: Database
   ) {
     super()
-    this.logger = logger.child({ controller: '/queries' })
   }
 
   /**
@@ -39,8 +36,6 @@ export class QueriesController extends HTMLController {
   @SuccessResponse(200)
   @Get('/new')
   public async queries(): Promise<HTML> {
-    this.logger.debug('query page requested')
-
     return this.html(this.queriesTemplates.chooseQueryPage())
   }
   /**
@@ -48,20 +43,21 @@ export class QueriesController extends HTMLController {
    */
   @SuccessResponse(200)
   @Get('/')
-  public async queryManagement(@Query() search?: string): Promise<HTML> {
-    this.logger.debug('query management page requested')
+  public async queryManagement(@Request() req: express.Request, @Query() search: string = ''): Promise<HTML> {
     const query: Where<'connection'> = []
-    if (search) {
+    if (search !== '') {
       query.push(['company_name', 'ILIKE', `%${search}%`])
+      req.log.info('retrieving data... %j', JSON.stringify(query))
     }
-
     const connections = await this.db.get('connection', query, [['updated_at', 'desc']])
+
     const query_subset = await this.db.get('query', {}, [['updated_at', 'desc']])
 
     const queries = combineData(query_subset, connections)
+    req.log.info('found and combined queries %j', queries)
 
     this.setHeader('HX-Replace-Url', search ? `/queries?search=${encodeURIComponent(search)}` : `/queries`)
-    return this.html(this.queryManagementTemplates.listPage(queries, search))
+    return this.html(this.queryManagementTemplates.listPage(queries, search?.toString()))
   }
 
   /**
@@ -69,14 +65,15 @@ export class QueriesController extends HTMLController {
    */
   @SuccessResponse(200)
   @Get('/new/scope-3-carbon-consumption')
-  public async scope3CarbonConsumption(@Query() search?: string): Promise<HTML> {
+  public async scope3CarbonConsumption(@Request() req: express.Request, @Query() search?: string): Promise<HTML> {
     const query: Where<'connection'> = []
     if (search) {
       query.push(['company_name', 'ILIKE', `%${search}%`])
+      req.log.info('retrieving data... %j', JSON.stringify(query))
     }
 
     const connections = await this.db.get('connection', query, [['updated_at', 'desc']])
-    this.logger.debug('scope-3-carbon-consumption requested')
+    req.log.info('scope-3-carbon-consumption requested')
     this.setHeader(
       'HX-Replace-Url',
       search
@@ -99,6 +96,7 @@ export class QueriesController extends HTMLController {
   @SuccessResponse(200)
   @Post('/new/scope-3-carbon-consumption/stage')
   public async scope3CarbonConsumptionStage(
+    @Request() req: express.Request,
     @Body()
     body:
       | {
@@ -116,9 +114,15 @@ export class QueriesController extends HTMLController {
       ['updated_at', 'desc'],
     ])
     if (!connection) {
+      req.log.warn('connection [%s] is not found', body.connectionId)
       throw new InvalidInputError(`Invalid connection ${body.connectionId}`)
     }
     if (!connection.agent_connection_id || connection.status !== 'verified_both') {
+      req.log.warn(
+        'connection agent id is %s or invalid status - %s',
+        connection.agent_connection_id,
+        connection.status
+      )
       throw new InvalidInputError(`Cannot query unverified connection`)
     }
 
@@ -135,6 +139,7 @@ export class QueriesController extends HTMLController {
       productId: body.productId,
       quantity: body.quantity,
     }
+    req.log.debug('inserting local query %j', localQuery)
     const [queryRow] = await this.db.insert('query', {
       connection_id: connection.id,
       query_type: 'Scope 3 Carbon Consumption',
@@ -144,6 +149,7 @@ export class QueriesController extends HTMLController {
       query_response: null,
       role: 'requester',
     })
+    req.log.info('local query has been persisted %j', queryRow)
     const query = {
       productId: body.productId,
       quantity: body.quantity,
@@ -160,15 +166,18 @@ export class QueriesController extends HTMLController {
           ...query,
         }
       )
+      req.log.info('submitting DRPC request %j', maybeResponse)
       if (!maybeResponse) {
-        return await this.handleError(queryRow, connection)
+        return await this.handleError(req.log, queryRow, connection)
       }
       rpcResponse = maybeResponse
     } catch (err) {
-      return await this.handleError(queryRow, connection, undefined, err)
+      req.log.warn('DRPC has failed %j', err)
+      return await this.handleError(req.log, queryRow, connection, undefined, err)
     }
     const { result, error, id: rpcId } = rpcResponse
 
+    req.log.debug('persisting query_rpc response', rpcResponse)
     await this.db.insert('query_rpc', {
       agent_rpc_id: rpcId,
       query_id: queryRow.id,
@@ -179,7 +188,8 @@ export class QueriesController extends HTMLController {
     })
 
     if (!result || error) {
-      return await this.handleError(queryRow, connection, rpcId)
+      req.log.warn('error happened while persisting query_rpc %j', error)
+      return await this.handleError(req.log, queryRow, connection, rpcId)
     }
 
     //final stage
@@ -199,18 +209,22 @@ export class QueriesController extends HTMLController {
    */
   @SuccessResponse(200)
   @Get('/scope-3-carbon-consumption/{queryId}/response')
-  public async scope3CarbonConsumptionResponse(@Path() queryId: UUID): Promise<HTML> {
-    this.logger.debug('query response page requested %j', { queryId })
+  public async scope3CarbonConsumptionResponse(@Request() req: express.Request, @Path() queryId: UUID): Promise<HTML> {
+    req.log.info('query response page requested %j', { queryId })
     const [query] = await this.db.get('query', { id: queryId })
 
     if (!query) {
+      req.log.warn('query [%s] was not found', queryId)
       throw new NotFoundError(`There has been an issue retrieving the query.`)
     }
 
     const [connection] = await this.db.get('connection', { id: query.connection_id })
     if (!connection) {
+      req.log.warn('connection using query.connection_id [%s] was not found', query.connection_id)
       throw new InvalidInputError(`There has been an issue retrieving the connection.`)
     }
+
+    req.log.info('rendering co2 scope3 form %j', connection)
 
     return this.html(
       this.scope3CarbonConsumptionResponseTemplates.newScope3CarbonConsumptionResponseFormPage({
@@ -233,20 +247,24 @@ export class QueriesController extends HTMLController {
    */
   @SuccessResponse(200)
   @Get('/{queryId}/partial/{companyId}')
-  public async scope3CO2Partial(@Path() queryId: UUID, @Query() partialQuery?: 'on'): Promise<HTML> {
-    this.logger.debug('partial query response requested %s', queryId)
+  public async scope3CO2Partial(
+    @Request() req: express.Request,
+    @Path() queryId: UUID,
+    @Query() partialQuery?: 'on'
+  ): Promise<HTML> {
+    req.log.info('partial query response requested %s', queryId)
     const [query]: QueryRow[] = await this.db.get('query', { id: queryId })
     if (!query) throw new NotFoundError('query not found')
 
     const [company]: ConnectionRow[] = await this.db.get('connection', { id: query.connection_id })
     if (!company) throw new NotFoundError('company connection not found')
 
-    this.logger.debug('query and connection - are found %j', { company, query })
+    req.log.info('query and connection - are found %j', { company, query })
     const connections: ConnectionRow[] = await this.db.get('connection', { status: 'verified_both' })
 
     // due to very long names, re-assigning to a shorter variable (render)
     const render = this.scope3CarbonConsumptionResponseTemplates.newScope3CarbonConsumptionResponseFormPage
-    this.logger.info('rendering partial query %j', query.details)
+    req.log.info('rendering partial query %j', query.details)
 
     return this.html(
       render({
@@ -269,13 +287,17 @@ export class QueriesController extends HTMLController {
    */
   @SuccessResponse(200)
   @Get('/partial-select/{connectionId}/')
-  public async partialSelect(@Path() connectionId: UUID, @Query() partialSelect?: 'on'): Promise<HTML> {
-    this.logger.debug('partial select %s', connectionId)
+  public async partialSelect(
+    @Request() req: express.Request,
+    @Path() connectionId: UUID,
+    @Query() partialSelect?: 'on'
+  ): Promise<HTML> {
+    req.log.info('partial select %s', connectionId)
     const [company]: ConnectionRow[] = await this.db.get('connection', { id: connectionId })
     if (!company) throw new NotFoundError('connection not found')
 
-    this.logger.debug('selected: %j and will be returning an updated table row', { company })
     const checked: boolean = partialSelect === 'on' || false
+    req.log.info('selected: %s returning an updated table row %j', connectionId, company)
 
     return this.html(
       this.scope3CarbonConsumptionResponseTemplates.tableRow({
@@ -293,6 +315,7 @@ export class QueriesController extends HTMLController {
   @SuccessResponse(200)
   @Post('/scope-3-carbon-consumption/{queryId}/response')
   public async scope3CarbonConsumptionResponseSubmit(
+    @Request() req: express.Request,
     @Path() queryId: UUID,
     @Body()
     body: {
@@ -301,19 +324,22 @@ export class QueriesController extends HTMLController {
       totalScope3CarbonEmissions: string
     }
   ): Promise<HTML> {
-    this.logger.debug('query page requested')
+    req.log.info('query page requested %j', { queryId, body })
 
     const [connection] = await this.db.get('connection', { id: body.companyId, status: 'verified_both' }, [
       ['updated_at', 'desc'],
     ])
     if (!connection) {
+      req.log.warn('invalid input error %j', body)
       throw new InvalidInputError(`Invalid connection ${body.companyId}`)
     }
     if (!connection.agent_connection_id || connection.status !== 'verified_both') {
+      req.log.warn('invalid input error %j', body)
       throw new InvalidInputError(`Cannot query unverified connection`)
     }
     const [queryRow] = await this.db.get('query', { id: queryId })
     if (!queryRow.response_id) {
+      req.log.warn('missing DRPC response_id to respond to %j', queryRow)
       throw new InvalidInputError(`Missing queryId to respond to.`)
     }
 
@@ -321,6 +347,7 @@ export class QueriesController extends HTMLController {
       emissions: body.totalScope3CarbonEmissions,
       queryIdForResponse: queryRow.response_id,
     }
+    req.log.debug('query for DRPC response %j', query)
     //send a drpc message with response
     let rpcResponse: DrpcResponse
     try {
@@ -332,15 +359,18 @@ export class QueriesController extends HTMLController {
           ...query,
         }
       )
+      req.log.info('submitting DRPC request %j', maybeResponse)
       if (!maybeResponse) {
-        return await this.handleError(queryRow, connection)
+        return await this.handleError(req.log, queryRow, connection)
       }
       rpcResponse = maybeResponse
     } catch (err) {
-      return await this.handleError(queryRow, connection, undefined, err)
+      req.log.warn('DRPC has failed %j', err)
+      return await this.handleError(req.log, queryRow, connection, undefined, err)
     }
     const { result, error, id: rpcId } = rpcResponse
 
+    req.log.info('persisting query_rpc response', rpcResponse)
     await this.db.insert('query_rpc', {
       agent_rpc_id: rpcId,
       query_id: queryRow.id,
@@ -358,7 +388,8 @@ export class QueriesController extends HTMLController {
     )
 
     if (!result || error) {
-      return await this.handleError(queryRow, connection, rpcId)
+      req.log.warn('error happened while persisting query_rpc %j', error)
+      return await this.handleError(req.log, queryRow, connection, rpcId)
     }
 
     return this.html(
@@ -374,21 +405,23 @@ export class QueriesController extends HTMLController {
    */
   @SuccessResponse(200)
   @Get('/scope-3-carbon-consumption/{queryId}/view-response')
-  public async scope3CarbonConsumptionViewResponse(@Path() queryId: UUID): Promise<HTML> {
-    this.logger.debug('requested to view response to a query %j', { queryId })
+  public async scope3CarbonConsumptionViewResponse(
+    @Request() req: express.Request,
+    @Path() queryId: UUID
+  ): Promise<HTML> {
+    req.log.debug('gathering data for [%s] query response page', queryId)
     const [query]: QueryRow[] = await this.db.get('query', { id: queryId })
 
-    if (!query) {
-      throw new NotFoundError(`There has been an issue retrieving the query.`)
-    }
-    if (query.query_response === null) {
-      throw new InvalidInputError(`This query does not seem to have a response yet.`)
-    }
+    if (!query) throw new NotFoundError(`There has been an issue retrieving the query.`)
+    if (query.query_response === null) throw new InvalidInputError(`This query does not seem to have a response yet.`)
 
     const [connection] = await this.db.get('connection', { id: query.connection_id })
     if (!connection) {
+      req.log.warn('invalid input, unable to retrieve a %s connection', query.connection_id)
       throw new InvalidInputError(`There has been an issue retrieving the connection.`)
     }
+
+    req.log.info('connection and query has been found %j', { query, connection })
 
     return this.html(
       this.scope3CarbonConsumptionResponseTemplates.view({
@@ -401,17 +434,23 @@ export class QueriesController extends HTMLController {
     )
   }
 
-  private async handleError(query: QueryRow, connection: ConnectionRow, rpcId?: string, error?: unknown) {
+  private async handleError(
+    logger: pino.Logger,
+    query: QueryRow,
+    connection: ConnectionRow,
+    rpcId?: string,
+    error?: unknown
+  ) {
     if (rpcId) {
-      this.logger.warn('Error in rpc response %s to query %s to connection %s', rpcId, query.id, connection.id)
+      logger.warn('error in rpc response %s to query %s to connection %s', rpcId, query.id, connection.id)
     } else {
-      this.logger.warn('Error submitting query %s to connection %s', query.id, connection.id)
+      logger.warn('error submitting query %s to connection %s', query.id, connection.id)
     }
     if (error instanceof Error) {
-      this.logger.debug('Message: %s', error.message)
-      this.logger.trace('Stack: %o', error.stack)
+      logger.debug('message: %s', error.message)
+      logger.trace('stack: %o', error.stack)
     } else {
-      this.logger.debug('Error: %o', error)
+      logger.debug('error: %o', error)
     }
 
     await this.db.update('query', { id: query.id }, { status: 'errored' })
