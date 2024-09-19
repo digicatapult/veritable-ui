@@ -175,7 +175,7 @@ export default class Scope3CarbonConsumptionTemplates {
                   id="productId-input"
                   name="productId"
                   placeholder="BX20001"
-                  class="input-label"
+                  class="input-with-label"
                   type="text"
                   required
                   value={props.productId}
@@ -194,7 +194,7 @@ export default class Scope3CarbonConsumptionTemplates {
                   pattern="^\d+$"
                   required
                   value={props?.quantity?.toString()}
-                  class="input-label"
+                  class="input-with-label"
                 ></input>
                 <p class="additional-input-label">Quantity of product</p>
               </div>

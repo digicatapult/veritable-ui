@@ -1,6 +1,6 @@
 {
   "name": "veritable-ui",
-  "version": "0.8.68",
+  "version": "0.8.73",
   "description": "UI for Veritable",
   "main": "src/index.ts",
   "type": "module",
@@ -20,11 +20,11 @@
     "build": "npm run tsoa:build && tsc",
     "tsoa:build": "tsoa spec-and-routes",
     "tsoa:watch": "node --watch-path=./src ./node_modules/.bin/tsoa -- spec-and-routes",
-    "dev": "npm run tsoa:watch & NODE_ENV=dev node --import=tsimp/import --watch src/index.ts | pino-colada",
-    "dev:init": "NODE_ENV=dev node --import=tsimp/import src/init.ts | pino-colada",
+    "dev": "npm run tsoa:watch & NODE_ENV=dev node --import=@digicatapult/tsimp/import --watch src/index.ts | pino-colada",
+    "dev:init": "NODE_ENV=dev node --import=@digicatapult/tsimp/import src/init.ts | pino-colada",
     "init": "node build/init.js",
     "start": "node build/index.js",
-    "db:cmd": "node --import=tsimp/import ./node_modules/.bin/knex",
+    "db:cmd": "node --import=@digicatapult/tsimp/import ./node_modules/.bin/knex",
     "db:migrate": "npm run db:cmd -- migrate:latest",
     "db:rollback": "npm run db:cmd -- migrate:rollback",
     "db:seed": "npm run db:cmd -- seed:run",
@@ -33,7 +33,7 @@
     "xss-scan": "xss-scan"
   },
   "dependencies": {
-    "@digicatapult/tsoa-oauth-express": "^0.1.42",
+    "@digicatapult/tsoa-oauth-express": "^0.1.44",
     "@kitajs/html": "^4.2.2",
     "@kitajs/ts-html-plugin": "^4.0.3",
     "@tsoa/runtime": "^6.4.0",
@@ -61,7 +61,7 @@
   "devDependencies": {
     "@eslint/eslintrc": "^3.1.0",
     "@eslint/js": "^9.10.0",
-    "@playwright/test": "^1.47.0",
+    "@playwright/test": "^1.47.1",
     "@types/body-parser": "^1.19.5",
     "@types/chai": "^4.3.19",
     "@types/chai-jest-snapshot": "^1.3.8",
@@ -89,9 +89,9 @@
     "playwright-ctrf-json-reporter": "^0.0.18",
     "prettier": "^3.3.3",
     "prettier-plugin-organize-imports": "^4.0.0",
-    "sinon": "^19.0.0",
+    "sinon": "^19.0.2",
     "supertest": "^7.0.0",
-    "tsimp": "^2.0.11",
+    "@digicatapult/tsimp": "^2.0.12",
     "typescript": "^5.6.2",
     "undici": "^6.19.8"
   }

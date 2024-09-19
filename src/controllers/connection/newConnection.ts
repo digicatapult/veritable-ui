@@ -1,12 +1,12 @@
-import { randomInt } from 'node:crypto'
-
 import argon2 from 'argon2'
-import { Body, Get, Post, Produces, Query, Route, Security, SuccessResponse } from 'tsoa'
-import { inject, injectable, singleton } from 'tsyringe'
+import express from 'express'
+import { randomInt } from 'node:crypto'
+import { pino } from 'pino'
+import { Body, Get, Post, Produces, Query, Request, Route, Security, SuccessResponse } from 'tsoa'
+import { singleton } from 'tsyringe'
 import { z } from 'zod'
 
 import { Env } from '../../env.js'
-import { Logger, type ILogger } from '../../logger.js'
 import CompanyHouseEntity, { CompanyProfile } from '../../models/companyHouseEntity.js'
 import Database from '../../models/db/index.js'
 import EmailService from '../../models/emailService/index.js'
@@ -37,7 +37,6 @@ const inviteParser = z.object({
 type Invite = z.infer<typeof inviteParser>
 
 @singleton()
-@injectable()
 @Security('oauth2')
 @Route('/connection/new')
 @Produces('text/html')
@@ -50,11 +49,9 @@ export class NewConnectionController extends HTMLController {
     private newInvite: NewInviteTemplates,
     private fromInvite: FromInviteTemplates,
     private pinSubmission: PinSubmissionTemplates,
-    private env: Env,
-    @inject(Logger) private logger: ILogger
+    private env: Env
   ) {
     super()
-    this.logger = logger.child({ controller: '/connection/new' })
   }
 
   /**
@@ -63,8 +60,9 @@ export class NewConnectionController extends HTMLController {
    */
   @SuccessResponse(200)
   @Get('/')
-  public async newConnectionForm(@Query() fromInvite: boolean = false): Promise<HTML> {
+  public async newConnectionForm(@Request() req: express.Request, @Query() fromInvite: boolean = false): Promise<HTML> {
     if (fromInvite) {
+      req.log.trace('rendering new connection receiver form')
       return this.html(
         this.fromInvite.fromInviteFormPage({
           type: 'message',
@@ -73,6 +71,7 @@ export class NewConnectionController extends HTMLController {
       )
     }
 
+    req.log.trace('rendering new connection requester form')
     return this.html(
       this.newInvite.newInviteFormPage({
         type: 'message',
@@ -86,22 +85,29 @@ export class NewConnectionController extends HTMLController {
    */
   @SuccessResponse(200)
   @Get('/verify-company')
-  public async verifyCompanyForm(@Query() companyNumber: COMPANY_NUMBER | string): Promise<HTML> {
+  public async verifyCompanyForm(
+    @Request() req: express.Request,
+    @Query() companyNumber: COMPANY_NUMBER | string
+  ): Promise<HTML> {
+    req.log.debug('verifying %s company number', companyNumber)
+
     if (!companyNumber.match(companyNumberRegex)) {
-      return this.newConnectionForm()
+      req.log.info('company %s number did not match %s regex', companyNumber, companyNumberRegex)
+      return this.newConnectionForm(req)
     }
 
-    const companyOrError = await this.lookupCompany(companyNumber)
+    const companyOrError = await this.lookupCompany(req.log, companyNumber)
     if (companyOrError.type === 'error') {
+      req.log.warn('Error occured while looking up the company %j', { companyNumber, err: companyOrError })
       return this.newInviteErrorHtml(companyOrError.message, undefined, companyNumber)
     }
-    const company = companyOrError.company
+    req.log.debug('comapny found, rendering next stage %j', companyOrError)
 
     return this.html(
       this.newInvite.newInviteForm({
         feedback: {
           type: 'companyFound',
-          company: company,
+          company: companyOrError.company,
         },
         formStage: 'form',
         companyNumber,
@@ -114,28 +120,30 @@ export class NewConnectionController extends HTMLController {
    */
   @SuccessResponse(200)
   @Get('/verify-invite')
-  public async verifyInviteForm(@Query() invite: BASE_64_URL | string): Promise<HTML> {
+  public async verifyInviteForm(@Request() req: express.Request, @Query() invite: BASE_64_URL | string): Promise<HTML> {
     if (invite === '') {
-      return this.newConnectionForm(true)
+      return this.newConnectionForm(req, true)
     }
+    req.log.debug('new invite [%s] received', invite)
 
     if (!invite.match(base64UrlRegex)) {
+      req.log.info('submitted invitation is not in base64 %s', invite)
       return this.receiveInviteErrorHtml('Invitation is not valid')
     }
 
-    const inviteOrError = await this.decodeInvite(invite)
-
+    const inviteOrError = await this.decodeInvite(req.log, invite)
     if (inviteOrError.type === 'error') {
+      req.log.info('unable to decode this invitation %j', inviteOrError)
       return this.receiveInviteErrorHtml(inviteOrError.message)
     }
 
-    const company = inviteOrError.company
+    req.log.debug('invite successfully decoded %s', inviteOrError)
 
     return this.html(
       this.fromInvite.fromInviteForm({
         feedback: {
           type: 'companyFound',
-          company,
+          company: inviteOrError.company,
         },
       })
     )
@@ -147,6 +155,7 @@ export class NewConnectionController extends HTMLController {
   @SuccessResponse(200)
   @Post('/create-invitation')
   public async submitNewInvite(
+    @Request() req: express.Request,
     @Body()
     body: {
       companyNumber: COMPANY_NUMBER
@@ -155,8 +164,9 @@ export class NewConnectionController extends HTMLController {
     }
   ): Promise<HTML> {
     // lookup company by number
-    const companyOrError = await this.lookupCompany(body.companyNumber)
+    const companyOrError = await this.lookupCompany(req.log, body.companyNumber)
     if (companyOrError.type === 'error') {
+      req.log.warn('unable to retrieve company details %j', body)
       return this.newInviteErrorHtml(companyOrError.message, body.email, body.companyNumber)
     }
     const company = companyOrError.company
@@ -164,10 +174,11 @@ export class NewConnectionController extends HTMLController {
     // if we're not at the final submission return next stage
     const formStage: NewInviteFormStage = submitToFormStage[body.action]
     if (formStage !== 'success') {
+      req.log.info('rendering a final stage [%s] of new connection', formStage)
       return this.newInviteSuccessHtml(formStage, company, body.email)
     }
 
-    this.logger.debug('NEW_CONNECTION: details %s (%s)', company.company_name, company.company_number)
+    req.log.info('new connection details %s (%s)', company.company_name, company.company_number)
 
     // otherwise we're doing final submit. Generate pin and oob invitation
     const pin = randomInt(1e6).toString(10).padStart(6, '0')
@@ -176,9 +187,11 @@ export class NewConnectionController extends HTMLController {
       this.cloudagent.createOutOfBandInvite({ companyName: company.company_name }),
     ])
 
+    req.log.info('invite created, inserting new connection %j', { company, pinHash, invite })
     // insert the connection
     const dbResult = await this.insertNewConnection(company, pinHash, invite.outOfBandRecord.id, null)
     if (dbResult.type === 'error') {
+      req.log.warn('unable to insert a new connection %j', dbResult)
       return this.newInviteErrorHtml(dbResult.error, body.email, company.company_number)
     }
 
@@ -187,12 +200,13 @@ export class NewConnectionController extends HTMLController {
       inviteUrl: invite.invitationUrl,
     }
 
-    // send emails
+    req.log.info('sending connection_invite email to %s %j', body.email, wrappedInvitation)
     await this.sendNewConnectionEmail(body.email, wrappedInvitation)
+    req.log.info('sending connection_invite_admin email %j', { company, pin })
     await this.sendAdminEmail(company, pin)
 
     // return the success response
-    this.logger.debug('NEW_CONNECTION: complete: %s', dbResult.connectionId)
+    req.log.info('new connection, is complete: %s', dbResult.connectionId)
     return this.newInviteSuccessHtml(formStage, company, body.email)
   }
 
@@ -202,6 +216,7 @@ export class NewConnectionController extends HTMLController {
   @SuccessResponse(200)
   @Post('/receive-invitation')
   public async submitFromInvite(
+    @Request() req: express.Request,
     @Body()
     body: {
       invite: BASE_64_URL | string
@@ -209,16 +224,19 @@ export class NewConnectionController extends HTMLController {
     }
   ): Promise<HTML> {
     if (body.invite && !body.invite.match(base64UrlRegex)) {
+      req.log.warn('invitation is not valid %j', body)
       return this.receiveInviteErrorHtml('Invitation is not valid')
     }
 
-    const inviteOrError = await this.decodeInvite(body.invite || '')
+    req.log.info('decoding invite %s', body.invite)
+    const inviteOrError = await this.decodeInvite(req.log, body.invite || '')
     if (inviteOrError.type === 'error') {
+      req.log.warn('unable to decode invitation %j', inviteOrError)
       return this.receiveInviteErrorHtml(inviteOrError.message)
     }
 
-    this.logger.debug(
-      'NEW_CONNECTION: details %s (%s)',
+    req.log.info(
+      'new connection: details %s (%s)',
       inviteOrError.company.company_name,
       inviteOrError.company.company_number
     )
@@ -233,6 +251,7 @@ export class NewConnectionController extends HTMLController {
       }),
     ])
 
+    req.log.info('invite created, inserting new connection %j', { pinHash, invite })
     const dbResult = await this.insertNewConnection(
       inviteOrError.company,
       pinHash,
@@ -240,24 +259,26 @@ export class NewConnectionController extends HTMLController {
       invite.connectionRecord.id
     )
     if (dbResult.type === 'error') {
+      req.log.warn('unable to insert a new connection %j', dbResult)
       return this.receiveInviteErrorHtml(dbResult.error)
     }
 
     await this.sendAdminEmail(inviteOrError.company, pin)
 
-    this.logger.debug('NEW_CONNECTION: complete: %s', dbResult.connectionId)
+    req.log.info('new connection: complete: %s', dbResult.connectionId)
     this.setHeader('HX-Replace-Url', `/connection/${dbResult.connectionId}/pin-submission`)
     return this.receivePinSubmissionHtml(dbResult.connectionId)
   }
 
   private async decodeInvite(
+    logger: pino.Logger,
     invite: BASE_64_URL
   ): Promise<{ type: 'success'; inviteUrl: string; company: CompanyProfile } | { type: 'error'; message: string }> {
     let wrappedInvite: Invite
     try {
       wrappedInvite = inviteParser.parse(JSON.parse(Buffer.from(invite, 'base64url').toString('utf8')))
     } catch (err) {
-      this.logger.debug('Invitation not valid o%', err)
+      logger.info('unknown error occured %j', err)
       return {
         type: 'error',
         message: 'Invitation is not valid',
@@ -265,10 +286,11 @@ export class NewConnectionController extends HTMLController {
     }
 
     if (!wrappedInvite.companyNumber.match(companyNumberRegex)) {
+      logger.info('company number did not match a %s regex', companyNumberRegex)
       return { type: 'error', message: 'Invitation is not valid' }
     }
 
-    const companyOrError = await this.lookupCompany(wrappedInvite.companyNumber)
+    const companyOrError = await this.lookupCompany(logger, wrappedInvite.companyNumber)
     if (companyOrError.type === 'error') {
       return companyOrError
     }
@@ -276,21 +298,23 @@ export class NewConnectionController extends HTMLController {
   }
 
   private async lookupCompany(
+    logger: pino.Logger,
     companyNumber: COMPANY_NUMBER
   ): Promise<{ type: 'success'; company: CompanyProfile } | { type: 'error'; message: string }> {
-    this.logger.debug('COMPANY_LOOKUP: %s', companyNumber)
-
     const companySearch = await this.companyHouseEntity.getCompanyProfileByCompanyNumber(companyNumber)
     if (companySearch.type === 'notFound') {
+      logger.info('%s company not found', companySearch)
       return {
         type: 'error',
         message: 'Company number does not exist',
       }
     }
     const company = companySearch.company
+    logger.info('company by %s number was found %j', companyNumber, company)
 
     const existingConnections = await this.db.get('connection', { company_number: companyNumber })
     if (existingConnections.length !== 0) {
+      logger.info('connection already exists %j', existingConnections)
       return {
         type: 'error',
         message: `Connection already exists with ${company.company_name}`,
@@ -298,6 +322,7 @@ export class NewConnectionController extends HTMLController {
     }
 
     if (company.registered_office_is_in_dispute) {
+      logger.info("company's is in dispute %o", company)
       return {
         type: 'error',
         message: `Cannot validate company ${company.company_name} as address is currently in dispute`,
@@ -305,6 +330,7 @@ export class NewConnectionController extends HTMLController {
     }
 
     if (company.company_status !== 'active') {
+      logger.info('company is not active %j', company)
       return {
         type: 'error',
         message: `Company ${company.company_name} is not active`,
@@ -323,8 +349,6 @@ export class NewConnectionController extends HTMLController {
     invitationId: string,
     agentConnectionId: string | null
   ): Promise<{ type: 'success'; connectionId: string } | { type: 'error'; error: string }> {
-    this.logger.debug('NEW_CONNECTION: invite id %s', invitationId)
-
     try {
       let connectionId: string = ''
       await this.db.withTransaction(async (db) => {
@@ -363,7 +387,6 @@ export class NewConnectionController extends HTMLController {
   }
 
   private async sendNewConnectionEmail(email: string, invite: { companyNumber: string; inviteUrl: string }) {
-    this.logger.debug('NEW_CONNECTION: sending emails')
     const inviteBase64 = Buffer.from(JSON.stringify(invite), 'utf8').toString('base64url')
 
     await neverFail(
@@ -375,8 +398,6 @@ export class NewConnectionController extends HTMLController {
   }
 
   private async sendAdminEmail(company: CompanyProfile, pin: string) {
-    this.logger.debug('NEW_CONNECTION: sending emails')
-
     await neverFail(
       this.email.sendMail('connection_invite_admin', {
         address: [
@@ -427,7 +448,12 @@ export class NewConnectionController extends HTMLController {
   }
 
   private receivePinSubmissionHtml(connectionId: string) {
-    return this.html(this.pinSubmission.renderPinForm({ connectionId, continuationFromInvite: true }))
+    return this.html(
+      this.pinSubmission.renderPinForm({
+        connectionId,
+        continuationFromInvite: true,
+      })
+    )
   }
 
   private receiveInviteErrorHtml(message: string) {

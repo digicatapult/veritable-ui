@@ -1,8 +1,6 @@
 import { Readable } from 'node:stream'
-import { pino } from 'pino'
 import sinon from 'sinon'
 
-import { ILogger } from '../../../logger.js'
 import Database from '../../../models/db/index.js'
 import { ConnectionRow, QueryRow } from '../../../models/db/types.js'
 import { UUID } from '../../../models/strings.js'
@@ -59,17 +57,21 @@ const defaultOptions: QueryMockOptions = {
     ],
     query: [
       {
-        id: mockIds.queryId,
         status: 'pending_their_input',
         connection_id: mockIds.companyId,
-        details: { quantity: 2, queryId: 'xyz123' },
+        details: { quantity: 2, queryId: mockIds.queryId },
         response_id: '5390af91-c551-4d74-b394-d8ae0805059e',
       },
       {
-        id: mockIds.queryId,
         status: 'pending_your_input',
         connection_id: mockIds.connectionId,
-        details: { quantity: 2, queryId: 'xyz123' },
+        details: { quantity: 2, queryId: mockIds.queryId },
+        response_id: '5390af91-c551-4d74-b394-d8ae0805059e',
+      },
+      {
+        status: 'pending_your_input',
+        connection_id: mockIds.connectionId,
+        details: { quantity: 2, queryId: mockIds.queryId },
         response_id: '5390af91-c551-4d74-b394-d8ae0805059e',
       },
     ],
@@ -109,7 +111,6 @@ export const withQueriesMocks = (testOptions: Partial<QueryMockOptions> = {}) =>
   const queryListTemplateMock = {
     listPage: (queries: Query[]) => templateListFake('list', queries[0].company_name, queries[0].status),
   } as unknown as QueryListTemplates
-  const mockLogger: ILogger = pino({ level: 'silent' })
   const dbMock = {
     get: sinon.stub().callsFake((tableName: 'connection' | 'query') => Promise.resolve(options.getRows[tableName])),
     update: sinon.stub().resolves(),
@@ -131,7 +132,6 @@ export const withQueriesMocks = (testOptions: Partial<QueryMockOptions> = {}) =>
     scope3CarbonConsumptionResponseTemplateMock,
     queryListTemplateMock,
     queryTemplateMock,
-    mockLogger,
     dbMock,
     cloudagentMock,
     args: [
@@ -141,7 +141,6 @@ export const withQueriesMocks = (testOptions: Partial<QueryMockOptions> = {}) =>
       queryListTemplateMock,
       cloudagentMock as unknown as VeritableCloudagent,
       dbMock as unknown as Database,
-      mockLogger,
     ] as const,
   }
 }
