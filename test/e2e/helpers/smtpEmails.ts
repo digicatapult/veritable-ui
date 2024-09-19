@@ -97,55 +97,45 @@ async function validateEmails(results: Email[]): Promise<{
 
 async function extractPin(emailId: string): Promise<string | null> {
   const apiUrl = `http://localhost:5000/api/messages/${emailId}/raw`
+  // Fetch the raw email content
+  const response = await fetch(apiUrl)
+  if (!response.ok) {
+    throw new Error(`Error fetching email: ${response.statusText}`)
+  }
 
-  try {
-    // Fetch the raw email content
-    const response = await fetch(apiUrl)
-    if (!response.ok) {
-      throw new Error(`Error fetching email: ${response.statusText}`)
-    }
+  const rawEmailContent = await response.text()
 
-    const rawEmailContent = await response.text()
+  // Regex pattern to find the PIN
+  const pinPattern = /PIN:\s*(\d+)/
+  const match = rawEmailContent.match(pinPattern)
 
-    // Regex pattern to find the PIN
-    const pinPattern = /PIN:\s*(\d+)/
-    const match = rawEmailContent.match(pinPattern)
-
-    if (match && match[1]) {
-      return match[1]
-    } else {
-      return null
-    }
-  } catch (error) {
-    throw error
+  if (match && match[1]) {
+    return match[1]
+  } else {
+    return null
   }
 }
 
 async function extractInvite(emailId: string): Promise<string | null> {
   const apiUrl = `http://localhost:5000/api/messages/${emailId}/raw`
+  const response = await fetch(apiUrl)
+  if (!response.ok) {
+    throw new Error(`Error fetching email: ${response.statusText}`)
+  }
 
-  try {
-    const response = await fetch(apiUrl)
-    if (!response.ok) {
-      throw new Error(`Error fetching email: ${response.statusText}`)
-    }
+  const rawEmailContent = await response.text()
+  // Regex pattern to find the base64 string
+  const base64Pattern = /<p>(eyJ[^<]+)<\/p>/
+  const match = rawEmailContent.match(base64Pattern)
 
-    const rawEmailContent = await response.text()
-    // Regex pattern to find the base64 string
-    const base64Pattern = /<p>(eyJ[^<]+)<\/p>/
-    const match = rawEmailContent.match(base64Pattern)
+  if (match && match[1]) {
+    const cleanedString = match[1]
+      .replace(/\s+/g, '') // Remove all whitespace including line breaks
+      .replace(/=/g, '') // Remove equal signs
 
-    if (match && match[1]) {
-      const cleanedString = match[1]
-        .replace(/\s+/g, '') // Remove all whitespace including line breaks
-        .replace(/=/g, '') // Remove equal signs
-
-      return cleanedString
-    } else {
-      return null
-    }
-  } catch (error) {
-    throw error
+    return cleanedString
+  } else {
+    return null
   }
 }
 
