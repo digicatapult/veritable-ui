@@ -1,6 +1,6 @@
 {
   "name": "veritable-ui",
-  "version": "0.8.73",
+  "version": "0.8.74",
   "description": "UI for Veritable",
   "main": "src/index.ts",
   "type": "module",
