@@ -56,7 +56,6 @@ async function checkEmails(): Promise<{ inviteEmail: Email; adminEmail: Email }>
           expect(Array.isArray(results)).toBeTruthy()
           expect(results).toHaveLength(2)
           // Get the adminEmail and inviteEmail from validateEmails
-          console.log(results)
           const { inviteEmail, adminEmail } = await validateEmails(results)
 
           resolve({ inviteEmail, adminEmail })
@@ -71,7 +70,6 @@ async function checkEmails(): Promise<{ inviteEmail: Email; adminEmail: Email }>
   })
 }
 
-// Function that checks specific email content and returns both emails
 async function validateEmails(results: Email[]): Promise<{
   inviteEmail: Email
   adminEmail: Email
@@ -94,7 +92,6 @@ async function validateEmails(results: Email[]): Promise<{
     throw new Error('No email found with the subject "Action required: process veritable invitation".')
   }
 
-  // Return both email objects
   return { inviteEmail, adminEmail }
 }
 
@@ -114,15 +111,13 @@ async function extractPin(emailId: string): Promise<string | null> {
     const pinPattern = /PIN:\s*(\d+)/
     const match = rawEmailContent.match(pinPattern)
 
-    // Return the PIN if found
     if (match && match[1]) {
       return match[1]
     } else {
-      return null // Return null if PIN is not found
+      return null
     }
   } catch (error) {
-    console.error('Failed to fetch email content:', error)
-    throw error // Rethrow the error to propagate it
+    throw error
   }
 }
 
@@ -150,7 +145,6 @@ async function extractInvite(emailId: string): Promise<string | null> {
       return null
     }
   } catch (error) {
-    console.error('Failed to fetch email content:', error)
     throw error
   }
 }
@@ -172,11 +166,9 @@ async function findNewAdminEmail(oldAdminEmailId: string): Promise<Email> {
       res.on('data', (chunk) => (data += chunk))
       res.on('end', async () => {
         try {
-          console.log(oldAdminEmailId)
           const messages = JSON.parse(data)
           const parsedMessages = EmailResponseSchema.parse(messages)
           const results = parsedMessages.results
-          console.log(results)
 
           if (!Array.isArray(results)) {
             return reject(new Error('Unexpected response format, expected an array of messages.'))
