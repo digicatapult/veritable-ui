@@ -111,7 +111,7 @@ jobs:
       - name: touch env
         run: touch .env
       - name: Setup dependencies
-        run: EMAIL_TRANSPORT=SMTP_EMAIL SMTP_SECURE=false docker-compose up -d
+        run: EMAIL_TRANSPORT=SMTP_EMAIL SMTP_SECURE=false docker compose up -d
       - name: Sleep
         uses: kibertoad/wait-action@1.0.1
         with:
