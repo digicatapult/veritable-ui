@@ -70,6 +70,7 @@ describe('AuthController', () => {
       expect(typeof stub.firstCall.args[1]).to.equal('string')
       expect(stub.firstCall.args[2]).to.deep.equal({
         sameSite: true,
+        maxAge: 600000,
         httpOnly: true,
         signed: true,
         secure: true,
@@ -88,6 +89,7 @@ describe('AuthController', () => {
       expect(stub.secondCall.args[1]).to.equal('/example')
       expect(stub.secondCall.args[2]).to.deep.equal({
         sameSite: true,
+        maxAge: 600000,
         httpOnly: true,
         signed: true,
         secure: true,
@@ -106,6 +108,7 @@ describe('AuthController', () => {
       expect(stub.secondCall.args[1]).to.equal('http://www.example.com')
       expect(stub.secondCall.args[2]).to.deep.equal({
         sameSite: true,
+        maxAge: 600000,
         httpOnly: true,
         signed: true,
         secure: true,
@@ -190,8 +193,8 @@ describe('AuthController', () => {
 
       const stub = req.res.clearCookie
       expect(stub.callCount).to.equal(2)
-      expect(stub.firstCall.args).to.deep.equal(['VERITABLE_NONCE.suffix'])
-      expect(stub.secondCall.args).to.deep.equal(['VERITABLE_REDIRECT.suffix'])
+      expect(stub.firstCall.args).to.deep.equal(['VERITABLE_NONCE.suffix', { path: '/auth/redirect' }])
+      expect(stub.secondCall.args).to.deep.equal(['VERITABLE_REDIRECT.suffix', { path: '/auth/redirect' }])
     })
 
     it('should set token cookies', async () => {
