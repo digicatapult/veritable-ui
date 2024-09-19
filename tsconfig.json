@@ -2,7 +2,11 @@
   "compilerOptions": {
     "jsx": "react-jsx",
     "jsxImportSource": "@kitajs/html",
-    "plugins": [{ "name": "@kitajs/ts-html-plugin" }],
+    "plugins": [
+      {
+        "name": "@kitajs/ts-html-plugin"
+      }
+    ],
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
     "target": "ESNext",
@@ -18,8 +22,15 @@
     "allowSyntheticDefaultImports": true,
     "outDir": "build",
     "resolveJsonModule": true,
-    "types": ["@kitajs/html"]
+    "types": [
+      "@kitajs/html"
+    ]
   },
-  "include": ["src", "src/swagger.json"],
-  "exclude": ["test", "**/__tests__"]
+  "include": [
+    "src"
+  ],
+  "exclude": [
+    "test",
+    "**/__tests__"
+  ]
 }

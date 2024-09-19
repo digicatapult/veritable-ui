@@ -1,17 +1,14 @@
 {
   "entryFile": "src/index.ts",
   "noImplicitAdditionalProperties": "throw-on-extras",
-  "controllerPathGlobs": [
-    "src/controllers/**/*.tsx",
-    "src/controllers/**/*.ts"
-  ],
+  "controllerPathGlobs": ["src/controllers/**/*.tsx", "src/controllers/**/*.ts"],
   "multerOpts": {
     "limits": {
       "fileSize": 104857600
     }
   },
   "spec": {
-    "outputDirectory": "src",
+    "outputDirectory": "build",
     "specVersion": 3,
     "securityDefinitions": {
       "oauth2": {
@@ -28,6 +25,7 @@
     "esm": true,
     "routesDir": "src",
     "iocModule": "src/ioc",
-    "authenticationModule": "./src/authentication.ts"
+    "authenticationModule": "./src/authentication.ts",
+    "noWriteIfUnchanged": true
   }
 }
