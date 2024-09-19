@@ -2,7 +2,6 @@ import { expect, test } from '@playwright/test'
 import { checkEmails, extractInvite, extractPin, findNewAdminEmail } from './helpers/smtpEmails'
 import { sleep } from './helpers/utils'
 
-// Describe block for the whole test suite
 test.describe('Connection from Alice to Bob', () => {
   let context: any
   let page: any
@@ -11,7 +10,7 @@ test.describe('Connection from Alice to Bob', () => {
   let pinForBob: string | null
   let pinForAlice: string | null
 
-  // Setup hook to create and share context
+  // Create and share context
   test.beforeAll(async ({ browser }) => {
     context = await browser.newContext()
   })
@@ -23,9 +22,8 @@ test.describe('Connection from Alice to Bob', () => {
   test.afterEach(async () => {
     await page.close()
   })
-
-  // Main test using steps
-  test('End-to-end process: Alice registers, invites Bob, Bob and Alice submit PINs', async () => {
+  // End-to-end process: Alice registers, invites Bob, Bob submits invite & pin, Alice submits pin
+  test('Connection from Alice to Bob', async () => {
     test.setTimeout(100000)
 
     await test.step('Alice registers on the platform', async () => {
@@ -38,7 +36,7 @@ test.describe('Connection from Alice to Bob', () => {
       await page.waitForSelector('a[href*="/realms/veritable/login-actions/registration"]')
       await page.click('a[href*="/realms/veritable/login-actions/registration"]')
       await page.waitForURL('**/realms/veritable/login-actions/registration**')
-      expect(page.url()).toContain('/realms/veritable/login-actions/registration')
+      //   expect(page.url()).toContain('/realms/veritable/login-actions/registration')
 
       await page.fill('#username', 'name')
       await page.fill('#password', 'password')
@@ -77,7 +75,7 @@ test.describe('Connection from Alice to Bob', () => {
       await page.fill('#new-invite-company-number-input', '07964699')
       await page.fill('#new-invite-email-input', 'alice@testmail.com')
 
-      await page.waitForTimeout(10000)
+      await page.waitForTimeout(5000)
 
       const feedbackElement = await page.$('#new-connection-feedback')
       expect(feedbackElement).not.toBeNull()
@@ -105,27 +103,28 @@ test.describe('Connection from Alice to Bob', () => {
 
       await page.waitForSelector('a[href="/connection"]')
       await page.click('a[href="/connection"]')
-      //   await page.waitForTimeout(3000)
       await page.waitForURL('**/connection')
       expect(page.url()).toContain('/connection')
     })
 
-    await test.step('Bob submits the invite and PIN', async () => {
+    await test.step('Retrieve invite and pin for Bob', async () => {
       const { inviteEmail, adminEmail } = await checkEmails()
       adminEmailId = adminEmail.id
-      await sleep(10000)
+      await sleep(5000)
 
       pinForBob = await extractPin(adminEmail.id)
       await sleep(4000)
       expect(pinForBob).toHaveLength(6)
-      if (!pinForBob) throw new Error('PIN from admin email was not found.')
+      if (!pinForBob) throw new Error('PIN for Bob was not found.')
 
       invite = await extractInvite(inviteEmail.id)
-      await sleep(4000)
-      if (!invite) throw new Error('Invitation from admin email was not found.')
-
+      await sleep(2000)
+      if (!invite) throw new Error('Invitation for Bob was not found.')
+    })
+    await test.step('Bob submits invite and pin', async () => {
       await page.goto('http://localhost:3001')
       const bobUrl = page.url()
+      // Login if redirected
       if (
         bobUrl.includes(
           'http://localhost:3080/realms/veritable/protocol/openid-connect/auth?response_type=code&client_id=veritable-ui&redirect_uri=http'
@@ -140,23 +139,25 @@ test.describe('Connection from Alice to Bob', () => {
       await page.goto('http://localhost:3001/connection')
       await page.waitForURL('**/connection')
       expect(page.url()).toContain('/connection')
-
+      // Submit invite
       await page.waitForSelector('text=Add from Invitation')
       await page.click('text=Add from Invitation')
       await page.waitForURL('**/connection/new?fromInvite=true')
       expect(page.url()).toContain('/connection/new?fromInvite=true')
 
+      // Fill in invite without last character, then enter last character to simulate typing
+      if (!invite) throw new Error('Invitation for Bob was not found.')
       const contentWithoutLastChar = invite.slice(0, -1)
       const lastChar = invite.slice(-1)
       await page.fill('textarea[name="invite"]', contentWithoutLastChar)
       await page.locator('textarea[name="invite"]').press(lastChar)
-
       await page.waitForTimeout(3000)
+
       const positiveFeedback = await page.$('.feedback-positive')
       expect(positiveFeedback).not.toBeNull()
-
       const feedback = await page.$('#new-connection-feedback')
       expect(feedback).not.toBeNull()
+
       const feedbackText = await feedback?.textContent()
       expect(feedbackText).toContain('Registered Office Address')
       expect(feedbackText).toContain('DIGITAL CATAPULT')
@@ -164,8 +165,9 @@ test.describe('Connection from Alice to Bob', () => {
       await page.click('button[type="submit"][name="action"][value="createConnection"]')
       await page.waitForTimeout(3000)
 
+      // Submit pin
       const pinUrl = page.url()
-      const urlPattern = /http:\/\/localhost:3001\/connection\/[a-f0-9\-]+\/pin-submission/
+      const urlPattern = /http:\/\/localhost:3001\/connection\/[0-9a-fA-F\-]{36}\/pin-submission/
       expect(pinUrl).toMatch(urlPattern)
 
       await page.fill('#new-connection-invite-input-pin', pinForBob)
@@ -176,14 +178,17 @@ test.describe('Connection from Alice to Bob', () => {
       expect(page.url()).toContain('/connection')
     })
 
-    await test.step('Alice submits her PIN', async () => {
+    await test.step('Retrieve pin for Alice', async () => {
       const newAdminEmail = await findNewAdminEmail(adminEmailId)
       pinForAlice = await extractPin(newAdminEmail.id)
       expect(pinForAlice).toHaveLength(6)
       if (!pinForAlice) throw new Error('PIN from admin email was not found.')
+    })
 
+    await test.step('Alice submits her PIN', async () => {
       await page.goto('http://localhost:3000')
       const aliceUrl = page.url()
+      // Login if redirected
       if (
         aliceUrl.includes(
           'http://localhost:3080/realms/veritable/protocol/openid-connect/auth?response_type=code&client_id=veritable-ui&redirect_uri=http'
