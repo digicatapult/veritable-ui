@@ -20,7 +20,7 @@ const EmailResponseSchema = z.object({
   results: z.array(EmailItemSchema),
 })
 
-type Emails = {
+export type Email = {
   isRelayed: boolean
   deliveredTo: string
   id: string
@@ -32,7 +32,7 @@ type Emails = {
   isUnread: boolean
 }
 
-async function checkEmails(): Promise<{ inviteEmail: Emails; adminEmail: Emails }> {
+async function checkEmails(): Promise<{ inviteEmail: Email; adminEmail: Email }> {
   return new Promise((resolve, reject) => {
     const options = {
       hostname: 'localhost',
@@ -72,9 +72,9 @@ async function checkEmails(): Promise<{ inviteEmail: Emails; adminEmail: Emails 
 }
 
 // Function that checks specific email content and returns both emails
-async function validateEmails(results: Emails[]): Promise<{
-  inviteEmail: Emails
-  adminEmail: Emails
+async function validateEmails(results: Email[]): Promise<{
+  inviteEmail: Email
+  adminEmail: Email
 }> {
   // Invite email assertions
   const inviteEmail = results.find((msg) => msg.subject === 'Veritable invite')
@@ -155,4 +155,52 @@ async function extractInvite(emailId: string): Promise<string | null> {
   }
 }
 
-export { checkEmails, extractInvite, extractPin }
+async function findNewAdminEmail(oldAdminEmailId: string): Promise<Email> {
+  return new Promise((resolve, reject) => {
+    const options = {
+      hostname: 'localhost',
+      port: 5000,
+      path: '/api/messages',
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    }
+
+    const req = http.request(options, (res) => {
+      let data = ''
+      res.on('data', (chunk) => (data += chunk))
+      res.on('end', async () => {
+        try {
+          console.log(oldAdminEmailId)
+          const messages = JSON.parse(data)
+          const parsedMessages = EmailResponseSchema.parse(messages)
+          const results = parsedMessages.results
+          console.log(results)
+
+          if (!Array.isArray(results)) {
+            return reject(new Error('Unexpected response format, expected an array of messages.'))
+          }
+
+          const newAdminEmail = results.find(
+            (msg: Email) =>
+              msg.subject === 'Action required: process veritable invitation' && msg.id !== oldAdminEmailId
+          )
+
+          if (!newAdminEmail) {
+            return reject(new Error('New admin email not found or it has the same ID as the old one.'))
+          }
+
+          resolve(newAdminEmail)
+        } catch (error) {
+          reject(error)
+        }
+      })
+    })
+
+    req.on('error', (error) => reject(error))
+    req.end()
+  })
+}
+
+export { checkEmails, extractInvite, extractPin, findNewAdminEmail }
