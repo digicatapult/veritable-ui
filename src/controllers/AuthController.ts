@@ -11,6 +11,7 @@ import { HTMLController } from './HTMLController.js'
 
 const nonceCookieOpts: express.CookieOptions = {
   sameSite: true,
+  maxAge: 10 * 60 * 1000,
   httpOnly: true,
   signed: true,
   secure: true,
@@ -91,7 +92,7 @@ export class AuthController extends HTMLController {
     }
     const [cookieSuffix, redirectNonce] = state.split('.')
     if (!cookieSuffix || !redirectNonce) {
-      req.log.info('incorect format of state parameter %j', { cookieSuffix, redirectNonce })
+      req.log.info('incorrect format of state parameter %j', { cookieSuffix, redirectNonce })
       throw new ForbiddenError('Format of state parameter incorrect')
     }
 
@@ -116,8 +117,8 @@ export class AuthController extends HTMLController {
     req.log.debug(
       'resetting cookies: VERITABLE_NONCE, VERITABLE_REDIRECT, VERITABLE_ACCESS_TOKEN, VERITABLE_REFRESH_TOKEN'
     )
-    res.clearCookie(`VERITABLE_NONCE.${cookieSuffix}`)
-    res.clearCookie(`VERITABLE_REDIRECT.${cookieSuffix}`)
+    res.clearCookie(`VERITABLE_NONCE.${cookieSuffix}`, { path: nonceCookieOpts.path })
+    res.clearCookie(`VERITABLE_REDIRECT.${cookieSuffix}`, { path: nonceCookieOpts.path })
     res.cookie('VERITABLE_ACCESS_TOKEN', access_token, tokenCookieOpts)
     res.cookie('VERITABLE_REFRESH_TOKEN', refresh_token, tokenCookieOpts)
 
