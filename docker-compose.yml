@@ -78,7 +78,7 @@ services:
       - .env
     environment:
       - NODE_ENV=production
-      - LOG_LEVEL=trace
+      - LOG_LEVEL=debug
       - DB_HOST=postgres-veritable-ui-bob
       - DB_NAME=veritable-ui
       - API_SWAGGER_TITLE=Bob
@@ -103,6 +103,8 @@ services:
       - SMTP_PASS=
       - SMTP_PORT=25
       - SMTP_USER=
+      - EMAIL_TRANSPORT=${VERITABLE_EMAIL_TRANSPORT:-STREAM}
+      - SMTP_SECURE=false
   postgres-veritable-ui-bob:
     image: postgres:16.4-alpine
     container_name: postgres-veritable-ui-bob
@@ -140,14 +142,6 @@ services:
       - POSTGRES_HOST=postgres-veritable-cloudagent-bob
       - WALLET_ID=bob
       - WALLET_KEY=bob-key
-  # -------------------- email -------------------------------#
-  smtp4dev:
-    image: rnwood/smtp4dev
-    container_name: smtp4dev
-    ports:
-      - '5000:80' # Port for accessing smtp4dev's web interface
-      - '2525:25' # Port for SMTP connections
-    restart: always
 
 volumes:
   ipfs:
