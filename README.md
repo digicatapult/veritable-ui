@@ -36,7 +36,7 @@ Ensure you're running the correct version of npm, then install dependencies usin
 npm install
 ```
 
-After all packages have been installed run the below command which will create two files under `/src` directory: `src/routes.ts`, `src/swagger.json`
+After all packages have been installed run the below command which will create two files: `src/routes.ts`, `./build/swagger.json`
 
 ```sh
 npm run tsoa:build

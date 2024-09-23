@@ -1,7 +1,8 @@
 ignores: [
   '@kitajs/html',
   '@kitajs/ts-html-plugin',
-  '@digicatapult/tsimp',
+  '@swc-node/register',
+  'concurrently',
   'htmx.org',
   'htmx-ext-json-enc',
   'prettier-plugin-organize-imports',
