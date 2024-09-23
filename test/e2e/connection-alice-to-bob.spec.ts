@@ -23,7 +23,7 @@ test.describe('Connection from Alice to Bob', () => {
   })
   // End-to-end process: Alice registers, invites Bob, Bob submits invite & pin, Alice submits pin
   test('Connection from Alice to Bob', async () => {
-    test.setTimeout(100000)
+    test.setTimeout(10000)
 
     await test.step('Alice registers on the platform', async () => {
       await page.goto('http://localhost:3000')
