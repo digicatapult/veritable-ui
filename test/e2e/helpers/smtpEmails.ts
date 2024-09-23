@@ -96,7 +96,7 @@ async function validateEmails(results: Email[]): Promise<{
 }
 
 async function extractPin(emailId: string): Promise<string | null> {
-  const apiUrl = `http://localhost:5000/api/messages/${emailId}/raw`
+  const apiUrl = `http://localhost:5000/api/Messages/${emailId}/part/2/content`
   // Fetch the raw email content
   const response = await fetch(apiUrl)
   if (!response.ok) {
@@ -104,9 +104,8 @@ async function extractPin(emailId: string): Promise<string | null> {
   }
 
   const rawEmailContent = await response.text()
-
   // Regex pattern to find the PIN
-  const pinPattern = /PIN:\s*(\d+)/
+  const pinPattern = /<p>Pin:<\/p><p>(\d{6})<\/p>/
   const match = rawEmailContent.match(pinPattern)
 
   if (match && match[1]) {
@@ -117,23 +116,18 @@ async function extractPin(emailId: string): Promise<string | null> {
 }
 
 async function extractInvite(emailId: string): Promise<string | null> {
-  const apiUrl = `http://localhost:5000/api/messages/${emailId}/raw`
+  const apiUrl = `http://localhost:5000/api/Messages/${emailId}/part/2/content`
   const response = await fetch(apiUrl)
   if (!response.ok) {
     throw new Error(`Error fetching email: ${response.statusText}`)
   }
-
   const rawEmailContent = await response.text()
   // Regex pattern to find the base64 string
-  const base64Pattern = /<p>(eyJ[^<]+)<\/p>/
+  const base64Pattern = /<h1>This is an invite to connect to Veritable<\/h1>\s*<p>(eyJ[^<]+)<\/p>/
   const match = rawEmailContent.match(base64Pattern)
 
   if (match && match[1]) {
-    const cleanedString = match[1]
-      .replace(/\s+/g, '') // Remove all whitespace including line breaks
-      .replace(/=/g, '') // Remove equal signs
-
-    return cleanedString
+    return match[1]
   } else {
     return null
   }
