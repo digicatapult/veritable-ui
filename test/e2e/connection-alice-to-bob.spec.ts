@@ -1,6 +1,5 @@
 import { expect, test } from '@playwright/test'
 import { checkEmails, extractInvite, extractPin, findNewAdminEmail } from './helpers/smtpEmails'
-import { sleep } from './helpers/utils'
 
 test.describe('Connection from Alice to Bob', () => {
   let context: any
@@ -36,7 +35,6 @@ test.describe('Connection from Alice to Bob', () => {
       await page.waitForSelector('a[href*="/realms/veritable/login-actions/registration"]')
       await page.click('a[href*="/realms/veritable/login-actions/registration"]')
       await page.waitForURL('**/realms/veritable/login-actions/registration**')
-      //   expect(page.url()).toContain('/realms/veritable/login-actions/registration')
 
       await page.fill('#username', 'name')
       await page.fill('#password', 'password')
@@ -75,7 +73,7 @@ test.describe('Connection from Alice to Bob', () => {
       await page.fill('#new-invite-company-number-input', '07964699')
       await page.fill('#new-invite-email-input', 'alice@testmail.com')
 
-      await page.waitForTimeout(5000)
+      await page.waitForTimeout(3000) // Wait for the Company House API
 
       const feedbackElement = await page.$('#new-connection-feedback')
       expect(feedbackElement).not.toBeNull()
@@ -83,7 +81,6 @@ test.describe('Connection from Alice to Bob', () => {
       expect(feedbackText).toContain('DIGITAL CATAPULT')
       expect(feedbackText).toContain('101 Euston Road')
       await page.click('button[type="submit"][name="action"][value="continue"]')
-      await page.waitForTimeout(3000)
 
       await page.waitForSelector('#new-connection-confirmation-text')
       const confirmationElement = await page.$('#new-connection-confirmation-text')
@@ -94,11 +91,8 @@ test.describe('Connection from Alice to Bob', () => {
       expect(confirmationText).toContain('Email Address: alice@testmail.com')
 
       await page.click('button[type="submit"][name="action"][value="submit"]')
-      await page.waitForTimeout(3000)
-
-      const confirmationText2 = await (await page.$('#new-connection-confirmation-text'))?.textContent()
-      expect(confirmationText2).toContain(
-        'Your connection invitation has been sent. Please wait for their verification. As the post may take 2-3 days to arrive, please wait for their verification and keep updated by viewing the verification status.'
+      await page.waitForSelector(
+        'text="Your connection invitation has been sent. Please wait for their verification. As the post may take 2-3 days to arrive, please wait for their verification and keep updated by viewing the verification status."'
       )
 
       await page.waitForSelector('a[href="/connection"]')
@@ -110,17 +104,14 @@ test.describe('Connection from Alice to Bob', () => {
     await test.step('Retrieve invite and pin for Bob', async () => {
       const { inviteEmail, adminEmail } = await checkEmails()
       adminEmailId = adminEmail.id
-      await sleep(5000)
 
       pinForBob = await extractPin(adminEmail.id)
-      await sleep(4000)
       expect(pinForBob).toHaveLength(6)
       if (!pinForBob) throw new Error('PIN for Bob was not found.')
-
       invite = await extractInvite(inviteEmail.id)
-      await sleep(2000)
       if (!invite) throw new Error('Invitation for Bob was not found.')
     })
+
     await test.step('Bob submits invite and pin', async () => {
       await page.goto('http://localhost:3001')
       const bobUrl = page.url()
@@ -143,7 +134,6 @@ test.describe('Connection from Alice to Bob', () => {
       await page.waitForSelector('text=Add from Invitation')
       await page.click('text=Add from Invitation')
       await page.waitForURL('**/connection/new?fromInvite=true')
-      expect(page.url()).toContain('/connection/new?fromInvite=true')
 
       // Fill in invite without last character, then enter last character to simulate typing
       if (!invite) throw new Error('Invitation for Bob was not found.')
@@ -151,8 +141,8 @@ test.describe('Connection from Alice to Bob', () => {
       const lastChar = invite.slice(-1)
       await page.fill('textarea[name="invite"]', contentWithoutLastChar)
       await page.locator('textarea[name="invite"]').press(lastChar)
-      await page.waitForTimeout(3000)
 
+      await page.waitForSelector('.feedback-positive')
       const positiveFeedback = await page.$('.feedback-positive')
       expect(positiveFeedback).not.toBeNull()
       const feedback = await page.$('#new-connection-feedback')
@@ -166,16 +156,15 @@ test.describe('Connection from Alice to Bob', () => {
       await page.waitForTimeout(3000)
 
       // Submit pin
+      await page.waitForURL('**/pin-submission')
       const pinUrl = page.url()
       const urlPattern = /http:\/\/localhost:3001\/connection\/[0-9a-fA-F\-]{36}\/pin-submission/
       expect(pinUrl).toMatch(urlPattern)
 
       await page.fill('#new-connection-invite-input-pin', pinForBob)
       await page.click('button[type="submit"][name="action"][value="submitPinCode"]')
-      await page.waitForTimeout(3000)
 
       await page.waitForURL('**/connection')
-      expect(page.url()).toContain('/connection')
     })
 
     await test.step('Retrieve pin for Alice', async () => {
@@ -202,7 +191,6 @@ test.describe('Connection from Alice to Bob', () => {
 
       await page.goto('http://localhost:3000/connection')
       await page.waitForURL('**/connection')
-      expect(page.url()).toContain('/connection')
 
       const hrefRegex = /\/connection\/[0-9a-fA-F\-]{36}\/pin-submission/
       await page.waitForSelector(`a[href*="/connection/"][href*="/pin-submission"]`)
@@ -217,13 +205,11 @@ test.describe('Connection from Alice to Bob', () => {
 
       await page.fill('#new-connection-invite-input-pin', pinForAlice)
       await page.click('button[type="submit"][name="action"][value="submitPinCode"]')
-      await page.waitForTimeout(3000)
     })
     await test.step('Check connection is in state verified', async () => {
       await page.waitForSelector('a[href="/connection"]')
       await page.click('a[href="/connection"]')
       await page.waitForURL('**/connection')
-      expect(page.url()).toContain('/connection')
       await page.waitForSelector('div.list-item-status[data-status="success"]')
       const statusText = await page.textContent('div.list-item-status[data-status="success"]')
       expect(statusText).toContain('Verified - Established Connection')
