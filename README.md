@@ -169,7 +169,7 @@ npm run test:integration
 
 ### e3e Testing
 
-E2e tests are placed at root level in the `test/` directory. To run them simply bring up the project in dev mode and then run locally using command:
+E2e tests are placed at root level in the `test/` directory. To run them simply bring up the project using this command: `docker compose -f docker-compose.e2e.yml up -d ` which brings up all the dependencies. Then run the tests using command:
 
 ```sh
 npm run test:e2e
