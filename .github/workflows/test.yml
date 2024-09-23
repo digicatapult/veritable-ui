@@ -116,8 +116,6 @@ jobs:
         uses: kibertoad/wait-action@1.0.1
         with:
           time: '30s'
-      - name: Run database migrations
-        run: npm run db:migrate
       - name: Install Playwright Browsers
         run: npx playwright install --with-deps
       - name: Run Playwright tests
