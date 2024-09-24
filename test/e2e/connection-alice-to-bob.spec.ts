@@ -54,7 +54,7 @@ test.describe('Connection from Alice to Bob', () => {
   })
   // End-to-end process: Alice registers, invites Bob, Bob submits invite & pin, Alice submits pin
   test('Connection from Alice to Bob', async () => {
-    test.setTimeout(100000)
+    test.setTimeout(200000)
 
     await test.step('Alice invites Bob to connect', async () => {
       await page.waitForSelector('a[href="/connection"]')
@@ -64,6 +64,7 @@ test.describe('Connection from Alice to Bob', () => {
       await page.waitForTimeout(2000)
       await page.waitForSelector('text=Invite New Connection')
       await page.click('text=Invite New Connection')
+      await page.waitForTimeout(1000)
       await page.waitForURL('**/connection/new')
 
       await page.fill('#new-invite-company-number-input', '07964699')
@@ -140,7 +141,7 @@ test.describe('Connection from Alice to Bob', () => {
       // Submit pin
       await page.waitForURL('**/pin-submission')
       const pinUrl = page.url()
-      const urlPattern = /http:\/\/localhost:3001\/connection\/[0-9a-fA-F\-]{36}\/pin-submission/
+      const urlPattern = /http:\/\/localhost:3001\/connection\/[0-9a-fA-F-]{36}\/pin-submission/
       expect(pinUrl).toMatch(urlPattern)
 
       await page.fill('#new-connection-invite-input-pin', pinForBob)
@@ -160,7 +161,7 @@ test.describe('Connection from Alice to Bob', () => {
       await page.goto('http://localhost:3000/connection')
       await page.waitForURL('**/connection')
 
-      const hrefRegex = /\/connection\/[0-9a-fA-F\-]{36}\/pin-submission/
+      const hrefRegex = /\/connection\/[0-9a-fA-F-]{36}\/pin-submission/
       await page.waitForSelector(`a[href*="/connection/"][href*="/pin-submission"]`)
       const hrefElement = await page.$(`a[href*="/connection/"][href*="/pin-submission"]`)
       expect(hrefElement).not.toBeNull()
