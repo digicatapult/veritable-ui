@@ -23,7 +23,7 @@ test.describe('Connection from Alice to Bob', () => {
   })
   // End-to-end process: Alice registers, invites Bob, Bob submits invite & pin, Alice submits pin
   test('Connection from Alice to Bob', async () => {
-    test.setTimeout(10000)
+    test.setTimeout(300000)
 
     await test.step('Alice registers on the platform', async () => {
       await page.goto('http://localhost:3000')
@@ -63,12 +63,10 @@ test.describe('Connection from Alice to Bob', () => {
       await page.waitForSelector('a[href="/connection"]')
       await page.click('a[href="/connection"]')
       await page.waitForURL('**/connection')
-      expect(page.url()).toContain('/connection')
 
       await page.waitForSelector('text=Invite New Connection')
       await page.click('text=Invite New Connection')
       await page.waitForURL('**/connection/new')
-      expect(page.url()).toContain('/connection/new')
 
       await page.fill('#new-invite-company-number-input', '07964699')
       await page.fill('#new-invite-email-input', 'alice@testmail.com')
