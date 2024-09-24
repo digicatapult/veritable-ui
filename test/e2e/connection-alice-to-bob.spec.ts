@@ -65,7 +65,8 @@ test.describe('Connection from Alice to Bob', () => {
       await page.waitForSelector('text=Invite New Connection')
       await page.click('text=Invite New Connection')
       await page.waitForTimeout(1000)
-      await page.waitForURL('**/connection/new')
+      expect(page.url()).toContain('/connection/new')
+      // await page.waitForURL('**/connection/new')
 
       await page.fill('#new-invite-company-number-input', '07964699')
       await page.fill('#new-invite-email-input', 'alice@testmail.com')
