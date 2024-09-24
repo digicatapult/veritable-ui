@@ -246,7 +246,7 @@ export class QueriesController extends HTMLController {
    * @returns a table of connections for partial query
    */
   @SuccessResponse(200)
-  @Get('/{queryId}/partial/{companyId}')
+  @Get('/{queryId}/partial')
   public async scope3CO2Partial(
     @Request() req: express.Request,
     @Path() queryId: UUID,
@@ -286,7 +286,7 @@ export class QueriesController extends HTMLController {
    * @returns - a tabe row for partial query
    */
   @SuccessResponse(200)
-  @Get('/partial-select/{connectionId}/')
+  @Get('/partial-select/{connectionId}')
   public async partialSelect(
     @Request() req: express.Request,
     @Path() connectionId: UUID,
@@ -321,7 +321,8 @@ export class QueriesController extends HTMLController {
     body: {
       companyId: UUID
       action: 'success'
-      totalScope3CarbonEmissions: string
+      totalScope3CarbonEmissions?: string
+      connections?: string | string[]
     }
   ): Promise<HTML> {
     req.log.info('query page requested %j', { queryId, body })
