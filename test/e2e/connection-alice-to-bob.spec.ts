@@ -1,5 +1,6 @@
 import { expect, test } from '@playwright/test'
-import { checkEmails, extractInvite, extractPin, findNewAdminEmail } from './helpers/smtpEmails'
+import { withLoggedInUser, withRegisteredAccount } from './helpers/registerLogIn.js'
+import { checkEmails, extractInvite, extractPin, findNewAdminEmail } from './helpers/smtpEmails.js'
 
 test.describe('Connection from Alice to Bob', () => {
   let context: any
@@ -13,40 +14,12 @@ test.describe('Connection from Alice to Bob', () => {
   test.beforeAll(async ({ browser }) => {
     context = await browser.newContext()
     page = await context.newPage()
-    await page.goto('http://localhost:3000')
-    const url = page.url()
-    expect(url).toContain(
-      'http://localhost:3080/realms/veritable/protocol/openid-connect/auth?response_type=code&client_id=veritable-ui&redirect_uri=http'
-    )
-
-    await page.waitForSelector('a[href*="/realms/veritable/login-actions/registration"]')
-    await page.click('a[href*="/realms/veritable/login-actions/registration"]')
-    await page.waitForURL('**/realms/veritable/login-actions/registration**')
-
-    await page.fill('#username', 'name')
-    await page.fill('#password', 'password')
-    await page.fill('#password-confirm', 'password')
-    await page.fill('#email', 'email@testmail.com')
-    await page.fill('#firstName', 'name')
-    await page.fill('#lastName', 'lastname')
-    await page.click('input[type="submit"][value="Register"]')
-    await page.waitForURL('http://localhost:3000')
+    await withRegisteredAccount(page)
   })
 
   test.beforeEach(async () => {
     page = await context.newPage()
-    await page.goto('http://localhost:3000')
-    const inviteUrl = page.url()
-    if (
-      inviteUrl.includes(
-        'http://localhost:3080/realms/veritable/protocol/openid-connect/auth?response_type=code&client_id=veritable-ui&redirect_uri=http'
-      )
-    ) {
-      await page.fill('#username', 'name')
-      await page.fill('#password', 'password')
-      await page.click('input[type="submit"][value="Sign In"]')
-      await page.waitForURL('http://localhost:3000')
-    }
+    await withLoggedInUser(page)
   })
 
   test.afterEach(async () => {
