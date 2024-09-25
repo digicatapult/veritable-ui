@@ -29,7 +29,7 @@ test.describe('Connection from Alice to Bob', () => {
   })
   // End-to-end process: Alice registers, invites Bob, Bob submits invite & pin, Alice submits pin
   test('Connection from Alice to Bob', async () => {
-    test.setTimeout(300000)
+    test.setTimeout(200000)
 
     await test.step('Alice invites Bob to connect', async () => {
       await page.waitForSelector('a[href="/connection"]')
@@ -38,7 +38,7 @@ test.describe('Connection from Alice to Bob', () => {
 
       console.log(page.url())
       await page.waitForSelector('text=Invite New Connection')
-      await page.click('a.button[href="connection/new"]')
+      await page.click('a.button[href="/connection/new"]')
       console.log(page.url())
       await page.waitForURL('**/connection/new')
 

@@ -70,7 +70,7 @@ export default class ConnectionTemplates {
           <LinkButton
             disabled={false}
             text="Invite New Connection"
-            href="connection/new"
+            href="/connection/new"
             icon={'url("/public/images/plus.svg")'}
             style="filled"
           />
