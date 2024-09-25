@@ -11,7 +11,7 @@ const tokenSchema = z.object({
   scope: z.string(),
 })
 
-const getToken = async () => {
+export const getToken = async () => {
   const tokenReq = await fetch('http://localhost:3080/realms/veritable/protocol/openid-connect/token', {
     method: 'POST',
     headers: {

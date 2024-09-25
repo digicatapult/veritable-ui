@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test'
-import { withLoggedInUser, withRegisteredAccount } from './helpers/registerLogIn.js'
+import { withCleanApp, withLoggedInUser, withRegisteredAccount } from './helpers/registerLogIn.js'
 import { checkEmails, extractInvite, extractPin, findNewAdminEmail } from './helpers/smtpEmails.js'
 
 test.describe('Connection from Alice to Bob', () => {
@@ -14,32 +14,31 @@ test.describe('Connection from Alice to Bob', () => {
   test.beforeAll(async ({ browser }) => {
     context = await browser.newContext()
     page = await context.newPage()
-    await withRegisteredAccount(page)
+    await withRegisteredAccount(page, context)
   })
 
   test.beforeEach(async () => {
+    await withCleanApp()
     page = await context.newPage()
-    await withLoggedInUser(page)
+    await withLoggedInUser(page, context)
   })
 
   test.afterEach(async () => {
+    await withCleanApp()
     await page.close()
   })
   // End-to-end process: Alice registers, invites Bob, Bob submits invite & pin, Alice submits pin
   test('Connection from Alice to Bob', async () => {
-    test.setTimeout(200000)
+    test.setTimeout(100000)
 
     await test.step('Alice invites Bob to connect', async () => {
       await page.waitForSelector('a[href="/connection"]')
       await page.click('a[href="/connection"]')
       await page.waitForURL('**/connection')
 
-      await page.waitForTimeout(2000)
       await page.waitForSelector('text=Invite New Connection')
       await page.click('text=Invite New Connection')
-      await page.waitForTimeout(1000)
-      expect(page.url()).toContain('/connection/new')
-      // await page.waitForURL('**/connection/new')
+      await page.waitForURL('**/connection/new')
 
       await page.fill('#new-invite-company-number-input', '07964699')
       await page.fill('#new-invite-email-input', 'alice@testmail.com')
