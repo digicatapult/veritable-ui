@@ -37,7 +37,7 @@ test.describe('Connection from Alice to Bob', () => {
       await page.waitForURL('**/connection')
 
       await page.waitForSelector('text=Invite New Connection')
-      await page.click('text=Invite New Connection')
+      await page.click('a.button[href="connection/new"]')
       await page.waitForURL('**/connection/new')
 
       await page.fill('#new-invite-company-number-input', '07964699')
