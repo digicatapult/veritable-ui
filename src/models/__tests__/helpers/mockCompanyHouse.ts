@@ -6,6 +6,7 @@ import {
   noCompanyNumber,
   secondaryCompanyNumber,
   successResponse,
+  successResponse2,
   validCompanyNumber,
 } from '../fixtures/companyHouseFixtures.js'
 
@@ -33,7 +34,7 @@ export function withCompanyHouseMock() {
         path: `/company/${secondaryCompanyNumber}`,
         method: 'GET',
       })
-      .reply(200, successResponse)
+      .reply(200, successResponse2)
       .persist()
 
     client

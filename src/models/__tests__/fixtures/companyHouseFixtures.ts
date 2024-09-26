@@ -16,3 +16,15 @@ export const successResponse: CompanyProfile = {
   company_name: 'DIGITAL CATAPULT',
   company_number: '07964699',
 }
+
+export const successResponse2: CompanyProfile = {
+  registered_office_address: {
+    address_line_1: 'Flat 3 Nelmes Court, Nelmes Way, Nelmes Way',
+    postal_code: 'RM11 2QL',
+    locality: 'Hornchurch',
+  },
+  company_status: 'active',
+  registered_office_is_in_dispute: false,
+  company_name: 'CARE ONUS LTD',
+  company_number: '11111111',
+}
