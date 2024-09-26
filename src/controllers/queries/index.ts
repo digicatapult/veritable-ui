@@ -325,6 +325,7 @@ export class QueriesController extends HTMLController {
       emissions?: string
       partialQuery?: 'on'[]
       partialSelect?: 'on'[]
+      [key: string]: unknown
     }
   ): Promise<HTML> {
     const { action, companyId, emissions, partialQuery, partialSelect, ...partial } = body
@@ -349,7 +350,7 @@ export class QueriesController extends HTMLController {
 
     const partials: PartialQuery = []
     if (partialQuery && partialQuery[0] === 'on') {
-      const connections: { [k: string]: string } = partial
+      const connections = partial as { [k: string]: string }
       for (const con in connections) {
         partials.push({
           connectionId: connections[con][0],
