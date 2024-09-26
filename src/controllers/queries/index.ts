@@ -323,11 +323,11 @@ export class QueriesController extends HTMLController {
       companyId,
       action,
       emissions = '0',
-      partialQuery,
       ...partial
     }: {
       companyId: UUID
       action: 'success'
+      emissions: string
       [k: string]: 'on'[] | string[] | string
     }
   ): Promise<HTML> {
@@ -351,7 +351,7 @@ export class QueriesController extends HTMLController {
     }
 
     const partials: PartialQuery = []
-    if (partialQuery && partialQuery[0] === 'on') {
+    if (partial?.partialQuery && partial.partialQuery[0] === 'on') {
       const { partialSelect, partialQuery, ...connections } = partial
 
       for (const con in connections) {
