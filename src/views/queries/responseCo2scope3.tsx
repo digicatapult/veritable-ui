@@ -108,6 +108,7 @@ export default class Scope3CarbonConsumptionResponseTemplates {
               id="scope-3-carbon-consumption"
               hx-post={`/queries/scope-3-carbon-consumption/${props.queryId}/response`}
               hx-select="main > *"
+              hx-include={"[name='quantity'], [name='companyId'], [name='productId']"}
               hx-target="main"
               hx-swap="innerHTML"
             >
@@ -123,7 +124,7 @@ export default class Scope3CarbonConsumptionResponseTemplates {
                 </label>
                 <input
                   id="co2-emissions-input"
-                  name="totalScope3CarbonEmissions"
+                  name="emissions"
                   placeholder="Value in kg CO2e (to be aggregated)"
                   class={`input-with-label ${partial ? 'disabled' : ''}`}
                   type="text"
@@ -259,7 +260,7 @@ export default class Scope3CarbonConsumptionResponseTemplates {
   }): JSX.Element => {
     return (
       <tr id={`tr-${props.id}`} hx-swap-oob="true">
-        <input name={`connections`} id={props.id} type="hidden" value={Html.escapeHtml(props.id)} disabled={!checked} />
+        <input name={props.id} id={props.id} type="hidden" value={Html.escapeHtml(props.id)} disabled={!checked} />
         <td>
           <input
             name={`partialSelect`}
@@ -274,7 +275,7 @@ export default class Scope3CarbonConsumptionResponseTemplates {
         <td>
           <input
             id={props.id}
-            name={`connections`}
+            name={props.id}
             placeholder="Product ID"
             class={`input-basic ${checked ? '' : 'disabled'}`}
             type="text"
@@ -285,7 +286,7 @@ export default class Scope3CarbonConsumptionResponseTemplates {
         <td>
           <input
             id={props.id}
-            name={'connections'}
+            name={props.id}
             placeholder="Quantity"
             class={`input-basic ${checked ? '' : 'disabled'}`}
             type="number"

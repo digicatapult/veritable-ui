@@ -1,6 +1,7 @@
 import { CompanyProfile } from '../../companyHouseEntity.js'
 
 export const validCompanyNumber = '07964699'
+export const secondaryCompanyNumber = '11111111'
 export const invalidCompanyNumber = '079646992'
 export const noCompanyNumber = ''
 

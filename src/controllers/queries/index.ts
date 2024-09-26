@@ -4,6 +4,7 @@ import { singleton } from 'tsyringe'
 
 import pino from 'pino'
 import { InvalidInputError, NotFoundError } from '../../errors.js'
+import { type PartialQuery } from '../../models/arrays.js'
 import Database from '../../models/db/index.js'
 import { ConnectionRow, QueryRow, Where } from '../../models/db/types.js'
 import { type UUID } from '../../models/strings.js'
@@ -318,38 +319,55 @@ export class QueriesController extends HTMLController {
     @Request() req: express.Request,
     @Path() queryId: UUID,
     @Body()
-    body: {
+    {
+      companyId,
+      action,
+      emissions = '0',
+      partialQuery,
+      ...partial
+    }: {
       companyId: UUID
       action: 'success'
-      totalScope3CarbonEmissions?: string
-      partialQuery?: 'on'
-      partialSelect?: 'on'[]
-      connections?: string | string[]
+      [k: string]: 'on'[] | string[] | string
     }
   ): Promise<HTML> {
-    req.log.info('query page requested %j', { queryId, body })
+    req.log.info('query page requested %j', { queryId, partial, companyId })
 
-    const [connection] = await this.db.get('connection', { id: body.companyId, status: 'verified_both' }, [
+    const [connection]: ConnectionRow[] = await this.db.get('connection', { id: companyId, status: 'verified_both' }, [
       ['updated_at', 'desc'],
     ])
     if (!connection) {
-      req.log.warn('invalid input error %j', body)
-      throw new InvalidInputError(`Invalid connection ${body.companyId}`)
+      req.log.warn('invalid input error %j', { companyId, action })
+      throw new InvalidInputError(`Invalid connection ${companyId}`)
     }
     if (!connection.agent_connection_id || connection.status !== 'verified_both') {
-      req.log.warn('invalid input error %j', body)
+      req.log.warn('invalid input error %j', { companyId, action, emissions })
       throw new InvalidInputError(`Cannot query unverified connection`)
     }
-    const [queryRow] = await this.db.get('query', { id: queryId })
+    const [queryRow]: QueryRow[] = await this.db.get('query', { id: queryId })
     if (!queryRow.response_id) {
       req.log.warn('missing DRPC response_id to respond to %j', queryRow)
-      throw new InvalidInputError(`Missing queryId to respond to.`)
+      throw new InvalidInputError(`Missing response_id to respond to.`)
     }
 
-    const query = {
-      emissions: body.totalScope3CarbonEmissions,
+    const partials: PartialQuery = []
+    if (partialQuery && partialQuery[0] === 'on') {
+      const { partialSelect, partialQuery, ...connections } = partial
+
+      for (const con in connections) {
+        partials.push({
+          connectionId: connections[con][0],
+          productId: connections[con][1],
+          quantity: parseInt(connections[con][2]),
+        })
+      }
+    }
+
+    const query: { emissions: string; queryIdForResponse: UUID } = {
+      emissions: (emissions as string) || partials.reduce((out, next) => (out += next.quantity), 0).toString(),
       queryIdForResponse: queryRow.response_id,
     }
+
     req.log.debug('query for DRPC response %j', query)
     //send a drpc message with response
     let rpcResponse: DrpcResponse
@@ -364,12 +382,12 @@ export class QueriesController extends HTMLController {
       )
       req.log.info('submitting DRPC request %j', maybeResponse)
       if (!maybeResponse) {
-        return await this.handleError(req.log, queryRow, connection)
+        return this.handleError(req.log, queryRow, connection)
       }
       rpcResponse = maybeResponse
     } catch (err) {
       req.log.warn('DRPC has failed %j', err)
-      return await this.handleError(req.log, queryRow, connection, undefined, err)
+      return this.handleError(req.log, queryRow, connection, undefined, err)
     }
     const { result, error, id: rpcId } = rpcResponse
 
@@ -382,17 +400,11 @@ export class QueriesController extends HTMLController {
       result,
       error,
     })
-    await this.db.update(
-      'query',
-      { id: queryId },
-      {
-        status: 'resolved',
-      }
-    )
+    await this.db.update('query', { id: queryId }, { status: 'resolved' })
 
     if (!result || error) {
       req.log.warn('error happened while persisting query_rpc %j', error)
-      return await this.handleError(req.log, queryRow, connection, rpcId)
+      return this.handleError(req.log, queryRow, connection, rpcId)
     }
 
     return this.html(

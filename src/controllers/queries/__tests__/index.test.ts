@@ -164,7 +164,7 @@ describe('QueriesController', () => {
         .scope3CarbonConsumptionResponseSubmit(req, '5390af91-c551-4d74-b394-d8ae0805059e', {
           companyId: '2345789',
           action: 'success',
-          totalScope3CarbonEmissions: '25',
+          emissions: '25',
         })
         .then(toHTMLString)
 
@@ -181,7 +181,7 @@ describe('QueriesController', () => {
         .scope3CarbonConsumptionResponseSubmit(req, '5390af91-c551-4d74-b394-d8ae0805059e', {
           companyId: '2345789',
           action: 'success',
-          totalScope3CarbonEmissions: '25',
+          emissions: '25',
         })
         .then(toHTMLString)
 
@@ -197,7 +197,7 @@ describe('QueriesController', () => {
         .scope3CarbonConsumptionResponseSubmit(req, '5390af91-c551-4d74-b394-d8ae0805059e', {
           companyId: '2345789',
           action: 'success',
-          totalScope3CarbonEmissions: '25',
+          emissions: '25',
         })
         .then(toHTMLString)
 
@@ -217,7 +217,7 @@ describe('QueriesController', () => {
       .scope3CarbonConsumptionResponseSubmit(req, '5390af91-c551-4d74-b394-d8ae0805059e', {
         companyId: '2345789',
         action: 'success',
-        totalScope3CarbonEmissions: '25',
+        emissions: '25',
       })
       .then(toHTMLString)
 
