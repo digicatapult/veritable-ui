@@ -319,19 +319,16 @@ export class QueriesController extends HTMLController {
     @Request() req: express.Request,
     @Path() queryId: UUID,
     @Body()
-    {
-      companyId,
-      action,
-      emissions = '0',
-      ...partial
-    }: {
+    body: {
       companyId: UUID
       action: 'success'
-      emissions: string
-      [k: string]: 'on'[] | string[] | string
+      emissions?: string
+      partialQuery?: 'on'[]
+      partialSelect?: 'on'[]
     }
   ): Promise<HTML> {
-    req.log.info('query page requested %j', { queryId, partial, companyId })
+    const { action, companyId, emissions, partialQuery, partialSelect, ...partial } = body
+    req.log.info('query page requested %j', { body })
 
     const [connection]: ConnectionRow[] = await this.db.get('connection', { id: companyId, status: 'verified_both' }, [
       ['updated_at', 'desc'],
@@ -351,9 +348,8 @@ export class QueriesController extends HTMLController {
     }
 
     const partials: PartialQuery = []
-    if (partial?.partialQuery && partial.partialQuery[0] === 'on') {
-      const { partialSelect, partialQuery, ...connections } = partial
-
+    if (partialQuery && partialQuery[0] === 'on') {
+      const connections: { [k: string]: string } = partial
       for (const con in connections) {
         partials.push({
           connectionId: connections[con][0],
