@@ -260,7 +260,7 @@ export default class Scope3CarbonConsumptionResponseTemplates {
   }): JSX.Element => {
     return (
       <tr id={`tr-${props.id}`} hx-swap-oob="true">
-        <input name={props.id} type="hidden" value={Html.escapeHtml(props.id)} disabled={!checked} />
+        <input name="connections" type="hidden" value={Html.escapeHtml(props.id)} disabled={!checked} />
         <td>
           <input
             name={`partialSelect`}
@@ -274,7 +274,7 @@ export default class Scope3CarbonConsumptionResponseTemplates {
         <td>{Html.escapeHtml(props.company_name)}</td>
         <td>
           <input
-            name={props.id}
+            name="connections"
             placeholder="Product ID"
             class={`input-basic ${checked ? '' : 'disabled'}`}
             type="text"
@@ -284,7 +284,7 @@ export default class Scope3CarbonConsumptionResponseTemplates {
         </td>
         <td>
           <input
-            name={props.id}
+            name="connections"
             placeholder="Quantity"
             class={`input-basic ${checked ? '' : 'disabled'}`}
             type="number"

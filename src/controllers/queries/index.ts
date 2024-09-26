@@ -312,6 +312,8 @@ export class QueriesController extends HTMLController {
 
   /**
    * Submits the query response page
+   * @param connections - since table contains only 3 cells this data will need to be
+   * devided into chunks of size 3
    */
   @SuccessResponse(200)
   @Post('/scope-3-carbon-consumption/{queryId}/response')
@@ -325,10 +327,10 @@ export class QueriesController extends HTMLController {
       emissions?: string
       partialQuery?: 'on'[]
       partialSelect?: 'on'[]
-      [key: string]: unknown
+      connections?: string[]
     }
   ): Promise<HTML> {
-    const { action, companyId, emissions, partialQuery, partialSelect, ...partial } = body
+    const { action, companyId, emissions, partialQuery, connections } = body
     req.log.info('query page requested %j', { body })
 
     const [connection]: ConnectionRow[] = await this.db.get('connection', { id: companyId, status: 'verified_both' }, [
@@ -349,15 +351,17 @@ export class QueriesController extends HTMLController {
     }
 
     const partials: PartialQuery = []
-    if (partialQuery && partialQuery[0] === 'on') {
-      const connections = partial as { [k: string]: string }
-      for (const con in connections) {
-        partials.push({
-          connectionId: connections[con][0],
-          productId: connections[con][1],
-          quantity: parseInt(connections[con][2]),
-        })
-      }
+    if (connections && partialQuery && partialQuery[0] === 'on') {
+      connections?.map((_, i) => {
+        if (i % 3 === 0) {
+          const [connectionId, productId, quantity] = connections.slice(i, i + 3)
+          partials.push({
+            connectionId,
+            productId,
+            quantity: parseInt(quantity),
+          })
+        }
+      }, [])
     }
 
     const query: { emissions: string; queryIdForResponse: UUID } = {
