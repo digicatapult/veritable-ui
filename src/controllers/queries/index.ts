@@ -322,6 +322,8 @@ export class QueriesController extends HTMLController {
       companyId: UUID
       action: 'success'
       totalScope3CarbonEmissions?: string
+      partialQuery?: 'on'
+      partialSelect?: 'on'[]
       connections?: string | string[]
     }
   ): Promise<HTML> {
