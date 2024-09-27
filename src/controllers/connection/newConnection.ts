@@ -3,7 +3,7 @@ import express from 'express'
 import { randomInt } from 'node:crypto'
 import { pino } from 'pino'
 import { Body, Get, Post, Produces, Query, Request, Route, Security, SuccessResponse } from 'tsoa'
-import { singleton } from 'tsyringe'
+import { injectable } from 'tsyringe'
 import { z } from 'zod'
 
 import { Env } from '../../env.js'
@@ -36,7 +36,7 @@ const inviteParser = z.object({
 })
 type Invite = z.infer<typeof inviteParser>
 
-@singleton()
+@injectable()
 @Security('oauth2')
 @Route('/connection/new')
 @Produces('text/html')
