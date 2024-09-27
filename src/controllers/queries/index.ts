@@ -351,15 +351,13 @@ export class QueriesController extends HTMLController {
     }
 
     const partials: PartialQuery = []
-    if (connections && partialQuery && partialQuery[0] === 'on') {
+    if (connections && partialQuery) {
+      // group a flat array of 3 elements into array of objects -> [{ connectionId, productId, quantity }]
+      const chunk: number = 3
       connections?.map((_, i) => {
-        if (i % 3 === 0) {
-          const [connectionId, productId, quantity] = connections.slice(i, i + 3)
-          partials.push({
-            connectionId,
-            productId,
-            quantity: parseInt(quantity),
-          })
+        if (i % chunk === 0) {
+          const [connectionId, productId, quantity] = connections.slice(i, i + chunk)
+          partials.push({ connectionId, productId, quantity: parseInt(quantity) })
         }
       }, [])
     }
