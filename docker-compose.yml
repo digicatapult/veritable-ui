@@ -19,7 +19,7 @@ services:
 
   # -------------------- alice -------------------------------#
   postgres-veritable-ui-alice:
-    image: postgres:16.4-alpine
+    image: postgres:17.0-alpine
     container_name: postgres-veritable-ui-alice
     ports:
       - 5432:5432
@@ -31,7 +31,7 @@ services:
       - POSTGRES_DB=veritable-ui
   postgres-veritable-cloudagent-alice:
     container_name: postgres-veritable-cloudagent-alice
-    image: postgres:16.4-alpine
+    image: postgres:17.0-alpine
     restart: on-failure
     volumes:
       - postgres-veritable-cloudagent-alice:/var/lib/postgresql/data
@@ -104,7 +104,7 @@ services:
       - SMTP_PORT=25
       - SMTP_USER=
   postgres-veritable-ui-bob:
-    image: postgres:16.4-alpine
+    image: postgres:17.0-alpine
     container_name: postgres-veritable-ui-bob
     ports:
       - 5433:5432
@@ -116,7 +116,7 @@ services:
       - POSTGRES_DB=veritable-ui
   postgres-veritable-cloudagent-bob:
     container_name: postgres-veritable-cloudagent-bob
-    image: postgres:16.4-alpine
+    image: postgres:17.0-alpine
     restart: on-failure
     volumes:
       - postgres-veritable-cloudagent-bob:/var/lib/postgresql/data
