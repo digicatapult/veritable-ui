@@ -4,7 +4,7 @@ import { singleton } from 'tsyringe'
 
 import pino from 'pino'
 import { InvalidInputError, NotFoundError } from '../../errors.js'
-import { type PartialQuery } from '../../models/arrays.js'
+import { PartialQueryPayload, type PartialQuery } from '../../models/arrays.js'
 import Database from '../../models/db/index.js'
 import { ConnectionRow, QueryRow, Where } from '../../models/db/types.js'
 import { type UUID } from '../../models/strings.js'
@@ -327,10 +327,12 @@ export class QueriesController extends HTMLController {
       emissions?: string
       partialQuery?: 'on'[]
       partialSelect?: 'on'[]
-      connections?: string[]
+      connectionIds?: string[]
+      productIds?: string[]
+      quantity?: string[]
     }
   ): Promise<HTML> {
-    const { action, companyId, emissions, partialQuery, connections } = body
+    const { action, companyId, emissions, partialQuery, partialSelect, ...partial } = body
     req.log.info('query page requested %j', { body })
 
     const [connection]: ConnectionRow[] = await this.db.get('connection', { id: companyId, status: 'verified_both' }, [
@@ -350,24 +352,32 @@ export class QueriesController extends HTMLController {
       throw new InvalidInputError(`Missing response_id to respond to.`)
     }
 
-    const partials: PartialQuery = []
-    if (connections && partialQuery) {
-      // group a flat array of 3 elements into array of objects -> [{ connectionId, productId, quantity }]
-      const chunk: number = 3
-      connections?.map((_, i) => {
-        if (i % chunk === 0) {
-          const [connectionId, productId, quantity] = connections.slice(i, i + chunk)
-          partials.push({ connectionId, productId, quantity: parseInt(quantity) })
-        }
-      }, [])
+    const partialConnections: PartialQuery[] = []
+    if (partial.connectionIds && partial.productIds && partial.quantity && partialQuery) {
+      req.log.info('processing partial query %j', partial)
+      const size: number = this.validatePartialQuery(partial)
+      req.log.debug('partial query has been validated %j', { partial, size })
+
+      for (let i = 0; i < size; i++) {
+        partialConnections.push({
+          connectionId: partial.connectionIds[i],
+          productId: partial.productIds[i],
+          quantity: parseInt(partial.quantity[i]),
+        })
+        req.log.info('partial connection has been formatted %j', partialConnections[i])
+      }
+
+      req.log.debug('formatted partial connections %j', partialConnections)
     }
 
     const query: { emissions: string; queryIdForResponse: UUID } = {
-      emissions: (emissions as string) || partials.reduce((out, next) => (out += next.quantity), 0).toString(),
+      emissions:
+        (emissions as string) ||
+        partialConnections.reduce((out: number, next: PartialQuery) => (out += next.quantity), 0).toString(),
       queryIdForResponse: queryRow.response_id,
     }
 
-    req.log.debug('query for DRPC response %j', query)
+    req.log.debug('query for DRPC response with aggregated emissions %j', query)
     //send a drpc message with response
     let rpcResponse: DrpcResponse
     try {
@@ -446,6 +456,15 @@ export class QueriesController extends HTMLController {
         ...query,
       })
     )
+  }
+
+  private validatePartialQuery({ connectionIds: a, productIds: b, quantity: c }: PartialQueryPayload): number {
+    if (!a || !b || !c) throw new InvalidInputError('empty arrays of data provided')
+    if (a.length !== b.length || a.length !== c.length || b.length !== c.length) {
+      throw new InvalidInputError('partial query validation failed, invalid data')
+    }
+
+    return a.length
   }
 
   private async handleError(
