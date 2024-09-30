@@ -1,6 +1,6 @@
 import express from 'express'
 import { Get, Hidden, Request, Route, SuccessResponse } from 'tsoa'
-import { injectable, singleton } from 'tsyringe'
+import { injectable } from 'tsyringe'
 
 import { Env } from '../../env.js'
 
@@ -12,7 +12,7 @@ type Response = {
   }
 }
 
-@singleton()
+@injectable()
 @injectable()
 @Route('/health')
 @Hidden()

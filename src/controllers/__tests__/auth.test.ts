@@ -4,7 +4,7 @@ import { expect } from 'chai'
 import { describe, it } from 'mocha'
 import sinon from 'sinon'
 
-import { mockEnv, mockLogger } from './helpers.js'
+import { mockEnv, mockEnvLocalhost, mockLogger } from './helpers.js'
 
 import { ForbiddenError, InternalError } from '../../errors.js'
 import IDPService from '../../models/idpService.js'
@@ -78,6 +78,25 @@ describe('AuthController', () => {
       })
     })
 
+    it('should set nonce cookie correctly', async () => {
+      const controller = new AuthController(mockEnvLocalhost, idpMock)
+      const req = mkRequestMock()
+
+      await controller.login(req as unknown as express.Request, '/example')
+
+      const stub = req.res.cookie
+      expect(stub.firstCall.args[0]).to.match(/^VERITABLE_NONCE\.[a-zA-Z0-9_-]+/)
+      expect(typeof stub.firstCall.args[1]).to.equal('string')
+      expect(stub.firstCall.args[2]).to.deep.equal({
+        sameSite: true,
+        maxAge: 600000,
+        httpOnly: true,
+        signed: true,
+        secure: false,
+        path: '/auth/redirect',
+      })
+    })
+
     it('should set redirect cookie correctly', async () => {
       const controller = new AuthController(mockEnv, idpMock)
       const req = mkRequestMock()
@@ -93,6 +112,25 @@ describe('AuthController', () => {
         httpOnly: true,
         signed: true,
         secure: true,
+        path: '/auth/redirect',
+      })
+    })
+
+    it('should set redirect cookie correctly if localhost', async () => {
+      const controller = new AuthController(mockEnvLocalhost, idpMock)
+      const req = mkRequestMock()
+
+      await controller.login(req as unknown as express.Request, '/example')
+
+      const stub = req.res.cookie
+      expect(stub.secondCall.args[0]).to.match(/^VERITABLE_REDIRECT\.[a-zA-Z0-9_-]+/)
+      expect(stub.secondCall.args[1]).to.equal('/example')
+      expect(stub.secondCall.args[2]).to.deep.equal({
+        sameSite: true,
+        maxAge: 600000,
+        httpOnly: true,
+        signed: true,
+        secure: false,
         path: '/auth/redirect',
       })
     })
@@ -137,9 +175,33 @@ describe('AuthController', () => {
       expect(redirectUrl.pathname).to.equal('/auth')
       expect(redirectUrl.searchParams.get('response_type')).to.equal('code')
       expect(redirectUrl.searchParams.get('client_id')).to.equal('veritable-ui')
-      expect(redirectUrl.searchParams.get('redirect_uri')).to.equal('http://www.example.com/auth/redirect')
+      expect(redirectUrl.searchParams.get('redirect_uri')).to.equal('http://www.example.com/auth/callback')
       expect(redirectUrl.searchParams.get('state')).to.equal(`${prefix}.${nonce}`)
       expect(redirectUrl.searchParams.get('scope')).to.equal('openid')
+    })
+  })
+
+  describe('callback', () => {
+    it('should set refresh header to go to redirect', async () => {
+      const controller = new AuthController(mockEnv, idpMock)
+      const req = mkRequestMock()
+
+      await controller.callback(req as unknown as express.Request, 'state', 'code', 'error')
+
+      expect(controller.getStatus()).to.equal(200)
+      expect(controller.getHeader('Refresh')).to.equal(
+        '0; url=http://www.example.com/auth/redirect?state=state&code=code&error=error'
+      )
+    })
+
+    it('should not set optional query params on redirect if missing', async () => {
+      const controller = new AuthController(mockEnv, idpMock)
+      const req = mkRequestMock()
+
+      await controller.callback(req as unknown as express.Request, 'state')
+
+      expect(controller.getStatus()).to.equal(200)
+      expect(controller.getHeader('Refresh')).to.equal('0; url=http://www.example.com/auth/redirect?state=state')
     })
   })
 

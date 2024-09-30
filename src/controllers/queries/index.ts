@@ -1,6 +1,6 @@
 import express from 'express'
 import { Body, Get, Path, Post, Produces, Query, Request, Route, Security, SuccessResponse } from 'tsoa'
-import { singleton } from 'tsyringe'
+import { injectable } from 'tsyringe'
 
 import pino from 'pino'
 import { InvalidInputError, NotFoundError } from '../../errors.js'
@@ -15,7 +15,7 @@ import Scope3CarbonConsumptionTemplates from '../../views/queries/requestCo2scop
 import Scope3CarbonConsumptionResponseTemplates from '../../views/queries/responseCo2scope3.js'
 import { HTML, HTMLController } from '../HTMLController.js'
 
-@singleton()
+@injectable()
 @Security('oauth2')
 @Route('/queries')
 @Produces('text/html')
