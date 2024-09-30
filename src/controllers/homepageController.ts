@@ -1,11 +1,10 @@
 import { Get, Produces, Request, Route, Security, SuccessResponse } from 'tsoa'
-import { injectable, singleton } from 'tsyringe'
+import { injectable } from 'tsyringe'
 
 import express from 'express'
 import HomepageTemplates from '../views/homepage/homepage.js'
 import { HTML, HTMLController } from './HTMLController.js'
 
-@singleton()
 @injectable()
 @Security('oauth2')
 @Route('/')

@@ -1,7 +1,7 @@
 import express from 'express'
 import { pino } from 'pino'
 import { Body, Get, Path, Post, Produces, Query, Request, Route, Security, SuccessResponse } from 'tsoa'
-import { singleton } from 'tsyringe'
+import { injectable } from 'tsyringe'
 
 import { pinCodeRegex, type PIN_CODE, type UUID } from '../../models/strings.js'
 import ConnectionTemplates from '../../views/connection/connection.js'
@@ -16,7 +16,7 @@ import { PinSubmissionTemplates } from '../../views/newConnection/pinSubmission.
 import { HTML, HTMLController } from '../HTMLController.js'
 import { checkDb } from './helpers.js'
 
-@singleton()
+@injectable()
 @Security('oauth2')
 @Route('/connection')
 @Produces('text/html')

@@ -1,6 +1,6 @@
 import express from 'express'
 import { Get, Hidden, Produces, Request, Route, Security, SuccessResponse } from 'tsoa'
-import { singleton } from 'tsyringe'
+import { injectable } from 'tsyringe'
 
 import pino from 'pino'
 import { Env } from '../../env.js'
@@ -9,7 +9,7 @@ import Database from '../../models/db/index.js'
 import type { TABLE } from '../../models/db/types.js'
 import VeritableCloudagent, { Connection, Credential } from '../../models/veritableCloudagent.js'
 
-@singleton()
+@injectable()
 @Security('oauth2')
 @Route('/reset')
 @Hidden()
