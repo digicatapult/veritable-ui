@@ -1,7 +1,7 @@
 import nodemailer, { SendMailOptions } from 'nodemailer'
-import { inject, injectable, singleton } from 'tsyringe'
+import { container, inject, injectable, singleton } from 'tsyringe'
 
-import { Env } from '../../env.js'
+import { Env, SmtpEnv } from '../../env.js'
 import { Logger, type ILogger } from '../../logger.js'
 
 import Templates, { templateHandlers, templateName, templateParams } from './templates/index.js'
@@ -52,14 +52,15 @@ export default class EmailService {
     }.bind(transport)
   }
   private buildSmtpTransport(): typeof this.transportSendMail {
+    const smtpTransportConfig = container.resolve(SmtpEnv)
     const transport = nodemailer.createTransport({
-      host: this.env.get('SMTP_HOST'),
-      port: parseInt(this.env.get('SMTP_PORT'), 10),
-      secure: this.env.get('SMTP_SECURE'), // true for 465, false for other ports
+      host: smtpTransportConfig.get('SMTP_HOST'),
+      port: parseInt(smtpTransportConfig.get('SMTP_PORT'), 10),
+      secure: smtpTransportConfig.get('SMTP_SECURE'), // true for 465, false for other ports
     })
     const logger = this.logger
     logger.debug(
-      `Initialising with SMTP_HOST: ${this.env.get('SMTP_HOST')}, SMTP_PORT: ${this.env.get('SMTP_PORT')}, SMTP_SECURE:${this.env.get('SMTP_SECURE')}`
+      `Initialising with SMTP_HOST: ${smtpTransportConfig.get('SMTP_HOST')}, SMTP_PORT: ${smtpTransportConfig.get('SMTP_PORT')}, SMTP_SECURE:${smtpTransportConfig.get('SMTP_SECURE')}`
     )
     // Verify connection
     transport.verify(function (error, success) {

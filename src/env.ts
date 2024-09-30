@@ -2,6 +2,12 @@ import dotenv from 'dotenv'
 import * as envalid from 'envalid'
 import { singleton } from 'tsyringe'
 
+if (process.env.NODE_ENV === 'test') {
+  dotenv.config({ path: 'test/test.env' })
+} else {
+  dotenv.config()
+}
+
 const strArrayValidator = envalid.makeValidator((input) => {
   const arr = input
     .split(',')
@@ -54,7 +60,7 @@ const pinSecretValidator = envalid.makeValidator((input) => {
     Dave: #00bf63 [green]
     Eve: #5e17eb [purple]
   */
-export const envConfig = {
+const defaultConfig = {
   PORT: envalid.port({ default: 3000 }),
   LOG_LEVEL: envalid.str({ default: 'info', devDefault: 'debug' }),
   DB_HOST: envalid.host({ devDefault: 'localhost' }),
@@ -88,11 +94,6 @@ export const envConfig = {
   EMAIL_TRANSPORT: envalid.str({ default: 'STREAM', choices: ['STREAM', 'SMTP_EMAIL'] }),
   EMAIL_FROM_ADDRESS: envalid.email({ default: 'hello@veritable.com' }),
   EMAIL_ADMIN_ADDRESS: envalid.email({ default: 'admin@veritable.com' }),
-  SMTP_HOST: envalid.str({ devDefault: 'localhost' }),
-  SMTP_PORT: envalid.str({ devDefault: '2525' }),
-  SMTP_SECURE: envalid.bool({ devDefault: false, default: true }), // smtp4dev does not use TLS by default so false in dev mode
-  SMTP_USER: envalid.str({ devDefault: '' }), // no auth required by default for smtp4dev
-  SMTP_PASS: envalid.str({ devDefault: '' }),
   CLOUDAGENT_ADMIN_ORIGIN: envalid.url({ devDefault: 'http://localhost:3100' }),
   CLOUDAGENT_ADMIN_WS_ORIGIN: envalid.url({ devDefault: 'ws://localhost:3100' }),
   INVITATION_PIN_SECRET: pinSecretValidator({ devDefault: Buffer.from('secret', 'utf8') }),
@@ -104,28 +105,76 @@ export const envConfig = {
   DEMO_MODE: envalid.bool({ devDefault: true, default: false }),
 }
 
-export type ENV_CONFIG = typeof envConfig
-export type ENV_KEYS = keyof ENV_CONFIG
-
-export interface PartialEnv<KS extends ENV_KEYS = ENV_KEYS> {
-  get<K extends KS>(key: K): Pick<envalid.CleanedEnv<typeof envConfig>, KS>[K]
+type DEFAULT_CONFIG = typeof defaultConfig
+type DEFAULT_KEYS = keyof DEFAULT_CONFIG
+export interface PartialEnv<KS extends DEFAULT_KEYS = DEFAULT_KEYS> {
+  get<K extends KS>(key: K): Pick<envalid.CleanedEnv<DEFAULT_CONFIG>, KS>[K]
 }
 
 @singleton()
-export class Env<KS extends ENV_KEYS = ENV_KEYS> implements PartialEnv<KS> {
-  private vals: Pick<envalid.CleanedEnv<typeof envConfig>, KS>
+export class Env<KS extends DEFAULT_KEYS = DEFAULT_KEYS> implements PartialEnv<KS> {
+  private vals: Pick<envalid.CleanedEnv<DEFAULT_CONFIG>, KS>
 
   constructor() {
-    if (process.env.NODE_ENV === 'test') {
-      dotenv.config({ path: 'test/test.env' })
-    } else {
-      dotenv.config()
-    }
-
-    this.vals = envalid.cleanEnv(process.env, envConfig)
+    this.vals = envalid.cleanEnv(process.env, defaultConfig)
   }
 
   get<K extends KS>(key: K) {
+    return this.vals[key]
+  }
+}
+
+type INIT_ENV_KEYS =
+  | 'CLOUDAGENT_ADMIN_ORIGIN'
+  | 'LOG_LEVEL'
+  | 'ISSUANCE_DID_POLICY'
+  | 'ISSUANCE_SCHEMA_POLICY'
+  | 'ISSUANCE_CRED_DEF_POLICY'
+
+@singleton()
+export class InitEnv implements PartialEnv<INIT_ENV_KEYS> {
+  private values: Pick<envalid.CleanedEnv<DEFAULT_CONFIG>, INIT_ENV_KEYS>
+
+  constructor() {
+    this.values = envalid.cleanEnv(process.env, {
+      CLOUDAGENT_ADMIN_ORIGIN: defaultConfig.CLOUDAGENT_ADMIN_ORIGIN,
+      LOG_LEVEL: defaultConfig.LOG_LEVEL,
+      ISSUANCE_DID_POLICY: defaultConfig.ISSUANCE_DID_POLICY,
+      ISSUANCE_SCHEMA_POLICY: defaultConfig.ISSUANCE_SCHEMA_POLICY,
+      ISSUANCE_CRED_DEF_POLICY: defaultConfig.ISSUANCE_CRED_DEF_POLICY,
+    })
+  }
+
+  get<K extends INIT_ENV_KEYS>(key: K) {
+    return this.values[key]
+  }
+}
+
+const smtpConfig = {
+  SMTP_HOST: envalid.str({ devDefault: 'localhost' }),
+  SMTP_PORT: envalid.str({ devDefault: '2525' }),
+  SMTP_SECURE: envalid.bool({ devDefault: false, default: true }), // smtp4dev does not use TLS by default so false in dev mode
+  SMTP_USER: envalid.str({ devDefault: '' }), // no auth required by default for smtp4dev
+  SMTP_PASS: envalid.str({ devDefault: '' }),
+}
+
+type SMTP_CONFIG = typeof smtpConfig
+type SMTP_KEYS = keyof SMTP_CONFIG
+@singleton()
+export class SmtpEnv {
+  private vals: Pick<envalid.CleanedEnv<SMTP_CONFIG>, SMTP_KEYS>
+
+  constructor() {
+    this.vals = envalid.cleanEnv(process.env, {
+      SMTP_HOST: smtpConfig.SMTP_HOST,
+      SMTP_PORT: smtpConfig.SMTP_PORT,
+      SMTP_SECURE: smtpConfig.SMTP_SECURE,
+      SMTP_USER: smtpConfig.SMTP_USER,
+      SMTP_PASS: smtpConfig.SMTP_PASS,
+    })
+  }
+
+  get<K extends SMTP_KEYS>(key: K) {
     return this.vals[key]
   }
 }

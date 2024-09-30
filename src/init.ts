@@ -1,45 +1,14 @@
 import 'reflect-metadata'
 
-import dotenv from 'dotenv'
-import envalid from 'envalid'
 import { pino } from 'pino'
+import { container } from 'tsyringe'
 
-import { PartialEnv, envConfig } from './env.js'
+import { InitEnv } from './env.js'
 import { type ILogger } from './logger.js'
 import { CredentialSchema } from './models/credentialSchema.js'
 import VeritableCloudagent from './models/veritableCloudagent.js'
 
-type InitConfigKeys =
-  | 'CLOUDAGENT_ADMIN_ORIGIN'
-  | 'LOG_LEVEL'
-  | 'ISSUANCE_DID_POLICY'
-  | 'ISSUANCE_SCHEMA_POLICY'
-  | 'ISSUANCE_CRED_DEF_POLICY'
-
-class InitEnv implements PartialEnv<InitConfigKeys> {
-  private values: Pick<envalid.CleanedEnv<typeof envConfig>, InitConfigKeys>
-
-  constructor() {
-    if (process.env.NODE_ENV === 'test') {
-      dotenv.config({ path: 'test/test.env' })
-    } else {
-      dotenv.config()
-    }
-
-    this.values = envalid.cleanEnv(process.env, {
-      CLOUDAGENT_ADMIN_ORIGIN: envConfig.CLOUDAGENT_ADMIN_ORIGIN,
-      LOG_LEVEL: envConfig.LOG_LEVEL,
-      ISSUANCE_DID_POLICY: envConfig.ISSUANCE_DID_POLICY,
-      ISSUANCE_SCHEMA_POLICY: envConfig.ISSUANCE_SCHEMA_POLICY,
-      ISSUANCE_CRED_DEF_POLICY: envConfig.ISSUANCE_CRED_DEF_POLICY,
-    })
-  }
-
-  get<K extends InitConfigKeys>(key: K) {
-    return this.values[key]
-  }
-}
-const env = new InitEnv()
+const env = container.resolve(InitEnv)
 
 const logger: ILogger = pino(
   {
