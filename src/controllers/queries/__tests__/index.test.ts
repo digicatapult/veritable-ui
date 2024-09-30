@@ -214,8 +214,6 @@ describe('QueriesController', () => {
             expect(err.toString()).to.be.equal('Error: partial query validation failed, invalid data')
           }
         })
-
-        it('throws if')
       })
 
       it('sets a partial query status to resolved and renders response template', async () => {
