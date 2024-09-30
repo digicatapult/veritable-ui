@@ -116,11 +116,8 @@ jobs:
         uses: kibertoad/wait-action@1.0.1
         with:
           time: '30s'
-      - name: Install Playwright browsers (Chromium and Firefox only)
-        run: |
-          npx playwright install chromium
-          npx playwright install firefox
-          npx playwright install --with-deps
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps
       - name: Run Playwright tests
         run: npm run test:playwright
       - uses: actions/upload-artifact@v4

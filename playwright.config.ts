@@ -37,9 +37,9 @@ export default defineConfig({
     },
 
     // Webkit disabled for now due to a bug
-    // {
-    //   name: 'webkit',
-    //   use: { ...devices['Desktop Safari'] },
-    // },
+    {
+      name: 'webkit',
+      use: { ...devices['Desktop Safari'] },
+    },
   ],
 })
