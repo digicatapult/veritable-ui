@@ -122,6 +122,14 @@ test.describe('Connection from Alice to Bob', () => {
       await page.fill('#new-connection-invite-input-pin', pinForBob)
       await page.click('button[type="submit"][name="action"][value="submitPinCode"]')
 
+      await page.waitForURL('**/pin-submission')
+      await page.waitForSelector('#new-connection-invite-input')
+      const confirmationElement = await page.$('#new-connection-invite-input')
+      expect(confirmationElement).not.toBeNull()
+      const confirmationText = await confirmationElement?.textContent()
+      expect(confirmationText).toContain('PIN Code has been submitted for DIGITAL CATAPULT company ID.')
+      await page.waitForSelector('a[href="/connection"]')
+      await page.click('a[href="/connection"]')
       await page.waitForURL('**/connection')
     })
 
