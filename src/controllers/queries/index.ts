@@ -329,7 +329,7 @@ export class QueriesController extends HTMLController {
       partialSelect?: 'on'[]
       connectionIds?: string[]
       productIds?: string[]
-      quantity?: string[]
+      quantities?: string[]
     }
   ): Promise<HTML> {
     const { action, companyId, emissions, partialQuery, partialSelect, ...partial } = body
@@ -353,7 +353,7 @@ export class QueriesController extends HTMLController {
     }
 
     const partialConnections: PartialQuery[] = []
-    if (partial.connectionIds && partial.productIds && partial.quantity && partialQuery) {
+    if (partial.connectionIds && partial.productIds && partial.quantities && partialQuery) {
       req.log.info('processing partial query %j', partial)
       const size: number = this.validatePartialQuery(partial)
       req.log.debug('partial query has been validated %j', { partial, size })
@@ -362,7 +362,7 @@ export class QueriesController extends HTMLController {
         partialConnections.push({
           connectionId: partial.connectionIds[i],
           productId: partial.productIds[i],
-          quantity: parseInt(partial.quantity[i]),
+          quantity: parseInt(partial.quantities[i]),
         })
         req.log.info('partial connection has been formatted %j', partialConnections[i])
       }

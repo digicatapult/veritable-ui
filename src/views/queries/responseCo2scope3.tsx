@@ -284,7 +284,7 @@ export default class Scope3CarbonConsumptionResponseTemplates {
         </td>
         <td>
           <input
-            name="quantity"
+            name="quantities"
             placeholder="Quantity"
             class={`input-basic ${checked ? '' : 'disabled'}`}
             type="number"
