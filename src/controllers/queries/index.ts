@@ -353,7 +353,10 @@ export class QueriesController extends HTMLController {
     }
 
     const partialConnections: PartialQuery[] = []
-    if (partial.connectionIds && partial.productIds && partial.quantities && partialQuery) {
+    if (partial && partialQuery) {
+      if (!partial.connectionIds || !partial.productIds || !partial.quantities) {
+        throw new InvalidInputError('missing a property in the request body')
+      }
       req.log.info('processing partial query %j', partial)
       const size: number = this.validatePartialQuery(partial)
       req.log.debug('partial query has been validated %j', { partial, size })
@@ -458,7 +461,7 @@ export class QueriesController extends HTMLController {
     )
   }
 
-  private validatePartialQuery({ connectionIds: a, productIds: b, quantity: c }: PartialQueryPayload): number {
+  private validatePartialQuery({ connectionIds: a, productIds: b, quantities: c }: PartialQueryPayload): number {
     if (!a || !b || !c) throw new InvalidInputError('empty arrays of data provided')
     if (a.length !== b.length || a.length !== c.length || b.length !== c.length) {
       throw new InvalidInputError('partial query validation failed, invalid data')

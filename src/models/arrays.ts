@@ -2,5 +2,5 @@ export type PartialQuery = { connectionId: string; productId: string; quantity: 
 export type PartialQueryPayload = {
   connectionIds?: string[]
   productIds?: string[]
-  quantity?: string[]
+  quantities?: string[]
 }
