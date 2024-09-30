@@ -48,6 +48,7 @@ describe('companyHouseEntity', () => {
       const environment = new Env()
       const companyHouseObject = new CompanyHouseEntity(environment)
       const response = await companyHouseObject.localCompanyHouseProfile()
+
       expect(response).deep.equal(successResponse)
     })
   })

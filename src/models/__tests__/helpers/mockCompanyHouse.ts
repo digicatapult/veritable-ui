@@ -4,7 +4,9 @@ import { Env } from '../../../env.js'
 import {
   invalidCompanyNumber,
   noCompanyNumber,
+  secondaryCompanyNumber,
   successResponse,
+  successResponse2,
   validCompanyNumber,
 } from '../fixtures/companyHouseFixtures.js'
 
@@ -25,6 +27,14 @@ export function withCompanyHouseMock() {
         method: 'GET',
       })
       .reply(200, successResponse)
+      .persist()
+
+    client
+      .intercept({
+        path: `/company/${secondaryCompanyNumber}`,
+        method: 'GET',
+      })
+      .reply(200, successResponse2)
       .persist()
 
     client
