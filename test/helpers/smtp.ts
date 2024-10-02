@@ -17,7 +17,7 @@ export async function clearSmtp4devMessages() {
   return new Promise((resolve, reject) => {
     const options = {
       hostname: 'localhost',
-      port: 5000,
+      port: 5001,
       path: '/api/messages/*', // Delete all messages
       method: 'DELETE',
       headers: {
