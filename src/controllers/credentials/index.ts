@@ -23,15 +23,21 @@ export class CredentialsController extends HTMLController {
   public async listCredentials(@Request() req: express.Request, @Query() search: string = ''): Promise<HTML> {
     const credentials: Credential[] = await this.cloudagent.getCredentials()
     req.log.info('retrieved credentials from a cloudagent %j', credentials)
+
     const combined = credentials
-      .map((cred: Credential) => ({
-        ...cred,
-        updated_at: new Date(),
-        company_name: cred.credentialAttributes[0].name === 'company_name' && cred.credentialAttributes[0].value,
-        company_number: cred.credentialAttributes[0].name === 'company_number' && cred.credentialAttributes[1].value,
-      }))
+      .map((cred: Credential) => {
+        if (cred.credentialAttributes) {
+          return {
+            ...cred,
+            updated_at: new Date(),
+            company_name: cred.credentialAttributes[0].name === 'company_name' && cred.credentialAttributes[0].value,
+            company_number:
+              cred.credentialAttributes[1].name === 'company_number' && cred.credentialAttributes[1].value,
+          }
+        }
+      })
       .filter((cred) =>
-        search !== '' ? cred.credentialAttributes[0].value.toLowerCase().includes(search.toLowerCase()) : true
+        search !== '' ? cred?.company_name.toString().toLowerCase().includes(search.toLowerCase()) : true
       )
 
     req.log.info('%j', combined, credentials)
