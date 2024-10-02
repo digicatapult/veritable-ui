@@ -74,7 +74,7 @@ export const credentialParser = z.object({
   id: z.string(),
   connectionId: z.string(),
   protocolVersion: z.string(),
-  credentialAttributes: z.array(credentialAttributeParser),
+  credentialAttributes: z.array(credentialAttributeParser).optional(),
   role: z.union([z.literal('issuer'), z.literal('holder')]),
   state: z.union([
     z.literal('proposal-sent'),
