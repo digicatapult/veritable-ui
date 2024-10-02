@@ -46,6 +46,6 @@ export class CredentialsController extends HTMLController {
     }
 
     this.setHeader('HX-Replace-Url', search ? `/credentials?search=${encodeURIComponent(search)}` : `/credentials`)
-    return this.html(this.credentialsTemplates.listPage(combined, search?.toString()))
+    return this.html(this.credentialsTemplates.listPage(combined as Credential[], search?.toString()))
   }
 }
