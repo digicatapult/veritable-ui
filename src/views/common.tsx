@@ -10,7 +10,7 @@ type HeaderLink = { name: string; url: string }
 
 type PageProps = {
   title: string
-  activePage: 'categories' | 'queries' | 'connections' | 'certifications' | 'settings'
+  activePage: 'categories' | 'queries' | 'connections' | 'certifications' | 'settings' | 'credentials'
   headerLinks: HeaderLink[]
   heading?: string
   stylesheets?: string[]
@@ -82,10 +82,9 @@ const SideBar = ({ activePage }: { activePage: PageProps['activePage'] }): JSX.E
         style={{ ['--background-image' as string]: "url('/public/images/query.svg')" }}
       />
       <a
-        title="certification"
-        href="#"
-        data-active={activePage === 'certifications'}
-        class="disabled"
+        title="credentials"
+        href="/credentials"
+        data-active={activePage === 'credentials'}
         style={{ ['--background-image' as string]: "url('/public/images/certification.svg')" }}
       />
       <a
