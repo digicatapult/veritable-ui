@@ -21,7 +21,7 @@ describe('CredentialsController', () => {
       const { args } = withConnectionMocks()
       const controller = new CredentialsController(...args)
       const result = await controller.listCredentials(req).then(toHTMLString)
-      expect(result).to.equal('listCredentials_issuer-done-DIGITAL CATAPULT_listCredentials')
+      expect(result).to.equal('listCredentials_issuer-done-v2_listCredentials')
     })
 
     it('pulls credentials from a cloudagent', async () => {
@@ -39,7 +39,7 @@ describe('CredentialsController', () => {
       cloudagentMock.getCredentials.resolves(AliceCredentials)
       const res = await controller.listCredentials(req, '').then(toHTMLString)
 
-      expect(res).to.equal('listCredentials_issuer-done-DIGITAL CATAPULT_listCredentials')
+      expect(res).to.equal('listCredentials_issuer-done-v2_listCredentials')
     })
 
     it('returns credentials list', async () => {
@@ -48,7 +48,7 @@ describe('CredentialsController', () => {
       cloudagentMock.getCredentials.resolves(BobCredentials)
       const res = await controller.listCredentials(req, '').then(toHTMLString)
 
-      expect(res).to.equal('listCredentials_issuer-done-CARE ONUS LTD_listCredentials')
+      expect(res).to.equal('listCredentials_issuer-done-v2_listCredentials')
     })
   })
 })

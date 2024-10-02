@@ -10,7 +10,7 @@ function templateFake(templateName: string, ...args: unknown[]) {
 export const withConnectionMocks = () => {
   const templateMock = {
     listPage: (creds: Credential[]) =>
-      templateFake('listCredentials', creds[0].role, creds[0].state, creds[0].credentialAttributes[0].value),
+      templateFake('listCredentials', creds[0].role, creds[0].state, creds[0].protocolVersion),
   }
 
   const cloudagentMock = {

@@ -30,7 +30,7 @@ export class CredentialsController extends HTMLController {
           return {
             ...cred,
             updated_at: new Date(),
-            company_name: cred.credentialAttributes[0].name === 'company_name' && cred.credentialAttributes[0].value,
+            company_name: cred?.credentialAttributes[0].name === 'company_name' && cred.credentialAttributes[0].value,
             company_number:
               cred.credentialAttributes[1].name === 'company_number' && cred.credentialAttributes[1].value,
           }
@@ -46,6 +46,6 @@ export class CredentialsController extends HTMLController {
     }
 
     this.setHeader('HX-Replace-Url', search ? `/credentials?search=${encodeURIComponent(search)}` : `/credentials`)
-    return this.html(this.credentialsTemplates.listPage(combined as Credential[], search?.toString()))
+    return this.html(this.credentialsTemplates.listPage(combined as Credential[], search))
   }
 }

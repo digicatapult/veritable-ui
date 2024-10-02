@@ -1,54 +1,11 @@
 import Html from '@kitajs/html'
 import { singleton } from 'tsyringe'
 import { ConnectionRow } from '../../models/db/types.js'
-import { LinkButton, Page } from '../common.js'
-
-type ConnectionStatus = 'pending' | 'unverified' | 'verified_them' | 'verified_us' | 'verified_both' | 'disconnected'
+import { LinkButton, Page, statusToClass } from '../common.js'
 
 @singleton()
 export default class ConnectionTemplates {
   constructor() {}
-
-  private statusToClass = (status: string | ConnectionStatus): JSX.Element => {
-    switch (status) {
-      case 'pending':
-        return (
-          <div class="list-item-status" data-status="error">
-            Pending
-          </div>
-        )
-      case 'verified_them':
-      case 'verified_us':
-        return (
-          <div class="list-item-status" data-status="warning">
-            {status == 'verified_them'
-              ? 'Pending Your Verification'
-              : status == 'verified_us'
-                ? 'Pending Their Verification'
-                : 'unknown'}
-          </div>
-        )
-      case 'disconnected':
-      case 'unverified':
-        return (
-          <div class="list-item-status" data-status="disabled">
-            {status == 'disconnected' ? 'Disconnected' : 'Unverified'}
-          </div>
-        )
-      case 'verified_both':
-        return (
-          <div class="list-item-status" data-status="success">
-            Verified - Established Connection
-          </div>
-        )
-      default:
-        return (
-          <div class="list-item-status" data-status="error">
-            unknown
-          </div>
-        )
-    }
-  }
 
   public listPage = (connections: ConnectionRow[], search: string = '') => {
     return (
@@ -124,7 +81,7 @@ export default class ConnectionTemplates {
                   return (
                     <tr>
                       <td>{Html.escapeHtml(company_name)}</td>
-                      <td>{this.statusToClass(status)}</td>
+                      <td>{statusToClass(status)}</td>
                       <td>
                         <LinkButton
                           icon='url("/public/images/arrow-right-circle.svg")'

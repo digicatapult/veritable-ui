@@ -1,7 +1,7 @@
 import Html from '@kitajs/html'
 import { singleton } from 'tsyringe'
 import { Credential } from '../../models/veritableCloudagent.js'
-import { LinkButton, Page } from '../common.js'
+import { ConnectionStatus, LinkButton, Page, statusToClass } from '../common.js'
 
 type State =
   | 'pending'
@@ -16,42 +16,11 @@ type State =
   | 'credential-received'
   | 'done'
   | 'abandoned'
-
 type Role = 'issuer' | 'holder'
-export interface ICredentials extends Credential {
-  id: string
-  connectionId: string
-  company_name: string
-  credential_attributes: { name: string; value: string }[]
-  updated_at: Date
-}
 
 @singleton()
 export default class CredentialListTemplates {
   constructor() {}
-
-  private statusToClass = (state: State): JSX.Element => {
-    switch (state) {
-      case 'pending':
-        return (
-          <div class="list-item-status" data-status="warning">
-            Pending
-          </div>
-        )
-      case 'done':
-        return (
-          <div class="list-item-status" data-status="success">
-            Resolved
-          </div>
-        )
-      default:
-        return (
-          <div class="list-item-status" data-status="error">
-            unknown
-          </div>
-        )
-    }
-  }
 
   private roleToDirection = (role: Role): JSX.Element => {
     switch (role) {
@@ -132,30 +101,31 @@ export default class CredentialListTemplates {
                   <td>No Credentials for that search. Try again or add a new credential</td>
                 </tr>
               ) : (
-                credentials.map((credential) => (
-                  <tr>
-                    <td>
-                      {Html.escapeHtml(credential?.credentialAttributes && credential.credentialAttributes[0].value)}
-                    </td>
-                    <td>{Html.escapeHtml('Supplier Credential')}</td>
-                    <td>{this.roleToDirection(credential.role)}</td>
-                    <td>{this.statusToClass(credential.state)}</td>
-                    <td>
-                      <LinkButton
-                        icon='url("/public/images/dot-icon.svg")'
-                        style="outlined"
-                        disabled={true}
-                        text={this.buttonText(credential.state)}
-                        href={
-                          // Left as a reference so not sure if we have a page/pages for buttons
-                          credential.state === 'done' && credential.role == 'issuer'
-                            ? `/credentials/issuer/${credential.id}`
-                            : `/credential/holder/${credential.id}`
-                        }
-                      />
-                    </td>
-                  </tr>
-                ))
+                credentials.map((cred) => {
+                  if (!cred || !cred.credentialAttributes) throw new Error('TODO update error')
+                  return (
+                    <tr>
+                      <td>{Html.escapeHtml(cred.credentialAttributes[0].value)}</td>
+                      <td>{Html.escapeHtml('Supplier credentials')}</td>
+                      <td>{this.roleToDirection(cred.role)}</td>
+                      <td>{statusToClass(cred.state as ConnectionStatus)}</td>
+                      <td>
+                        <LinkButton
+                          icon='url("/public/images/dot-icon.svg")'
+                          style="outlined"
+                          disabled={true}
+                          text={this.buttonText(cred.state)}
+                          href={
+                            // Left as a reference so not sure if we have a page/pages for buttons
+                            cred.state === 'done' && cred.role == 'issuer'
+                              ? `/creds/issuer/${cred.id}`
+                              : `/cred/holder/${cred.id}`
+                          }
+                        />
+                      </td>
+                    </tr>
+                  )
+                })
               )}
             </tbody>
           </table>

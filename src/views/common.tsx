@@ -8,6 +8,19 @@ const env = container.resolve(Env)
 
 type HeaderLink = { name: string; url: string }
 
+export type ConnectionStatus =
+  | 'pending'
+  | 'unverified'
+  | 'verified_them'
+  | 'verified_us'
+  | 'verified_both'
+  | 'disconnected'
+  | 'pending_their_input'
+  | 'pending_your_input'
+  | 'done'
+  | 'errored'
+  | 'resolved'
+
 type PageProps = {
   title: string
   activePage: 'categories' | 'queries' | 'connections' | 'certifications' | 'settings' | 'credentials'
@@ -166,3 +179,75 @@ export const Page = (props: PropsWithChildren<PageProps>): JSX.Element => (
     </html>
   </>
 )
+
+// this method was used in three different files, if no objections would like to leave along other shared items
+export const statusToClass = (status: ConnectionStatus): JSX.Element => {
+  switch (status) {
+    case 'verified_them':
+    case 'verified_us':
+      return (
+        <div class="list-item-status" data-status="warning">
+          {status == 'verified_them'
+            ? 'Pending Your Verification'
+            : status == 'verified_us'
+              ? 'Pending Their Verification'
+              : 'unknown'}
+        </div>
+      )
+    case 'disconnected':
+    case 'unverified':
+      return (
+        <div class="list-item-status" data-status="disabled">
+          {status == 'disconnected' ? 'Disconnected' : 'Unverified'}
+        </div>
+      )
+    case 'verified_both':
+      return (
+        <div class="list-item-status" data-status="success">
+          Verified - Established Connection
+        </div>
+      )
+    case 'pending':
+      return (
+        <div class="list-item-status" data-status="warning">
+          Pending
+        </div>
+      )
+    case 'pending_your_input':
+      return (
+        <div class="list-item-status" data-status="warning">
+          Pending Your Input
+        </div>
+      )
+    case 'pending_their_input':
+      return (
+        <div class="list-item-status" data-status="disabled">
+          Pending Their Input
+        </div>
+      )
+    case 'resolved':
+      return (
+        <div class="list-item-status" data-status="success">
+          Resolved
+        </div>
+      )
+    case 'errored':
+      return (
+        <div class="list-item-status" data-status="error">
+          Errored
+        </div>
+      )
+    case 'done':
+      return (
+        <div class="list-item-status" data-status="success">
+          Resolved
+        </div>
+      )
+    default:
+      return (
+        <div class="list-item-status" data-status="error">
+          unknown
+        </div>
+      )
+  }
+}
