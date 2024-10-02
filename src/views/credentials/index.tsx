@@ -134,7 +134,7 @@ export default class CredentialListTemplates {
               ) : (
                 credentials.map((credential) => (
                   <tr>
-                    <td>{Html.escapeHtml(credential.credentialAttributes[0].value)}</td>
+                    <td>{Html.escapeHtml(credential?.credentialAttributes?[0].value)}</td>
                     <td>{Html.escapeHtml('Supplier Credential')}</td>
                     <td>{this.roleToDirection(credential.role)}</td>
                     <td>{this.statusToClass(credential.state)}</td>
