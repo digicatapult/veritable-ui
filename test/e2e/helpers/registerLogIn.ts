@@ -3,23 +3,25 @@ import { randomUUID } from 'node:crypto'
 import { expect } from '@playwright/test'
 import { get } from './routeHelpers'
 
-export async function withCleanApp() {
+export async function withCleanApp(urlAlice: string, urlBob: string, smtp4devUrl: string) {
   const results = await Promise.all([
-    get('http://localhost:3000', '/reset'),
-    get('http://localhost:3001', '/reset'),
-    fetch('http://localhost:5000/api/Messages/*', { method: 'delete' }),
+    get(urlAlice, '/reset'),
+    get(urlBob, '/reset'),
+    fetch(`${smtp4devUrl}/api/Messages/*`, { method: 'delete' }), //updated for test
   ])
   if (!results.every((res) => res.ok)) {
     throw new Error('Error resetting application or deleting emails form smtp4dev')
   }
 }
 
-export async function withRegisteredAccount(page: any, context: any) {
-  await page.goto('http://localhost:3000')
+export async function withRegisteredAccount(page: any, context: any, loginUrl: string) {
+  const baseKeycloakUrl = process.env.VERITABLE_KEYCLOAK_URL_PREFIX || 'http://localhost:3080'
+
+  const expectedKeycloakUrl = `${baseKeycloakUrl}/realms/veritable/protocol/openid-connect/auth?response_type=code&client_id=veritable-ui&redirect_uri=http`
+
+  await page.goto(loginUrl)
   const url = page.url()
-  expect(url).toContain(
-    'http://localhost:3080/realms/veritable/protocol/openid-connect/auth?response_type=code&client_id=veritable-ui&redirect_uri=http'
-  )
+  expect(url).toContain(expectedKeycloakUrl)
 
   await page.waitForSelector('a[href*="/realms/veritable/login-actions/registration"]')
   await page.click('a[href*="/realms/veritable/login-actions/registration"]')
@@ -34,20 +36,18 @@ export async function withRegisteredAccount(page: any, context: any) {
   await page.fill('#firstName', 'name')
   await page.fill('#lastName', 'lastname')
   await page.click('input[type="submit"][value="Register"]')
-  await page.waitForURL('http://localhost:3000')
+  await page.waitForURL(loginUrl)
 }
 
-export async function withLoggedInUser(page: any, context: any) {
-  await page.goto('http://localhost:3000')
+export async function withLoggedInUser(page: any, context: any, loginUrl: string) {
+  const baseKeycloakUrl = process.env.VERITABLE_KEYCLOAK_URL_PREFIX || 'http://localhost:3080'
+  const expectedKeycloakUrl = `${baseKeycloakUrl}/realms/veritable/protocol/openid-connect/auth?response_type=code&client_id=veritable-ui&redirect_uri=http`
+  await page.goto(loginUrl)
   const inviteUrl = page.url()
-  if (
-    inviteUrl.includes(
-      'http://localhost:3080/realms/veritable/protocol/openid-connect/auth?response_type=code&client_id=veritable-ui&redirect_uri=http'
-    )
-  ) {
+  if (inviteUrl.includes(expectedKeycloakUrl)) {
     await page.fill('#username', context.username)
     await page.fill('#password', 'password')
     await page.click('input[type="submit"][value="Sign In"]')
-    await page.waitForURL('http://localhost:3000')
+    await page.waitForURL(loginUrl)
   }
 }

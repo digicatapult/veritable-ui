@@ -32,11 +32,11 @@ export type Email = {
   isUnread: boolean
 }
 
-async function checkEmails(): Promise<{ inviteEmail: Email; adminEmail: Email }> {
+async function checkEmails(host: string, port: string): Promise<{ inviteEmail: Email; adminEmail: Email }> {
   return new Promise((resolve, reject) => {
     const options = {
-      hostname: 'localhost',
-      port: 5000,
+      hostname: host,
+      port: port,
       path: '/api/messages',
       method: 'GET',
       headers: {
@@ -95,8 +95,8 @@ async function validateEmails(results: Email[]): Promise<{
   return { inviteEmail, adminEmail }
 }
 
-async function extractPin(emailId: string): Promise<string | null> {
-  const apiUrl = `http://localhost:5000/api/Messages/${emailId}/part/2/content`
+async function extractPin(emailId: string, smtp4devUrl: string): Promise<string | null> {
+  const apiUrl = `${smtp4devUrl}/api/Messages/${emailId}/part/2/content`
   // Fetch the raw email content
   const response = await fetch(apiUrl)
   if (!response.ok) {
@@ -115,8 +115,8 @@ async function extractPin(emailId: string): Promise<string | null> {
   }
 }
 
-async function extractInvite(emailId: string): Promise<string | null> {
-  const apiUrl = `http://localhost:5000/api/Messages/${emailId}/part/2/content`
+async function extractInvite(emailId: string, smtp4devUrl: string): Promise<string | null> {
+  const apiUrl = `${smtp4devUrl}/api/Messages/${emailId}/part/2/content`
   const response = await fetch(apiUrl)
   if (!response.ok) {
     throw new Error(`Error fetching email: ${response.statusText}`)
@@ -133,11 +133,11 @@ async function extractInvite(emailId: string): Promise<string | null> {
   }
 }
 
-async function findNewAdminEmail(oldAdminEmailId: string): Promise<Email> {
+async function findNewAdminEmail(oldAdminEmailId: string, host: string, port: string): Promise<Email> {
   return new Promise((resolve, reject) => {
     const options = {
-      hostname: 'localhost',
-      port: 5000,
+      hostname: host,
+      port: port,
       path: '/api/messages',
       method: 'GET',
       headers: {
@@ -179,4 +179,13 @@ async function findNewAdminEmail(oldAdminEmailId: string): Promise<Email> {
   })
 }
 
-export { checkEmails, extractInvite, extractPin, findNewAdminEmail }
+function getHostPort(url: string): { host: string | null; port: string | null } {
+  const indexOfDoubleSlash = url.indexOf('//')
+  const hostAndPort = url.substring(indexOfDoubleSlash + 2)
+  const hostPortArr = hostAndPort.split(':')
+  const host = hostPortArr[0]
+  const port = hostPortArr[1]
+  return { host, port }
+}
+
+export { checkEmails, extractInvite, extractPin, findNewAdminEmail, getHostPort }

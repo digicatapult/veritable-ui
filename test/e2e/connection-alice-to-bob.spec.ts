@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test'
 import { withCleanApp, withLoggedInUser, withRegisteredAccount } from './helpers/registerLogIn.js'
-import { checkEmails, extractInvite, extractPin, findNewAdminEmail } from './helpers/smtpEmails.js'
+import { checkEmails, extractInvite, extractPin, findNewAdminEmail, getHostPort } from './helpers/smtpEmails.js'
 
 test.describe('Connection from Alice to Bob', () => {
   let context: any
@@ -10,21 +10,33 @@ test.describe('Connection from Alice to Bob', () => {
   let pinForBob: string | null
   let pinForAlice: string | null
 
+  const baseUrlAlice = process.env.VERITABLE_ALICE_PUBLIC_URL || 'http://localhost:3000'
+  const baseUrlBob = process.env.VERITABLE_BOB_PUBLIC_URL || 'http://localhost:3001'
+  const smtp4devUrl = process.env.VERITABLE_SMTP_ADDRESS || 'http://localhost:5000'
+  const { host, port } = getHostPort(smtp4devUrl)
+  if (host === null || port === null) {
+    throw new Error(`Unspecified smtp4dev host or port ${smtp4devUrl}`)
+  }
+  console.log(process.env.VERITABLE_ALICE_PUBLIC_URL)
+  console.log(`smtp 4 dev url: `)
+  console.log(smtp4devUrl)
+
   // Create and share context
   test.beforeAll(async ({ browser }) => {
+    console.log(baseUrlAlice)
     context = await browser.newContext()
     page = await context.newPage()
-    await withRegisteredAccount(page, context)
+    await withRegisteredAccount(page, context, baseUrlAlice)
   })
 
   test.beforeEach(async () => {
-    await withCleanApp()
+    await withCleanApp(baseUrlAlice, baseUrlBob, smtp4devUrl)
     page = await context.newPage()
-    await withLoggedInUser(page, context)
+    await withLoggedInUser(page, context, baseUrlAlice)
   })
 
   test.afterEach(async () => {
-    await withCleanApp()
+    await withCleanApp(baseUrlAlice, baseUrlBob, smtp4devUrl)
     await page.close()
   })
   // End-to-end process: Alice registers, invites Bob, Bob submits invite & pin, Alice submits pin
@@ -34,11 +46,11 @@ test.describe('Connection from Alice to Bob', () => {
     await test.step('Alice invites Bob to connect', async () => {
       await page.waitForSelector('a[href="/connection"]')
       await page.click('a[href="/connection"]')
-      await page.waitForURL('http://localhost:3000/connection')
+      await page.waitForURL(`${baseUrlAlice}/connection`)
 
       console.log(page.url())
       await page.waitForSelector('text=Invite New Connection')
-      await page.click('a.button[href="/connection/new"]')
+      await page.click('a.button[href="connection/new"]')
       console.log(page.url())
       await page.waitForURL('**/connection/new')
 
@@ -74,18 +86,18 @@ test.describe('Connection from Alice to Bob', () => {
     })
 
     await test.step('Retrieve invite and pin for Bob', async () => {
-      const { inviteEmail, adminEmail } = await checkEmails()
+      const { inviteEmail, adminEmail } = await checkEmails(host, port)
       adminEmailId = adminEmail.id
 
-      pinForBob = await extractPin(adminEmail.id)
+      pinForBob = await extractPin(adminEmail.id, smtp4devUrl)
       expect(pinForBob).toHaveLength(6)
       if (!pinForBob) throw new Error('PIN for Bob was not found.')
-      invite = await extractInvite(inviteEmail.id)
+      invite = await extractInvite(inviteEmail.id, smtp4devUrl)
       if (!invite) throw new Error('Invitation for Bob was not found.')
     })
 
     await test.step('Bob submits invite and pin', async () => {
-      await page.goto('http://localhost:3001/connection')
+      await page.goto(`${baseUrlBob}/connection`)
       await page.waitForURL('**/connection')
       expect(page.url()).toContain('/connection')
       // Submit invite
@@ -116,7 +128,9 @@ test.describe('Connection from Alice to Bob', () => {
       // Submit pin
       await page.waitForURL('**/pin-submission')
       const pinUrl = page.url()
-      const urlPattern = /http:\/\/localhost:3001\/connection\/[0-9a-fA-F-]{36}\/pin-submission/
+      const urlPattern = /http:\/\/veritable-ui-bob:3000\/connection\/[0-9a-fA-F-]{36}\/pin-submission/
+      // const urlPattern = /http:\/\/localhost:3001\/connection\/[0-9a-fA-F-]{36}\/pin-submission/
+
       expect(pinUrl).toMatch(urlPattern)
 
       await page.fill('#new-connection-invite-input-pin', pinForBob)
@@ -134,14 +148,14 @@ test.describe('Connection from Alice to Bob', () => {
     })
 
     await test.step('Retrieve pin for Alice', async () => {
-      const newAdminEmail = await findNewAdminEmail(adminEmailId)
-      pinForAlice = await extractPin(newAdminEmail.id)
+      const newAdminEmail = await findNewAdminEmail(adminEmailId, host, port)
+      pinForAlice = await extractPin(newAdminEmail.id, smtp4devUrl)
       expect(pinForAlice).toHaveLength(6)
       if (!pinForAlice) throw new Error('PIN from admin email was not found.')
     })
 
     await test.step('Alice submits her PIN', async () => {
-      await page.goto('http://localhost:3000/connection')
+      await page.goto(`${baseUrlAlice}/connection`)
       await page.waitForURL('**/connection')
 
       const hrefRegex = /\/connection\/[0-9a-fA-F-]{36}\/pin-submission/

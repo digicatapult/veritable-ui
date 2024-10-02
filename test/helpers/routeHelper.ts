@@ -12,7 +12,9 @@ const tokenSchema = z.object({
 })
 
 export const getToken = async () => {
-  const tokenReq = await fetch('http://localhost:3080/realms/veritable/protocol/openid-connect/token', {
+  const baseKeycloakUrl = process.env.VERITABLE_KEYCLOAK_URL_PREFIX || 'http://localhost:3080'
+  const keycloakTokenUrl = `${baseKeycloakUrl}/realms/veritable/protocol/openid-connect/token`
+  const tokenReq = await fetch(keycloakTokenUrl, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/x-www-form-urlencoded',

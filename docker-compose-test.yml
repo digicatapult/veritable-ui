@@ -1,0 +1,30 @@
+include:
+  - path: ./docker-compose.e2e.yml
+    env_file:
+      - ./docker/e2e.env
+services:
+  e2e-tests:
+    container_name: e2e-tests
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: test
+    ports:
+      - 9323:9323
+    depends_on:
+      veritable-ui-bob:
+        condition: service_healthy
+      veritable-ui-alice:
+        condition: service_healthy
+    env_file:
+      - docker/e2e.env
+    environment:
+      - NODE_ENV=test
+      - VERITABLE_ALICE_PUBLIC_URL=http://veritable-ui-alice:3000
+      - VERITABLE_BOB_PUBLIC_URL=http://veritable-ui-bob:3000
+      - VERITABLE_SMTP_ADDRESS=http://smtp4dev:80
+      - VERITABLE_IDP_PUBLIC_URL_PREFIX=http://keycloak:8080/realms/veritable/protocol/openid-connect
+      - VERITABLE_KEYCLOAK_URL_PREFIX=http://keycloak:8080
+
+    volumes:
+      - ./playwright-report:/veritable-ui/playwright-report
