@@ -2,16 +2,15 @@ import { expect } from 'chai'
 import { describe, it } from 'mocha'
 import sinon from 'sinon'
 
-import { toHTMLString, withConnectionMocks } from './helpers.js'
+import { toHTMLString, mockLogger} from '../../__tests__/helpers.js'
+import { withConnectionMocks } from './helpers.js'
 
 import { Request } from 'express'
 import { AliceCredentials, BobCredentials } from '../../../views/credentials/__tests__/fixtures.js'
-import { mockLogger } from '../../__tests__/helpers.js'
 import { CredentialsController } from '../index.js'
 
-// import { validConnection } from './fixtures.js'
 
-describe.only('CredentialsController', () => {
+describe('CredentialsController', () => {
   const req = { log: mockLogger } as unknown as Request
 
   afterEach(() => {
