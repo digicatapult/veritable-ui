@@ -27,4 +27,4 @@ services:
       - VERITABLE_KEYCLOAK_URL_PREFIX=http://keycloak:8080
 
     volumes:
-      - ./playwright-report:/veritable-ui/playwright-report
+      - ${{ github.workspace }}/../playwright-report:/veritable-ui/playwright-report
