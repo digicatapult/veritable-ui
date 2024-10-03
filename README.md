@@ -87,7 +87,7 @@ npm run dev
 ```
 
 > :bulb: When service is running, it can be accessed on `http://localhost:3000/`. Api Docs are available on `http://localhost:3000/api-docs` and swagger `http://localhost:3000/swagger/`.
-> If you have opted to use `SMTP_EMAIL` for `EMAIL_TRANSPORT` env you'll find the server on `http://localhost:5000/`.
+> If you have opted to use `SMTP_EMAIL` for `EMAIL_TRANSPORT` env you'll find the server on `http://localhost:5001/`.
 
 ## Environment variables
 

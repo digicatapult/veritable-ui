@@ -57,7 +57,7 @@ describe('SMTP email', () => {
     it('should send an email via SMTP', async () => {
       const options = {
         hostname: 'localhost',
-        port: 5000,
+        port: 5001,
         path: '/api/messages',
         method: 'GET',
         headers: {
