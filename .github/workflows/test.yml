@@ -106,6 +106,10 @@ jobs:
           files: ./docker-compose-test.yml
       - name: Run e2e tests
         run: docker compose -f docker-compose-test.yml up --exit-code-from e2e-tests --abort-on-container-exit
+      - name: List all files in the GitHub Actions workspace
+        run: ls -alR ${{ github.workspace }}
+      - name: Print current directory
+        run: pwd
       - uses: actions/upload-artifact@v4
         if: always()
         with:
