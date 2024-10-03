@@ -104,11 +104,6 @@ jobs:
         with:
           builder: ${{ steps.buildx.outputs.name }}
           files: ./docker-compose-test.yml
-          set: |
-            *.cache-from=type=registry,ref=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
-            *.cache-to=type=registry,ref=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }},mode=max
-          load: true
-          push: false
       - name: Run e2e tests
         run: docker compose -f docker-compose-test.yml up --exit-code-from e2e-tests --abort-on-container-exit
       - uses: actions/upload-artifact@v4
