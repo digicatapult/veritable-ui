@@ -22,7 +22,7 @@ services:
         npm start | pino-colada"
     env_file:
       - docker/test.env
-      - .env
+      # - .env
     environment:
       - NODE_ENV=production
       - LOG_LEVEL=debug
