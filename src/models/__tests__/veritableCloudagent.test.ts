@@ -1,6 +1,6 @@
 import { describe, it } from 'mocha'
 
-import { Env } from '../../env.js'
+import { Env } from '../../env/index.js'
 import {
   createCredentialDefinitionResponse,
   createDidResponse,

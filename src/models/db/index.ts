@@ -2,7 +2,7 @@ import knex from 'knex'
 import { container, singleton } from 'tsyringe'
 import { z } from 'zod'
 
-import { Env } from '../../env.js'
+import { Env } from '../../env/index.js'
 import { DatabaseTimeoutError } from '../../errors.js'
 import Zod, { ColumnsByType, IDatabase, Models, Order, TABLE, Update, Where, tablesList } from './types.js'
 import { reduceWhere } from './util.js'

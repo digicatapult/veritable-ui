@@ -1,7 +1,7 @@
 import { injectable, singleton } from 'tsyringe'
 import { z } from 'zod'
 
-import { Env } from '../env.js'
+import { Env } from '../env/index.js'
 import { InternalError } from '../errors.js'
 import { companyNumberRegex } from './strings.js'
 

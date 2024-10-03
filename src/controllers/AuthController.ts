@@ -4,7 +4,7 @@ import { randomBytes } from 'node:crypto'
 import { Get, Hidden, Produces, Query, Request, Route, SuccessResponse } from 'tsoa'
 import { injectable } from 'tsyringe'
 
-import { Env } from '../env.js'
+import { Env } from '../env/index.js'
 import { ForbiddenError, InternalError } from '../errors.js'
 import IDPService from '../models/idpService.js'
 import { HTMLController } from './HTMLController.js'

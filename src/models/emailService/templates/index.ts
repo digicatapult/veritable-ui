@@ -2,7 +2,7 @@ import type { SendMailOptions } from 'nodemailer'
 
 import { singleton } from 'tsyringe'
 
-import { Env } from '../../../env.js'
+import { Env } from '../../../env/index.js'
 import invitation from './invitation.js'
 import invitationAdmin from './invitationAdmin.js'
 

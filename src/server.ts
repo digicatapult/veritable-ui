@@ -9,7 +9,7 @@ import { container } from 'tsyringe'
 
 import { randomUUID } from 'crypto'
 import { ValidateError } from 'tsoa'
-import { Env } from './env.js'
+import { Env } from './env/index.js'
 import { ForbiddenError, HttpError } from './errors.js'
 import { ILogger, Logger } from './logger.js'
 import { UUID } from './models/strings.js'

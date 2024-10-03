@@ -6,7 +6,7 @@ import { Body, Get, Post, Produces, Query, Request, Route, Security, SuccessResp
 import { injectable } from 'tsyringe'
 import { z } from 'zod'
 
-import { Env } from '../../env.js'
+import { Env } from '../../env/index.js'
 import CompanyHouseEntity, { CompanyProfile } from '../../models/companyHouseEntity.js'
 import Database from '../../models/db/index.js'
 import EmailService from '../../models/emailService/index.js'

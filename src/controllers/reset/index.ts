@@ -3,7 +3,7 @@ import { Get, Hidden, Produces, Request, Route, Security, SuccessResponse } from
 import { injectable } from 'tsyringe'
 
 import pino from 'pino'
-import { Env } from '../../env.js'
+import { Env } from '../../env/index.js'
 import { BadRequestError, InternalError } from '../../errors.js'
 import Database from '../../models/db/index.js'
 import type { TABLE } from '../../models/db/types.js'
