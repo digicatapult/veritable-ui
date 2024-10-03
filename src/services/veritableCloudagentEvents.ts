@@ -2,7 +2,7 @@ import { inject, injectable, singleton } from 'tsyringe'
 import WebSocket from 'ws'
 import { z } from 'zod'
 
-import { Env } from '../env.js'
+import { Env } from '../env/index.js'
 import { Logger, type ILogger } from '../logger.js'
 import VeritableCloudagent, { connectionParser, credentialParser } from '../models/veritableCloudagent.js'
 import IndexedAsyncEventEmitter from '../utils/indexedAsyncEventEmitter.js'

@@ -3,7 +3,7 @@ import 'reflect-metadata'
 import { pino } from 'pino'
 import { container } from 'tsyringe'
 
-import { InitEnv } from './env.js'
+import { InitEnv } from './env/index.js'
 import { type ILogger } from './logger.js'
 import { CredentialSchema } from './models/credentialSchema.js'
 import VeritableCloudagent from './models/veritableCloudagent.js'

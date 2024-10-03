@@ -1,6 +1,6 @@
 import { expect } from 'chai'
 import { describe, it } from 'mocha'
-import { Env } from '../../env.js'
+import { Env } from '../../env/index.js'
 import CompanyHouseEntity from '../companyHouseEntity.js'
 import {
   invalidCompanyNumber,

@@ -1,7 +1,7 @@
 import nodemailer, { SendMailOptions } from 'nodemailer'
-import { container, inject, injectable, singleton } from 'tsyringe'
+import { inject, injectable, singleton } from 'tsyringe'
 
-import { Env, SmtpEnv } from '../../env.js'
+import { Env, SmtpEnv } from '../../env/index.js'
 import { Logger, type ILogger } from '../../logger.js'
 
 import Templates, { templateHandlers, templateName, templateParams } from './templates/index.js'
@@ -23,13 +23,14 @@ export default class EmailService {
 
   private buildTransport(): typeof this.transportSendMail {
     const logger = this.logger
-    switch (this.env.get('EMAIL_TRANSPORT')) {
+    const config = this.env.get('EMAIL_TRANSPORT')
+    switch (config.type) {
       case 'STREAM':
         logger.debug('Initialising EMAIL_TRANSPORT of type: STREAM')
         return this.buildStreamTransport()
       case 'SMTP_EMAIL':
         logger.debug('Initialising EMAIL_TRANSPORT of type: SMTP_EMAIL')
-        return this.buildSmtpTransport()
+        return this.buildSmtpTransport(config.config)
       default:
         throw new Error('Unsupported email transport type')
     }
@@ -51,11 +52,10 @@ export default class EmailService {
       return info
     }.bind(transport)
   }
-  private buildSmtpTransport(): typeof this.transportSendMail {
-    const smtpTransportConfig = container.resolve(SmtpEnv)
+  private buildSmtpTransport(smtpTransportConfig: SmtpEnv): typeof this.transportSendMail {
     const transport = nodemailer.createTransport({
       host: smtpTransportConfig.get('SMTP_HOST'),
-      port: parseInt(smtpTransportConfig.get('SMTP_PORT'), 10),
+      port: smtpTransportConfig.get('SMTP_PORT'),
       secure: smtpTransportConfig.get('SMTP_SECURE'), // true for 465, false for other ports
     })
     const logger = this.logger
