@@ -93,8 +93,8 @@ jobs:
     timeout-minutes: 60
     runs-on: ubuntu-latest
     steps:
-      - name: Create playwright-report directory in parent directory
-        run: mkdir -p ${{ github.workspace }}/../playwright-report
+      - name: Create playwright-report directory
+        run: mkdir -p playwright-report
       - name: Setup Docker Buildx
         id: buildx
         uses: docker/setup-buildx-action@v3
