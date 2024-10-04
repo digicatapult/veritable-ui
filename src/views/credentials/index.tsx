@@ -1,5 +1,6 @@
 import Html from '@kitajs/html'
 import { singleton } from 'tsyringe'
+import { ConnectionRow } from '../../models/db/types.js'
 import { Credential } from '../../models/veritableCloudagent.js'
 import { ConnectionStatus, LinkButton, Page, statusToClass } from '../common.js'
 
@@ -17,6 +18,8 @@ type State =
   | 'done'
   | 'abandoned'
 type Role = 'issuer' | 'holder'
+type ICred<T> = T & { connection?: ConnectionRow; attributes?: { [k: string]: string } }
+export type Credentials = ICred<Credential>[]
 
 @singleton()
 export default class CredentialListTemplates {
@@ -44,7 +47,7 @@ export default class CredentialListTemplates {
     }
   }
 
-  public listPage = (credentials: Credential[], search: string = '') => {
+  public listPage = (credentials: ICred<Credential>[], search: string = '') => {
     return (
       <Page
         title="Veritable - Credentials"
