@@ -62,7 +62,7 @@ describe('Env', function () {
 
       let error: unknown = null
       try {
-        const env = new Env()
+        new Env()
       } catch (e) {
         error = e
       }
@@ -78,7 +78,7 @@ describe('Env', function () {
 
       let error: unknown = null
       try {
-        const env = new Env()
+        new Env()
       } catch (e) {
         error = e
       }
@@ -94,7 +94,7 @@ describe('Env', function () {
 
       let error: unknown = null
       try {
-        const env = new Env()
+        new Env()
       } catch (e) {
         error = e
       }
@@ -111,7 +111,7 @@ describe('Env', function () {
 
       let error: unknown = null
       try {
-        const env = new Env()
+        new Env()
       } catch (e) {
         error = e
       }
@@ -132,7 +132,7 @@ describe('Env', function () {
 
       let error: unknown = null
       try {
-        const env = new Env()
+        new Env() // WHY???
       } catch (e) {
         error = e
       }
@@ -151,7 +151,7 @@ describe('Env', function () {
 
       let error: unknown = null
       try {
-        const env = new Env()
+        new Env()
       } catch (e) {
         error = e
       }
