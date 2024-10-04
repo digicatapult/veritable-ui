@@ -1,5 +1,5 @@
 import { inject, injectable, singleton } from 'tsyringe'
-import { Env } from '../env.js'
+import { Env } from '../env/index.js'
 
 import { z } from 'zod'
 import { ForbiddenError } from '../errors.js'

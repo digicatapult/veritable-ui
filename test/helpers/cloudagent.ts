@@ -1,6 +1,6 @@
 import { container } from 'tsyringe'
 
-import { Env } from '../../src/env.js'
+import { Env } from '../../src/env/index.js'
 import VeritableCloudagent from '../../src/models/veritableCloudagent.js'
 import { validCompanyName, validCompanyNumber } from './fixtures.js'
 import { mockLogger } from './logger.js'

@@ -3,7 +3,7 @@ import { afterEach, beforeEach, describe, test } from 'mocha'
 import { MockAgent, getGlobalDispatcher, setGlobalDispatcher } from 'undici'
 
 import { pino } from 'pino'
-import { Env } from '../../env.js'
+import { Env } from '../../env/index.js'
 import { ForbiddenError } from '../../errors.js'
 import type { ILogger } from '../../logger.js'
 import IDPService from '../idpService.js'

@@ -2,7 +2,7 @@ import { expect } from 'chai'
 import express from 'express'
 import { describe, it } from 'mocha'
 import { pino } from 'pino'
-import { Env } from '../../../env.js'
+import { Env } from '../../../env/index.js'
 
 import { ILogger } from '../../../logger.js'
 import { HealthController } from '../index.js'

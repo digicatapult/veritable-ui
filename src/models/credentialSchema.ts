@@ -1,5 +1,5 @@
 import { inject, injectable, singleton } from 'tsyringe'
-import { Env, type PartialEnv } from '../env.js'
+import { Env, type PartialEnv } from '../env/index.js'
 import { Logger, type ILogger } from '../logger.js'
 import VeritableCloudagent from './veritableCloudagent.js'
 

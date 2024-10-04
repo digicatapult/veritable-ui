@@ -1,7 +1,7 @@
 import Html from '@kitajs/html'
 import { SendMailOptions } from 'nodemailer'
 
-import { Env } from '../../../env.js'
+import { Env } from '../../../env/index.js'
 
 export default {
   name: 'connection_invite' as const,
