@@ -93,7 +93,7 @@ services:
       - IDP_CLIENT_ID=veritable-ui
       - IDP_PUBLIC_URL_PREFIX=http://localhost:3080/realms/veritable/protocol/openid-connect
       - IDP_INTERNAL_URL_PREFIX=http://keycloak:8080/realms/veritable/protocol/openid-connect
-      - INVITATION_FROM_COMPANY_NUMBER=07964699
+      - INVITATION_FROM_COMPANY_NUMBER=04659351
       - INVITATION_PIN_SECRET=secret
       - ISSUANCE_DID_POLICY=EXISTING_OR_NEW
       - ISSUANCE_SCHEMA_POLICY=EXISTING_OR_NEW
@@ -166,7 +166,7 @@ services:
       - LOG_LEVEL=trace
       - DB_HOST=postgres-veritable-ui-charlie
       - DB_NAME=veritable-ui
-      - API_SWAGGER_TITLE=charlie
+      - API_SWAGGER_TITLE=Charlie
       - API_SWAGGER_BG_COLOR=#ffbd59
       - PUBLIC_URL=http://localhost:3002
       - CLOUDAGENT_ADMIN_ORIGIN=http://veritable-cloudagent-charlie:3000
@@ -178,7 +178,7 @@ services:
       - IDP_CLIENT_ID=veritable-ui
       - IDP_PUBLIC_URL_PREFIX=http://localhost:3080/realms/veritable/protocol/openid-connect
       - IDP_INTERNAL_URL_PREFIX=http://keycloak:8080/realms/veritable/protocol/openid-connect
-      - INVITATION_FROM_COMPANY_NUMBER=11411122
+      - INVITATION_FROM_COMPANY_NUMBER=10016023
       - INVITATION_PIN_SECRET=secret
       - ISSUANCE_DID_POLICY=EXISTING_OR_NEW
       - ISSUANCE_SCHEMA_POLICY=EXISTING_OR_NEW
