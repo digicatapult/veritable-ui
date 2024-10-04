@@ -217,7 +217,7 @@ services:
       ipfs:
         condition: service_healthy
     ports:
-      - 3101:3000
+      - 3102:3000
     env_file:
       - docker/cloudagent.env
     environment:
