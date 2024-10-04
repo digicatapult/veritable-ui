@@ -3,7 +3,7 @@ import { describe, it } from 'mocha'
 import sinon from 'sinon'
 
 import { Request } from 'express'
-import { Env } from '../../../env.js'
+import { Env } from '../../../env/index.js'
 import { BadRequestError, InternalError } from '../../../errors.js'
 import Database from '../../../models/db/index.js'
 import { TABLE } from '../../../models/db/types.js'

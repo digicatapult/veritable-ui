@@ -3,7 +3,7 @@ import sinon from 'sinon'
 
 import argon2 from 'argon2'
 import { EventEmitter } from 'events'
-import { Env } from '../../../../env.js'
+import { Env } from '../../../../env/index.js'
 import { ILogger } from '../../../../logger.js'
 import { CredentialSchema } from '../../../../models/credentialSchema.js'
 import Database from '../../../../models/db/index.js'

@@ -1,7 +1,7 @@
 import { inject, injectable, singleton } from 'tsyringe'
 import { z } from 'zod'
 
-import { Env, type PartialEnv } from '../env.js'
+import { Env, type PartialEnv } from '../env/index.js'
 import { InternalError } from '../errors.js'
 import { Logger, type ILogger } from '../logger.js'
 

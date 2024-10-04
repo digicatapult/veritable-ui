@@ -2,7 +2,7 @@
 import { escapeHtml, type PropsWithChildren } from '@kitajs/html'
 import { container } from 'tsyringe'
 
-import { Env } from '../env.js'
+import { Env } from '../env/index.js'
 
 const env = container.resolve(Env)
 

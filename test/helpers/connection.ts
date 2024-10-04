@@ -4,7 +4,7 @@ import knex from 'knex'
 import { container } from 'tsyringe'
 
 import sinon from 'sinon'
-import { Env } from '../../src/env.js'
+import { Env } from '../../src/env/index.js'
 import Database from '../../src/models/db/index.js'
 import EmailService from '../../src/models/emailService/index.js'
 import VeritableCloudagent from '../../src/models/veritableCloudagent.js'
