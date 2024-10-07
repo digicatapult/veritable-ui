@@ -105,6 +105,7 @@ services:
       - SMTP_USER=
       - EMAIL_TRANSPORT=${VERITABLE_EMAIL_TRANSPORT:-STREAM}
       - SMTP_SECURE=false
+      - COMPANY_PROFILE_API_KEY=${VERITABLE_COMPANY_PROFILE_API_KEY}
   postgres-veritable-ui-bob:
     image: postgres:16.4-alpine
     container_name: postgres-veritable-ui-bob
