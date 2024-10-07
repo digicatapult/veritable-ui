@@ -106,20 +106,15 @@ jobs:
           files: ./docker-compose-test.yml
         env:
           VERITABLE_COMPANY_PROFILE_API_KEY: ${{ secrets.COMPANIES_HOUSE_API }}
-
       - name: Run e2e tests
         env:
           VERITABLE_COMPANY_PROFILE_API_KEY: ${{ secrets.COMPANIES_HOUSE_API }}
           VERITABLE_E2E_OUT_DIR: /home/runner/work/_temp/
-          # VERITABLE_E2E_OUT_DIR: ${{ env.GITHUB_WORKSPACE  }}
         run: docker compose -f docker-compose-test.yml up --exit-code-from e2e-tests --abort-on-container-exit
-      - name: List files in container
-        run: docker exec e2e-tests ls -al /veritable-ui/playwright-report
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: playwright-report
-          # path: ${{ env.GITHUB_WORKSPACE }}/playwright-report/
           path: /home/runner/work/_temp/playwright-report/
           retention-days: 90
       - name: Publish CTRF Test Summary Results
