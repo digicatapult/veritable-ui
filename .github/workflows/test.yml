@@ -104,7 +104,8 @@ jobs:
         with:
           builder: ${{ steps.buildx.outputs.name }}
           files: ./docker-compose-test.yml
-          env: VERITABLE_COMPANY_PROFILE_API_KEY=${{ secrets.COMPANIES_HOUSE_API }}
+        env:
+          VERITABLE_COMPANY_PROFILE_API_KEY: ${{ secrets.COMPANIES_HOUSE_API }}
 
       - name: Run e2e tests
         env:
