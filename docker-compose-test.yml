@@ -25,6 +25,6 @@ services:
       - VERITABLE_SMTP_ADDRESS=http://smtp4dev:80
       - VERITABLE_IDP_PUBLIC_URL_PREFIX=http://keycloak:8080/realms/veritable/protocol/openid-connect
       - VERITABLE_KEYCLOAK_URL_PREFIX=http://keycloak:8080
-      - COMPANY_PROFILE_API_KEY=${VERITABLE_COMPANY_PROFILE_API_KEY:-xyz}
+      - COMPANY_PROFILE_API_KEY=${VERITABLE_COMPANY_PROFILE_API_KEY}
     volumes:
       - ${VERITABLE_E2E_OUT_DIR:-.}/playwright-report:/veritable-ui/playwright-report
