@@ -20,8 +20,8 @@ services:
         npm i -g pino-colada
         node ./node_modules/.bin/knex migrate:latest
         npm start | pino-colada"
-    # env_file:
-    # - docker/test.env
+    env_file:
+      - docker/test.env
     # - .env
     environment:
       - NODE_ENV=production
@@ -53,7 +53,7 @@ services:
       - COMPANY_HOUSE_API_URL=https://api.company-information.service.gov.uk
       - DEMO_MODE=true
       - SMTP_SECURE=false
-      - COMPANY_PROFILE_API_KEY=${VERITABLE_COMPANY_PROFILE_API_KEY}
+      - COMPANY_PROFILE_API_KEY=${VERITABLE_COMPANY_PROFILE_API_KEY:-COMPANY_PROFILE_API_KEY}
   # -------------------- email -------------------------------#
   smtp4dev:
     image: rnwood/smtp4dev
