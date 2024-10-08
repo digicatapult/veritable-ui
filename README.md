@@ -167,9 +167,16 @@ Integration tests can be run locally by executing the below command
 npm run test:integration
 ```
 
-### e3e Testing
+### e2e Testing
 
-E2e tests are placed at root level in the `test/` directory. To run them simply bring up the project using this command: `docker compose -f docker-compose.e2e.yml up -d ` which brings up all the dependencies. Then run the tests using command:
+E2e tests are placed at root level in the `test/` directory. You can run them either directly or in a docker container (how they are run in the CI).
+Bring up all the docker containers necessary with:
+
+```sh
+docker compose up -d --build --scale veritable-ui-alice=1
+```
+
+Then run:
 
 ```sh
 npm run test:e2e
@@ -182,6 +189,14 @@ npm run test:playwright
 ```
 
 This will run the tests without the ui.
+
+To run the e2e tests in a docker container use:
+
+```sh
+docker compose -f docker-compose.e2e.yml up
+```
+
+Then you'll find the test results in directory `playwright-report` at root level.
 
 ## Database
 
