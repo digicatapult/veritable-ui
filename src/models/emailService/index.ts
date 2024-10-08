@@ -58,7 +58,6 @@ export default class EmailService {
       port: smtpTransportConfig.get('SMTP_PORT'),
       secure: smtpTransportConfig.get('SMTP_SECURE'), // true for 465, false for other ports
       auth: {
-        type: smtpTransportConfig.get('SMTP_AUTH_TYPE'),
         user: smtpTransportConfig.get('SMTP_USER'),
         pass: smtpTransportConfig.get('SMTP_PASS'),
       },

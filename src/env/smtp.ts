@@ -7,7 +7,6 @@ const smtpConfig = {
   SMTP_HOST: envalid.str({ devDefault: 'localhost' }),
   SMTP_PORT: envalid.port({ devDefault: 2525 }),
   SMTP_SECURE: envalid.bool({ devDefault: false, default: true }), // smtp4dev does not use TLS by default so false in dev mode
-  SMTP_AUTH_TYPE: envalid.str({ default: 'login', choices: ['login', 'oauth2'] }),
   SMTP_USER: envalid.str({ devDefault: '' }), // no auth required by default for smtp4dev
   SMTP_PASS: envalid.str({ devDefault: '' }),
 }
