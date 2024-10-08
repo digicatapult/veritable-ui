@@ -25,7 +25,6 @@ export class SmtpEnv {
         SMTP_HOST: smtpConfig.SMTP_HOST,
         SMTP_PORT: smtpConfig.SMTP_PORT,
         SMTP_SECURE: smtpConfig.SMTP_SECURE,
-        SMTP_AUTH_TYPE: smtpConfig.SMTP_AUTH_TYPE,
         SMTP_USER: smtpConfig.SMTP_USER,
         SMTP_PASS: smtpConfig.SMTP_PASS,
       },
