@@ -5,7 +5,7 @@ import { injectable } from 'tsyringe'
 import Database from '../../models/db/index.js'
 import { ConnectionRow } from '../../models/db/types.js'
 import VeritableCloudagent, { Credential } from '../../models/veritableCloudagent.js'
-import CredentialListTemplates, { Credentials } from '../../views/credentials/index.js'
+import CredentialListTemplates from '../../views/credentials/index.js'
 import { HTML, HTMLController } from '../HTMLController.js'
 
 @injectable()
@@ -27,7 +27,7 @@ export class CredentialsController extends HTMLController {
     const credentials: Credential[] = await this.cloudagent.getCredentials()
     req.log.info('retrieved credentials from a cloudagent %j', credentials)
 
-    const formatted: Credentials[] = this.format(credentials)
+    const formatted = this.format(credentials)
     for (let i = 0; i < formatted.length; i++) {
       const [connection]: ConnectionRow[] = await this.db.get('connection', {
         agent_connection_id: formatted[i].connectionId,
@@ -50,18 +50,18 @@ export class CredentialsController extends HTMLController {
     return this.html(this.credentialsTemplates.listPage(filtered, search))
   }
 
-  private format(credentials: Credential[]): Credentials[] {
-    return credentials.map((cred) => {
-      return {
-        ...cred,
-        ...(cred?.credentialAttributes || []).reduce(
-          (out: { [k: string]: string }, { name, value }: { name: string; value: string }) => {
-            if (out[name]) return out
-            return { ...out, [name]: value }
-          },
-          {}
-        ),
-      }
-    })
+  private format(credentials: Credential[]) {
+    return credentials
+      .map((cred) => {
+        const company_name = cred.credentialAttributes?.find(({ name }) => name === 'company_name')
+        if (!company_name) return undefined
+
+        return {
+          ...cred,
+          company_name: company_name.value,
+          connection: undefined as unknown,
+        }
+      })
+      .filter((x) => !!x)
   }
 }

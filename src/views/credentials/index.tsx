@@ -1,6 +1,5 @@
 import Html from '@kitajs/html'
 import { singleton } from 'tsyringe'
-import { ConnectionRow } from '../../models/db/types.js'
 import { Credential } from '../../models/veritableCloudagent.js'
 import { ConnectionStatus, LinkButton, Page, statusToClass } from '../common.js'
 
@@ -18,7 +17,7 @@ type State =
   | 'done'
   | 'abandoned'
 type Role = 'issuer' | 'holder'
-type ICred<T> = T & { connection?: ConnectionRow; company_name?: string; company_number?: string }
+type ICred<T> = T & { company_name?: string }
 export type Credentials = ICred<Credential>
 
 @singleton()
