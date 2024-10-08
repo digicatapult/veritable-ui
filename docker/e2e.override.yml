@@ -1,0 +1,3 @@
+services:
+  veritable-ui-alice:
+    scale: 1

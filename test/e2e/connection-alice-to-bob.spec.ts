@@ -17,13 +17,9 @@ test.describe('Connection from Alice to Bob', () => {
   if (host === null || port === null) {
     throw new Error(`Unspecified smtp4dev host or port ${smtp4devUrl}`)
   }
-  console.log(process.env.VERITABLE_ALICE_PUBLIC_URL)
-  console.log(`smtp 4 dev url: `)
-  console.log(smtp4devUrl)
 
   // Create and share context
   test.beforeAll(async ({ browser }) => {
-    console.log(baseUrlAlice)
     context = await browser.newContext()
     page = await context.newPage()
     await withRegisteredAccount(page, context, baseUrlAlice)
@@ -48,10 +44,8 @@ test.describe('Connection from Alice to Bob', () => {
       await page.click('a[href="/connection"]')
       await page.waitForURL(`${baseUrlAlice}/connection`)
 
-      console.log(page.url())
       await page.waitForSelector('text=Invite New Connection')
       await page.click('a.button[href="connection/new"]')
-      console.log(page.url())
       await page.waitForURL('**/connection/new')
 
       await page.fill('#new-invite-company-number-input', '07964699')
@@ -128,8 +122,11 @@ test.describe('Connection from Alice to Bob', () => {
       // Submit pin
       await page.waitForURL('**/pin-submission')
       const pinUrl = page.url()
-      const urlPattern = /http:\/\/veritable-ui-bob:3000\/connection\/[0-9a-fA-F-]{36}\/pin-submission/
+      // const urlPattern = /http:\/\/veritable-ui-bob:3000\/connection\/[0-9a-fA-F-]{36}\/pin-submission/
       // const urlPattern = /http:\/\/localhost:3001\/connection\/[0-9a-fA-F-]{36}\/pin-submission/
+
+      const escapedBaseUrlBob = baseUrlBob.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&')
+      const urlPattern = new RegExp(`${escapedBaseUrlBob}\\/connection\\/[0-9a-fA-F-]{36}\\/pin-submission`)
 
       expect(pinUrl).toMatch(urlPattern)
 

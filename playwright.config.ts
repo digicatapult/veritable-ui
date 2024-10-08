@@ -33,13 +33,10 @@ export default defineConfig({
       name: 'chromium',
       use: { ...devices['Desktop Chrome'] },
     },
-
     {
       name: 'firefox',
       use: { ...devices['Desktop Firefox'] },
     },
-
-    // Webkit disabled for now due to a bug
     {
       name: 'webkit',
       use: { ...devices['Desktop Safari'] },
