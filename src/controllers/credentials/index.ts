@@ -27,7 +27,7 @@ export class CredentialsController extends HTMLController {
     const credentials: Credential[] = await this.cloudagent.getCredentials()
     req.log.info('retrieved credentials from a cloudagent %j', credentials)
 
-    const formatted: Credentials = this.format(credentials)
+    const formatted: Credentials[] = this.format(credentials)
     for (let i = 0; i < formatted.length; i++) {
       const [connection]: ConnectionRow[] = await this.db.get('connection', {
         agent_connection_id: formatted[i].connectionId,
@@ -36,15 +36,12 @@ export class CredentialsController extends HTMLController {
       if (connection) formatted[i].connection = connection
     }
 
-    const filtered = formatted.filter(({ connection, attributes }) => {
-      const companyName = attributes?.find(({ name }: { name: string }) => {
-        return name === 'company_name'
-      })
-      if (!connection || !companyName) return false
+    const filtered = formatted.filter(({ connection, company_name }) => {
+      if (!connection || !company_name) return false
       if (search === '') return true
-      req.log.info('checking if %s includes %s', companyName, search)
+      req.log.info('checking if %s includes %s', company_name, search)
 
-      return companyName.value.toLowerCase().includes(search.toLowerCase())
+      return company_name.toLowerCase().includes(search.toLowerCase())
     })
 
     req.log.info('returming HTML along with formatted credentials %j', formatted)
@@ -53,13 +50,19 @@ export class CredentialsController extends HTMLController {
     return this.html(this.credentialsTemplates.listPage(filtered, search))
   }
 
-  private format(credentials: Credential[]): Credentials {
+  private format(credentials: Credential[]): Credentials[] {
     return credentials.map((cred) => {
       return {
         ...cred,
-        attributes: cred?.credentialAttributes || [].map(({ name, value }) => ({ [name]: value })),
+        ...(cred?.credentialAttributes || []).reduce(
+          (out: { [k: string]: string }, { name, value }: { name: string; value: string }) => {
+            if (out[name]) return out
+            return { ...out, [name]: value }
+          },
+          {}
+        ),
         connection: {},
       }
-    }) as unknown as Credentials
+    }) as unknown as Credentials[]
   }
 }

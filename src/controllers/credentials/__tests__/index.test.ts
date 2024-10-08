@@ -48,12 +48,29 @@ describe('CredentialsController', () => {
       ])
     })
 
-    it('filters by company name depending on search text', async () => {
+    it('extracts company_name from credentialAttributes and stores along credential', async () => {
+      const { templateMock, args } = withConnectionMocks()
+      const controller = new CredentialsController(...args)
+      await controller.listCredentials(req, '').then(toHTMLString)
+
+      expect(templateMock.listPage.lastCall.args[0][0]).to.have.property('company_name')
+      expect(templateMock.listPage.lastCall.args[0][1]).to.have.property('company_name')
+      expect(templateMock.listPage.lastCall.args[0][2]).to.have.property('company_name')
+      expect(templateMock.listPage.lastCall.args[0][3]).to.have.property('company_name')
+    })
+
+    it('filters by company name depending on search', async () => {
       const { templateMock, args } = withConnectionMocks()
       const controller = new CredentialsController(...args)
       await controller.listCredentials(req, 'digi').then(toHTMLString)
 
       expect(templateMock.listPage.lastCall.args[0].length).to.equal(2)
+      expect(templateMock.listPage.lastCall.args[0][0])
+        .to.have.property('company_name')
+        .that.is.equal('DIGITAL CATAPULT')
+      expect(templateMock.listPage.lastCall.args[0][1])
+        .to.have.property('company_name')
+        .that.is.equal('DIGITAL CATAPULT')
       expect(templateMock.listPage.lastCall.args[1]).to.equal('digi')
     })
 
@@ -63,6 +80,9 @@ describe('CredentialsController', () => {
       await controller.listCredentials(req, '').then(toHTMLString)
 
       expect(templateMock.listPage.lastCall.args[0].length).to.deep.equal(4)
+      templateMock.listPage.lastCall.args[0].forEach((credential) => {
+        expect(credential).to.have.property('company_name')
+      })
     })
 
     it('returns none of the credentials if no matches found for the search', async () => {

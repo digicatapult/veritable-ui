@@ -18,8 +18,8 @@ type State =
   | 'done'
   | 'abandoned'
 type Role = 'issuer' | 'holder'
-type ICred<T> = T & { connection?: ConnectionRow; attributes?: [{ name: string; value: string; 'mime-type': string }] }
-export type Credentials = ICred<Credential>[]
+type ICred<T> = T & { connection?: ConnectionRow; company_name?: string; company_number?: string }
+export type Credentials = ICred<Credential>
 
 @singleton()
 export default class CredentialListTemplates {
@@ -105,10 +105,9 @@ export default class CredentialListTemplates {
                 </tr>
               ) : (
                 credentials.map((cred) => {
-                  if (!cred || !cred.credentialAttributes) throw new Error('TODO update error')
                   return (
                     <tr>
-                      <td>{Html.escapeHtml(cred.credentialAttributes[0].value)}</td>
+                      <td>{Html.escapeHtml(cred.company_name)}</td>
                       <td>{Html.escapeHtml('Supplier credentials')}</td>
                       <td>{this.roleToDirection(cred.role)}</td>
                       <td>{statusToClass(cred.state as ConnectionStatus)}</td>
