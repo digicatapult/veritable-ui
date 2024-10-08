@@ -132,13 +132,14 @@ This is the list of all environment variables including brief description
 
 If using the `SMTP_EMAIL` value for `EMAIL_TRANSPORT` the following additional configuration applies
 
-| variable name | required | default | description                                                                                                                                               |
-| ------------- | -------- | ------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| SMTP_HOST     | y        |         | Specifies the hostname of the SMTP server                                                                                                                 |
-| SMTP_PORT     | y        |         | Defines the port number on which the SMTP server is listening                                                                                             |
-| SMTP_SECURE   | n        | true    | A boolean indicating whether the connection to the SMTP server should be secure (i.e., use TLS/SSL)                                                       |
-| SMTP_USER     | y        |         | Specifies the username for authenticating with the SMTP server, default is empty string. No authentication is required for local development environments |
-| SMTP_PASS     | y        |         | Specifies the password for authenticating with the SMTP server, default is empty string. No authentication is required for local development environments |
+| variable name  | required | default | description                                                                                                                                               |
+| -------------- | -------- | ------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| SMTP_HOST      | y        |         | Specifies the hostname of the SMTP server                                                                                                                 |
+| SMTP_PORT      | y        |         | Defines the port number on which the SMTP server is listening                                                                                             |
+| SMTP_SECURE    | n        | true    | A boolean indicating whether the connection to the SMTP server should be secure (i.e., use TLS/SSL)                                                       |
+| SMTP_AUTH_TYPE | n        | login   | Specifies the authentication method to use. Choices are `login` or `oauth2`                                                                               |
+| SMTP_USER      | y        |         | Specifies the username for authenticating with the SMTP server, default is empty string. No authentication is required for local development environments |
+| SMTP_PASS      | y        |         | Specifies the password for authenticating with the SMTP server, default is empty string. No authentication is required for local development environments |
 
 ## Testing
 
