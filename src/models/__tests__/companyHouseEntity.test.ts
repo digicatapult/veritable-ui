@@ -1,6 +1,6 @@
 import { expect } from 'chai'
 import { describe, it } from 'mocha'
-import { Env } from '../../env.js'
+import { Env } from '../../env/index.js'
 import CompanyHouseEntity from '../companyHouseEntity.js'
 import {
   invalidCompanyNumber,
@@ -48,6 +48,7 @@ describe('companyHouseEntity', () => {
       const environment = new Env()
       const companyHouseObject = new CompanyHouseEntity(environment)
       const response = await companyHouseObject.localCompanyHouseProfile()
+
       expect(response).deep.equal(successResponse)
     })
   })

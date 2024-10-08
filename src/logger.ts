@@ -1,7 +1,7 @@
 import { pino } from 'pino'
 import { container } from 'tsyringe'
 
-import { Env } from './env.js'
+import { Env } from './env/index.js'
 
 export const Logger = Symbol('Logger')
 export type ILogger = ReturnType<typeof pino>

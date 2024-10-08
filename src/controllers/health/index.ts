@@ -2,7 +2,7 @@ import express from 'express'
 import { Get, Hidden, Request, Route, SuccessResponse } from 'tsoa'
 import { injectable } from 'tsyringe'
 
-import { Env } from '../../env.js'
+import { Env } from '../../env/index.js'
 
 type Response = {
   status: 'ok'

@@ -1,60 +1,15 @@
 import dotenv from 'dotenv'
-import * as envalid from 'envalid'
-import { singleton } from 'tsyringe'
+import envalid from 'envalid'
 
-const strArrayValidator = envalid.makeValidator((input) => {
-  const arr = input
-    .split(',')
-    .map((s) => s.trim())
-    .filter((s) => !!s)
+import { container } from 'tsyringe'
+import {
+  emailTransportValidator,
+  issuanceRecordValidator,
+  pinSecretValidator,
+  strArrayValidator,
+} from './validators.js'
 
-  const first = arr.shift()
-  if (first === undefined) {
-    throw new Error('must provide at least one cookie signing key')
-  }
-  const res: [string, ...string[]] = [first, ...arr]
-  return res
-})
-
-const issuanceRecordValidator = envalid.makeValidator((input) => {
-  if (input === 'CREATE_NEW') {
-    return 'CREATE_NEW' as const
-  }
-
-  if (input === 'FIND_EXISTING') {
-    return 'FIND_EXISTING' as const
-  }
-
-  if (input === 'EXISTING_OR_NEW') {
-    return 'EXISTING_OR_NEW' as const
-  }
-
-  if (input.match(/^did:/)) {
-    return input as `did:${string}`
-  }
-  if (input.match(/^ipfs:\/\//)) {
-    return input as `ipfs://${string}`
-  }
-
-  throw new Error('must supply a valid issuance policy')
-})
-
-const pinSecretValidator = envalid.makeValidator((input) => {
-  if (!input) {
-    throw new Error('Invalid pin secret value')
-  }
-
-  return Buffer.from(input, 'utf8')
-})
-
-/* API_SWAGGER_BG_COLOR - references
-    Alice: #38b6ff [blue]
-    Bob: #ff3131 [red]
-    Charlie: #ffbd59 [yellow]
-    Dave: #00bf63 [green]
-    Eve: #5e17eb [purple]
-  */
-export const envConfig = {
+export const defaultConfig = {
   PORT: envalid.port({ default: 3000 }),
   LOG_LEVEL: envalid.str({ default: 'info', devDefault: 'debug' }),
   DB_HOST: envalid.host({ devDefault: 'localhost' }),
@@ -85,14 +40,9 @@ export const envConfig = {
   }),
   COMPANY_HOUSE_API_URL: envalid.str({ default: 'https://api.company-information.service.gov.uk' }),
   COMPANY_PROFILE_API_KEY: envalid.str(),
-  EMAIL_TRANSPORT: envalid.str({ default: 'STREAM', choices: ['STREAM', 'SMTP_EMAIL'] }),
+  EMAIL_TRANSPORT: emailTransportValidator({ default: { type: 'STREAM' } }),
   EMAIL_FROM_ADDRESS: envalid.email({ default: 'hello@veritable.com' }),
   EMAIL_ADMIN_ADDRESS: envalid.email({ default: 'admin@veritable.com' }),
-  SMTP_HOST: envalid.str({ devDefault: 'localhost' }),
-  SMTP_PORT: envalid.str({ devDefault: '2525' }),
-  SMTP_SECURE: envalid.bool({ devDefault: false, default: true }), // smtp4dev does not use TLS by default so false in dev mode
-  SMTP_USER: envalid.str({ devDefault: '' }), // no auth required by default for smtp4dev
-  SMTP_PASS: envalid.str({ devDefault: '' }),
   CLOUDAGENT_ADMIN_ORIGIN: envalid.url({ devDefault: 'http://localhost:3100' }),
   CLOUDAGENT_ADMIN_WS_ORIGIN: envalid.url({ devDefault: 'ws://localhost:3100' }),
   INVITATION_PIN_SECRET: pinSecretValidator({ devDefault: Buffer.from('secret', 'utf8') }),
@@ -104,28 +54,26 @@ export const envConfig = {
   DEMO_MODE: envalid.bool({ devDefault: true, default: false }),
 }
 
-export type ENV_CONFIG = typeof envConfig
-export type ENV_KEYS = keyof ENV_CONFIG
-
-export interface PartialEnv<KS extends ENV_KEYS = ENV_KEYS> {
-  get<K extends KS>(key: K): Pick<envalid.CleanedEnv<typeof envConfig>, KS>[K]
-}
-
-@singleton()
-export class Env<KS extends ENV_KEYS = ENV_KEYS> implements PartialEnv<KS> {
-  private vals: Pick<envalid.CleanedEnv<typeof envConfig>, KS>
-
-  constructor() {
+// we mainly separate out the raw environment loading so we can override it safely in tests
+export const RAW_ENV_TOKEN = Symbol()
+container.register(RAW_ENV_TOKEN, {
+  useFactory: () => {
     if (process.env.NODE_ENV === 'test') {
       dotenv.config({ path: 'test/test.env' })
     } else {
       dotenv.config()
     }
 
-    this.vals = envalid.cleanEnv(process.env, envConfig)
-  }
+    return { env: process.env, options: undefined }
+  },
+})
 
-  get<K extends KS>(key: K) {
-    return this.vals[key]
-  }
+export const loadEnvAndOptions = () => {
+  return container.resolve<{ env: NodeJS.ProcessEnv; options: Parameters<typeof envalid.cleanEnv>['2'] }>(RAW_ENV_TOKEN)
+}
+
+export type DEFAULT_CONFIG = typeof defaultConfig
+export type DEFAULT_KEYS = keyof DEFAULT_CONFIG
+export interface PartialEnv<KS extends DEFAULT_KEYS = DEFAULT_KEYS> {
+  get<K extends KS>(key: K): Pick<envalid.CleanedEnv<DEFAULT_CONFIG>, KS>[K]
 }

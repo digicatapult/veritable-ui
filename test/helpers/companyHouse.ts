@@ -1,7 +1,7 @@
 import { container } from 'tsyringe'
 import { Dispatcher, MockAgent, getGlobalDispatcher, setGlobalDispatcher } from 'undici'
 
-import { Env } from '../../src/env.js'
+import { Env } from '../../src/env/index.js'
 import { successResponse, validCompanyNumber } from './fixtures.js'
 
 const env: Env = container.resolve(Env)

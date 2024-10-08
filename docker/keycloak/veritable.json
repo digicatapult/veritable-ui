@@ -412,11 +412,14 @@
         "http://veritable-ui-alice:3000/auth/callback",
         "http://veritable-ui-alice:3000/swagger/oauth2-redirect.html",
         "http://veritable-ui-bob:3000/auth/callback",
-        "http://veritable-ui-bob:3000/swagger/oauth2-redirect.html"
+        "http://veritable-ui-bob:3000/swagger/oauth2-redirect.html",
+        "http://localhost:3002/auth/callback",
+        "http://localhost:3002/swagger/oauth2-redirect.html"
       ],
       "webOrigins": [
         "http://localhost:3000",
         "http://localhost:3001",
+        "http://localhost:3002",
         "http://veritable-ui-bob:3000",
         "http://veritable-ui-alice:3000"
       ],

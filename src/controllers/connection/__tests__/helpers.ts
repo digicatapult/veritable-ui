@@ -2,7 +2,7 @@ import { Readable } from 'node:stream'
 import { pino } from 'pino'
 
 import sinon from 'sinon'
-import { Env } from '../../../env.js'
+import { Env } from '../../../env/index.js'
 import { ILogger } from '../../../logger.js'
 import CompanyHouseEntity from '../../../models/companyHouseEntity.js'
 import Database from '../../../models/db/index.js'

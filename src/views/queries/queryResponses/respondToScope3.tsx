@@ -87,7 +87,7 @@ export default class Scope3CarbonConsumptionResponseTemplates {
 
                 <input
                   id="total-scope-3-carbon-emissions-input"
-                  name="totalScope3CarbonEmissions"
+                  name="emissions"
                   placeholder="Value in kg CO2e (to be aggregated)"
                   class="query-input-field"
                   type="text"

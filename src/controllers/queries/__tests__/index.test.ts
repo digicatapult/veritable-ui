@@ -139,7 +139,110 @@ describe('QueriesController', () => {
       expect(result).to.equal('scope3_error_scope3')
     })
   })
+
   describe('query responses', () => {
+    describe('partial query responses', () => {
+      describe('if invalid partial input', () => {
+        it('throws if connectionsIds array is not in the req.body', async () => {
+          const { args } = withQueriesMocks()
+          const controller = new QueriesController(...args)
+          try {
+            await controller.scope3CarbonConsumptionResponseSubmit(req, 'query-partial-id-test', {
+              companyId: 'some-company-id',
+              action: 'success',
+              partialQuery: ['on'],
+              productIds: ['product-1', 'product-2'],
+              quantities: ['10', '20'],
+            })
+            // the below expect should never happen since we expect test to throw
+            expect(false).to.be.equal(true)
+          } catch (err) {
+            expect(err.toString()).to.be.equal('Error: missing a property in the request body')
+          }
+        })
+
+        it('throws if productIds array is not in the req.body', async () => {
+          const { args } = withQueriesMocks()
+          const controller = new QueriesController(...args)
+          try {
+            await controller.scope3CarbonConsumptionResponseSubmit(req, 'query-partial-id-test', {
+              companyId: 'some-company-id',
+              action: 'success',
+              partialQuery: ['on'],
+              connectionIds: ['conn-id-1', 'conn-id-2'],
+              quantities: ['10', '20'],
+            })
+            // the below expect should never happen since we expect test to throw
+            expect(false).to.be.equal(true)
+          } catch (err) {
+            expect(err.toString()).to.be.equal('Error: missing a property in the request body')
+          }
+        })
+
+        it('throws if quantities and productIds arrays are not req.body', async () => {
+          const { args } = withQueriesMocks()
+          const controller = new QueriesController(...args)
+          try {
+            await controller.scope3CarbonConsumptionResponseSubmit(req, 'query-partial-id-test', {
+              companyId: 'some-company-id',
+              action: 'success',
+              partialQuery: ['on'],
+              connectionIds: ['conn-id-1', 'conn-id-2'],
+            })
+            // the below expect should never happen since we expect test to throw
+            expect(false).to.be.equal(true)
+          } catch (err) {
+            expect(err.toString()).to.be.equal('Error: missing a property in the request body')
+          }
+        })
+
+        it('throws if arrays are not the same size', async () => {
+          const { args } = withQueriesMocks()
+          const controller = new QueriesController(...args)
+          try {
+            await controller.scope3CarbonConsumptionResponseSubmit(req, 'query-partial-id-test', {
+              companyId: 'some-company-id',
+              action: 'success',
+              partialQuery: ['on'],
+              productIds: ['product-id-1'],
+              quantities: ['1', '2', '3'],
+              connectionIds: ['conn-id-1', 'conn-id-2'],
+            })
+            // the below expect should never happen since we expect test to throw
+            expect(false).to.be.equal(true)
+          } catch (err) {
+            expect(err.toString()).to.be.equal('Error: partial query validation failed, invalid data')
+          }
+        })
+      })
+
+      it('sets a partial query status to resolved and renders response template', async () => {
+        const { args, dbMock } = withQueriesMocks()
+        const controller = new QueriesController(...args)
+        const getSpy = dbMock.get
+        const updateSpy = dbMock.update
+        const result = await controller
+          .scope3CarbonConsumptionResponseSubmit(req, 'query-partial-id-test', {
+            companyId: 'some-company-id',
+            action: 'success',
+            partialQuery: ['on'],
+            connectionIds: ['conn-id-1', 'conn-id-2'],
+            productIds: ['product-1', 'product-2'],
+            quantities: ['10', '20'],
+          })
+          .then(toHTMLString)
+
+        expect(getSpy.firstCall.calledWith('connection', { id: 'some-company-id', status: 'verified_both' })).to.equal(
+          true
+        )
+        expect(getSpy.secondCall.calledWith('query', { id: 'query-partial-id-test' })).to.equal(true)
+        expect(
+          updateSpy.firstCall.calledWith('query', { id: 'query-partial-id-test' }, { status: 'resolved' })
+        ).to.equal(true)
+        expect(result).to.be.equal('queriesResponse_template')
+      })
+    })
+
     it('should call db as expected', async () => {
       const { args, dbMock } = withQueriesMocks()
       const controller = new QueriesController(...args)
@@ -164,7 +267,7 @@ describe('QueriesController', () => {
         .scope3CarbonConsumptionResponseSubmit(req, '5390af91-c551-4d74-b394-d8ae0805059e', {
           companyId: '2345789',
           action: 'success',
-          totalScope3CarbonEmissions: '25',
+          emissions: '25',
         })
         .then(toHTMLString)
 
@@ -181,7 +284,7 @@ describe('QueriesController', () => {
         .scope3CarbonConsumptionResponseSubmit(req, '5390af91-c551-4d74-b394-d8ae0805059e', {
           companyId: '2345789',
           action: 'success',
-          totalScope3CarbonEmissions: '25',
+          emissions: '25',
         })
         .then(toHTMLString)
 
@@ -197,7 +300,7 @@ describe('QueriesController', () => {
         .scope3CarbonConsumptionResponseSubmit(req, '5390af91-c551-4d74-b394-d8ae0805059e', {
           companyId: '2345789',
           action: 'success',
-          totalScope3CarbonEmissions: '25',
+          emissions: '25',
         })
         .then(toHTMLString)
 
@@ -217,7 +320,7 @@ describe('QueriesController', () => {
       .scope3CarbonConsumptionResponseSubmit(req, '5390af91-c551-4d74-b394-d8ae0805059e', {
         companyId: '2345789',
         action: 'success',
-        totalScope3CarbonEmissions: '25',
+        emissions: '25',
       })
       .then(toHTMLString)
 

@@ -2,7 +2,7 @@ import 'reflect-metadata'
 
 import { container } from 'tsyringe'
 
-import { Env } from './env.js'
+import { Env } from './env/index.js'
 import Server from './server.js'
 
 import { Logger, type ILogger } from './logger.js'
