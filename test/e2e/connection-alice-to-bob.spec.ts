@@ -126,7 +126,7 @@ test.describe('Connection from Alice to Bob', () => {
       // const urlPattern = /http:\/\/veritable-ui-bob:3000\/connection\/[0-9a-fA-F-]{36}\/pin-submission/
       // const urlPattern = /http:\/\/localhost:3001\/connection\/[0-9a-fA-F-]{36}\/pin-submission/
 
-      const escapedBaseUrlBob = baseUrlBob.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&')
+      const escapedBaseUrlBob = baseUrlBob.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&')
       const urlPattern = new RegExp(`${escapedBaseUrlBob}/connection/[0-9a-fA-F-]{36}/pin-submission`)
 
       expect(pinUrl).toMatch(urlPattern)
