@@ -53,15 +53,16 @@ export default class EmailService {
     }.bind(transport)
   }
   private buildSmtpTransport(smtpTransportConfig: SmtpEnv): typeof this.transportSendMail {
-    const transport = nodemailer.createTransport({
+    const user = smtpTransportConfig.get('SMTP_USER')
+    const pass = smtpTransportConfig.get('SMTP_PASS')
+    const auth = user && pass ? { user, pass } : {}
+    const options = {
       host: smtpTransportConfig.get('SMTP_HOST'),
       port: smtpTransportConfig.get('SMTP_PORT'),
       secure: smtpTransportConfig.get('SMTP_SECURE'), // true for 465, false for other ports
-      auth: {
-        user: smtpTransportConfig.get('SMTP_USER'),
-        pass: smtpTransportConfig.get('SMTP_PASS'),
-      },
-    })
+      auth,
+    }
+    const transport = nodemailer.createTransport(options)
     const logger = this.logger
     logger.debug(
       `Initialising with SMTP_HOST: ${smtpTransportConfig.get('SMTP_HOST')}, SMTP_PORT: ${smtpTransportConfig.get('SMTP_PORT')}, SMTP_SECURE:${smtpTransportConfig.get('SMTP_SECURE')}`
