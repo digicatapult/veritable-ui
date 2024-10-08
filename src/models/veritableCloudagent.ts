@@ -39,7 +39,6 @@ export const connectionParser = z.object({
 export type Connection = z.infer<typeof connectionParser>
 
 export const credentialAttributeParser = z.object({
-  'mime-type': z.string(),
   name: z.string(),
   value: z.string(),
 })
@@ -138,7 +137,6 @@ export type CredentialProposalInput = {
   attributes?: {
     name: string
     value: string
-    mimeType?: string
   }[]
 }
 export type CredentialProposalAcceptInput = {
