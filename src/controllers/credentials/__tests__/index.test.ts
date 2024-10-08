@@ -21,7 +21,7 @@ describe('CredentialsController', () => {
       const { args } = withConnectionMocks()
       const controller = new CredentialsController(...args)
       const result = await controller.listCredentials(req).then(toHTMLString)
-      
+
       expect(result).to.equal('listCredentials_issuer-done-v2_listCredentials')
     })
 

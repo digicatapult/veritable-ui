@@ -18,7 +18,7 @@ type State =
   | 'done'
   | 'abandoned'
 type Role = 'issuer' | 'holder'
-type ICred<T> = T & { connection?: ConnectionRow; attributes?: { [k: string]: string } }
+type ICred<T> = T & { connection?: ConnectionRow; attributes?: [{ name: string; value: string; 'mime-type': string }] }
 export type Credentials = ICred<Credential>[]
 
 @singleton()
@@ -101,7 +101,7 @@ export default class CredentialListTemplates {
             <tbody id="search-results">
               {credentials.length == 0 ? (
                 <tr>
-                  <td>No Credentials for that search. Try again or add a new credential</td>
+                  <td>No Credentials found</td>
                 </tr>
               ) : (
                 credentials.map((cred) => {

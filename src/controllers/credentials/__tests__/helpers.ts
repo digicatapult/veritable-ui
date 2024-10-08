@@ -10,11 +10,12 @@ function templateFake(templateName: string, ...args: unknown[]) {
 
 export const withConnectionMocks = () => {
   const templateMock = {
-    listPage: (creds: Credential[]) => templateFake('listCredentials', creds[0].role, creds[0].state, creds[0].protocolVersion),
+    listPage: (creds: Credential[]) =>
+      templateFake('listCredentials', creds[0].role, creds[0].state, creds[0].protocolVersion),
   }
 
   const dbMock = {
-    get: sinon.stub().resolves(),
+    get: sinon.stub().callsFake((_, args) => [{ agent_connection_id: args.agent_connection_id, company_name: 'test' }]),
   }
 
   const cloudagentMock = {

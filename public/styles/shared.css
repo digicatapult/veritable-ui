@@ -7,9 +7,8 @@
 
   &:hover,
   &:focus-visible {
-    filter: grayscale(100%) !important;
     opacity: 0.3 !important;
-    filter:blur(2) p !important;
+    filter:blur(2), grayscale(100%) !important;
     cursor: not-allowed;
   }
 }

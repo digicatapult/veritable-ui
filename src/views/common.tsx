@@ -20,6 +20,16 @@ export type ConnectionStatus =
   | 'done'
   | 'errored'
   | 'resolved'
+  | 'proposal-sent'
+  | 'proposal-received'
+  | 'offer-sent'
+  | 'offer-received'
+  | 'declined'
+  | 'request-sent'
+  | 'request-received'
+  | 'credential-issued'
+  | 'credential-received'
+  | 'abandoned'
 
 type PageProps = {
   title: string
@@ -180,7 +190,6 @@ export const Page = (props: PropsWithChildren<PageProps>): JSX.Element => (
   </>
 )
 
-// this method was used in three different files, if no objections would like to leave along other shared items
 export const statusToClass = (status: ConnectionStatus): JSX.Element => {
   switch (status) {
     case 'verified_them':
@@ -237,10 +246,70 @@ export const statusToClass = (status: ConnectionStatus): JSX.Element => {
           Errored
         </div>
       )
+    case 'proposal-sent':
+      return (
+        <div class="list-item-status" data-status="disabled">
+          Proposal Sent
+        </div>
+      )
+    case 'proposal-received':
+      return (
+        <div class="list-item-status" data-status="disabled">
+          Proposal Received
+        </div>
+      )
+    case 'offer-sent':
+      return (
+        <div class="list-item-status" data-status="disabled">
+          Offer Sent
+        </div>
+      )
+    case 'offer-received':
+      return (
+        <div class="list-item-status" data-status="warning">
+          Offer Received
+        </div>
+      )
+    case 'declined':
+      return (
+        <div class="list-item-status" data-status="error">
+          Declined
+        </div>
+      )
+    case 'request-sent':
+      return (
+        <div class="list-item-status" data-status="disabled">
+          Request Sent
+        </div>
+      )
+    case 'request-received':
+      return (
+        <div class="list-item-status" data-status="warning">
+          Request Received
+        </div>
+      )
+    case 'credential-issued':
+      return (
+        <div class="list-item-status" data-status="disabled">
+          Credential Issued
+        </div>
+      )
+    case 'credential-received':
+      return (
+        <div class="list-item-status" data-status="warning">
+          Credential Received
+        </div>
+      )
     case 'done':
       return (
         <div class="list-item-status" data-status="success">
-          Resolved
+          Completed
+        </div>
+      )
+    case 'abandoned':
+      return (
+        <div class="list-item-status" data-status="error">
+          Cancelled
         </div>
       )
     default:
