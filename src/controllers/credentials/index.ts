@@ -61,8 +61,7 @@ export class CredentialsController extends HTMLController {
           },
           {}
         ),
-        connection: {},
       }
-    }) as unknown as Credentials[]
+    })
   }
 }
