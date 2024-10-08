@@ -32,6 +32,7 @@ export class CredentialsController extends HTMLController {
       const [connection]: ConnectionRow[] = await this.db.get('connection', {
         agent_connection_id: formatted[i].connectionId,
       })
+
       if (connection) formatted[i].connection = connection
     }
 
@@ -39,8 +40,7 @@ export class CredentialsController extends HTMLController {
       const companyName = attributes?.find(({ name }: { name: string }) => {
         return name === 'company_name'
       })
-      if (!connection) return false
-      if (!companyName) return false
+      if (!connection || !companyName) return false
       if (search === '') return true
       req.log.info('checking if %s includes %s', companyName, search)
 
