@@ -1,14 +1,14 @@
-import { expect, test } from '@playwright/test'
-import { withCleanApp, withLoggedInUser, withRegisteredAccount } from './helpers/registerLogIn.js'
+import { expect, Page, test } from '@playwright/test'
+import { CustomBrowserContext, withCleanApp, withLoggedInUser, withRegisteredAccount } from './helpers/registerLogIn.js'
 import { checkEmails, extractInvite, extractPin, findNewAdminEmail, getHostPort } from './helpers/smtpEmails.js'
 
 test.describe('Connection from Alice to Bob', () => {
-  let context: any
-  let page: any
+  let context: CustomBrowserContext
+  let page: Page
   let adminEmailId: string
   let invite: string | null
-  let pinForBob: string | null
-  let pinForAlice: string | null
+  let pinForBob: string
+  let pinForAlice: string
 
   const baseUrlAlice = process.env.VERITABLE_ALICE_PUBLIC_URL || 'http://localhost:3000'
   const baseUrlBob = process.env.VERITABLE_BOB_PUBLIC_URL || 'http://localhost:3001'
@@ -83,9 +83,10 @@ test.describe('Connection from Alice to Bob', () => {
       const { inviteEmail, adminEmail } = await checkEmails(host, port)
       adminEmailId = adminEmail.id
 
-      pinForBob = await extractPin(adminEmail.id, smtp4devUrl)
-      expect(pinForBob).toHaveLength(6)
-      if (!pinForBob) throw new Error('PIN for Bob was not found.')
+      const extractedPin = await extractPin(adminEmail.id, smtp4devUrl)
+      expect(extractedPin).toHaveLength(6)
+      if (!extractedPin) throw new Error('PIN for Bob was not found.')
+      pinForBob = extractedPin
       invite = await extractInvite(inviteEmail.id, smtp4devUrl)
       if (!invite) throw new Error('Invitation for Bob was not found.')
     })
@@ -126,7 +127,7 @@ test.describe('Connection from Alice to Bob', () => {
       // const urlPattern = /http:\/\/localhost:3001\/connection\/[0-9a-fA-F-]{36}\/pin-submission/
 
       const escapedBaseUrlBob = baseUrlBob.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&')
-      const urlPattern = new RegExp(`${escapedBaseUrlBob}\\/connection\\/[0-9a-fA-F-]{36}\\/pin-submission`)
+      const urlPattern = new RegExp(`${escapedBaseUrlBob}/connection/[0-9a-fA-F-]{36}/pin-submission`)
 
       expect(pinUrl).toMatch(urlPattern)
 
@@ -146,9 +147,11 @@ test.describe('Connection from Alice to Bob', () => {
 
     await test.step('Retrieve pin for Alice', async () => {
       const newAdminEmail = await findNewAdminEmail(adminEmailId, host, port)
-      pinForAlice = await extractPin(newAdminEmail.id, smtp4devUrl)
-      expect(pinForAlice).toHaveLength(6)
-      if (!pinForAlice) throw new Error('PIN from admin email was not found.')
+      const extractedPin = await extractPin(newAdminEmail.id, smtp4devUrl)
+      expect(extractedPin).toHaveLength(6)
+      if (!extractedPin) throw new Error('PIN from admin email was not found.')
+
+      pinForAlice = extractedPin
     })
 
     await test.step('Alice submits her PIN', async () => {

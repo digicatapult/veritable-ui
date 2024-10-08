@@ -1,7 +1,11 @@
 import { randomUUID } from 'node:crypto'
 
-import { expect } from '@playwright/test'
+import { BrowserContext, expect, Page } from '@playwright/test'
 import { get } from './routeHelpers'
+
+export interface CustomBrowserContext extends BrowserContext {
+  username?: string
+}
 
 export async function withCleanApp(urlAlice: string, urlBob: string, smtp4devUrl: string) {
   const results = await Promise.all([
@@ -14,7 +18,7 @@ export async function withCleanApp(urlAlice: string, urlBob: string, smtp4devUrl
   }
 }
 
-export async function withRegisteredAccount(page: any, context: any, loginUrl: string) {
+export async function withRegisteredAccount(page: Page, context: CustomBrowserContext, loginUrl: string) {
   const baseKeycloakUrl = process.env.VERITABLE_KEYCLOAK_URL_PREFIX || 'http://localhost:3080'
 
   const expectedKeycloakUrl = `${baseKeycloakUrl}/realms/veritable/protocol/openid-connect/auth?response_type=code&client_id=veritable-ui&redirect_uri=http`
@@ -39,11 +43,14 @@ export async function withRegisteredAccount(page: any, context: any, loginUrl: s
   await page.waitForURL(loginUrl)
 }
 
-export async function withLoggedInUser(page: any, context: any, loginUrl: string) {
+export async function withLoggedInUser(page: Page, context: CustomBrowserContext, loginUrl: string) {
   const baseKeycloakUrl = process.env.VERITABLE_KEYCLOAK_URL_PREFIX || 'http://localhost:3080'
   const expectedKeycloakUrl = `${baseKeycloakUrl}/realms/veritable/protocol/openid-connect/auth?response_type=code&client_id=veritable-ui&redirect_uri=http`
   await page.goto(loginUrl)
   const inviteUrl = page.url()
+  if (!context.username) {
+    throw new Error(`username was not found`)
+  }
   if (inviteUrl.includes(expectedKeycloakUrl)) {
     await page.fill('#username', context.username)
     await page.fill('#password', 'password')
