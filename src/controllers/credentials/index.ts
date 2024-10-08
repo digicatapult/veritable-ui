@@ -44,7 +44,7 @@ export class CredentialsController extends HTMLController {
       return company_name.toLowerCase().includes(search.toLowerCase())
     })
 
-    req.log.info('returming HTML along with formatted credentials %j', formatted)
+    req.log.info('returning HTML along with formatted credentials %j', formatted)
 
     this.setHeader('HX-Replace-Url', search ? `/credentials?search=${encodeURIComponent(search)}` : `/credentials`)
     return this.html(this.credentialsTemplates.listPage(filtered, search))
