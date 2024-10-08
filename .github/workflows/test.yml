@@ -110,7 +110,7 @@ jobs:
         env:
           VERITABLE_COMPANY_PROFILE_API_KEY: ${{ secrets.COMPANIES_HOUSE_API }}
           VERITABLE_E2E_OUT_DIR: ${{ runner.temp }}
-        run: docker compose -f docker-compose.e2e.yml up
+        run: docker compose -f docker-compose.e2e.yml up --exit-code-from e2e-test --abort-on-container-exit
       - uses: actions/upload-artifact@v4
         if: always()
         with:
