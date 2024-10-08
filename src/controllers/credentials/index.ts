@@ -32,24 +32,25 @@ export class CredentialsController extends HTMLController {
       const [connection]: ConnectionRow[] = await this.db.get('connection', {
         agent_connection_id: formatted[i].connectionId,
       })
-      formatted[i].connection = connection
+      if (connection) formatted[i].connection = connection
     }
 
-    formatted.filter((cred) => {
-      if (!cred.attributes) return false
-      const companyName = cred.attributes.map(({ name }: { name: string }) => {
+    const filtered = formatted.filter(({ connection, attributes }) => {
+      const companyName = attributes?.find(({ name }: { name: string }) => {
         return name === 'company_name'
       })
-      if (search !== '') return true
+      if (!connection) return false
+      if (!companyName) return false
+      if (search === '') return true
       req.log.info('checking if %s includes %s', companyName, search)
 
-      return companyName.toString().toLowerCase().includes(search.toLowerCase())
+      return companyName.value.toLowerCase().includes(search.toLowerCase())
     })
 
     req.log.info('returming HTML along with formatted credentials %j', formatted)
 
     this.setHeader('HX-Replace-Url', search ? `/credentials?search=${encodeURIComponent(search)}` : `/credentials`)
-    return this.html(this.credentialsTemplates.listPage(formatted, search))
+    return this.html(this.credentialsTemplates.listPage(filtered, search))
   }
 
   private format(credentials: Credential[]): Credentials {

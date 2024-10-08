@@ -1,7 +1,7 @@
 import sinon from 'sinon'
 import Database from '../../../models/db/index.js'
 import VeritableCloudagent, { Credential } from '../../../models/veritableCloudagent.js'
-import { AliceCredentials } from '../../../views/credentials/__tests__/fixtures.js'
+import { AliceCredentials, BobCredentials } from '../../../views/credentials/__tests__/fixtures.js'
 import CredentialListTemplates from '../../../views/credentials/index.js'
 
 function templateFake(templateName: string, ...args: unknown[]) {
@@ -10,16 +10,19 @@ function templateFake(templateName: string, ...args: unknown[]) {
 
 export const withConnectionMocks = () => {
   const templateMock = {
-    listPage: (creds: Credential[]) =>
-      templateFake('listCredentials', creds[0].role, creds[0].state, creds[0].protocolVersion),
+    listPage: sinon.stub().callsFake((creds: Credential[]) => {
+      if (creds.length > 0)
+        return templateFake('listCredentials', creds[0].role, creds[0].state, creds[0].protocolVersion)
+      return templateFake('listCredentials', creds)
+    }),
   }
 
   const dbMock = {
-    get: sinon.stub().callsFake((_, args) => [{ agent_connection_id: args.agent_connection_id, company_name: 'test' }]),
+    get: sinon.stub().callsFake((_, args) => [{ agent_connection_id: args.agent_connection_id }]),
   }
 
   const cloudagentMock = {
-    getCredentials: sinon.stub().resolves(AliceCredentials),
+    getCredentials: sinon.stub().resolves([...BobCredentials, ...AliceCredentials]),
   }
 
   return {

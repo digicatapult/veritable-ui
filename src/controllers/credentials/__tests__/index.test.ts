@@ -34,7 +34,47 @@ describe('CredentialsController', () => {
       expect(mockAgent.called).to.equal(true)
     })
 
-    it('returns credentials list', async () => {
+    it('retrieves a connection for a credential', async () => {
+      const { dbMock, args } = withConnectionMocks()
+      const controller = new CredentialsController(...args)
+      await controller.listCredentials(req, '').then(toHTMLString)
+      const getCredetialsMock = dbMock.get
+
+      expect(getCredetialsMock.lastCall.args).to.deep.equal([
+        'connection',
+        {
+          agent_connection_id: '65e99592-1989-4087-b7a3-ee50695b3457',
+        },
+      ])
+    })
+
+    it('filters by company name depending on search text', async () => {
+      const { templateMock, args } = withConnectionMocks()
+      const controller = new CredentialsController(...args)
+      await controller.listCredentials(req, 'digi').then(toHTMLString)
+
+      expect(templateMock.listPage.lastCall.args[0].length).to.equal(2)
+      expect(templateMock.listPage.lastCall.args[1]).to.equal('digi')
+    })
+
+    it('returns all valid credentials if search is not provided', async () => {
+      const { templateMock, args } = withConnectionMocks()
+      const controller = new CredentialsController(...args)
+      await controller.listCredentials(req, '').then(toHTMLString)
+
+      expect(templateMock.listPage.lastCall.args[0].length).to.deep.equal(4)
+    })
+
+    it('returns none of the credentials if no matches found for the search', async () => {
+      const { templateMock, args } = withConnectionMocks()
+      const controller = new CredentialsController(...args)
+      const res = await controller.listCredentials(req, 'somethingThatshouldnotexist').then(toHTMLString)
+
+      expect(res).to.equal('listCredentials__listCredentials')
+      expect(templateMock.listPage.lastCall.args[0].length).to.deep.equal(0)
+    })
+
+    it('returns credentials list (alice)', async () => {
       const { cloudagentMock, args } = withConnectionMocks()
       const controller = new CredentialsController(...args)
       cloudagentMock.getCredentials.resolves(AliceCredentials)
@@ -43,7 +83,7 @@ describe('CredentialsController', () => {
       expect(res).to.equal('listCredentials_issuer-done-v2_listCredentials')
     })
 
-    it('returns credentials list', async () => {
+    it('returns credentials list(bob)', async () => {
       const { cloudagentMock, args } = withConnectionMocks()
       const controller = new CredentialsController(...args)
       cloudagentMock.getCredentials.resolves(BobCredentials)
