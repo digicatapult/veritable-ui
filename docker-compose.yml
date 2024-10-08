@@ -68,7 +68,6 @@ services:
       - DEMO_MODE=true
       - SMTP_SECURE=false
       - COMPANY_PROFILE_API_KEY=${VERITABLE_COMPANY_PROFILE_API_KEY:-API_KEY}
-
   postgres-veritable-ui-alice:
     image: postgres:17.0-alpine
     container_name: postgres-veritable-ui-alice
@@ -211,9 +210,6 @@ services:
         npm i -g pino-colada
         node ./node_modules/.bin/knex migrate:latest
         npm start | pino-colada"
-    env_file:
-      - docker/test.env
-      - .env
     environment:
       - NODE_ENV=production
       - LOG_LEVEL=trace
@@ -241,6 +237,7 @@ services:
       - SMTP_PASS=
       - SMTP_PORT=25
       - SMTP_USER=
+      - COMPANY_PROFILE_API_KEY=${VERITABLE_COMPANY_PROFILE_API_KEY:-API_KEY}
   postgres-veritable-ui-charlie:
     image: postgres:17.0-alpine
     container_name: postgres-veritable-ui-charlie
