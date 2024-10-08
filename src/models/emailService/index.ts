@@ -53,11 +53,16 @@ export default class EmailService {
     }.bind(transport)
   }
   private buildSmtpTransport(smtpTransportConfig: SmtpEnv): typeof this.transportSendMail {
-    const transport = nodemailer.createTransport({
+    const user = smtpTransportConfig.get('SMTP_USER')
+    const pass = smtpTransportConfig.get('SMTP_PASS')
+    const auth = user && pass ? { user, pass } : {}
+    const options = {
       host: smtpTransportConfig.get('SMTP_HOST'),
       port: smtpTransportConfig.get('SMTP_PORT'),
       secure: smtpTransportConfig.get('SMTP_SECURE'), // true for 465, false for other ports
-    })
+      auth,
+    }
+    const transport = nodemailer.createTransport(options)
     const logger = this.logger
     logger.debug(
       `Initialising with SMTP_HOST: ${smtpTransportConfig.get('SMTP_HOST')}, SMTP_PORT: ${smtpTransportConfig.get('SMTP_PORT')}, SMTP_SECURE:${smtpTransportConfig.get('SMTP_SECURE')}`
@@ -66,6 +71,7 @@ export default class EmailService {
     transport.verify(function (error, success) {
       if (error) {
         logger.debug(`SMTP connection failed: ${error}`)
+        throw error
       } else {
         logger.debug(`SMTP server is ready to take messages: ${success}`)
       }
