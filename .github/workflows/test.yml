@@ -110,32 +110,7 @@ jobs:
         env:
           VERITABLE_COMPANY_PROFILE_API_KEY: ${{ secrets.COMPANIES_HOUSE_API }}
           VERITABLE_E2E_OUT_DIR: ${{ runner.temp }}
-          PORT: 3000
-          LOG_LEVEL: debug
-          DB_HOST: localhost
-          DB_NAME: veritable-ui
-          DB_USERNAME: postgres
-          DB_PASSWORD: postgres
-          DB_PORT: 5432
-          COOKIE_SESSION_KEYS: '["secret"]'
-          PUBLIC_URL: http://localhost:3000
-          IDP_CLIENT_ID: veritable-ui
-          IDP_PUBLIC_URL_PREFIX: http://localhost:3080/realms/veritable/protocol/openid-connect
-          IDP_INTERNAL_URL_PREFIX: http://localhost:3080/realms/veritable/protocol/openid-connect
-          CLOUDAGENT_ADMIN_ORIGIN: http://localhost:3100
-          CLOUDAGENT_ADMIN_WS_ORIGIN: ws://localhost:3100
-          INVITATION_PIN_SECRET: secret
-          INVITATION_FROM_COMPANY_NUMBER: 07964699
-          ISSUANCE_DID_POLICY: EXISTING_OR_NEW
-          ISSUANCE_SCHEMA_POLICY: EXISTING_OR_NEW
-          ISSUANCE_CRED_DEF_POLICY: EXISTING_OR_NEW
-          COMPANY_PROFILE_API_KEY: apikey
-          SMTP_HOST: localhost
-          SMTP_PASS: password
-          SMTP_PORT: 2525
-          SMTP_USER: username
         run: docker compose -f docker-compose.e2e.yml up --exit-code-from e2e-tests --abort-on-container-exit
-
       - name: Install Playwright Browsers
         run: npx playwright install --with-deps
       - name: Run Playwright tests

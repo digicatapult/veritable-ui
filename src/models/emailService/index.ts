@@ -57,10 +57,6 @@ export default class EmailService {
       host: smtpTransportConfig.get('SMTP_HOST'),
       port: smtpTransportConfig.get('SMTP_PORT'),
       secure: smtpTransportConfig.get('SMTP_SECURE'), // true for 465, false for other ports
-      auth: {
-        user: smtpTransportConfig.get('SMTP_USER'),
-        pass: smtpTransportConfig.get('SMTP_PASS'),
-      },
     })
     const logger = this.logger
     logger.debug(
@@ -70,7 +66,6 @@ export default class EmailService {
     transport.verify(function (error, success) {
       if (error) {
         logger.debug(`SMTP connection failed: ${error}`)
-        throw error
       } else {
         logger.debug(`SMTP server is ready to take messages: ${success}`)
       }

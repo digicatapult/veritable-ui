@@ -2,23 +2,13 @@ import http from 'http'
 import { resetContainer } from '../../src/ioc.js'
 
 export function setupSmtpTestEnvironment() {
-  let username: string | undefined
-  let password: string | undefined
-
   beforeEach(async () => {
-    username = process.env.SMTP_USER
-    password = process.env.SMTP_PASS
-
     process.env.EMAIL_TRANSPORT = 'SMTP_EMAIL'
-    process.env.SMTP_USER = 'username'
-    process.env.SMTP_PASS = 'password'
     resetContainer()
   })
 
   afterEach(async () => {
     process.env.EMAIL_TRANSPORT = 'STREAM'
-    process.env.SMTP_USER = username
-    process.env.SMTP_PASS = password
     resetContainer()
   })
 }
