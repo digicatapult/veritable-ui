@@ -35,8 +35,8 @@ services:
         npm i -g pino-colada
         node ./node_modules/.bin/knex migrate:latest
         npm start | pino-colada"
-    env_file:
-      - .env
+    # env_file:
+    #   - .env
     environment:
       - NODE_ENV=production
       - LOG_LEVEL=debug
@@ -124,8 +124,8 @@ services:
         npm i -g pino-colada
         node ./node_modules/.bin/knex migrate:latest
         npm start | pino-colada"
-    env_file:
-      - .env
+    # env_file:
+    #   - .env
     environment:
       - NODE_ENV=production
       - LOG_LEVEL=debug
