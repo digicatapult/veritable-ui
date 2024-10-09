@@ -18,6 +18,58 @@ services:
       - ipfs:/data/ipfs
 
   # -------------------- alice -------------------------------#
+  veritable-ui-alice:
+    container_name: veritable-ui-alice
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: always
+    depends_on:
+      postgres-veritable-ui-alice:
+        condition: service_started
+      veritable-cloudagent-alice:
+        condition: service_healthy
+    scale: 0
+    ports:
+      - 3000:3000
+    command: >
+      sh -c "
+        npm i -g pino-colada
+        node ./node_modules/.bin/knex migrate:latest
+        npm start | pino-colada"
+    # env_file:
+    #   - .env
+    environment:
+      - NODE_ENV=production
+      - LOG_LEVEL=debug
+      - DB_HOST=postgres-veritable-ui-alice
+      - DB_NAME=veritable-ui
+      - DB_USERNAME=postgres
+      - DB_PASSWORD=postgres
+      - DB_PORT=5432
+      - COOKIE_SESSION_KEYS=secret
+      - PUBLIC_URL=${VERITABLE_ALICE_PUBLIC_URL:-http://localhost:3000}
+      - IDP_CLIENT_ID=veritable-ui
+      - IDP_PUBLIC_URL_PREFIX=${VERITABLE_IDP_PUBLIC_URL_PREFIX:-http://localhost:3080/realms/veritable/protocol/openid-connect}
+      - IDP_INTERNAL_URL_PREFIX=http://keycloak:8080/realms/veritable/protocol/openid-connect
+      - CLOUDAGENT_ADMIN_ORIGIN=http://veritable-cloudagent-alice:3000
+      - CLOUDAGENT_ADMIN_WS_ORIGIN=ws://veritable-cloudagent-alice:3000
+      - INVITATION_PIN_SECRET=secret
+      - INVITATION_FROM_COMPANY_NUMBER=07964699
+      - ISSUANCE_DID_POLICY=EXISTING_OR_NEW
+      - ISSUANCE_SCHEMA_POLICY=EXISTING_OR_NEW
+      - ISSUANCE_CRED_DEF_POLICY=EXISTING_OR_NEW
+      - SMTP_HOST=smtp4dev
+      - SMTP_PASS=
+      - SMTP_PORT=25
+      - SMTP_USER=
+      - EMAIL_TRANSPORT=SMTP_EMAIL
+      - API_SWAGGER_TITLE=Alice
+      - API_SWAGGER_BG_COLOR=#ff3131
+      - COMPANY_HOUSE_API_URL=https://api.company-information.service.gov.uk
+      - DEMO_MODE=true
+      - SMTP_SECURE=false
+      - COMPANY_PROFILE_API_KEY=${VERITABLE_COMPANY_PROFILE_API_KEY:-API_KEY}
   postgres-veritable-ui-alice:
     image: postgres:17.0-alpine
     container_name: postgres-veritable-ui-alice
@@ -64,8 +116,10 @@ services:
       dockerfile: Dockerfile
     restart: always
     depends_on:
-      - postgres-veritable-ui-bob
-      - veritable-cloudagent-bob
+      postgres-veritable-ui-bob:
+        condition: service_started
+      veritable-cloudagent-bob:
+        condition: service_healthy
     ports:
       - 3001:3000
     command: >
@@ -73,17 +127,16 @@ services:
         npm i -g pino-colada
         node ./node_modules/.bin/knex migrate:latest
         npm start | pino-colada"
-    env_file:
-      - docker/test.env
-      - .env
+    # env_file:
+    #   - .env
     environment:
       - NODE_ENV=production
-      - LOG_LEVEL=trace
+      - LOG_LEVEL=debug
       - DB_HOST=postgres-veritable-ui-bob
       - DB_NAME=veritable-ui
       - API_SWAGGER_TITLE=Bob
       - API_SWAGGER_BG_COLOR=#ff3131
-      - PUBLIC_URL=http://localhost:3001
+      - PUBLIC_URL=${VERITABLE_BOB_PUBLIC_URL:-http://localhost:3001}
       - CLOUDAGENT_ADMIN_ORIGIN=http://veritable-cloudagent-bob:3000
       - CLOUDAGENT_ADMIN_WS_ORIGIN=ws://veritable-cloudagent-bob:3000
       - COMPANY_HOUSE_API_URL=https://api.company-information.service.gov.uk
@@ -91,7 +144,7 @@ services:
       - DB_PASSWORD=postgres
       - DB_USERNAME=postgres
       - IDP_CLIENT_ID=veritable-ui
-      - IDP_PUBLIC_URL_PREFIX=http://localhost:3080/realms/veritable/protocol/openid-connect
+      - IDP_PUBLIC_URL_PREFIX=${VERITABLE_IDP_PUBLIC_URL_PREFIX:-http://localhost:3080/realms/veritable/protocol/openid-connect}
       - IDP_INTERNAL_URL_PREFIX=http://keycloak:8080/realms/veritable/protocol/openid-connect
       - INVITATION_FROM_COMPANY_NUMBER=04659351
       - INVITATION_PIN_SECRET=secret
@@ -103,6 +156,10 @@ services:
       - SMTP_PASS=password
       - SMTP_PORT=25
       - SMTP_USER=username
+      - EMAIL_TRANSPORT=SMTP_EMAIL
+      - SMTP_SECURE=false
+      - COMPANY_PROFILE_API_KEY=${VERITABLE_COMPANY_PROFILE_API_KEY:-API_KEY}
+
   postgres-veritable-ui-bob:
     image: postgres:17.0-alpine
     container_name: postgres-veritable-ui-bob
@@ -140,7 +197,7 @@ services:
       - POSTGRES_HOST=postgres-veritable-cloudagent-bob
       - WALLET_ID=bob
       - WALLET_KEY=bob-key
-      
+
   # -------------------- charlie -------------------------------#
   veritable-ui-charlie:
     container_name: veritable-ui-charlie
@@ -149,8 +206,10 @@ services:
       dockerfile: Dockerfile
     restart: always
     depends_on:
-      - postgres-veritable-ui-charlie
-      - veritable-cloudagent-charlie
+      postgres-veritable-ui-charlie:
+        condition: service_started
+      veritable-cloudagent-charlie:
+        condition: service_healthy
     ports:
       - 3002:3000
     command: >
@@ -158,9 +217,6 @@ services:
         npm i -g pino-colada
         node ./node_modules/.bin/knex migrate:latest
         npm start | pino-colada"
-    env_file:
-      - docker/test.env
-      - .env
     environment:
       - NODE_ENV=production
       - LOG_LEVEL=trace
@@ -188,6 +244,7 @@ services:
       - SMTP_PASS=
       - SMTP_PORT=25
       - SMTP_USER=
+      - COMPANY_PROFILE_API_KEY=${VERITABLE_COMPANY_PROFILE_API_KEY:-API_KEY}
   postgres-veritable-ui-charlie:
     image: postgres:17.0-alpine
     container_name: postgres-veritable-ui-charlie

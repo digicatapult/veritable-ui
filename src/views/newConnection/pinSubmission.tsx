@@ -74,7 +74,7 @@ export class PinSubmissionTemplates extends NewConnectionTemplates {
         <div id="new-connection-invite-input">
           <p>
             PIN Code has been submitted for {Html.escapeHtml(props.companyName)} company ID. Please wait for the
-            verification code to be confirmed by viewing theverification status.
+            verification code to be confirmed by viewing the verification status.
           </p>
         </div>
       </this.newConnectionForm>

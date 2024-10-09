@@ -9,7 +9,7 @@ import { ForbiddenError, InternalError } from '../errors.js'
 import IDPService from '../models/idpService.js'
 import { HTMLController } from './HTMLController.js'
 
-const localDomains = new Set(['localhost', '127.0.0.1', '[::1]'])
+const localDomains = new Set(['localhost', '127.0.0.1', '[::1]', 'veritable-ui-alice', 'veritable-ui-bob'])
 
 /**
  * Authentication controller for logging a user in. The flow of this is as follows:
