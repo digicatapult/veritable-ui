@@ -25,8 +25,10 @@ services:
       dockerfile: Dockerfile
     restart: always
     depends_on:
-      - postgres-veritable-ui-alice
-      - veritable-cloudagent-alice
+      postgres-veritable-ui-alice:
+        condition: service_healthy
+      veritable-cloudagent-alice:
+        condition: service_healthy
     scale: 0
     ports:
       - 3000:3000
@@ -114,8 +116,10 @@ services:
       dockerfile: Dockerfile
     restart: always
     depends_on:
-      - postgres-veritable-ui-bob
-      - veritable-cloudagent-bob
+      postgres-veritable-ui-bob:
+        condition: service_healthy
+      veritable-cloudagent-bob:
+        condition: service_healthy
     ports:
       - 3001:3000
     command: >
