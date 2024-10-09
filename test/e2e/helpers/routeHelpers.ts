@@ -1,7 +1,7 @@
 import { getToken } from '../../helpers/routeHelper.js'
 
 export const get = async (appUrl: string, endpoint: string, headers: Record<string, string> = {}) => {
-  const token = await getToken(appUrl)
+  const token = await getToken()
   const headersWithToken = {
     authorization: `bearer ${token}`,
     ...headers,

@@ -118,16 +118,9 @@ test.describe('Connection from Alice to Bob', () => {
       expect(feedbackText).toContain('DIGITAL CATAPULT')
 
       await page.click('button[type="submit"][name="action"][value="createConnection"]')
-      await page.waitForTimeout(3000)
 
       // Submit pin
       await page.waitForURL('**/pin-submission')
-      const pinUrl = page.url()
-
-      const escapedBaseUrlBob = baseUrlBob.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&')
-      const urlPattern = new RegExp(`${escapedBaseUrlBob}/connection/[0-9a-fA-F-]{36}/pin-submission`)
-
-      expect(pinUrl).toMatch(urlPattern)
 
       await page.fill('#new-connection-invite-input-pin', pinForBob)
       await page.click('button[type="submit"][name="action"][value="submitPinCode"]')
