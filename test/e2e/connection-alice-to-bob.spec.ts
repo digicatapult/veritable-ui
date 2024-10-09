@@ -12,7 +12,7 @@ test.describe('Connection from Alice to Bob', () => {
 
   const baseUrlAlice = process.env.VERITABLE_ALICE_PUBLIC_URL || 'http://localhost:3000'
   const baseUrlBob = process.env.VERITABLE_BOB_PUBLIC_URL || 'http://localhost:3001'
-  const smtp4devUrl = process.env.VERITABLE_SMTP_ADDRESS || 'http://localhost:5000'
+  const smtp4devUrl = process.env.VERITABLE_SMTP_ADDRESS || 'http://localhost:5001'
   const { host, port } = getHostPort(smtp4devUrl)
   if (host === null || port === null) {
     throw new Error(`Unspecified smtp4dev host or port ${smtp4devUrl}`)
@@ -48,7 +48,7 @@ test.describe('Connection from Alice to Bob', () => {
       await page.click('a.button[href="connection/new"]')
       await page.waitForURL('**/connection/new')
 
-      await page.fill('#new-invite-company-number-input', '07964699')
+      await page.fill('#new-invite-company-number-input', '04659351')
       await page.fill('#new-invite-email-input', 'alice@testmail.com')
 
       await page.waitForTimeout(3000) // Wait for the Company House API
@@ -56,8 +56,8 @@ test.describe('Connection from Alice to Bob', () => {
       const feedbackElement = await page.$('#new-connection-feedback')
       expect(feedbackElement).not.toBeNull()
       const feedbackText = await feedbackElement?.textContent()
-      expect(feedbackText).toContain('DIGITAL CATAPULT')
-      expect(feedbackText).toContain('101 Euston Road')
+      expect(feedbackText).toContain('OFFSHORE RENEWABLE ENERGY CATAPULT')
+      expect(feedbackText).toContain('Albert Street')
       await page.click('button[type="submit"][name="action"][value="continue"]')
 
       await page.waitForSelector('#new-connection-confirmation-text')
@@ -65,7 +65,7 @@ test.describe('Connection from Alice to Bob', () => {
       expect(confirmationElement).not.toBeNull()
       const confirmationText = await confirmationElement?.textContent()
       expect(confirmationText).toContain('Please confirm the details of the connection before sending')
-      expect(confirmationText).toContain('Company House Number: 07964699')
+      expect(confirmationText).toContain('Company House Number: 04659351')
       expect(confirmationText).toContain('Email Address: alice@testmail.com')
 
       await page.click('button[type="submit"][name="action"][value="submit"]')

@@ -64,7 +64,21 @@ container.register(RAW_ENV_TOKEN, {
       dotenv.config()
     }
 
-    return { env: process.env, options: undefined }
+    const env = {
+      ...process.env,
+      ...Object.fromEntries(
+        Object.entries(process.env)
+          .map(([key, value]) => {
+            if (key.startsWith('VERITABLE_')) {
+              return [key.substring('VERITABLE_'.length), value]
+            }
+            return null
+          })
+          .filter((x) => !!x)
+      ),
+    }
+
+    return { env, options: undefined }
   },
 })
 
