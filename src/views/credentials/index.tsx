@@ -1,6 +1,6 @@
 import Html from '@kitajs/html'
 import { singleton } from 'tsyringe'
-import { Credential } from '../../models/veritableCloudagent.js'
+import { UUID } from '../../models/strings.js'
 import { ConnectionStatus, LinkButton, Page, statusToClass } from '../common.js'
 
 type State =
@@ -17,8 +17,8 @@ type State =
   | 'done'
   | 'abandoned'
 type Role = 'issuer' | 'holder'
-type ICred<T> = T & { company_name?: string }
-export type Credentials = ICred<Credential>
+type CredentialType = 'Supplier credentials'
+export type Credential = { companyName: string; role: Role; state: State; id: UUID; type: CredentialType }
 
 @singleton()
 export default class CredentialListTemplates {
@@ -46,7 +46,7 @@ export default class CredentialListTemplates {
     }
   }
 
-  public listPage = (credentials: ICred<Credential>[], search: string = '') => {
+  public listPage = (credentials: Credential[], search: string = '') => {
     return (
       <Page
         title="Veritable - Credentials"
@@ -106,8 +106,8 @@ export default class CredentialListTemplates {
                 credentials.map((cred) => {
                   return (
                     <tr>
-                      <td>{Html.escapeHtml(cred.company_name)}</td>
-                      <td>{Html.escapeHtml('Supplier credentials')}</td>
+                      <td>{Html.escapeHtml(cred.companyName)}</td>
+                      <td>{Html.escapeHtml(cred.type)}</td>
                       <td>{this.roleToDirection(cred.role)}</td>
                       <td>{statusToClass(cred.state as ConnectionStatus)}</td>
                       <td>

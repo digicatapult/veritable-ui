@@ -89,6 +89,16 @@ export const credentialParser = z.object({
     z.literal('abandoned'),
   ]),
   errorMessage: z.string().optional(),
+  metadata: z
+    .object({
+      '_anoncreds/credential': z
+        .object({
+          credentialDefinitionId: z.string().optional(),
+          schemaId: z.string().optional(),
+        })
+        .optional(),
+    })
+    .optional(),
 })
 export type Credential = z.infer<typeof credentialParser>
 

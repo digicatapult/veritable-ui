@@ -21,7 +21,6 @@ export const AliceCredentials = [
     threadId: '31a03353-39b2-4283-b16c-19db38c8e157',
     protocolVersion: 'v2',
     updatedAt: '2024-10-01T12:48:39.395Z',
-    company_name: 'DIGITAL CATAPULT',
     credentialAttributes: [
       {
         'mime-type': 'text/plain',
@@ -71,7 +70,6 @@ export const AliceCredentials = [
     connectionId: '65e99592-1989-4087-b7a3-ee50695b3457',
     threadId: '2b264406-9201-457c-8c4b-1ca167bf300c',
     protocolVersion: 'v2',
-    company_name: 'CARE ONUS LTD',
     credentialAttributes: [
       {
         'mime-type': 'text/plain',
@@ -111,7 +109,6 @@ export const BobCredentials = [
     threadId: '2b264406-9201-457c-8c4b-1ca167bf300c',
     protocolVersion: 'v2',
     updatedAt: '2024-10-01T12:58:22.033Z',
-    company_name: 'CARE ONUS LTD',
     credentialAttributes: [
       {
         'mime-type': 'text/plain',
@@ -161,7 +158,6 @@ export const BobCredentials = [
     connectionId: 'b2cd8982-b5e9-4d76-b1d6-9e998bdac336',
     threadId: '31a03353-39b2-4283-b16c-19db38c8e157',
     protocolVersion: 'v2',
-    company_name: 'DIGITAL CATAPULT',
     credentialAttributes: [
       {
         'mime-type': 'text/plain',

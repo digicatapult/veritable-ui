@@ -6,8 +6,8 @@ import { mockLogger, toHTMLString } from '../../__tests__/helpers.js'
 import { withConnectionMocks } from './helpers.js'
 
 import { Request } from 'express'
-import { AliceCredentials, BobCredentials } from '../../../views/credentials/__tests__/fixtures.js'
 import { CredentialsController } from '../index.js'
+import { AliceCredentials, BobCredentials } from './fixtures.js'
 
 describe('CredentialsController', () => {
   const req = { log: mockLogger } as unknown as Request
@@ -22,7 +22,9 @@ describe('CredentialsController', () => {
       const controller = new CredentialsController(...args)
       const result = await controller.listCredentials(req).then(toHTMLString)
 
-      expect(result).to.equal('listCredentials_issuer-done-v2_listCredentials')
+      expect(result).to.equal(
+        'listCredentials_issuer-done-DIGITAL CATAPULT-Supplier credentials-holder-done-DIGITAL CATAPULT-Supplier credentials-issuer-done-CARE ONUS LTD-Supplier credentials-holder-done-CARE ONUS LTD-Supplier credentials_listCredentials'
+      )
     })
 
     it('pulls credentials from a cloudagent', async () => {
@@ -48,15 +50,15 @@ describe('CredentialsController', () => {
       ])
     })
 
-    it('extracts company_name from credentialAttributes and stores along credential', async () => {
+    it('extracts companyName from db and stores along credential', async () => {
       const { templateMock, args } = withConnectionMocks()
       const controller = new CredentialsController(...args)
       await controller.listCredentials(req, '').then(toHTMLString)
 
-      expect(templateMock.listPage.lastCall.args[0][0]).to.have.property('company_name')
-      expect(templateMock.listPage.lastCall.args[0][1]).to.have.property('company_name')
-      expect(templateMock.listPage.lastCall.args[0][2]).to.have.property('company_name')
-      expect(templateMock.listPage.lastCall.args[0][3]).to.have.property('company_name')
+      expect(templateMock.listPage.lastCall.args[0][0]).to.have.property('companyName')
+      expect(templateMock.listPage.lastCall.args[0][1]).to.have.property('companyName')
+      expect(templateMock.listPage.lastCall.args[0][2]).to.have.property('companyName')
+      expect(templateMock.listPage.lastCall.args[0][3]).to.have.property('companyName')
     })
 
     it('filters by company name depending on search', async () => {
@@ -66,10 +68,10 @@ describe('CredentialsController', () => {
 
       expect(templateMock.listPage.lastCall.args[0].length).to.equal(2)
       expect(templateMock.listPage.lastCall.args[0][0])
-        .to.have.property('company_name')
+        .to.have.property('companyName')
         .that.is.equal('DIGITAL CATAPULT')
       expect(templateMock.listPage.lastCall.args[0][1])
-        .to.have.property('company_name')
+        .to.have.property('companyName')
         .that.is.equal('DIGITAL CATAPULT')
       expect(templateMock.listPage.lastCall.args[1]).to.equal('digi')
     })
@@ -81,7 +83,7 @@ describe('CredentialsController', () => {
 
       expect(templateMock.listPage.lastCall.args[0].length).to.deep.equal(4)
       templateMock.listPage.lastCall.args[0].forEach((credential) => {
-        expect(credential).to.have.property('company_name')
+        expect(credential).to.have.property('companyName')
       })
     })
 
@@ -100,7 +102,9 @@ describe('CredentialsController', () => {
       cloudagentMock.getCredentials.resolves(AliceCredentials)
       const res = await controller.listCredentials(req, '').then(toHTMLString)
 
-      expect(res).to.equal('listCredentials_issuer-done-v2_listCredentials')
+      expect(res).to.equal(
+        'listCredentials_issuer-done-CARE ONUS LTD-Supplier credentials-holder-done-CARE ONUS LTD-Supplier credentials_listCredentials'
+      )
     })
 
     it('returns credentials list(bob)', async () => {
@@ -109,7 +113,9 @@ describe('CredentialsController', () => {
       cloudagentMock.getCredentials.resolves(BobCredentials)
       const res = await controller.listCredentials(req, '').then(toHTMLString)
 
-      expect(res).to.equal('listCredentials_issuer-done-v2_listCredentials')
+      expect(res).to.equal(
+        'listCredentials_issuer-done-DIGITAL CATAPULT-Supplier credentials-holder-done-DIGITAL CATAPULT-Supplier credentials_listCredentials'
+      )
     })
   })
 })

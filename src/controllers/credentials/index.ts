@@ -27,22 +27,10 @@ export class CredentialsController extends HTMLController {
     const credentials: Credential[] = await this.cloudagent.getCredentials()
     req.log.info('retrieved credentials from a cloudagent %j', credentials)
 
-    const formatted = this.format(credentials)
-    for (let i = 0; i < formatted.length; i++) {
-      const [connection]: ConnectionRow[] = await this.db.get('connection', {
-        agent_connection_id: formatted[i].connectionId,
-      })
-
-      if (connection) formatted[i].connection = connection
-    }
-
-    const filtered = formatted.filter(({ connection, company_name }) => {
-      if (!connection || !company_name) return false
-      if (search === '') return true
-      req.log.info('checking if %s includes %s', company_name, search)
-
-      return company_name.toLowerCase().includes(search.toLowerCase())
-    })
+    const formatted = await Promise.all(credentials.map((c) => this.formatCredential(req, c)))
+    const filtered = formatted
+      .filter((x) => !!x)
+      .filter(({ companyName }) => !search || companyName.toLowerCase().includes(search.toLowerCase()))
 
     req.log.info('returning HTML along with formatted credentials %j', formatted)
 
@@ -50,18 +38,29 @@ export class CredentialsController extends HTMLController {
     return this.html(this.credentialsTemplates.listPage(filtered, search))
   }
 
-  private format(credentials: Credential[]) {
-    return credentials
-      .map((cred) => {
-        const company_name = cred.credentialAttributes?.find(({ name }) => name === 'company_name')
-        if (!company_name) return undefined
+  private async formatCredential(req: express.Request, credential: Credential) {
+    const [connection]: ConnectionRow[] = await this.db.get('connection', {
+      agent_connection_id: credential.connectionId,
+    })
+    req.log.trace('Connection for credential %s: %s', credential.id, connection?.id)
+    if (!connection) return null
 
-        return {
-          ...cred,
-          company_name: company_name.value,
-          connection: undefined as unknown,
-        }
-      })
-      .filter((x) => !!x)
+    const schemaId = credential.metadata?.['_anoncreds/credential']?.schemaId
+    req.log.trace('Schema Id for credential %s: %s', credential.id, schemaId)
+    if (!schemaId) return null
+
+    const schema = await this.cloudagent.getSchemaById(schemaId)
+    req.log.trace('Schema for credential %s is of type: %s', credential.id, schema.name)
+    if (schema.name !== 'COMPANY_DETAILS') return null
+
+    const result = {
+      companyName: connection.company_name,
+      role: credential.role,
+      state: credential.state,
+      id: credential.id,
+      type: 'Supplier credentials' as 'Supplier credentials',
+    }
+    req.log.debug('Credential found %s: %j', credential.id, result)
+    return result
   }
 }
