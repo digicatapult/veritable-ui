@@ -1,14 +1,16 @@
 /* Shared components and variants used across the application */
 
-.disabled {
+.disabled,
+.disabled:link,
+.disabled:visited {
   transition: opacity filter 0.3s;
   filter: grayscale(100%);
   opacity: 0.3;
 
   &:hover,
   &:focus-visible {
-    filter: blur(1px);
-    opacity: 1;
+    opacity: 0.3;
+    filter: blur(2px) grayscale(100%);
     cursor: not-allowed;
   }
 }

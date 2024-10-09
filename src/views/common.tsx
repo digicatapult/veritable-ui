@@ -8,9 +8,32 @@ const env = container.resolve(Env)
 
 type HeaderLink = { name: string; url: string }
 
+export type ConnectionStatus =
+  | 'pending'
+  | 'unverified'
+  | 'verified_them'
+  | 'verified_us'
+  | 'verified_both'
+  | 'disconnected'
+  | 'pending_their_input'
+  | 'pending_your_input'
+  | 'done'
+  | 'errored'
+  | 'resolved'
+  | 'proposal-sent'
+  | 'proposal-received'
+  | 'offer-sent'
+  | 'offer-received'
+  | 'declined'
+  | 'request-sent'
+  | 'request-received'
+  | 'credential-issued'
+  | 'credential-received'
+  | 'abandoned'
+
 type PageProps = {
   title: string
-  activePage: 'categories' | 'queries' | 'connections' | 'certifications' | 'settings'
+  activePage: 'categories' | 'queries' | 'connections' | 'certifications' | 'settings' | 'credentials'
   headerLinks: HeaderLink[]
   heading?: string
   stylesheets?: string[]
@@ -82,10 +105,9 @@ const SideBar = ({ activePage }: { activePage: PageProps['activePage'] }): JSX.E
         style={{ ['--background-image' as string]: "url('/public/images/query.svg')" }}
       />
       <a
-        title="certification"
-        href="#"
-        data-active={activePage === 'certifications'}
-        class="disabled"
+        title="credentials"
+        href="/credentials"
+        data-active={activePage === 'credentials'}
         style={{ ['--background-image' as string]: "url('/public/images/certification.svg')" }}
       />
       <a
@@ -148,8 +170,6 @@ export const Page = (props: PropsWithChildren<PageProps>): JSX.Element => (
           media="(prefers-color-scheme: light), (prefers-color-scheme: no-preference)"
         />
         <link rel="stylesheet" type="text/css" href="/public/styles/main.css" />
-        <link rel="stylesheet" type="text/css" href="/public/styles/shared.css" />
-        <link rel="stylesheet" type="text/css" href="/public/styles/mpa.css" />
         {(props.stylesheets || []).map((sheetName: JSX.Element) => (
           <link rel="stylesheet" type="text/css" href={`/public/styles/${sheetName}`} />
         ))}
@@ -167,3 +187,134 @@ export const Page = (props: PropsWithChildren<PageProps>): JSX.Element => (
     </html>
   </>
 )
+
+export const statusToClass = (status: ConnectionStatus): JSX.Element => {
+  switch (status) {
+    case 'verified_them':
+    case 'verified_us':
+      return (
+        <div class="list-item-status" data-status="warning">
+          {status == 'verified_them'
+            ? 'Pending Your Verification'
+            : status == 'verified_us'
+              ? 'Pending Their Verification'
+              : 'unknown'}
+        </div>
+      )
+    case 'disconnected':
+    case 'unverified':
+      return (
+        <div class="list-item-status" data-status="disabled">
+          {status == 'disconnected' ? 'Disconnected' : 'Unverified'}
+        </div>
+      )
+    case 'verified_both':
+      return (
+        <div class="list-item-status" data-status="success">
+          Verified - Established Connection
+        </div>
+      )
+    case 'pending':
+      return (
+        <div class="list-item-status" data-status="warning">
+          Pending
+        </div>
+      )
+    case 'pending_your_input':
+      return (
+        <div class="list-item-status" data-status="warning">
+          Pending Your Input
+        </div>
+      )
+    case 'pending_their_input':
+      return (
+        <div class="list-item-status" data-status="disabled">
+          Pending Their Input
+        </div>
+      )
+    case 'resolved':
+      return (
+        <div class="list-item-status" data-status="success">
+          Resolved
+        </div>
+      )
+    case 'errored':
+      return (
+        <div class="list-item-status" data-status="error">
+          Errored
+        </div>
+      )
+    case 'proposal-sent':
+      return (
+        <div class="list-item-status" data-status="disabled">
+          Proposal Sent
+        </div>
+      )
+    case 'proposal-received':
+      return (
+        <div class="list-item-status" data-status="disabled">
+          Proposal Received
+        </div>
+      )
+    case 'offer-sent':
+      return (
+        <div class="list-item-status" data-status="disabled">
+          Offer Sent
+        </div>
+      )
+    case 'offer-received':
+      return (
+        <div class="list-item-status" data-status="warning">
+          Offer Received
+        </div>
+      )
+    case 'declined':
+      return (
+        <div class="list-item-status" data-status="error">
+          Declined
+        </div>
+      )
+    case 'request-sent':
+      return (
+        <div class="list-item-status" data-status="disabled">
+          Request Sent
+        </div>
+      )
+    case 'request-received':
+      return (
+        <div class="list-item-status" data-status="warning">
+          Request Received
+        </div>
+      )
+    case 'credential-issued':
+      return (
+        <div class="list-item-status" data-status="disabled">
+          Credential Issued
+        </div>
+      )
+    case 'credential-received':
+      return (
+        <div class="list-item-status" data-status="warning">
+          Credential Received
+        </div>
+      )
+    case 'done':
+      return (
+        <div class="list-item-status" data-status="success">
+          Completed
+        </div>
+      )
+    case 'abandoned':
+      return (
+        <div class="list-item-status" data-status="error">
+          Cancelled
+        </div>
+      )
+    default:
+      return (
+        <div class="list-item-status" data-status="error">
+          unknown
+        </div>
+      )
+  }
+}

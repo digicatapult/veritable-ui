@@ -1,6 +1,6 @@
 import Html from '@kitajs/html'
 import { singleton } from 'tsyringe'
-import { LinkButton, Page } from '../common.js'
+import { LinkButton, Page, statusToClass } from '../common.js'
 
 type QueryStatus = 'resolved' | 'pending_your_input' | 'pending_their_input' | 'errored'
 type QueryRole = 'responder' | 'requester'
@@ -15,41 +15,6 @@ type Query = {
 @singleton()
 export default class QueryListTemplates {
   constructor() {}
-
-  private statusToClass = (status: string | QueryStatus): JSX.Element => {
-    switch (status) {
-      case 'pending_your_input':
-        return (
-          <div class="list-item-status" data-status="warning">
-            Pending Your Input
-          </div>
-        )
-      case 'pending_their_input':
-        return (
-          <div class="list-item-status" data-status="disabled">
-            Pending Their Input
-          </div>
-        )
-      case 'resolved':
-        return (
-          <div class="list-item-status" data-status="success">
-            Resolved
-          </div>
-        )
-      case 'errored':
-        return (
-          <div class="list-item-status" data-status="error">
-            Errored
-          </div>
-        )
-      default:
-        return (
-          <div class="list-item-status" data-status="error">
-            unknown
-          </div>
-        )
-    }
-  }
 
   private direction = (status: string | QueryStatus): JSX.Element => {
     switch (status) {
@@ -153,7 +118,7 @@ export default class QueryListTemplates {
                     <td>
                       <time>{Html.escapeHtml(new Date(query.updated_at).toISOString())}</time>
                     </td>
-                    <td>{this.statusToClass(query.status)}</td>
+                    <td>{statusToClass(query.status)}</td>
 
                     <td>
                       <LinkButton
