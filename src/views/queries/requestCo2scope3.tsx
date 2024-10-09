@@ -106,7 +106,7 @@ export default class Scope3CarbonConsumptionTemplates {
                 <thead>
                   {['Check Company', 'Company Name'].map((name: string) => (
                     <th>
-                      <span>{name || 'unknown'}</span>
+                      <span>{Html.escapeHtml(name || 'unknown')}</span>
                       <a class="list-table icon disabled" />
                     </th>
                   ))}

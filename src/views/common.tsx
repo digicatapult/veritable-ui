@@ -59,8 +59,8 @@ export const LinkButton = (props: ButtonProps): JSX.Element => {
   const href = !props.disabled && props.href ? props.href : '#'
   return (
     <a class={`button ${props.disabled ? 'disabled' : ''}`} href={href} data-variant={props.style}>
-      {props.icon && <div style={{ ['--button-icon' as string]: props.icon || '' }} />}
-      <span>{props.text || 'unknown'}</span>
+      {props.icon ? <div style={{ ['--button-icon' as string]: props.icon || '' }} /> : undefined}
+      <span>{escapeHtml(props.text || 'unknown')}</span>
     </a>
   )
 }
@@ -73,8 +73,8 @@ export const FormButton = (props: FormButtonProps): JSX.Element => (
     name={`${props.name}`}
     value={`${props.value}`}
   >
-    {props.icon && <div style={{ ['--button-icon' as string]: props.icon || '' }} />}
-    <span>{props.text || props.value || 'unknown'}</span>
+    {props.icon ? <div style={{ ['--button-icon' as string]: props.icon || '' }} /> : undefined}
+    <span>{escapeHtml(props.text || props.value || 'unknown')}</span>
   </button>
 )
 
@@ -134,7 +134,7 @@ const SideBar = ({ activePage }: { activePage: PageProps['activePage'] }): JSX.E
  */
 const ContentHeader = (props: { heading: string; headerLinks: HeaderLink[] }): JSX.Element => (
   <div id="content-header">
-    <h1>{props.heading || 'unknown'}</h1>
+    <h1>{escapeHtml(props.heading || 'unknown')}</h1>
     <div id="content-header-nav">
       <a title="home" class="nav icon" href="/" />
       {...props.headerLinks.map(({ name, url }) => (
@@ -178,7 +178,9 @@ export const Page = (props: PropsWithChildren<PageProps>): JSX.Element => (
       <body hx-ext="json-enc">
         <SideBar activePage={props.activePage} />
         <main>
-          {props.heading && <ContentHeader heading={props.heading as string} headerLinks={props.headerLinks} />}
+          {props.heading ? (
+            <ContentHeader heading={props.heading as string} headerLinks={props.headerLinks} />
+          ) : undefined}
           <div id="content-main" {...extractHtmxProps(props)}>
             {props.children}
           </div>

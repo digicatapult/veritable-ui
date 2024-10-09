@@ -98,7 +98,7 @@ export default class QueryListTemplates {
               {['Company Name', 'Query Type', 'Direction', 'Requested deadline', 'Verification Status', 'Actions'].map(
                 (name: string) => (
                   <th>
-                    <span>{name || 'unknown'}</span>
+                    <span>{Html.escapeHtml(name || 'unknown')}</span>
                     <a class="list-filter-icon icon disabled" />
                   </th>
                 )
