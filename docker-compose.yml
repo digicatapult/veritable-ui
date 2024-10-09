@@ -149,12 +149,13 @@ services:
       - ISSUANCE_CRED_DEF_POLICY=EXISTING_OR_NEW
       - DEMO_MODE=true
       - SMTP_HOST=smtp4dev
-      - SMTP_PASS=
+      - SMTP_PASS=password
       - SMTP_PORT=25
-      - SMTP_USER=
+      - SMTP_USER=username
       - EMAIL_TRANSPORT=SMTP_EMAIL
       - SMTP_SECURE=false
       - COMPANY_PROFILE_API_KEY=${VERITABLE_COMPANY_PROFILE_API_KEY:-API_KEY}
+
   postgres-veritable-ui-bob:
     image: postgres:17.0-alpine
     container_name: postgres-veritable-ui-bob
