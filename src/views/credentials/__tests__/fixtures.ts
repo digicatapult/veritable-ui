@@ -1,4 +1,4 @@
-import type { Credential } from "../index.js"
+import type { Credential } from '../index.js'
 
 export const AliceCredentials: Credential[] = [
   {
