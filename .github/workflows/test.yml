@@ -3,10 +3,6 @@ name: Lint and Test
 on:
   push:
     branches-ignore: ['main']
-env:
-  REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository }}
-
 jobs:
   repo_ids:
     runs-on: ubuntu-latest
