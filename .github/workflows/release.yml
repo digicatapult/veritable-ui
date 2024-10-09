@@ -93,7 +93,7 @@ jobs:
       - name: Run tests
         run: npm run ${{ matrix.command }}
 
-   e2e-tests:
+  e2e-tests:
     timeout-minutes: 60
     runs-on: ubuntu-latest
     steps:
