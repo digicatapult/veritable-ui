@@ -1,6 +1,8 @@
 /* styling for top level elements that appear on all pages */
 
-@import url('/public/styles/reset.css'); /* generics/defaults */
+@import url('/public/styles/reset.css'); /* reset browser behaviours */
+@import url('/public/styles/shared.css'); /* shared components */
+@import url('/public/styles/mpa.css'); /* X-document view transition support */
 
 @font-face {
   font-family: 'Roboto';

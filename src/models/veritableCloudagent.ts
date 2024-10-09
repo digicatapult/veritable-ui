@@ -38,6 +38,11 @@ export const connectionParser = z.object({
 })
 export type Connection = z.infer<typeof connectionParser>
 
+export const credentialAttributeParser = z.object({
+  name: z.string(),
+  value: z.string(),
+})
+
 export const didDocumentParser = z.object({
   id: z.string(),
 })
@@ -68,6 +73,7 @@ export const credentialParser = z.object({
   id: z.string(),
   connectionId: z.string(),
   protocolVersion: z.string(),
+  credentialAttributes: z.array(credentialAttributeParser).optional(),
   role: z.union([z.literal('issuer'), z.literal('holder')]),
   state: z.union([
     z.literal('proposal-sent'),
@@ -83,14 +89,19 @@ export const credentialParser = z.object({
     z.literal('abandoned'),
   ]),
   errorMessage: z.string().optional(),
+  metadata: z
+    .object({
+      '_anoncreds/credential': z
+        .object({
+          credentialDefinitionId: z.string().optional(),
+          schemaId: z.string().optional(),
+        })
+        .optional(),
+    })
+    .optional(),
 })
 export type Credential = z.infer<typeof credentialParser>
 
-export const credentialAttributeParser = z.object({
-  'mime-type': z.string(),
-  name: z.string(),
-  value: z.string(),
-})
 export const anoncredsFormatParser = z.object({
   anoncreds: z.object({
     schema_id: z.string().optional(),
@@ -136,7 +147,6 @@ export type CredentialProposalInput = {
   attributes?: {
     name: string
     value: string
-    mimeType?: string
   }[]
 }
 export type CredentialProposalAcceptInput = {
