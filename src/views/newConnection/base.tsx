@@ -50,7 +50,7 @@ export abstract class NewConnectionTemplates {
       <form id="new-connection-form" {...htmxProps}>
         <this.stepper stage={props.progressStep} total={props.progressStepCount} />
         {props.children}
-        {props.feedback && <this.feedback feedback={props.feedback} />}
+        {props.feedback ? <this.feedback feedback={props.feedback} /> : undefined}
         <div id="new-connection-actions">
           {props.actions.map((action, i) => {
             const lastIndex = props.actions.length - 1

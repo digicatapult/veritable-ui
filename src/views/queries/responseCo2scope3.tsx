@@ -149,7 +149,7 @@ export default class Scope3CarbonConsumptionResponseTemplates {
                 *If partial response checkbox is ticked, you must share this query with another supplier in your
                 network, where your responses will be aggregated.
               </p>
-              {partial && connections && (
+              {partial && connections ? (
                 <div class="query-partial-container list-page">
                   <table>
                     <thead>
@@ -168,7 +168,7 @@ export default class Scope3CarbonConsumptionResponseTemplates {
                     </tbody>
                   </table>
                 </div>
-              )}
+              ) : undefined}
               <br />
               <FormButton name="action" value="success" text="Submit Query" style="filled" />
             </form>

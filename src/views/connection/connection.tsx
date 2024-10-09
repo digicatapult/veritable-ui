@@ -60,7 +60,7 @@ export default class ConnectionTemplates {
             <thead>
               {['Company Name', 'Verification Status', 'Actions'].map((name: string) => (
                 <th>
-                  <span>{name || 'unknown'}</span>
+                  <span>{Html.escapeHtml(name || 'unknown')}</span>
                   <a class="list-filter-icon disabled" />
                 </th>
               ))}
