@@ -16,14 +16,14 @@ type Query = {
 export default class QueryListTemplates {
   constructor() {}
 
-  private direction = (status: string | QueryStatus, role: QueryRole): JSX.Element => {
+  private direction = (status: string | QueryStatus): JSX.Element => {
     switch (status) {
       case 'pending_your_input':
         return <p>Received</p>
       case 'pending_their_input':
         return <p>Sent</p>
       case 'resolved':
-        return role === 'requester' ? <p>Received</p> : <p>Sent</p>
+        ;<p>Received</p> // TODO confirm with Esther
       default:
         return <p>unknown</p>
     }
@@ -114,7 +114,7 @@ export default class QueryListTemplates {
                   <tr>
                     <td>{Html.escapeHtml(query.company_name)}</td>
                     <td>{Html.escapeHtml(query.query_type)}</td>
-                    <td>{this.direction(query.status, query.role)}</td>
+                    <td>{this.direction(query.status)}</td>
                     <td>
                       <time>{Html.escapeHtml(new Date(query.updated_at).toISOString())}</time>
                     </td>
