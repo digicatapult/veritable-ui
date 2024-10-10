@@ -216,11 +216,9 @@ describe('QueriesController', () => {
         })
       })
 
-      it('sets a partial query status to resolved and renders response template', async () => {
+      it('creates a new query and renders a response view', async () => {
         const { args, dbMock } = withQueriesMocks()
         const controller = new QueriesController(...args)
-        const getSpy = dbMock.get
-        const updateSpy = dbMock.update
         const result = await controller
           .scope3CarbonConsumptionResponseSubmit(req, 'query-partial-id-test', {
             companyId: 'some-company-id',
@@ -229,16 +227,27 @@ describe('QueriesController', () => {
             connectionIds: ['conn-id-1', 'conn-id-2'],
             productIds: ['product-1', 'product-2'],
             quantities: ['10', '20'],
+            emissions: '1',
           })
           .then(toHTMLString)
 
-        expect(getSpy.firstCall.calledWith('connection', { id: 'some-company-id', status: 'verified_both' })).to.equal(
-          true
-        )
-        expect(getSpy.secondCall.calledWith('query', { id: 'query-partial-id-test' })).to.equal(true)
+        expect(dbMock.insert.getCall(0).args).to.deep.equal([
+          'query',
+          {
+            connection_id: 'cccccccc-0001-0000-0000-d8ae0805059e',
+            query_type: 'Scope 3 Carbon Consumption',
+            status: 'pending_their_input',
+            parent_id: '5390af91-c551-4d74-b394-d8ae0805059a',
+            details: { quantity: 10, productId: 'product-1', emissions: '1' },
+            response_id: null,
+            query_response: null,
+            role: 'requester',
+          },
+        ])
         expect(
-          updateSpy.firstCall.calledWith('query', { id: 'query-partial-id-test' }, { status: 'resolved' })
+          dbMock.get.firstCall.calledWith('connection', { id: 'some-company-id', status: 'verified_both' })
         ).to.equal(true)
+        expect(dbMock.get.secondCall.calledWith('query', { id: 'query-partial-id-test' })).to.equal(true)
         expect(result).to.be.equal('queriesResponse_template')
       })
     })
@@ -338,7 +347,7 @@ describe('QueriesController', () => {
   })
 
   describe('Partial Query', () => {
-    const { args, dbMock } = withQueriesMocks()
+    const { args, dbMock, cloudagentMock } = withQueriesMocks()
     let result: string
 
     before(async () => {
@@ -401,6 +410,76 @@ describe('QueriesController', () => {
           status: 'verified_them',
         },
       ])
+    })
+
+    describe('partial query submit', () => {
+      beforeEach(async () => {
+        const controller = new QueriesController(...args)
+        result = await controller
+          .scope3CarbonConsumptionResponseSubmit(req, mockIds.queryId, {
+            companyId: 'cccccccc-0001-0000-0000-d8ae0805059e',
+            action: 'success',
+            partialQuery: ['on'],
+            partialSelect: ['on'],
+            productIds: ['partial-product-id'],
+            quantities: ['10'],
+            connectionIds: ['cccccccc-0000-0000-0000-d8ae0805059e'],
+            emissions: '10',
+          })
+          .then(toHTMLString)
+      })
+
+      it('submits a Drpc request to the cloudagent', () => {
+        expect(cloudagentMock.submitDrpcRequest.callCount).to.equal(1)
+        expect(cloudagentMock.submitDrpcRequest.args[0]).to.have.deep.members([
+          'aaaaaaaa-0000-0000-0000-d8ae0805059e',
+          'submit_query_request',
+          {
+            query: 'Scope 3 Carbon Consumption',
+            productId: 'partial-product-id',
+            quantity: 10,
+            queryIdForResponse: 'ccaaaaaa-0000-0000-0000-d8ae0805059e',
+          },
+        ])
+      })
+
+      it('inserts new query that is to be forwarded as partial', () => {
+        expect(dbMock.insert.getCall(0).args).to.have.deep.members([
+          'query',
+          {
+            connection_id: 'cccccccc-0001-0000-0000-d8ae0805059e',
+            query_type: 'Scope 3 Carbon Consumption',
+            parent_id: '5390af91-c551-4d74-b394-d8ae0805059a',
+            status: 'pending_their_input',
+            details: {
+              emissions: '10',
+              productId: 'partial-product-id',
+              quantity: 10,
+            },
+            response_id: null,
+            query_response: null,
+            role: 'requester',
+          },
+        ])
+      })
+
+      it('inserts a drpc response to query_rpc table', () => {
+        expect(dbMock.insert.getCall(1).args).to.deep.equal([
+          'query_rpc',
+          {
+            agent_rpc_id: 'request-id',
+            query_id: 'ccaaaaaa-0000-0000-0000-d8ae0805059e',
+            role: 'client',
+            method: 'submit_query_request',
+            result: 'result',
+            error: undefined,
+          },
+        ])
+      })
+
+      it('renders success page', () => {
+        expect(result).to.equal('queriesResponse_template')
+      })
     })
   })
 })

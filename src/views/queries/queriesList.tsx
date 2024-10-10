@@ -23,7 +23,7 @@ export default class QueryListTemplates {
       case 'pending_their_input':
         return <p>Sent</p>
       case 'resolved':
-        return <p>Received</p>
+        return <p>Received</p> // TODO confirm with Esther
       default:
         return <p>unknown</p>
     }

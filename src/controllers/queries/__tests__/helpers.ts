@@ -23,6 +23,7 @@ type QueryMockOptions = {
   getRows: {
     connection: Partial<ConnectionRow>[]
     query: Partial<QueryRow>[]
+    queryInsert: Partial<QueryRow>[]
   }
 }
 
@@ -57,12 +58,14 @@ const defaultOptions: QueryMockOptions = {
     ],
     query: [
       {
+        id: '5390af91-c551-4d74-b394-d8ae0805059a',
         status: 'pending_their_input',
         connection_id: mockIds.companyId,
         details: { quantity: 2, queryId: mockIds.queryId },
         response_id: '5390af91-c551-4d74-b394-d8ae0805059e',
       },
       {
+        id: '5390af91-c551-4d74-b394-d8ae0805059a',
         status: 'pending_your_input',
         connection_id: mockIds.connectionId,
         details: { quantity: 2, queryId: mockIds.queryId },
@@ -73,6 +76,22 @@ const defaultOptions: QueryMockOptions = {
         connection_id: mockIds.connectionId,
         details: { quantity: 2, queryId: mockIds.queryId },
         response_id: '5390af91-c551-4d74-b394-d8ae0805059e',
+      },
+    ],
+    queryInsert: [
+      {
+        id: 'ccaaaaaa-0000-0000-0000-d8ae0805059e',
+        connection_id: mockIds.connectionId,
+        query_type: 'Scope 3 Carbon Consumption',
+        status: 'pending_their_input',
+        details: {
+          productIds: 'test-1',
+          quantities: '10',
+          connectionIds: 'cccccccc-0000-0000-0000-d8ae0805059e',
+        },
+        response_id: null,
+        query_response: null,
+        role: 'requester',
       },
     ],
   },
@@ -114,17 +133,10 @@ export const withQueriesMocks = (testOptions: Partial<QueryMockOptions> = {}) =>
   const dbMock = {
     get: sinon.stub().callsFake((tableName: 'connection' | 'query') => Promise.resolve(options.getRows[tableName])),
     update: sinon.stub().resolves(),
-    insert: sinon.stub().resolves([
-      {
-        status: 'pending_their_input',
-        id: 123,
-        created_at: new Date(),
-        updated_at: new Date(),
-        connection_id: 'aa000000-0000-0000-0000-aabbccddee00',
-        query_type: 'Scope 3',
-        details: 'some details',
-      },
-    ]),
+    insert: sinon.stub().callsFake((tableName: 'query' | 'query_rpc') => {
+      if (tableName === 'query') return Promise.resolve(options.getRows['queryInsert'])
+      Promise.resolve()
+    }),
   }
 
   return {

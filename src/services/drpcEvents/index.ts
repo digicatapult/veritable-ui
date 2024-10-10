@@ -93,6 +93,7 @@ export default class DrpcEvents {
       let params: SubmitQueryRPCParams
       try {
         params = submitQueryRpcParams.parse(request.params)
+        this.logger.info('submitQueryRpcParams have been parsed %j', params)
       } catch (err) {
         this.logger.warn('Invalid parameters received for request %s: %o', request.id, request.params)
         this.logger.debug('Parsing error o%', err)
@@ -198,13 +199,13 @@ export default class DrpcEvents {
         this.logger.warn('Invalid queryId for drpc message %s', params.queryIdForResponse)
         return
       }
+
       if (queryRow.query_response !== null) {
         this.logger.warn('It appears this query: %s has already been answered.', params.queryIdForResponse)
         return
       }
 
       //update corresponding query
-      this.logger.warn(queryRow)
       const [query] = await this.db.update(
         'query',
         { id: queryRow.id },
@@ -222,6 +223,7 @@ export default class DrpcEvents {
         agent_rpc_id: request.id,
         result,
       })
+      this.logger.info('DRPC response has been successfully handled %j', query)
     } catch (err) {
       if (err instanceof Error) {
         this.logger.warn('Error thrown whilst processing DRPC request %s', err.message)
