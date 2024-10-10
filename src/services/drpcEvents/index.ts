@@ -200,11 +200,7 @@ export default class DrpcEvents {
         return
       }
 
-      if (queryRow.query_response !== null && params.emissions) {
-        const total: number = parseInt(queryRow.query_response) + parseInt(params.emissions)
-        this.logger.info('updated query_response with aggregated total: %s', total)
-        params.emissions = total.toString()
-      } else if (queryRow.query_response !== null) {
+      if (queryRow.query_response !== null) {
         this.logger.warn('It appears this query: %s has already been answered.', params.queryIdForResponse)
         return
       }

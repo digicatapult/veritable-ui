@@ -358,22 +358,24 @@ export class QueriesController extends HTMLController {
       }
       req.log.info('processing partial query %j', partial)
       const size: number = this.validatePartialQuery(partial)
-      req.log.debug('validate partial query and submitting DRPC request %j', { partial, size })
 
-      for (let i = 0; i < size; i++) {
-        await this.submitDrpcRequest({
-          queryId: queryRow.id,
-          connectionId: partial.connectionIds[i],
-          log: req.log,
-          localQuery: {
-            quantity: parseInt(partial.quantities[i]),
-            productId: partial.productIds[i],
-            emissions,
-          },
+      await Promise.all(
+        new Array(size).fill({}).map((_, i) => {
+          if (partial.connectionIds && partial.productIds && partial.quantities) {
+            req.log.debug('validated partial query and submitting DRPC request to %s', partial.connectionIds[i])
+            return this.submitDrpcRequest({
+              queryId: queryRow.id,
+              connectionId: partial.connectionIds[i],
+              log: req.log,
+              localQuery: {
+                quantity: parseInt(partial.quantities[i]),
+                productId: partial.productIds[i],
+                emissions,
+              },
+            })
+          }
         })
-
-        req.log.info('query has been forwarded to %s connection', partial.connectionIds[i])
-      }
+      )
 
       return this.html(
         this.scope3CarbonConsumptionResponseTemplates.newScope3CarbonConsumptionResponseFormPage({
@@ -528,6 +530,7 @@ export class QueriesController extends HTMLController {
 
     const [queryRow] = await this.db.insert('query', {
       connection_id: connection.id,
+      parent_id: queryId,
       query_type: 'Scope 3 Carbon Consumption',
       status: 'pending_their_input',
       details: localQuery,
@@ -537,9 +540,6 @@ export class QueriesController extends HTMLController {
     })
 
     log.info('local query has been persisted %j', queryRow)
-    if (queryId && localQuery.emissions) {
-      await this.db.update('query', { id: queryId }, { query_response: localQuery.emissions })
-    }
 
     const query = {
       productId: localQuery.productId,
