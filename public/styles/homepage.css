@@ -29,12 +29,11 @@
   justify-items: left;
   align-content: space-between;
   gap: 1rem;
-
-  &:hover,
-  &:focus-visible {
-    box-shadow: 10px 10px 8px rgba(0, 0, 0, 0.2);
-    border: 1px solid lightgray;
-  }
+}
+#homepage-container > a:not(.disabled):hover,
+#homepage-container > a:not(.disabled):focus-visible {
+  box-shadow: 10px 10px 8px rgba(0, 0, 0, 0.2);
+  border: 1px solid lightgray;
 }
 
 #homepage-container h1 {
