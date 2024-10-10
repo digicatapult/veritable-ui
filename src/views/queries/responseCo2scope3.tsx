@@ -126,11 +126,10 @@ export default class Scope3CarbonConsumptionResponseTemplates {
                   id="co2-emissions-input"
                   name="emissions"
                   placeholder="Value in kg CO2e (to be aggregated)"
-                  class={`input-with-label ${partial ? 'disabled' : ''}`}
+                  class="input-with-label"
                   type="text"
                   value={props.emissions}
-                  disabled={partial}
-                  required={!partial}
+                  required={true}
                 />
               </div>
               <div class="input-container">

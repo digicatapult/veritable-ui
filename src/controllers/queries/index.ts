@@ -2,9 +2,9 @@ import express from 'express'
 import { Body, Get, Path, Post, Produces, Query, Request, Route, Security, SuccessResponse } from 'tsoa'
 import { injectable } from 'tsyringe'
 
-import pino from 'pino'
+import pino, { Logger } from 'pino'
 import { InvalidInputError, NotFoundError } from '../../errors.js'
-import { PartialQueryPayload, type PartialQuery } from '../../models/arrays.js'
+import { PartialQueryPayload } from '../../models/arrays.js'
 import Database from '../../models/db/index.js'
 import { ConnectionRow, QueryRow, Where } from '../../models/db/types.js'
 import { type UUID } from '../../models/strings.js'
@@ -352,31 +352,39 @@ export class QueriesController extends HTMLController {
       throw new InvalidInputError(`Missing response_id to respond to.`)
     }
 
-    const partialConnections: PartialQuery[] = []
     if (partial && partialQuery) {
       if (!partial.connectionIds || !partial.productIds || !partial.quantities) {
         throw new InvalidInputError('missing a property in the request body')
       }
       req.log.info('processing partial query %j', partial)
       const size: number = this.validatePartialQuery(partial)
-      req.log.debug('partial query has been validated %j', { partial, size })
+      req.log.debug('validate partial query and submitting DRPC request %j', { partial, size })
 
       for (let i = 0; i < size; i++) {
-        partialConnections.push({
+        await this.submitDrpcRequest({
+          queryId: queryRow.id,
           connectionId: partial.connectionIds[i],
-          productId: partial.productIds[i],
-          quantity: parseInt(partial.quantities[i]),
+          log: req.log,
+          localQuery: {
+            quantity: parseInt(partial.quantities[i]),
+            productId: partial.productIds[i],
+            emissions,
+          },
         })
-        req.log.info('partial connection has been formatted %j', partialConnections[i])
+
+        req.log.info('query has been forwarded to %s connection', partial.connectionIds[i])
       }
 
-      req.log.debug('formatted partial connections %j', partialConnections)
+      return this.html(
+        this.scope3CarbonConsumptionResponseTemplates.newScope3CarbonConsumptionResponseFormPage({
+          formStage: 'success',
+          company: connection,
+        })
+      )
     }
 
     const query: { emissions: string; queryIdForResponse: UUID } = {
-      emissions:
-        (emissions as string) ||
-        partialConnections.reduce((out: number, next: PartialQuery) => (out += next.quantity), 0).toString(),
+      emissions: emissions as string,
       queryIdForResponse: queryRow.response_id,
     }
 
@@ -499,6 +507,81 @@ export class QueriesController extends HTMLController {
         },
       })
     )
+  }
+
+  private async submitDrpcRequest({
+    queryId,
+    connectionId,
+    log,
+    localQuery,
+  }: {
+    queryId: UUID
+    connectionId: string
+    log: Logger
+    localQuery: { productId: string; quantity: number; emissions?: string }
+  }) {
+    const [connection] = await this.db.get('connection', { id: connectionId, status: 'verified_both' }, [
+      ['updated_at', 'desc'],
+    ])
+    let rpcResponse: DrpcResponse
+    log.debug('inserting local query %j', localQuery)
+
+    const [queryRow] = await this.db.insert('query', {
+      connection_id: connection.id,
+      query_type: 'Scope 3 Carbon Consumption',
+      status: 'pending_their_input',
+      details: localQuery,
+      response_id: null,
+      query_response: null,
+      role: 'requester',
+    })
+
+    log.info('local query has been persisted %j', queryRow)
+    if (queryId && localQuery.emissions) {
+      await this.db.update('query', { id: queryId }, { query_response: localQuery.emissions })
+    }
+
+    const query = {
+      productId: localQuery.productId,
+      quantity: localQuery.quantity,
+      queryIdForResponse: queryRow.id, //this is for the responder to return with the response so we know what they are responding to
+    }
+
+    if (!connection.agent_connection_id) throw new InvalidInputError('missing agent_id')
+    try {
+      const maybeResponse = await this.cloudagent.submitDrpcRequest(
+        connection.agent_connection_id,
+        'submit_query_request',
+        {
+          query: 'Scope 3 Carbon Consumption',
+          ...query,
+        }
+      )
+      log.info('submitting DRPC request %j', maybeResponse)
+      if (!maybeResponse) {
+        return await this.handleError(log, queryRow, connection)
+      }
+      rpcResponse = maybeResponse
+    } catch (err) {
+      log.warn('DRPC has failed %j', err)
+      return await this.handleError(log, queryRow, connection, undefined, err)
+    }
+    const { result, error, id: rpcId } = rpcResponse
+
+    log.debug('persisting query_rpc response %j', rpcResponse)
+    await this.db.insert('query_rpc', {
+      agent_rpc_id: rpcId,
+      query_id: queryRow.id,
+      role: 'client',
+      method: 'submit_query_request',
+      result,
+      error,
+    })
+
+    if (!result || error) {
+      log.warn('error happened while persisting query_rpc %j', error)
+      return await this.handleError(log, queryRow, connection, rpcId)
+    }
   }
 }
 
