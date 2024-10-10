@@ -154,38 +154,38 @@ main {
   view-transition-name: main;
 }
 
-@keyframes slide-out {
+@keyframes fade-out {
   0% {
-    transform: translateX(0);
+    opacity: 100%;
   }
   50% {
-    transform: translateX(100vw);
+    opacity: 0%;
   }
   100% {
-    transform: translateX(100vw);
+    opacity: 0%;
   }
 }
 
-@keyframes slide-in {
+@keyframes fade-in {
   0% {
-    transform: translateX(100vw);
+    opacity: 0%;
   }
   50% {
-    transform: translateX(100vw);
+    opacity: 0%;
   }
   100% {
-    transform: translateX(0);
+    opacity: 100%;
   }
 }
 
 ::view-transition-old(main) {
-  animation-name: slide-out;
-  animation-duration: 1s;
+  animation-name: fade-out;
+  animation-duration: 0.5s;
 }
 
 ::view-transition-new(main) {
-  animation-name: slide-in;
-  animation-duration: 1s;
+  animation-name: fade-in;
+  animation-duration: 0.5s;
 }
 
 /* Connections listPage */
