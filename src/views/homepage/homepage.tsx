@@ -19,10 +19,10 @@ export default class HomepageTemplates {
             <h1>Queries</h1>
             <p>Ask and answer digitally verified questions from any of your contacts.</p>
           </a>
-          <a href="#" class="disabled">
-            <img src="/public/images/certification.svg" />
-            <h1>Certifications</h1>
-            <p>Manage and verify digital certifications securely within your network.</p>
+          <a href="/credentials">
+            <img src="/public/images/credential.svg" />
+            <h1>Credentials</h1>
+            <p>Manage and verify digital credentials securely within your network.</p>
           </a>
           <a href="/connection">
             <img src="/public/images/connection.svg" />
