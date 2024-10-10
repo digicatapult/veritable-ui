@@ -108,7 +108,7 @@ const SideBar = ({ activePage }: { activePage: PageProps['activePage'] }): JSX.E
         title="credentials"
         href="/credentials"
         data-active={activePage === 'credentials'}
-        style={{ ['--background-image' as string]: "url('/public/images/certification.svg')" }}
+        style={{ ['--background-image' as string]: "url('/public/images/credential.svg')" }}
       />
       <a
         title="connections"

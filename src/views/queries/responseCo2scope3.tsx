@@ -169,7 +169,7 @@ export default class Scope3CarbonConsumptionResponseTemplates {
                 </div>
               ) : undefined}
               <br />
-              <FormButton name="action" value="success" text="Submit Query" style="filled" />
+              <FormButton name="action" value="success" text="Submit Response" style="filled" />
             </form>
           </div>
         </div>
@@ -234,7 +234,7 @@ export default class Scope3CarbonConsumptionResponseTemplates {
                   </tr>
                   <tr>
                     <td>Carbon Emissions:</td>
-                    <td class="query-results-left-padding-table">{Html.escapeHtml(query.emissions)}</td>
+                    <td class="query-results-left-padding-table">{Html.escapeHtml(query.emissions)} kg CO2e</td>
                   </tr>
                 </table>
               </div>
