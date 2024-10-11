@@ -231,9 +231,7 @@ export class QueriesController extends HTMLController {
       this.scope3CarbonConsumptionResponseTemplates.newScope3CarbonConsumptionResponseFormPage({
         formStage: 'form',
         company: connection,
-        queryId,
-        quantity: query.details['quantity'],
-        productId: query.details['productId'],
+        query,
       })
     )
   }
@@ -269,9 +267,8 @@ export class QueriesController extends HTMLController {
 
     return this.html(
       render({
-        ...query.details,
         company,
-        queryId,
+        query,
         partial: partialQuery === 'on' ? true : false,
         connections: connections.filter(({ id }: ConnectionRow) => id !== query.connection_id),
         formStage: 'form',
@@ -364,7 +361,7 @@ export class QueriesController extends HTMLController {
           if (partial.connectionIds && partial.productIds && partial.quantities) {
             req.log.debug('validated partial query and submitting DRPC request to %s', partial.connectionIds[i])
             return this.submitDrpcRequest({
-              queryId: queryRow.id,
+              parentId: queryRow.id,
               connectionId: partial.connectionIds[i],
               log: req.log,
               localQuery: {
@@ -381,6 +378,7 @@ export class QueriesController extends HTMLController {
         this.scope3CarbonConsumptionResponseTemplates.newScope3CarbonConsumptionResponseFormPage({
           formStage: 'success',
           company: connection,
+          query: queryRow,
         })
       )
     }
@@ -390,7 +388,6 @@ export class QueriesController extends HTMLController {
       queryIdForResponse: queryRow.response_id,
     }
 
-    req.log.debug('query for DRPC response with aggregated emissions %j', query)
     //send a drpc message with response
     let rpcResponse: DrpcResponse
     try {
@@ -422,17 +419,19 @@ export class QueriesController extends HTMLController {
       result,
       error,
     })
-    await this.db.update('query', { id: queryId }, { status: 'resolved' })
 
     if (!result || error) {
       req.log.warn('error happened while persisting query_rpc %j', error)
       return this.handleError(req.log, queryRow, connection, rpcId)
     }
 
+    await this.db.update('query', { id: queryRow.id }, { query_response: emissions, status: 'resolved' })
+
     return this.html(
       this.scope3CarbonConsumptionResponseTemplates.newScope3CarbonConsumptionResponseFormPage({
         formStage: 'success',
         company: connection,
+        query: queryRow,
       })
     )
   }
@@ -512,12 +511,12 @@ export class QueriesController extends HTMLController {
   }
 
   private async submitDrpcRequest({
-    queryId,
+    parentId = null,
     connectionId,
     log,
     localQuery,
   }: {
-    queryId: UUID
+    parentId: UUID | null
     connectionId: string
     log: Logger
     localQuery: { productId: string; quantity: number; emissions?: string }
@@ -530,7 +529,7 @@ export class QueriesController extends HTMLController {
 
     const [queryRow] = await this.db.insert('query', {
       connection_id: connection.id,
-      parent_id: queryId,
+      parent_id: parentId || null,
       query_type: 'Scope 3 Carbon Consumption',
       status: 'pending_their_input',
       details: localQuery,
@@ -542,8 +541,7 @@ export class QueriesController extends HTMLController {
     log.info('local query has been persisted %j', queryRow)
 
     const query = {
-      productId: localQuery.productId,
-      quantity: localQuery.quantity,
+      ...localQuery,
       queryIdForResponse: queryRow.id, //this is for the responder to return with the response so we know what they are responding to
     }
 

@@ -1,7 +1,6 @@
 import Html from '@kitajs/html'
-import { UUID } from 'crypto'
 import { singleton } from 'tsyringe'
-import { ConnectionRow } from '../../models/db/types.js'
+import { ConnectionRow, QueryRow } from '../../models/db/types.js'
 import { FormButton, LinkButton, Page } from '../common.js'
 
 type QueryStatus = 'resolved' | 'pending_your_input' | 'pending_their_input' | 'errored'
@@ -24,10 +23,7 @@ export interface Scope3FormProps {
   company: ConnectionRow
   connections?: ConnectionRow[]
   partial?: boolean
-  queryId?: string | UUID
-  productId?: string
-  quantity?: number
-  emissions?: string
+  query: QueryRow
 }
 
 @singleton()
@@ -37,12 +33,11 @@ export default class Scope3CarbonConsumptionResponseTemplates {
   public newScope3CarbonConsumptionResponseFormPage = ({
     formStage,
     company,
-    queryId,
-    quantity,
-    productId,
+    query,
     partial,
     connections,
   }: Scope3FormProps) => {
+    const { details } = query
     return (
       <Page
         title="Veritable - Select Company"
@@ -51,8 +46,8 @@ export default class Scope3CarbonConsumptionResponseTemplates {
         headerLinks={[
           { name: 'Query Management', url: '/queries' },
           {
-            name: `Query Request ${productId}`,
-            url: `/queries/scope-3-carbon-consumption/${queryId}/response`,
+            name: `Query Request ${details.productId}`,
+            url: `/queries/scope-3-carbon-consumption/${query.id}/response`,
           },
         ]}
       >
@@ -61,9 +56,7 @@ export default class Scope3CarbonConsumptionResponseTemplates {
           <this.scope3
             formStage={formStage}
             company={company}
-            productId={productId}
-            quantity={quantity || 0}
-            queryId={queryId}
+            query={query}
             partial={partial}
             connections={connections}
           />
@@ -85,6 +78,7 @@ export default class Scope3CarbonConsumptionResponseTemplates {
   public scope3CarbonConsumptionResponseFormPage = ({
     partial = false,
     connections = [],
+    query,
     ...props
   }: Scope3FormProps) => {
     return (
@@ -106,21 +100,21 @@ export default class Scope3CarbonConsumptionResponseTemplates {
           <div hx-swap-oob="true" hx-swap="ignoreTitle:true" id="partial-query">
             <form
               id="scope-3-carbon-consumption"
-              hx-post={`/queries/scope-3-carbon-consumption/${props.queryId}/response`}
+              hx-post={`/queries/scope-3-carbon-consumption/${query.id}/response`}
               hx-select="main > *"
               hx-include={"[name='quantity'], [name='companyId'], [name='productId']"}
               hx-target="main"
               hx-swap="innerHTML"
             >
               <p>
-                Product ID: {Html.escapeHtml(props.productId)}
+                Product ID: {Html.escapeHtml(query.details.productId)}
                 <br />
-                Quantity: {props.quantity}
+                Quantity: {query.details.quantity}
               </p>
               <input type="hidden" name="companyId" value={Html.escapeHtml(props.company.id)} />
               <div class="input-container">
                 <label for="co2-emissions-input" class="input-label">
-                  Total Scope 3 carbon emissions
+                  Your Scope 3 carbon emissions
                 </label>
                 <input
                   id="co2-emissions-input"
@@ -128,7 +122,7 @@ export default class Scope3CarbonConsumptionResponseTemplates {
                   placeholder="Value in kg CO2e (to be aggregated)"
                   class="input-with-label"
                   type="text"
-                  value={props.emissions}
+                  value={query.details.emissions}
                   required={true}
                 />
               </div>
@@ -136,7 +130,7 @@ export default class Scope3CarbonConsumptionResponseTemplates {
                 <input
                   hx-trigger="changed, click"
                   hx-target="#partial-query"
-                  hx-get={`/queries/${props.queryId}/partial`}
+                  hx-get={`/queries/${query.id}/partial`}
                   id="partial-response-input"
                   name="partialQuery"
                   type="checkbox"

@@ -3,6 +3,7 @@ import { z } from 'zod'
 
 import { Logger, type ILogger } from '../../logger.js'
 import Database from '../../models/db/index.js'
+import { QueryRow } from '../../models/db/types.js'
 import VeritableCloudagent from '../../models/veritableCloudagent.js'
 import { neverFail } from '../../utils/promises.js'
 import VeritableCloudagentEvents, { DrpcRequest, eventData } from '../veritableCloudagentEvents.js'
@@ -206,11 +207,31 @@ export default class DrpcEvents {
       }
 
       //update corresponding query
-      const [query] = await this.db.update(
+      const [query]: QueryRow[] = await this.db.update(
         'query',
         { id: queryRow.id },
         { query_response: params.emissions, status: 'resolved' }
       )
+
+      if (queryRow.parent_id) {
+        const [parentQuery]: QueryRow[] = await this.db.get('query', { id: queryRow.parent_id })
+        if (!parentQuery) {
+          this.logger.warn('parent query not found %s', queryRow.parent_id)
+          return
+        }
+
+        const total: number = parseInt(queryRow.details.emissions || '0') + parseInt(params.emissions || '0')
+        await this.db.update(
+          'query',
+          { id: queryRow.parent_id },
+          {
+            details: {
+              ...parentQuery.details,
+              emissions: total.toString(),
+            },
+          }
+        )
+      }
 
       const result = {
         state: 'accepted',
