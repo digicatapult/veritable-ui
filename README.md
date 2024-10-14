@@ -177,6 +177,13 @@ npm run test:integration
 ### e2e Testing
 
 E2e tests are placed at root level in the `test/` directory. You can run them either directly or in a docker container (how they are run in the CI).
+
+Install dependencies for playwright with:
+
+```sh
+npx playwright install
+```
+
 Bring up all the docker containers necessary with:
 
 ```sh
