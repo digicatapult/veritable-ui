@@ -200,8 +200,8 @@ export class NewConnectionController extends HTMLController {
       inviteUrl: invite.invitationUrl,
     }
 
-    req.log.info('sending connection_invite email to %s %j', body.email, wrappedInvitation)
-    await this.sendNewConnectionEmail(body.email, wrappedInvitation)
+    req.log.info('sending connection_invite email to %s (%s) %j', body.email, company.company_name, wrappedInvitation)
+    await this.sendNewConnectionEmail(body.email, company.company_name, wrappedInvitation)
     req.log.info('sending connection_invite_admin email %j', { company, pin })
     await this.sendAdminEmail(company, pin)
 
@@ -386,13 +386,20 @@ export class NewConnectionController extends HTMLController {
     }
   }
 
-  private async sendNewConnectionEmail(email: string, invite: { companyNumber: string; inviteUrl: string }) {
+  private async sendNewConnectionEmail(
+    email: string,
+    toCompanyName: string,
+    invite: { companyNumber: string; inviteUrl: string }
+  ) {
+    const fromCompany = await this.companyHouseEntity.localCompanyHouseProfile()
     const inviteBase64 = Buffer.from(JSON.stringify(invite), 'utf8').toString('base64url')
 
     await neverFail(
       this.email.sendMail('connection_invite', {
         to: email,
         invite: inviteBase64,
+        toCompanyName,
+        fromCompanyName: fromCompany.company_name,
       })
     )
   }
@@ -413,7 +420,7 @@ export class NewConnectionController extends HTMLController {
           company.registered_office_address.region,
         ]
           .filter((x) => !!x)
-          .join('\r\n'),
+          .join(', '),
         pin,
       })
     )

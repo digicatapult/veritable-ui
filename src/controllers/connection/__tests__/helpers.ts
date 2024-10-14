@@ -135,6 +135,10 @@ export const withNewConnectionMocks = () => {
       }
       throw new Error('Invalid number')
     },
+    localCompanyHouseProfile: sinon.stub().resolves({
+      company_number: 'COMPANY_NUMBER',
+      company_name: 'COMPANY_NAME',
+    }),
   } as unknown as CompanyHouseEntity
 
   const mockCloudagent = {
