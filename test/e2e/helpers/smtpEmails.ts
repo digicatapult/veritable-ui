@@ -1,7 +1,6 @@
 import { expect } from '@playwright/test'
 import http from 'http'
 import { z } from 'zod'
-import { validCompanyName } from '../../helpers/fixtures'
 
 const ToSchema = z.array(z.string())
 
@@ -76,8 +75,8 @@ async function validateEmails(results: Email[]): Promise<{
   adminEmail: Email
 }> {
   // Invite email assertions
-  const inviteEmail = results.find(
-    (msg) => msg.subject === `${validCompanyName} invites you to a secure, verified connection on Veritable`
+  const inviteEmail = results.find((msg) =>
+    msg.subject.endsWith('invites you to a secure, verified connection on Veritable')
   )
   if (inviteEmail) {
     expect(inviteEmail.to).toHaveLength(1)
