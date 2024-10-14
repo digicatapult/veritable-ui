@@ -9,7 +9,7 @@ import VeritableCloudagentEvents from '../../src/services/veritableCloudagentEve
 import { cleanupCloudagent } from '../helpers/cloudagent.js'
 import { withCompanyHouseMock } from '../helpers/companyHouse.js'
 import { cleanup } from '../helpers/db.js'
-import { validCompanyNumber } from '../helpers/fixtures.js'
+import { validCompanyName, validCompanyNumber } from '../helpers/fixtures.js'
 import { post } from '../helpers/routeHelper.js'
 import { clearSmtp4devMessages, setupSmtpTestEnvironment } from '../helpers/smtp.js'
 
@@ -78,12 +78,14 @@ describe('SMTP email', () => {
               expect(results).length(2)
 
               // Invite email assertions
-              const inviteEmail = results.find((msg) => msg.subject === 'Veritable invite')
+              const inviteEmail = results.find(
+                (msg) => msg.subject === `${validCompanyName} invites you to a secure, verified connection on Veritable`
+              )
               if (inviteEmail) {
                 expect(inviteEmail.to).to.have.lengthOf(1)
                 expect(inviteEmail.to[0]).to.contain('alice@example.com')
               } else {
-                throw new Error('No email found with the subject "Veritable invite".')
+                throw new Error('No email found with the correct subject.')
               }
 
               // Admin email assertions
