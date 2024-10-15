@@ -435,6 +435,7 @@ describe('QueriesController', () => {
           'aaaaaaaa-0000-0000-0000-d8ae0805059e',
           'submit_query_request',
           {
+            emissions: '10',
             query: 'Scope 3 Carbon Consumption',
             productId: 'partial-product-id',
             quantity: 10,
