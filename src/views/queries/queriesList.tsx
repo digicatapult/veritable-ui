@@ -21,6 +21,7 @@ export default class QueryListTemplates {
       case 'pending_your_input':
         return <p>Received</p>
       case 'pending_their_input':
+      case 'forwarded':
         return <p>Sent</p>
       case 'resolved':
         return <p>Received</p> // TODO confirm with Esther
@@ -47,6 +48,8 @@ export default class QueryListTemplates {
     } else if (status === 'pending_their_input') {
       return true
     } else if (status === 'errored') {
+      return true
+    } else if (status === 'forwarded') {
       return true
     }
   }

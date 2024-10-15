@@ -388,13 +388,6 @@ export class QueriesController extends HTMLController {
       queryIdForResponse: queryRow.response_id,
     }
 
-    await this.submitDrpcRequest({
-      parentId: null,
-      connectionId: connection.id,
-      log: req.log,
-      localQuery: { ...queryRow.details },
-    })
-
     //send a drpc message with response
     let rpcResponse: DrpcResponse
     try {
@@ -518,12 +511,12 @@ export class QueriesController extends HTMLController {
   }
 
   private async submitDrpcRequest({
-    parentId = null,
+    parentId,
     connectionId,
     log,
     localQuery,
   }: {
-    parentId: UUID | null
+    parentId: UUID
     connectionId: string
     log: Logger
     localQuery: { emissions?: string; quantity?: number; productId?: string }
@@ -538,12 +531,14 @@ export class QueriesController extends HTMLController {
       connection_id: connection.id,
       parent_id: parentId || null,
       query_type: 'Scope 3 Carbon Consumption',
-      status: 'forwarded',
+      status: 'pending_their_input',
       details: localQuery,
       response_id: null,
       query_response: null,
       role: 'requester',
     })
+
+    await this.db.update('query', { id: parentId }, { status: 'forwarded' })
 
     log.info('local query has been persisted %j', queryRow)
 
