@@ -1,13 +1,13 @@
 import { inject, injectable, singleton } from 'tsyringe'
 import { z } from 'zod'
 
+import { UUID } from 'crypto'
 import { Logger, type ILogger } from '../../logger.js'
 import Database from '../../models/db/index.js'
-import { QueryRow } from '../../models/db/types.js'
+import { ConnectionRow, QueryRow } from '../../models/db/types.js'
 import VeritableCloudagent, { DrpcResponse } from '../../models/veritableCloudagent.js'
 import { neverFail } from '../../utils/promises.js'
 import VeritableCloudagentEvents, { DrpcRequest, eventData } from '../veritableCloudagentEvents.js'
-import { UUID } from 'crypto'
 
 const submitQueryRpcParams = z.discriminatedUnion('query', [
   z.object({
@@ -214,72 +214,12 @@ export default class DrpcEvents {
         { query_response: params.emissions, status: 'resolved' }
       )
 
-      const result = {
-        state: 'accepted',
+      if (queryRow.parent_id) {
+        await this.handleParentQuery(queryRow.parent_id, queryRow, params)
       }
 
-      if (queryRow.parent_id) {
-        const [parentQuery]: QueryRow[] = await this.db.get('query', { id: queryRow.parent_id })
-        if (!parentQuery) {
-          this.logger.warn('parent query not found %s', queryRow.parent_id)
-          return
-        }
-
-        const total: number = parseInt(queryRow.details.emissions || '0') + parseInt(params.emissions || '0')
-        await this.db.update(
-          'query',
-          { id: queryRow.parent_id },
-          {
-            status: 'resolved',
-            details: {
-              ...parentQuery.details,
-              emissions: total.toString(),
-            },
-          }
-        )
-
-        const [connection] = await this.db.get('connection', { id: parentQuery.connection_id })
-        if (!connection.agent_connection_id) throw new Error('missing con.id')
-        //send a drpc message with response
-        const parentQueryRes: { emissions: string; queryIdForResponse: UUID } = {
-          emissions: total.toString(),
-          queryIdForResponse: parentQuery.response_id as UUID,
-        }
-        let rpcResponse: DrpcResponse 
-        try {
-          const maybeResponse = await this.cloudagent.submitDrpcRequest(
-            connection.agent_connection_id,
-            'submit_query_response',
-            {
-              query: 'Scope 3 Carbon Consumption',
-              ...parentQueryRes,
-            }
-          )
-          this.logger.info('submitting DRPC request %j', maybeResponse)
-          if (!maybeResponse) {
-            return this.logger.warn('no response')
-          }
-          rpcResponse = maybeResponse
-        } catch (err) {
-          return this.logger.warn('DRPC has failed %j', err)
-        }
-        const { result, error, id: rpcId } = rpcResponse
-
-        this.logger.info('persisting query_rpc response %j', rpcResponse)
-        await this.db.insert('query_rpc', {
-          agent_rpc_id: rpcId,
-          query_id: parentQuery.id,
-          role: 'client', // am I still a client when I'm a 'responder'?
-          method: 'submit_query_request',
-          result,
-          error,
-        })
-
-        if (!result || error) {
-          return this.logger.warn('error happened while persisting query_rpc %j', error)
-        }
-
-        await this.db.update('query', { id: queryRow.id }, { query_response: total.toString(), status: 'resolved' })
+      const result = {
+        state: 'accepted',
       }
 
       await this.cloudagent.submitDrpcResponse(request.id, { result })
@@ -307,5 +247,85 @@ export default class DrpcEvents {
         },
       })
     }
+  }
+
+  private async handleParentQuery(id: string, childQuery: QueryRow, params: SubmitQueryResponseRPCParams) {
+    const [parentQuery]: QueryRow[] = await this.db.get('query', { id })
+    if (!parentQuery) {
+      this.logger.warn('parent query not found %s', id)
+      return
+    }
+
+    const total: number = parseInt(childQuery.details.emissions || '0') + parseInt(params.emissions || '0')
+    await this.db.update(
+      'query',
+      { id },
+      {
+        status: 'resolved',
+        details: {
+          ...parentQuery.details,
+          emissions: total.toString(),
+        },
+      }
+    )
+
+    const [connection] = await this.db.get('connection', { id: parentQuery.connection_id })
+    if (!connection.agent_connection_id) return this.handleError(childQuery, connection)
+
+    let rpcResponse: DrpcResponse
+    try {
+      const maybeResponse = await this.cloudagent.submitDrpcRequest(
+        connection.agent_connection_id,
+        'submit_query_response',
+        {
+          query: 'Scope 3 Carbon Consumption',
+          emissions: total.toString(),
+          queryIdForResponse: parentQuery.response_id as UUID,
+        }
+      )
+      this.logger.info('submitting DRPC request %j', maybeResponse)
+      if (!maybeResponse) {
+        this.logger.warn('no response')
+        return this.handleError(childQuery, connection)
+      }
+      rpcResponse = maybeResponse
+    } catch (err) {
+      this.logger.warn('DRPC has failed %j', err)
+      return this.handleError(childQuery, connection)
+    }
+    const { result, error, id: rpcId } = rpcResponse
+
+    this.logger.info('persisting query_rpc response %j', rpcResponse)
+    await this.db.insert('query_rpc', {
+      agent_rpc_id: rpcId,
+      query_id: parentQuery.id,
+      role: 'client', // am I still a client when I'm a 'responder'?
+      method: 'submit_query_request',
+      result,
+      error,
+    })
+
+    if (!result || error) {
+      this.logger.warn('error happened while persisting query_rpc %j', error)
+      return this.handleError(childQuery, connection, rpcId, error)
+    }
+
+    await this.db.update('query', { id: parentQuery.id }, { query_response: total.toString(), status: 'resolved' })
+  }
+
+  private async handleError(query: QueryRow, connection: ConnectionRow, rpcId?: string, error?: unknown) {
+    if (rpcId) {
+      this.logger.warn('error in rpc response %s to query %s to connection %s', rpcId, query.id, connection.id)
+    } else {
+      this.logger.warn('error submitting query %s to connection %s', query.id, connection.id)
+    }
+    if (error instanceof Error) {
+      this.logger.debug('message: %s', error.message)
+      this.logger.trace('stack: %o', error.stack)
+    } else {
+      this.logger.debug('error: %o', error)
+    }
+
+    await this.db.update('query', { id: query.id }, { status: 'errored' })
   }
 }
