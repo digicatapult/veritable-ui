@@ -4,9 +4,10 @@ import { z } from 'zod'
 import { Logger, type ILogger } from '../../logger.js'
 import Database from '../../models/db/index.js'
 import { QueryRow } from '../../models/db/types.js'
-import VeritableCloudagent from '../../models/veritableCloudagent.js'
+import VeritableCloudagent, { DrpcResponse } from '../../models/veritableCloudagent.js'
 import { neverFail } from '../../utils/promises.js'
 import VeritableCloudagentEvents, { DrpcRequest, eventData } from '../veritableCloudagentEvents.js'
+import { UUID } from 'crypto'
 
 const submitQueryRpcParams = z.discriminatedUnion('query', [
   z.object({
@@ -213,6 +214,10 @@ export default class DrpcEvents {
         { query_response: params.emissions, status: 'resolved' }
       )
 
+      const result = {
+        state: 'accepted',
+      }
+
       if (queryRow.parent_id) {
         const [parentQuery]: QueryRow[] = await this.db.get('query', { id: queryRow.parent_id })
         if (!parentQuery) {
@@ -225,17 +230,58 @@ export default class DrpcEvents {
           'query',
           { id: queryRow.parent_id },
           {
+            status: 'resolved',
             details: {
               ...parentQuery.details,
               emissions: total.toString(),
             },
           }
         )
+
+        const [connection] = await this.db.get('connection', { id: parentQuery.connection_id })
+        if (!connection.agent_connection_id) throw new Error('missing con.id')
+        //send a drpc message with response
+        const parentQueryRes: { emissions: string; queryIdForResponse: UUID } = {
+          emissions: total.toString(),
+          queryIdForResponse: parentQuery.response_id as UUID,
+        }
+        let rpcResponse: DrpcResponse 
+        try {
+          const maybeResponse = await this.cloudagent.submitDrpcRequest(
+            connection.agent_connection_id,
+            'submit_query_response',
+            {
+              query: 'Scope 3 Carbon Consumption',
+              ...parentQueryRes,
+            }
+          )
+          this.logger.info('submitting DRPC request %j', maybeResponse)
+          if (!maybeResponse) {
+            return this.logger.warn('no response')
+          }
+          rpcResponse = maybeResponse
+        } catch (err) {
+          return this.logger.warn('DRPC has failed %j', err)
+        }
+        const { result, error, id: rpcId } = rpcResponse
+
+        this.logger.info('persisting query_rpc response %j', rpcResponse)
+        await this.db.insert('query_rpc', {
+          agent_rpc_id: rpcId,
+          query_id: parentQuery.id,
+          role: 'client', // am I still a client when I'm a 'responder'?
+          method: 'submit_query_request',
+          result,
+          error,
+        })
+
+        if (!result || error) {
+          return this.logger.warn('error happened while persisting query_rpc %j', error)
+        }
+
+        await this.db.update('query', { id: queryRow.id }, { query_response: total.toString(), status: 'resolved' })
       }
 
-      const result = {
-        state: 'accepted',
-      }
       await this.cloudagent.submitDrpcResponse(request.id, { result })
       await this.db.insert('query_rpc', {
         query_id: query.id,
