@@ -236,7 +236,7 @@ describe('QueriesController', () => {
           {
             connection_id: 'cccccccc-0001-0000-0000-d8ae0805059e',
             query_type: 'Scope 3 Carbon Consumption',
-            status: 'pending_their_input',
+            status: 'forwarded',
             parent_id: '5390af91-c551-4d74-b394-d8ae0805059a',
             details: { quantity: 10, productId: 'product-1', emissions: '1' },
             response_id: null,
@@ -451,7 +451,7 @@ describe('QueriesController', () => {
             connection_id: 'cccccccc-0001-0000-0000-d8ae0805059e',
             query_type: 'Scope 3 Carbon Consumption',
             parent_id: '5390af91-c551-4d74-b394-d8ae0805059a',
-            status: 'pending_their_input',
+            status: 'forwarded',
             details: {
               emissions: '10',
               productId: 'partial-product-id',

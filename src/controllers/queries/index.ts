@@ -388,6 +388,13 @@ export class QueriesController extends HTMLController {
       queryIdForResponse: queryRow.response_id,
     }
 
+    await this.submitDrpcRequest({
+      parentId: null,
+      connectionId: connection.id,
+      log: req.log,
+      localQuery: { ...queryRow.details },
+    })
+
     //send a drpc message with response
     let rpcResponse: DrpcResponse
     try {
@@ -519,7 +526,7 @@ export class QueriesController extends HTMLController {
     parentId: UUID | null
     connectionId: string
     log: Logger
-    localQuery: { productId: string; quantity: number; emissions?: string }
+    localQuery: { emissions?: string; quantity?: number; productId?: string }
   }) {
     const [connection] = await this.db.get('connection', { id: connectionId, status: 'verified_both' }, [
       ['updated_at', 'desc'],
@@ -531,7 +538,7 @@ export class QueriesController extends HTMLController {
       connection_id: connection.id,
       parent_id: parentId || null,
       query_type: 'Scope 3 Carbon Consumption',
-      status: 'pending_their_input',
+      status: 'forwarded',
       details: localQuery,
       response_id: null,
       query_response: null,

@@ -10,7 +10,7 @@ import QueryListTemplates from '../../../views/queries/queriesList.js'
 import Scope3CarbonConsumptionTemplates from '../../../views/queries/requestCo2scope3.js'
 import Scope3CarbonConsumptionResponseTemplates, { Scope3FormProps } from '../../../views/queries/responseCo2scope3.js'
 
-type QueryStatus = 'resolved' | 'pending_your_input' | 'pending_their_input'
+type QueryStatus = 'resolved' | 'pending_your_input' | 'pending_their_input' | 'forwarded'
 
 interface Query {
   company_name: string

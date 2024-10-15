@@ -3,7 +3,7 @@ import { singleton } from 'tsyringe'
 import { ConnectionRow, QueryRow } from '../../models/db/types.js'
 import { FormButton, LinkButton, Page } from '../common.js'
 
-type QueryStatus = 'resolved' | 'pending_your_input' | 'pending_their_input' | 'errored'
+type QueryStatus = 'resolved' | 'pending_your_input' | 'pending_their_input' | 'errored' | 'forwarded'
 
 interface Query {
   id: string

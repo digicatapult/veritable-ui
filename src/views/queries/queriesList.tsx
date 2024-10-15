@@ -2,7 +2,7 @@ import Html from '@kitajs/html'
 import { singleton } from 'tsyringe'
 import { LinkButton, Page, statusToClass } from '../common.js'
 
-type QueryStatus = 'resolved' | 'pending_your_input' | 'pending_their_input' | 'errored'
+type QueryStatus = 'resolved' | 'pending_your_input' | 'pending_their_input' | 'errored' | 'forwarded'
 type QueryRole = 'responder' | 'requester'
 type Query = {
   id: string
