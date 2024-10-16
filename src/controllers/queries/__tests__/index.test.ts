@@ -216,7 +216,7 @@ describe('QueriesController', () => {
         })
       })
 
-      it('creates a new query and renders a response view', async () => {
+      it('creates a child query and renders a response view', async () => {
         const { args, dbMock } = withQueriesMocks()
         const controller = new QueriesController(...args)
         const result = await controller
@@ -460,6 +460,18 @@ describe('QueriesController', () => {
             response_id: null,
             query_response: null,
             role: 'requester',
+          },
+        ])
+      })
+
+      it('updates existing query status to forwarded', () => {
+        expect(dbMock.update.getCall(0).args).to.deep.equal([
+          'query',
+          {
+            id: '5390af91-c551-4d74-b394-d8ae0805059a',
+          },
+          {
+            status: 'forwarded',
           },
         ])
       })

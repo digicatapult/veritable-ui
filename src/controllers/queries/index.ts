@@ -360,7 +360,7 @@ export class QueriesController extends HTMLController {
         new Array(size).fill({}).map((_, i) => {
           if (partial.connectionIds && partial.productIds && partial.quantities) {
             req.log.debug('validated partial query and submitting DRPC request to %s', partial.connectionIds[i])
-            return this.submitDrpcRequest({
+            return this.submitQueryRequest({
               parentId: queryRow.id,
               connectionId: partial.connectionIds[i],
               log: req.log,
@@ -383,57 +383,12 @@ export class QueriesController extends HTMLController {
       )
     }
 
-    const query: { emissions: string; queryIdForResponse: UUID } = {
+    const localQuery = {
       emissions: emissions as string,
       queryIdForResponse: queryRow.response_id,
     }
 
-    //send a drpc message with response
-    let rpcResponse: DrpcResponse
-    try {
-      const maybeResponse = await this.cloudagent.submitDrpcRequest(
-        connection.agent_connection_id,
-        'submit_query_response',
-        {
-          query: 'Scope 3 Carbon Consumption',
-          ...query,
-        }
-      )
-      req.log.info('submitting DRPC request %j', maybeResponse)
-      if (!maybeResponse) {
-        return this.handleError(req.log, queryRow, connection)
-      }
-      rpcResponse = maybeResponse
-    } catch (err) {
-      req.log.warn('DRPC has failed %j', err)
-      return this.handleError(req.log, queryRow, connection, undefined, err)
-    }
-    const { result, error, id: rpcId } = rpcResponse
-
-    req.log.info('persisting query_rpc response', rpcResponse)
-    await this.db.insert('query_rpc', {
-      agent_rpc_id: rpcId,
-      query_id: queryRow.id,
-      role: 'client', // am I still a client when I'm a 'responder'?
-      method: 'submit_query_request',
-      result,
-      error,
-    })
-
-    if (!result || error) {
-      req.log.warn('error happened while persisting query_rpc %j', error)
-      return this.handleError(req.log, queryRow, connection, rpcId)
-    }
-
-    await this.db.update('query', { id: queryRow.id }, { query_response: emissions, status: 'resolved' })
-
-    return this.html(
-      this.scope3CarbonConsumptionResponseTemplates.newScope3CarbonConsumptionResponseFormPage({
-        formStage: 'success',
-        company: connection,
-        query: queryRow,
-      })
-    )
+    return this.submitQueryResponse({ log: req.log, localQuery, connection, queryRow })
   }
 
   /**
@@ -485,7 +440,7 @@ export class QueriesController extends HTMLController {
     connection: ConnectionRow,
     rpcId?: string,
     error?: unknown
-  ) {
+  ): Promise<HTML> {
     if (rpcId) {
       logger.warn('error in rpc response %s to query %s to connection %s', rpcId, query.id, connection.id)
     } else {
@@ -510,22 +465,77 @@ export class QueriesController extends HTMLController {
     )
   }
 
-  private async submitDrpcRequest({
+  private async submitQueryResponse({
+    connection,
+    queryRow,
+    localQuery,
+    log,
+    rpcResponse = undefined,
+  }: {
+    log: Logger
+    connection: ConnectionRow
+    queryRow: QueryRow
+    rpcResponse?: DrpcResponse | undefined
+    localQuery: { emissions: string; queryIdForResponse: UUID }
+  }): Promise<HTML> {
+    if (!connection.agent_connection_id) return this.handleError(log, queryRow, connection)
+    try {
+      rpcResponse = await this.cloudagent.submitDrpcRequest(connection.agent_connection_id, 'submit_query_response', {
+        query: 'Scope 3 Carbon Consumption',
+        ...localQuery,
+      })
+      log.info('submitting DRPC request %j', { rpcResponse, localQuery })
+      if (!rpcResponse) {
+        return this.handleError(log, queryRow, connection)
+      }
+    } catch (err) {
+      log.warn('DRPC has failed %j', err)
+      return this.handleError(log, queryRow, connection, undefined, err)
+    }
+    const { result, error, id: rpcId } = rpcResponse
+
+    log.info('persisting query_rpc response', rpcResponse)
+    await this.db.insert('query_rpc', {
+      agent_rpc_id: rpcId,
+      query_id: queryRow.id,
+      role: 'client', // am I still a client when I'm a 'responder'?
+      method: 'submit_query_request',
+      result,
+      error,
+    })
+
+    if (!result || error) {
+      log.warn('error happened while persisting query_rpc %j', error)
+      return this.handleError(log, queryRow, connection, rpcId)
+    }
+    await this.db.update('query', { id: queryRow.id }, { query_response: localQuery.emissions, status: 'resolved' })
+
+    return this.html(
+      this.scope3CarbonConsumptionResponseTemplates.newScope3CarbonConsumptionResponseFormPage({
+        formStage: 'success',
+        company: connection,
+        query: queryRow,
+      })
+    )
+  }
+
+  private async submitQueryRequest({
     parentId,
     connectionId,
     log,
     localQuery,
+    rpcResponse = undefined,
   }: {
     parentId: UUID
     connectionId: string
     log: Logger
+    rpcResponse?: DrpcResponse | undefined
     localQuery: { emissions?: string; quantity?: number; productId?: string }
   }) {
     const [connection] = await this.db.get('connection', { id: connectionId, status: 'verified_both' }, [
       ['updated_at', 'desc'],
     ])
-    let rpcResponse: DrpcResponse
-    log.debug('inserting local query %j', localQuery)
+    if (!connection.agent_connection_id) throw new InvalidInputError('missing agent_id from connection')
 
     const [queryRow] = await this.db.insert('query', {
       connection_id: connection.id,
@@ -539,32 +549,21 @@ export class QueriesController extends HTMLController {
     })
 
     await this.db.update('query', { id: parentId }, { status: 'forwarded' })
+    log.info('child query has been created %j and parent %s set to forwarded', queryRow, parentId)
 
-    log.info('local query has been persisted %j', queryRow)
-
-    const query = {
-      ...localQuery,
-      queryIdForResponse: queryRow.id, //this is for the responder to return with the response so we know what they are responding to
-    }
-
-    if (!connection.agent_connection_id) throw new InvalidInputError('missing agent_id')
     try {
-      const maybeResponse = await this.cloudagent.submitDrpcRequest(
-        connection.agent_connection_id,
-        'submit_query_request',
-        {
-          query: 'Scope 3 Carbon Consumption',
-          ...query,
-        }
-      )
-      log.info('submitting DRPC request %j', maybeResponse)
-      if (!maybeResponse) {
-        return await this.handleError(log, queryRow, connection)
+      rpcResponse = await this.cloudagent.submitDrpcRequest(connection.agent_connection_id, 'submit_query_request', {
+        query: 'Scope 3 Carbon Consumption',
+        ...localQuery,
+        queryIdForResponse: queryRow.id, //this is for the responder to return with the response so we know what they are responding to
+      })
+      log.info('DRPC request %j', { rpcResponse, localQuery })
+      if (!rpcResponse) {
+        return this.handleError(log, queryRow, connection)
       }
-      rpcResponse = maybeResponse
     } catch (err) {
       log.warn('DRPC has failed %j', err)
-      return await this.handleError(log, queryRow, connection, undefined, err)
+      return this.handleError(log, queryRow, connection, undefined, err)
     }
     const { result, error, id: rpcId } = rpcResponse
 
