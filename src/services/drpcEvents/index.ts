@@ -15,6 +15,7 @@ const submitQueryRpcParams = z.discriminatedUnion('query', [
     productId: z.string(),
     quantity: z.number().int().min(1),
     queryIdForResponse: z.string(),
+    emissions: z.string().optional(),
   }),
 ])
 const submitQueryResponseRpcParams = z.discriminatedUnion('query', [
@@ -97,8 +98,8 @@ export default class DrpcEvents {
         params = submitQueryRpcParams.parse(request.params)
         this.logger.info('submitQueryRpcParams have been parsed %j', params)
       } catch (err) {
-        this.logger.warn('Invalid parameters received for request %s: %o', request.id, request.params)
-        this.logger.debug('Parsing error o%', err)
+        this.logger.warn('Invalid parameters received for request %s: %j', request.id, request.params)
+        this.logger.debug('Parsing error j%', err)
         await this.cloudagent.submitDrpcResponse(request.id, {
           error: {
             code: drpcErrorCode.INVALID_PARAMS,
