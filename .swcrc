@@ -23,7 +23,7 @@
       },
       "mangle": true
     },
-    "target": "esnext"
+    "target": "ES2022"
   },
   "exclude": [
     "/__tests__/"
