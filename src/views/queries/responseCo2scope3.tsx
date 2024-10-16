@@ -109,7 +109,7 @@ export default class Scope3CarbonConsumptionResponseTemplates {
               <p>
                 Product ID: {Html.escapeHtml(query.details.productId)}
                 <br />
-                Quantity: {query.details.quantity}
+                Quantity: {Html.escapeHtml(query.details.quantity)}
               </p>
               <input type="hidden" name="companyId" value={Html.escapeHtml(props.company.id)} />
               <div class="input-container">
@@ -122,7 +122,7 @@ export default class Scope3CarbonConsumptionResponseTemplates {
                   placeholder="Value in kg CO2e (to be aggregated)"
                   class="input-with-label"
                   type="text"
-                  value={query.details.emissions}
+                  value={Html.escapeHtml(query.details.emissions)}
                   required={true}
                 />
               </div>
