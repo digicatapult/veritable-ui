@@ -353,6 +353,8 @@ describe('NewConnectionController', () => {
           {
             to: 'alice@example.com',
             invite: expectedInviteBase64,
+            fromCompanyName: 'COMPANY_NAME',
+            toCompanyName: 'NAME',
           },
         ])
       })
@@ -360,7 +362,7 @@ describe('NewConnectionController', () => {
       it('should send second email to admin', () => {
         expect(emailSpy.secondCall.args[0]).equal('connection_invite_admin')
         expect(emailSpy.secondCall.args[1]?.address).equal(
-          'NAME\r\nADDRESS_LINE_1\r\nADDRESS_LINE_2\r\nCARE_OF\r\nLOCALITY\r\nPO_BOX\r\nPOSTAL_CODE\r\nCOUNTRY\r\nPREMISES\r\nREGION'
+          'NAME, ADDRESS_LINE_1, ADDRESS_LINE_2, CARE_OF, LOCALITY, PO_BOX, POSTAL_CODE, COUNTRY, PREMISES, REGION'
         )
         expect(emailSpy.secondCall.args[1]?.pin).match(/[0-9]{6}/)
       })
@@ -544,7 +546,7 @@ describe('NewConnectionController', () => {
       it('should send email to admin', () => {
         expect(emailSpy.firstCall.args[0]).equal('connection_invite_admin')
         expect(emailSpy.firstCall.args[1]?.address).equal(
-          'NAME\r\nADDRESS_LINE_1\r\nADDRESS_LINE_2\r\nCARE_OF\r\nLOCALITY\r\nPO_BOX\r\nPOSTAL_CODE\r\nCOUNTRY\r\nPREMISES\r\nREGION'
+          'NAME, ADDRESS_LINE_1, ADDRESS_LINE_2, CARE_OF, LOCALITY, PO_BOX, POSTAL_CODE, COUNTRY, PREMISES, REGION'
         )
         expect(emailSpy.firstCall.args[1]?.pin).match(/[0-9]{6}/)
       })

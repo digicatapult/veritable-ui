@@ -75,12 +75,14 @@ async function validateEmails(results: Email[]): Promise<{
   adminEmail: Email
 }> {
   // Invite email assertions
-  const inviteEmail = results.find((msg) => msg.subject === 'Veritable invite')
+  const inviteEmail = results.find((msg) =>
+    msg.subject.endsWith('invites you to a secure, verified connection on Veritable')
+  )
   if (inviteEmail) {
     expect(inviteEmail.to).toHaveLength(1)
     expect(inviteEmail.to[0]).toContain('alice@testmail.com')
   } else {
-    throw new Error('No email found with the subject "Veritable invite".')
+    throw new Error('No email found with the correct subject.')
   }
 
   // Admin email assertions
@@ -116,14 +118,14 @@ async function extractPin(emailId: string, smtp4devUrl: string): Promise<string 
 }
 
 async function extractInvite(emailId: string, smtp4devUrl: string): Promise<string | null> {
-  const apiUrl = `${smtp4devUrl}/api/Messages/${emailId}/part/2/content`
+  const apiUrl = `${smtp4devUrl}/api/Messages/${emailId}/plaintext`
   const response = await fetch(apiUrl)
   if (!response.ok) {
     throw new Error(`Error fetching email: ${response.statusText}`)
   }
   const rawEmailContent = await response.text()
   // Regex pattern to find the base64 string
-  const base64Pattern = /<h1>This is an invite to connect to Veritable<\/h1>\s*<p>(eyJ[^<]+)<\/p>/
+  const base64Pattern = /(eyJ[a-zA-Z0-9\-_]+)\s*$/
   const match = rawEmailContent.match(base64Pattern)
 
   if (match && match[1]) {
