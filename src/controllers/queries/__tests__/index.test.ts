@@ -238,7 +238,13 @@ describe('QueriesController', () => {
             query_type: 'Scope 3 Carbon Consumption',
             status: 'pending_their_input',
             parent_id: '5390af91-c551-4d74-b394-d8ae0805059a',
-            details: { quantity: 10, productId: 'product-1', emissions: '1' },
+            details: {
+              quantity: 10,
+              productId: 'product-1',
+              emissions: '1',
+              query: 'Scope 3 Carbon Consumption',
+              queryIdForResponse: 'ccaaaaaa-0000-0000-0000-d8ae0805059e',
+            },
             response_id: null,
             query_response: null,
             role: 'requester',
@@ -302,7 +308,7 @@ describe('QueriesController', () => {
 
     it('should call page with stage error if rpc fails', async () => {
       const { args, cloudagentMock } = withQueriesMocks()
-      cloudagentMock.submitDrpcRequest = sinon.stub().rejects(new Error())
+      cloudagentMock.submitDrpcRequest = sinon.stub().rejects(new Error('testing'))
 
       const controller = new QueriesController(...args)
       const result = await controller
@@ -456,6 +462,8 @@ describe('QueriesController', () => {
               emissions: '10',
               productId: 'partial-product-id',
               quantity: 10,
+              query: 'Scope 3 Carbon Consumption',
+              queryIdForResponse: 'ccaaaaaa-0000-0000-0000-d8ae0805059e',
             },
             response_id: null,
             query_response: null,
