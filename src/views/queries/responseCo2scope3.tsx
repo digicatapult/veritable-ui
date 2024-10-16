@@ -121,7 +121,7 @@ export default class Scope3CarbonConsumptionResponseTemplates {
                   placeholder="Value in kg CO2e (to be aggregated)"
                   class="input-with-label"
                   type="text"
-                  value={Html.escapeHtml(query.details.emissions || '0')}
+                  value={Html.escapeHtml(query.details.emissions || '')}
                   required={true}
                 />
               </div>
