@@ -9,7 +9,7 @@
     ],
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
-    "target": "ES2022",
+    "target": "ESNext",
     "module": "ESNext",
     "moduleResolution": "node",
     "forceConsistentCasingInFileNames": true,
