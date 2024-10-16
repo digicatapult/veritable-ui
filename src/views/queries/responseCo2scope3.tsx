@@ -37,7 +37,6 @@ export default class Scope3CarbonConsumptionResponseTemplates {
     partial,
     connections,
   }: Scope3FormProps) => {
-    const { details } = query
     return (
       <Page
         title="Veritable - Select Company"
@@ -46,7 +45,7 @@ export default class Scope3CarbonConsumptionResponseTemplates {
         headerLinks={[
           { name: 'Query Management', url: '/queries' },
           {
-            name: `Query Request ${details.productId}`,
+            name: `Query Request ${query.details.productId}`,
             url: `/queries/scope-3-carbon-consumption/${query.id}/response`,
           },
         ]}
@@ -122,7 +121,7 @@ export default class Scope3CarbonConsumptionResponseTemplates {
                   placeholder="Value in kg CO2e (to be aggregated)"
                   class="input-with-label"
                   type="text"
-                  value={Html.escapeHtml(query.details.emissions)}
+                  value={Html.escapeHtml(query.details.emissions || '0')}
                   required={true}
                 />
               </div>

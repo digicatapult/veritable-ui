@@ -1,10 +1,10 @@
 import { inject, injectable, singleton } from 'tsyringe'
 import { z } from 'zod'
 
-import { UUID } from 'crypto'
 import { Logger, type ILogger } from '../../logger.js'
 import Database from '../../models/db/index.js'
 import { ConnectionRow, QueryRow } from '../../models/db/types.js'
+import { UUID } from '../../models/strings.js'
 import VeritableCloudagent, { DrpcResponse } from '../../models/veritableCloudagent.js'
 import { neverFail } from '../../utils/promises.js'
 import VeritableCloudagentEvents, { DrpcRequest, eventData } from '../veritableCloudagentEvents.js'
@@ -250,14 +250,15 @@ export default class DrpcEvents {
     }
   }
 
-  private async handleParentQuery(id: string, childQuery: QueryRow, params: SubmitQueryResponseRPCParams) {
+  private async handleParentQuery(id: UUID, childQuery: QueryRow, params: SubmitQueryResponseRPCParams) {
     const [parentQuery]: QueryRow[] = await this.db.get('query', { id })
     if (!parentQuery) {
       this.logger.warn('parent query not found %s', id)
       return
     }
 
-    const total: number = parseInt(childQuery.details.emissions || '0') + parseInt(params.emissions || '0')
+    // adding childs and parent emissions
+    const total: number = parseInt(childQuery.details.emissions) + parseInt(params.emissions || '0')
     await this.db.update(
       'query',
       { id },
