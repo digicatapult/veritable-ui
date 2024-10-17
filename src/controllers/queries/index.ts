@@ -445,11 +445,12 @@ export class QueriesController extends HTMLController {
 
         await this.db.update('query', { id: parentId }, { status: 'forwarded' })
         log.info('child query has been created %s that is fowarded from %s parent query', query.id, parentId)
-        log.debug('before submision of DRPC request %j', { query, connection: conn })
+        log.debug('before submision of DRPC request %j', { payload, query, connection: conn })
         localQuery.queryIdForResponse = query.id
       }
+      const { query } = payload
 
-      if (!payload.query || payload.query.query_response != null) throw new Error('query already has a response')
+      if (!query || query.query_response != null) throw new Error('query already has a response')
       rpcResponse = await this.cloudagent.submitDrpcRequest(conn.agent_connection_id, method, localQuery)
 
       log.debug('DRPC response %j', { rpcResponse, localQuery })
@@ -458,7 +459,7 @@ export class QueriesController extends HTMLController {
 
       await this.db.insert('query_rpc', {
         agent_rpc_id: rpcResponse.id,
-        query_id: payload.query.id,
+        query_id: query.id,
         role: 'client',
         method: 'submit_query_request',
         result: rpcResponse.result,
@@ -473,7 +474,7 @@ export class QueriesController extends HTMLController {
       if (!parentId)
         await this.db.update(
           'query',
-          { id: payload.query.id },
+          { id: query.id },
           { query_response: localQuery.emissions, status: 'resolved' }
         )
 
@@ -481,7 +482,7 @@ export class QueriesController extends HTMLController {
         this.scope3CarbonConsumptionResponseTemplates.newScope3CarbonConsumptionResponseFormPage({
           formStage: 'success',
           company: conn,
-          query: payload.query,
+          query,
         })
       )
     } catch (err) {
