@@ -149,19 +149,18 @@ export class QueriesController extends HTMLController {
       role: 'requester',
     })
     req.log.info('local query has been persisted %j', queryRow)
-    const localQuery = {
-      query: 'Scope 3 Carbon Consumption',
-      productId: body.productId,
-      quantity: body.quantity,
-      queryIdForResponse: queryRow.id,
-    }
 
     return this.submitDrpcRequest({
       method: 'submit_query_request',
       log: req.log,
       connection,
       query: queryRow,
-      localQuery,
+      localQuery: {
+        query: 'Scope 3 Carbon Consumption',
+        productId: body.productId,
+        quantity: body.quantity,
+        queryIdForResponse: queryRow.id,
+      },
     })
   }
 
