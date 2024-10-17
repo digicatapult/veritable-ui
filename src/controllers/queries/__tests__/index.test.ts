@@ -82,12 +82,19 @@ describe('QueriesController', () => {
         })
         .then(toHTMLString)
 
-      expect(dbMock.update.getCall(0).args).to.deep.equal([
+      expect(dbMock.insert.getCall(0).args).to.deep.equal([
         'query',
-        { id: 'ccaaaaaa-0000-0000-0000-d8ae0805059e' },
         {
-          query_response: undefined,
-          status: 'resolved',
+          connection_id: 'cccccccc-0001-0000-0000-d8ae0805059e',
+          details: {
+            productId: 'SomeID',
+            quantity: 111,
+          },
+          query_response: null,
+          query_type: 'Scope 3 Carbon Consumption',
+          response_id: null,
+          role: 'requester',
+          status: 'pending_their_input',
         },
       ])
       expect(result).to.equal('queriesResponse_template')

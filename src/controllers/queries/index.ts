@@ -467,7 +467,7 @@ export class QueriesController extends HTMLController {
         throw new Error(JSON.stringify(rpcResponse.error))
       }
 
-      if (!parentId) {
+      if (!parentId && localQuery.emissions) {
         await this.db.update('query', { id: query.id }, { query_response: localQuery.emissions, status: 'resolved' })
       }
 
