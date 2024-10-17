@@ -411,7 +411,7 @@ export class QueriesController extends HTMLController {
   public async submitDrpcRequest({
     rpcResponse,
     log,
-    method = 'submit_query_request',
+    method,
     ...payload
   }: {
     query: QueryRow | null
@@ -444,14 +444,15 @@ export class QueriesController extends HTMLController {
         payload.query = query
 
         await this.db.update('query', { id: parentId }, { status: 'forwarded' })
-        log.info('child query has been created %j that is fowarded from %s parent query', query, parentId)
+        log.info('child query has been created %s that is fowarded from %s parent query', query.id, parentId)
+        log.debug('before submision of DRPC request %j', { query, connection: conn })
         localQuery.queryIdForResponse = query.id
       }
 
       if (!payload.query || payload.query.query_response != null) throw new Error('query already has a response')
       rpcResponse = await this.cloudagent.submitDrpcRequest(conn.agent_connection_id, method, localQuery)
 
-      log.info('DRPC response %j', { rpcResponse, localQuery })
+      log.debug('DRPC response %j', { rpcResponse, localQuery })
       if (!rpcResponse) throw new Error('failed to retrieve rpc response')
       log.info('persisting query_rpc response', rpcResponse)
 
@@ -466,7 +467,7 @@ export class QueriesController extends HTMLController {
 
       if (!rpcResponse.result || rpcResponse.error) {
         log.warn('error happened while persisting query_rpc %j', rpcResponse.error)
-        throw new Error('failed receiving rpc response')
+        throw new Error(JSON.stringify(rpcResponse.error))
       }
 
       if (!parentId)
@@ -487,7 +488,7 @@ export class QueriesController extends HTMLController {
       const { query, connection } = payload
       if (rpcResponse?.id) {
         log.warn('error in rpc response %s to query %s to connection %s', rpcResponse.id, query?.id, connection?.id)
-        log.debug('rpc response %j', rpcResponse)
+        log.debug('DRPC response %j', rpcResponse)
       }
       log.warn('unexpected error occured', JSON.stringify(err))
       log.debug('query %s has errored for %s connection %j', query?.id, connection?.id, { query, connection })
