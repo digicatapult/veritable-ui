@@ -484,11 +484,12 @@ export class QueriesController extends HTMLController {
         })
       )
     } catch (err) {
-      if (rpcResponse?.id) {
-        log.warn('error in rpc response %s to query %s to connection %s', rpcResponse.id, payload.connectionId)
-      }
       const { query, connection } = payload
-      log.error('unexpected error occured', JSON.stringify(err))
+      if (rpcResponse?.id) {
+        log.warn('error in rpc response %s to query %s to connection %s', rpcResponse.id, query?.id, connection?.id)
+        log.debug('rpc response %j', rpcResponse)
+      }
+      log.warn('unexpected error occured', JSON.stringify(err))
       log.debug('query %s has errored for %s connection %j', query?.id, connection?.id, { query, connection })
 
       await this.db.update('query', { id: query?.id }, { status: 'errored' })
