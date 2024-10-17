@@ -326,16 +326,16 @@ export class QueriesController extends HTMLController {
             return this.submitDrpcRequest({
               parentId: queryRow.id,
               method: 'submit_query_request',
-              query: null,
-              connection: null,
               connectionId: partial.connectionIds[i],
               log: req.log,
               localQuery: {
                 query: 'Scope 3 Carbon Consumption',
                 quantity: parseInt(partial.quantities[i]),
                 productId: partial.productIds[i],
-                emissions,
+                emissions, // TODO investigate this before asking for review, should not be needed?
               },
+              query: null,
+              connection: null,
             })
           }
         })
@@ -350,17 +350,15 @@ export class QueriesController extends HTMLController {
       )
     }
 
-    const localQuery = {
-      query: 'Scope 3 Carbon Consumption',
-      emissions: emissions as string,
-      queryIdForResponse: queryRow.response_id,
-    }
-
     return this.submitDrpcRequest({
       connection,
       method: 'submit_query_response',
       log: req.log,
-      localQuery,
+      localQuery: {
+        query: 'Scope 3 Carbon Consumption',
+        emissions,
+        queryIdForResponse: queryRow.response_id,
+      },
       query: queryRow,
     })
   }
@@ -441,7 +439,7 @@ export class QueriesController extends HTMLController {
           query_response: null,
           role: 'requester',
         })
-        payload.query = query
+        if (!payload.query) payload.query = query
 
         await this.db.update('query', { id: parentId }, { status: 'forwarded' })
         log.info('child query has been created %s that is fowarded from %s parent query', query.id, parentId)
@@ -472,11 +470,7 @@ export class QueriesController extends HTMLController {
       }
 
       if (!parentId)
-        await this.db.update(
-          'query',
-          { id: query.id },
-          { query_response: localQuery.emissions, status: 'resolved' }
-        )
+        await this.db.update('query', { id: query.id }, { query_response: localQuery.emissions, status: 'resolved' })
 
       return this.html(
         this.scope3CarbonConsumptionResponseTemplates.newScope3CarbonConsumptionResponseFormPage({

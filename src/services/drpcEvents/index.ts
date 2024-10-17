@@ -253,7 +253,12 @@ export default class DrpcEvents {
   private async handleParentQuery(id: UUID, childQuery: QueryRow, params: SubmitQueryResponseRPCParams) {
     const [parentQuery]: QueryRow[] = await this.db.get('query', { id })
     if (!parentQuery) {
-      this.logger.warn('parent query not found %s', id)
+      this.logger.warn('parent query not found', id)
+      return
+    }
+
+    if (parentQuery.query_response !== null) {
+      this.logger.warn('query already has a response %j', parentQuery)
       return
     }
 
@@ -301,7 +306,7 @@ export default class DrpcEvents {
     await this.db.insert('query_rpc', {
       agent_rpc_id: rpcId,
       query_id: parentQuery.id,
-      role: 'client', // am I still a client when I'm a 'responder'?
+      role: 'client',
       method: 'submit_query_request',
       result,
       error,
