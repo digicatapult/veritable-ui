@@ -1,7 +1,7 @@
 import { expect } from 'chai'
 import { describe } from 'mocha'
 import { mockIds } from '../../../controllers/queries/__tests__/helpers.js'
-import { ConnectionRow } from '../../../models/db/types.js'
+import { ConnectionRow, QueryRow } from '../../../models/db/types.js'
 import Templates from '../responseCo2scope3.js'
 
 const templates = new Templates()
@@ -17,6 +17,23 @@ const connectionsExample: ConnectionRow[] = [{}, {}, {}, {}].map((_, i) => ({
   created_at: sampleDate,
   updated_at: sampleDate,
 }))
+
+const queryExample: QueryRow = {
+  id: 'aaaaaaaa-0001-0000-0000-d8ae0805059e',
+  connection_id: 'cccccccc-0001-0000-0000-d8ae0805059e',
+  query_type: 'Scope 3 Carbon Consumption',
+  parent_id: '5390af91-c551-4d74-b394-d8ae0805059a',
+  status: 'resolved',
+  details: {
+    productId: 'partial-product-id',
+    quantity: 10,
+  },
+  response_id: null,
+  query_response: null,
+  role: 'requester',
+  created_at: new Date(),
+  updated_at: new Date(),
+}
 
 describe('Partial Query', () => {
   describe('if partial is set to false', () => {
@@ -34,11 +51,9 @@ describe('Partial Query', () => {
           created_at: new Date(),
           updated_at: new Date(),
         },
-        queryId: mockIds.queryId,
-        quantity: 2,
+        query: queryExample,
         partial: false,
         connections: connectionsExample,
-        productId: 'product-id-test',
       })
 
       expect(rendered).to.matchSnapshot()
@@ -59,11 +74,9 @@ describe('Partial Query', () => {
         created_at: new Date(),
         updated_at: new Date(),
       },
-      queryId: 'query-id-test',
-      quantity: 2,
+      query: queryExample,
       partial: true,
       connections: connectionsExample,
-      productId: 'product-id-test',
     })
     expect(rendered).to.matchSnapshot()
   })
