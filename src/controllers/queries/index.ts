@@ -136,26 +136,24 @@ export class QueriesController extends HTMLController {
       )
     }
 
-    const localQuery = {
-      productId: body.productId,
-      quantity: body.quantity,
-    }
-    req.log.debug('inserting local query %j', localQuery)
     const [queryRow] = await this.db.insert('query', {
       connection_id: connection.id,
       query_type: 'Scope 3 Carbon Consumption',
       status: 'pending_their_input',
-      details: localQuery,
+      details: {
+        productId: body.productId,
+        quantity: body.quantity,
+      },
       response_id: null,
       query_response: null,
       role: 'requester',
     })
     req.log.info('local query has been persisted %j', queryRow)
-    const query = {
+    const localQuery = {
       query: 'Scope 3 Carbon Consumption',
       productId: body.productId,
       quantity: body.quantity,
-      queryIdForResponse: queryRow.id, //this is for the responder to return with the response so we know what they are responding to
+      queryIdForResponse: queryRow.id,
     }
 
     return this.submitDrpcRequest({
@@ -163,7 +161,7 @@ export class QueriesController extends HTMLController {
       log: req.log,
       connection,
       query: queryRow,
-      localQuery: query,
+      localQuery,
     })
   }
 
@@ -451,8 +449,8 @@ export class QueriesController extends HTMLController {
       if (!query || query.query_response != null) throw new Error('query already has a response')
       rpcResponse = await this.cloudagent.submitDrpcRequest(conn.agent_connection_id, method, localQuery)
 
-      log.debug('DRPC response %j', { rpcResponse, localQuery })
       if (!rpcResponse) throw new Error('failed to retrieve rpc response')
+      log.debug('DRPC response %j', { rpcResponse, localQuery })
       log.info('persisting query_rpc response', rpcResponse)
 
       await this.db.insert('query_rpc', {
@@ -469,8 +467,9 @@ export class QueriesController extends HTMLController {
         throw new Error(JSON.stringify(rpcResponse.error))
       }
 
-      if (!parentId)
+      if (!parentId) {
         await this.db.update('query', { id: query.id }, { query_response: localQuery.emissions, status: 'resolved' })
+      }
 
       return this.html(
         this.scope3CarbonConsumptionResponseTemplates.newScope3CarbonConsumptionResponseFormPage({

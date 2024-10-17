@@ -52,7 +52,7 @@ const defaultOptions: QueryMockOptions = {
       {
         company_name: 'VERIFIED_THEM',
         status: 'verified_them',
-        id: 'some_other_id',
+        id: mockIds.connectionId,
         agent_connection_id: mockIds.agentConnectionId,
       },
     ],
