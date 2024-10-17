@@ -2,7 +2,7 @@ import express from 'express'
 import { Body, Get, Path, Post, Produces, Query, Request, Route, Security, SuccessResponse } from 'tsoa'
 import { injectable } from 'tsyringe'
 
-import pino, { Logger } from 'pino'
+import { Logger } from 'pino'
 import { InvalidInputError, NotFoundError } from '../../errors.js'
 import { PartialQueryPayload } from '../../models/arrays.js'
 import Database from '../../models/db/index.js'
@@ -158,7 +158,7 @@ export class QueriesController extends HTMLController {
       queryIdForResponse: queryRow.id, //this is for the responder to return with the response so we know what they are responding to
     }
 
-    return this.submitDrpc({
+    return this.submitDrpcRequest({
       method: 'submit_query_request',
       log: req.log,
       connection,
@@ -323,7 +323,7 @@ export class QueriesController extends HTMLController {
           if (partial.connectionIds && partial.productIds && partial.quantities) {
             req.log.debug('submitting DRPC request to %s connection', partial.connectionIds[i])
 
-            return this.submitDrpc({
+            return this.submitDrpcRequest({
               parentId: queryRow.id,
               method: 'submit_query_request',
               query: null,
@@ -356,7 +356,7 @@ export class QueriesController extends HTMLController {
       queryIdForResponse: queryRow.response_id,
     }
 
-    return this.submitDrpc({
+    return this.submitDrpcRequest({
       connection,
       method: 'submit_query_response',
       log: req.log,
@@ -408,38 +408,7 @@ export class QueriesController extends HTMLController {
     return a.length
   }
 
-  private async handleError(
-    logger: pino.Logger,
-    query: QueryRow,
-    connection: ConnectionRow,
-    rpcId?: string,
-    error?: unknown
-  ): Promise<HTML> {
-    if (rpcId) {
-      logger.warn('error in rpc response %s to query %s to connection %s', rpcId, query.id, connection.id)
-    } else {
-      logger.warn('error submitting query %s to connection %s', query.id, connection.id)
-    }
-    if (error instanceof Error) {
-      logger.debug('message: %s', error.message)
-      logger.trace('stack: %o', error.stack)
-    } else {
-      logger.debug('error: %o', error)
-    }
-
-    await this.db.update('query', { id: query.id }, { status: 'errored' })
-    return this.html(
-      this.scope3CarbonConsumptionTemplates.newScope3CarbonConsumptionFormPage({
-        formStage: 'error',
-        company: {
-          companyName: connection.company_name,
-          companyNumber: connection.company_number,
-        },
-      })
-    )
-  }
-
-  public async submitDrpc({
+  public async submitDrpcRequest({
     rpcResponse,
     log,
     method = 'submit_query_request',
@@ -515,15 +484,21 @@ export class QueriesController extends HTMLController {
         })
       )
     } catch (err) {
-      log.error('unexpected error occured', err.message)
-      await this.db.update('query', { id: payload.query?.id }, { status: 'errored' })
+      if (rpcResponse?.id) {
+        log.warn('error in rpc response %s to query %s to connection %s', rpcResponse.id, payload.connectionId)
+      }
+      const { query, connection } = payload
+      log.error('unexpected error occured', JSON.stringify(err))
+      log.debug('query %s has errored for %s connection %j', query?.id, connection?.id, { query, connection })
+
+      await this.db.update('query', { id: query?.id }, { status: 'errored' })
 
       return this.html(
         this.scope3CarbonConsumptionTemplates.newScope3CarbonConsumptionFormPage({
           formStage: 'error',
           company: {
-            companyName: payload?.connection?.company_name,
-            companyNumber: payload?.connection?.company_number || '',
+            companyName: connection?.company_name,
+            companyNumber: connection?.company_number || '',
           },
         })
       )
