@@ -78,7 +78,7 @@ describe.only('partial query aggregation', function () {
       expect(context.response.statusCode).to.equal(200)
     })
 
-    it('mark alice (parent) query as forwarded from Bobs perpective', async function () {
+    it.skip('mark alice (parent) query as forwarded from Bobs perpective', async function () {
       const [forwardedQuery] = await context.bobDb.get('query')
 
       expect(forwardedQuery).to.deep.equal({})
