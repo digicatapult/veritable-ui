@@ -8,12 +8,32 @@ import { Env } from '../../src/env/index.js'
 import Database from '../../src/models/db/index.js'
 import EmailService from '../../src/models/emailService/index.js'
 import VeritableCloudagent from '../../src/models/veritableCloudagent.js'
-import { validCompanyName, validCompanyNumber } from './fixtures.js'
+import { bob, charlie, validCompanyName, validCompanyNumber } from './fixtures.js'
 import { mockLogger } from './logger.js'
-import { post } from './routeHelper.js'
+import { fetchPost, post } from './routeHelper.js'
 import { delay } from './util.js'
 
 const remoteDbConfig = {
+  client: 'pg',
+  connection: {
+    host: 'localhost',
+    database: 'veritable-ui',
+    user: 'postgres',
+    password: 'postgres',
+    port: 5433,
+  },
+  pool: {
+    min: 2,
+    max: 10,
+  },
+  migrations: {
+    tableName: 'migrations',
+  },
+}
+
+const bobDbConfig = remoteDbConfig
+
+const charlieDbConfig = {
   client: 'pg',
   connection: {
     host: 'localhost',
@@ -40,6 +60,37 @@ const mockEnv = {
   },
 } as Env
 
+const mockEnvBob = {
+  get(name) {
+    if (name === 'PORT') {
+      return 3001
+    }
+    if (name === 'CLOUDAGENT_ADMIN_ORIGIN') {
+      return 'http://localhost:3101'
+    }
+    throw new Error('Unexpected env variable request')
+  },
+} as Env
+
+const mockEnvCharlie = {
+  get(name) {
+    if (name === 'PORT') {
+      return 3002
+    }
+    if (name === 'CLOUDAGENT_ADMIN_ORIGIN') {
+      return 'http://localhost:3102'
+    }
+    throw new Error('Unexpected env variable request')
+  },
+} as Env
+
+const cleanupRemote = async (context) => {
+  for (const { id } of await context.bobAgent.getConnections()) {
+    await context.bobAgent.deleteConnection(id)
+  }
+  await context.bobDb.delete('connection', {})
+}
+
 export const withEstablishedConnectionFromUs = function (context: {
   app: express.Express
   remoteDatabase: Database
@@ -52,20 +103,12 @@ export const withEstablishedConnectionFromUs = function (context: {
 }) {
   let emailSendStub: sinon.SinonStub
 
-  const cleanupRemote = async () => {
-    const remoteConnections = await context.remoteCloudagent.getConnections()
-    for (const { id } of remoteConnections) {
-      await context.remoteCloudagent.deleteConnection(id)
-    }
-    await context.remoteDatabase.delete('connection', {})
-  }
-
   beforeEach(async function () {
     const localDatabase = container.resolve(Database)
     context.remoteDatabase = new Database(knex(remoteDbConfig))
     context.remoteCloudagent = new VeritableCloudagent(mockEnv, mockLogger)
 
-    await cleanupRemote()
+    await cleanupRemote(context)
 
     const email = container.resolve(EmailService)
     emailSendStub = sinon.stub(email, 'sendMail').resolves()
@@ -118,7 +161,7 @@ export const withEstablishedConnectionFromUs = function (context: {
   })
 
   afterEach(async function () {
-    await cleanupRemote()
+    await cleanupRemote(context)
     emailSendStub.restore()
   })
 }
@@ -135,20 +178,12 @@ export const withEstablishedConnectionFromThem = function (context: {
 }) {
   let emailSendStub: sinon.SinonStub
 
-  const cleanupRemote = async () => {
-    const remoteConnections = await context.remoteCloudagent.getConnections()
-    for (const { id } of remoteConnections) {
-      await context.remoteCloudagent.deleteConnection(id)
-    }
-    await context.remoteDatabase.delete('connection', {})
-  }
-
   beforeEach(async function () {
     const localDatabase = container.resolve(Database)
     context.remoteDatabase = new Database(knex(remoteDbConfig))
     context.remoteCloudagent = new VeritableCloudagent(mockEnv, mockLogger)
 
-    await cleanupRemote()
+    await cleanupRemote(context)
 
     const invite = await context.remoteCloudagent.createOutOfBandInvite({ companyName: validCompanyName })
     context.invite = Buffer.from(
@@ -201,7 +236,7 @@ export const withEstablishedConnectionFromThem = function (context: {
   })
 
   afterEach(async function () {
-    await cleanupRemote()
+    await cleanupRemote(context)
     emailSendStub.restore()
   })
 }
@@ -215,20 +250,12 @@ export const withVerifiedConnection = function (context: {
 }) {
   let emailSendStub: sinon.SinonStub
 
-  const cleanupRemote = async () => {
-    const remoteConnections = await context.remoteCloudagent.getConnections()
-    for (const { id } of remoteConnections) {
-      await context.remoteCloudagent.deleteConnection(id)
-    }
-    await context.remoteDatabase.delete('connection', {})
-  }
-
   beforeEach(async function () {
     const localDatabase = container.resolve(Database)
     context.remoteDatabase = new Database(knex(remoteDbConfig))
     context.remoteCloudagent = new VeritableCloudagent(mockEnv, mockLogger)
 
-    await cleanupRemote()
+    await cleanupRemote(context)
 
     const email = container.resolve(EmailService)
     emailSendStub = sinon.stub(email, 'sendMail')
@@ -279,7 +306,97 @@ export const withVerifiedConnection = function (context: {
   })
 
   afterEach(async function () {
-    await cleanupRemote()
+    await cleanupRemote(context)
+    emailSendStub.restore()
+  })
+}
+
+export const withBobCharlie_verified = function (context: {
+  app: express.Express
+  bobAgent: VeritableCloudagent
+  bobDb: Database
+  charlieDb: Database
+  bobConnectionId: string
+  charlieConnectionId: string
+  aliceConnectionId: string
+  cloudAgent: VeritableCloudagent
+  charlieAgent: VeritableCloudagent
+}) {
+  let emailSendStub: sinon.SinonStub
+
+  beforeEach(async function () {
+    const localDatabase = container.resolve(Database)
+    context.bobAgent = new VeritableCloudagent(mockEnvBob, mockLogger)
+    context.cloudAgent = new VeritableCloudagent(mockEnv, mockLogger)
+    context.charlieAgent = new VeritableCloudagent(mockEnvCharlie, mockLogger)
+    context.bobDb = new Database(knex(bobDbConfig))
+    context.charlieDb = new Database(knex(charlieDbConfig))
+
+    await cleanupRemote(context)
+
+    const email = container.resolve(EmailService)
+    emailSendStub = sinon.stub(email, 'sendMail')
+    await post(context.app, '/connection/new/create-invitation', {
+      companyNumber: validCompanyNumber,
+      email: 'alice@example.com',
+      action: 'submit',
+    })
+    const bobsInvite = (emailSendStub.args.find(([name]) => name === 'connection_invite') || [])[1].invite
+    const bobsInviteUrl = JSON.parse(Buffer.from(bobsInvite, 'base64url').toString('utf8')).inviteUrl
+
+    const [{ id: aliceConnectionId }] = await localDatabase.get('connection')
+    context.aliceConnectionId = aliceConnectionId
+
+    const { connectionRecord: bobConnectionRecord } = await context.bobAgent.receiveOutOfBandInvite({
+      companyName: validCompanyName,
+      invitationUrl: bobsInviteUrl,
+    })
+
+    const [{ id: bobConnectionId }] = await context.bobDb.insert('connection', {
+      pin_attempt_count: 0,
+      agent_connection_id: bobConnectionRecord.id,
+      company_name: validCompanyName,
+      company_number: validCompanyNumber,
+      status: 'pending',
+      pin_tries_remaining_count: 4,
+    })
+
+    context.bobConnectionId = bobConnectionId
+
+    await fetchPost('http://localhost:3001/connection/new/create-invitation', {
+      companyNumber: charlie.company_number,
+      email: 'bob@example.com',
+      action: 'submit',
+    })
+
+    // The invite is wrong here, should be one from bob, but since this is alice, we need to query smtp4dev or something
+    const charliesInvite = (emailSendStub.args.find(([name]) => name === 'connection_invite') || [])[1].invite
+    const charliesInviteUrl = JSON.parse(Buffer.from(charliesInvite, 'base64url').toString('utf8')).inviteUrl
+
+    const { connectionRecord: charlieConnectionRecord } = await context.charlieAgent.receiveOutOfBandInvite({
+      companyName: bob.company_name,
+      invitationUrl: charliesInviteUrl,
+    })
+
+    const [{ id: charlieConnectionId }] = await context.charlieDb.insert('connection', {
+      pin_attempt_count: 0,
+      agent_connection_id: charlieConnectionRecord.id,
+      company_name: bob.company_name,
+      company_number: bob.company_number,
+      status: 'pending',
+      pin_tries_remaining_count: 4,
+    })
+    context.charlieConnectionId = charlieConnectionId
+
+    // temporary, give it some time
+    await delay(10000)
+
+    await localDatabase.update('connection', { id: context.aliceConnectionId }, { status: 'verified_both' })
+    await context.bobDb.update('connection', { id: context.bobConnectionId }, { status: 'verified_both' })
+    await context.charlieDb.update('connection', { id: context.charlieConnectionId }, { status: 'verified_both' })
+  })
+
+  afterEach(async function () {
     emailSendStub.restore()
   })
 }
