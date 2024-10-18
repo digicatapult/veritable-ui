@@ -247,6 +247,7 @@ services:
       - EMAIL_TRANSPORT=SMTP_EMAIL
       - SMTP_SECURE=false
       - COMPANY_PROFILE_API_KEY=${VERITABLE_COMPANY_PROFILE_API_KEY:-API_KEY}
+
   postgres-veritable-ui-charlie:
     image: postgres:17.0-alpine
     container_name: postgres-veritable-ui-charlie
