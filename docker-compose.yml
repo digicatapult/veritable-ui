@@ -222,7 +222,7 @@ services:
       - LOG_LEVEL=debug
       - DB_HOST=postgres-veritable-ui-charlie
       - DB_NAME=veritable-ui
-      - API_SWAGGER_TITLE=Bob
+      - API_SWAGGER_TITLE=Charlie
       - API_SWAGGER_BG_COLOR=#ffbd59
       - PUBLIC_URL=${VERITABLE_CHARLIE_PUBLIC_URL:-http://localhost:3002}
       - CLOUDAGENT_ADMIN_ORIGIN=http://veritable-cloudagent-charlie:3000
