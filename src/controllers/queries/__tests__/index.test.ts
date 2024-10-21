@@ -251,7 +251,6 @@ describe('QueriesController', () => {
             connectionIds: ['conn-id-1', 'conn-id-2'],
             productIds: ['product-1', 'product-2'],
             quantities: ['10', '20'],
-            emissions: '1',
           })
           .then(toHTMLString)
 
@@ -265,7 +264,6 @@ describe('QueriesController', () => {
             details: {
               quantity: 10,
               productId: 'product-1',
-              emissions: '1',
               query: 'Scope 3 Carbon Consumption',
               queryIdForResponse: 'ccaaaaaa-0000-0000-0000-d8ae0805059e',
             },
@@ -474,7 +472,6 @@ describe('QueriesController', () => {
           'aaaaaaaa-0000-0000-0000-d8ae0805059e',
           'submit_query_request',
           {
-            emissions: '10',
             query: 'Scope 3 Carbon Consumption',
             productId: 'partial-product-id',
             quantity: 10,
@@ -492,7 +489,6 @@ describe('QueriesController', () => {
             parent_id: '5390af91-c551-4d74-b394-d8ae0805059a',
             status: 'pending_their_input',
             details: {
-              emissions: '10',
               productId: 'partial-product-id',
               quantity: 10,
               query: 'Scope 3 Carbon Consumption',

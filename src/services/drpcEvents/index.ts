@@ -271,8 +271,10 @@ export default class DrpcEvents {
         return
       }
       // adding childs and parent emissions
-      const total: number = parseInt(childQuery.details.emissions) + parseInt(params.emissions || '0')
-
+      const total: number = allChilds.reduce(
+        (out, { details }) => (out += parseInt(details.emissions) + parseInt(params.emissions || '0')),
+        0
+      )
       // if all child responded, respond to the parent query
       rpcResponse = await this.cloudagent.submitDrpcRequest(connection.agent_connection_id, 'submit_query_response', {
         query: 'Scope 3 Carbon Consumption',
