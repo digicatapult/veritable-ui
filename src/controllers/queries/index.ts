@@ -329,6 +329,7 @@ export class QueriesController extends HTMLController {
                 query: 'Scope 3 Carbon Consumption',
                 quantity: parseInt(partial.quantities[i]),
                 productId: partial.productIds[i],
+                emissions,
               },
               query: null,
               connection: null,

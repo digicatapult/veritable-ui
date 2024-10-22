@@ -8,9 +8,10 @@ import { Env } from '../../src/env/index.js'
 import Database from '../../src/models/db/index.js'
 import EmailService from '../../src/models/emailService/index.js'
 import VeritableCloudagent from '../../src/models/veritableCloudagent.js'
+import type * as PartialQuery from '../integration/partialQueryAggregation.test.js'
 import { bob, charlie, validCompanyName, validCompanyNumber } from './fixtures.js'
 import { mockLogger } from './logger.js'
-import { fetchPost, post } from './routeHelper.js'
+import { post } from './routeHelper.js'
 import { delay } from './util.js'
 
 const remoteDbConfig = {
@@ -40,7 +41,7 @@ const charlieDbConfig = {
     database: 'veritable-ui',
     user: 'postgres',
     password: 'postgres',
-    port: 5433,
+    port: 5434,
   },
   pool: {
     min: 2,
@@ -84,11 +85,18 @@ const mockEnvCharlie = {
   },
 } as Env
 
-const cleanupRemote = async (context) => {
-  for (const { id } of await context.bobAgent.getConnections()) {
-    await context.bobAgent.deleteConnection(id)
+const cleanupConnections = async (agent, db) => {
+  for (const { id } of await agent.getConnections()) {
+    await agent.deleteConnection(id)
   }
-  await context.bobDb.delete('connection', {})
+  await db.delete('connection', {})
+}
+
+const cleanupRemote = async (context) => {
+  for (const { id } of await context.remoteCloudagent.getConnections()) {
+    await context.remoteCloudagent.deleteConnection(id)
+  }
+  await context.remoteDatabase.delete('connection', {})
 }
 
 export const withEstablishedConnectionFromUs = function (context: {
@@ -311,92 +319,115 @@ export const withVerifiedConnection = function (context: {
   })
 }
 
-export const withBobCharlie_verified = function (context: {
-  app: express.Express
-  bobAgent: VeritableCloudagent
-  bobDb: Database
-  charlieDb: Database
-  bobConnectionId: string
-  charlieConnectionId: string
-  aliceConnectionId: string
-  cloudAgent: VeritableCloudagent
-  charlieAgent: VeritableCloudagent
-}) {
+export const withBobAndCharlie = function (context: PartialQuery.Context) {
   let emailSendStub: sinon.SinonStub
 
   beforeEach(async function () {
-    const localDatabase = container.resolve(Database)
-    context.bobAgent = new VeritableCloudagent(mockEnvBob, mockLogger)
-    context.cloudAgent = new VeritableCloudagent(mockEnv, mockLogger)
-    context.charlieAgent = new VeritableCloudagent(mockEnvCharlie, mockLogger)
-    context.bobDb = new Database(knex(bobDbConfig))
-    context.charlieDb = new Database(knex(charlieDbConfig))
+    context.agent = {
+      bob: new VeritableCloudagent(mockEnvBob, mockLogger),
+      alice: new VeritableCloudagent(mockEnv, mockLogger),
+      charlie: new VeritableCloudagent(mockEnvCharlie, mockLogger),
+    }
+    context.db = {
+      alice: context.db.alice,
+      bob: new Database(knex(bobDbConfig)),
+      charlie: new Database(knex(charlieDbConfig)),
+    }
 
-    await cleanupRemote(context)
+    await cleanupConnections(context.agent.bob, context.db.bob)
+    await cleanupConnections(context.agent.charlie, context.db.charlie)
 
     const email = container.resolve(EmailService)
     emailSendStub = sinon.stub(email, 'sendMail')
     await post(context.app, '/connection/new/create-invitation', {
-      companyNumber: validCompanyNumber,
+      companyNumber: bob.company_number,
       email: 'alice@example.com',
       action: 'submit',
     })
-    const bobsInvite = (emailSendStub.args.find(([name]) => name === 'connection_invite') || [])[1].invite
-    const bobsInviteUrl = JSON.parse(Buffer.from(bobsInvite, 'base64url').toString('utf8')).inviteUrl
+    const invite = (emailSendStub.args.find(([name]) => name === 'connection_invite') || [])[1].invite
+    const bobsInvite = JSON.parse(Buffer.from(invite, 'base64url').toString('utf8')).inviteUrl
 
-    const [{ id: aliceConnectionId }] = await localDatabase.get('connection')
+    const [{ id: aliceConnectionId }] = await context.db.alice.get('connection')
     context.aliceConnectionId = aliceConnectionId
 
-    const { connectionRecord: bobConnectionRecord } = await context.bobAgent.receiveOutOfBandInvite({
+    // alice part on bob
+    const pinHash = await argon2.hash('123456', { secret: Buffer.from('secret', 'utf8') })
+    const aliceOOB = await context.agent.bob.receiveOutOfBandInvite({
       companyName: validCompanyName,
-      invitationUrl: bobsInviteUrl,
+      invitationUrl: bobsInvite,
     })
 
-    const [{ id: bobConnectionId }] = await context.bobDb.insert('connection', {
+    const [withAlice] = await context.db.bob.insert('connection', {
       pin_attempt_count: 0,
-      agent_connection_id: bobConnectionRecord.id,
+      agent_connection_id: aliceOOB.connectionRecord.id,
       company_name: validCompanyName,
       company_number: validCompanyNumber,
       status: 'pending',
-      pin_tries_remaining_count: 4,
+      pin_tries_remaining_count: null,
+    })
+    context.bobsConnections.withAlice = withAlice
+
+    await context.db.bob.insert('connection_invite', {
+      validity: 'valid',
+      connection_id: withAlice.id,
+      expires_at: new Date(new Date().getTime() + 60 * 1000),
+      oob_invite_id: aliceOOB.outOfBandRecord.id,
+      pin_hash: pinHash,
     })
 
-    context.bobConnectionId = bobConnectionId
-
-    await fetchPost('http://localhost:3001/connection/new/create-invitation', {
-      companyNumber: charlie.company_number,
-      email: 'bob@example.com',
-      action: 'submit',
+    const charliesInvite = await context.agent.charlie.createOutOfBandInvite({ companyName: charlie.company_name })
+    const charlieOOB = await context.agent.bob.receiveOutOfBandInvite({
+      companyName: charlie.company_name,
+      invitationUrl: charliesInvite.invitationUrl,
     })
 
-    // The invite is wrong here, should be one from bob, but since this is alice, we need to query smtp4dev or something
-    const charliesInvite = (emailSendStub.args.find(([name]) => name === 'connection_invite') || [])[1].invite
-    const charliesInviteUrl = JSON.parse(Buffer.from(charliesInvite, 'base64url').toString('utf8')).inviteUrl
-
-    const { connectionRecord: charlieConnectionRecord } = await context.charlieAgent.receiveOutOfBandInvite({
-      companyName: bob.company_name,
-      invitationUrl: charliesInviteUrl,
-    })
-
-    const [{ id: charlieConnectionId }] = await context.charlieDb.insert('connection', {
+    const [withCharlie] = await context.db.bob.insert('connection', {
       pin_attempt_count: 0,
-      agent_connection_id: charlieConnectionRecord.id,
+      company_name: charlie.company_name,
+      company_number: charlie.company_number,
+      agent_connection_id: charlieOOB.connectionRecord.id,
+      status: 'pending',
+      pin_tries_remaining_count: null,
+    })
+    context.bobsConnections.withCharlie = withCharlie
+
+    await context.db.bob.insert('connection_invite', {
+      connection_id: withCharlie.id,
+      oob_invite_id: charlieOOB.outOfBandRecord.id,
+      pin_hash: pinHash,
+      expires_at: new Date(new Date().getTime() + 14 * 24 * 60 * 60 * 1000),
+      validity: 'valid',
+    })
+
+    const [withBob] = await context.db.charlie.insert('connection', {
+      pin_attempt_count: 0,
+      agent_connection_id: null,
       company_name: bob.company_name,
       company_number: bob.company_number,
       status: 'pending',
       pin_tries_remaining_count: 4,
     })
-    context.charlieConnectionId = charlieConnectionId
+    context.charliesConnections.withBob = withBob
 
-    // temporary, give it some time
-    await delay(10000)
+    await context.db.charlie.insert('connection_invite', {
+      validity: 'valid',
+      connection_id: withBob.id,
+      expires_at: new Date(new Date().getTime() + 60 * 1000),
+      oob_invite_id: charliesInvite.outOfBandRecord.id,
+      pin_hash: pinHash,
+    })
 
-    await localDatabase.update('connection', { id: context.aliceConnectionId }, { status: 'verified_both' })
-    await context.bobDb.update('connection', { id: context.bobConnectionId }, { status: 'verified_both' })
-    await context.charlieDb.update('connection', { id: context.charlieConnectionId }, { status: 'verified_both' })
+    await delay(3000)
+
+    await context.db.alice.update('connection', { id: context.aliceConnectionId }, { status: 'verified_both' })
+    await context.db.bob.update('connection', { id: withAlice.id }, { status: 'verified_both' })
+    await context.db.bob.update('connection', { id: withCharlie.id }, { status: 'verified_both' })
+    await context.db.charlie.update('connection', { id: withBob.id }, { status: 'verified_both' })
   })
 
   afterEach(async function () {
     emailSendStub.restore()
+    await cleanupConnections(context.agent.bob, context.db.bob)
+    await cleanupConnections(context.agent.charlie, context.db.charlie)
   })
 }

@@ -136,7 +136,7 @@ services:
       - DB_NAME=veritable-ui
       - API_SWAGGER_TITLE=Bob
       - API_SWAGGER_BG_COLOR=#ff3131
-      - PUBLIC_URL=${VERITABLE_BOB_PUBLIC_URL:-http://localhost:3001}
+      - PUBLIC_URL=${VERITABLE_BOB_PUBLIC_URL:-http://localhost:3000}
       - CLOUDAGENT_ADMIN_ORIGIN=http://veritable-cloudagent-bob:3000
       - CLOUDAGENT_ADMIN_WS_ORIGIN=ws://veritable-cloudagent-bob:3000
       - COMPANY_HOUSE_API_URL=https://api.company-information.service.gov.uk
@@ -155,7 +155,7 @@ services:
       - SMTP_HOST=smtp4dev
       - SMTP_PASS=password
       - SMTP_PORT=25
-      - SMTP_USER=username
+      - SMTP_USER=username # TODO should it not be bob?
       - EMAIL_TRANSPORT=SMTP_EMAIL
       - SMTP_SECURE=false
       - COMPANY_PROFILE_API_KEY=${VERITABLE_COMPANY_PROFILE_API_KEY:-API_KEY}
@@ -224,7 +224,7 @@ services:
       - DB_NAME=veritable-ui
       - API_SWAGGER_TITLE=Charlie
       - API_SWAGGER_BG_COLOR=#ffbd59
-      - PUBLIC_URL=${VERITABLE_CHARLIE_PUBLIC_URL:-http://localhost:3002}
+      - PUBLIC_URL=${VERITABLE_CHARLIE_PUBLIC_URL:-http://localhost:3000}
       - CLOUDAGENT_ADMIN_ORIGIN=http://veritable-cloudagent-charlie:3000
       - CLOUDAGENT_ADMIN_WS_ORIGIN=ws://veritable-cloudagent-charlie:3000
       - COMPANY_HOUSE_API_URL=https://api.company-information.service.gov.uk
@@ -243,7 +243,7 @@ services:
       - SMTP_HOST=smtp4dev
       - SMTP_PASS=password
       - SMTP_PORT=25
-      - SMTP_USER=username
+      - SMTP_USER=username # TODO should it not be charlie?
       - EMAIL_TRANSPORT=SMTP_EMAIL
       - SMTP_SECURE=false
       - COMPANY_PROFILE_API_KEY=${VERITABLE_COMPANY_PROFILE_API_KEY:-API_KEY}

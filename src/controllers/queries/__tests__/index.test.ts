@@ -248,6 +248,7 @@ describe('QueriesController', () => {
             companyId: 'some-company-id',
             action: 'success',
             partialQuery: ['on'],
+            emissions: '10',
             connectionIds: ['conn-id-1', 'conn-id-2'],
             productIds: ['product-1', 'product-2'],
             quantities: ['10', '20'],
@@ -264,6 +265,7 @@ describe('QueriesController', () => {
             details: {
               quantity: 10,
               productId: 'product-1',
+              emissions: '10',
               query: 'Scope 3 Carbon Consumption',
               queryIdForResponse: 'ccaaaaaa-0000-0000-0000-d8ae0805059e',
             },
@@ -475,6 +477,7 @@ describe('QueriesController', () => {
             query: 'Scope 3 Carbon Consumption',
             productId: 'partial-product-id',
             quantity: 10,
+            emissions: '10',
             queryIdForResponse: 'ccaaaaaa-0000-0000-0000-d8ae0805059e',
           },
         ])
@@ -491,6 +494,7 @@ describe('QueriesController', () => {
             details: {
               productId: 'partial-product-id',
               quantity: 10,
+              emissions: '10',
               query: 'Scope 3 Carbon Consumption',
               queryIdForResponse: 'ccaaaaaa-0000-0000-0000-d8ae0805059e',
             },
