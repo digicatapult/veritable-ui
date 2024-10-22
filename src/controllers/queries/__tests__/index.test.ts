@@ -164,7 +164,7 @@ describe('QueriesController', () => {
     })
   })
 
-  describe.only('query responses', () => {
+  describe('query responses', () => {
     describe('partial query responses', () => {
       describe('if invalid partial input', () => {
         it('throws if connectionsIds array is not in the req.body', async () => {

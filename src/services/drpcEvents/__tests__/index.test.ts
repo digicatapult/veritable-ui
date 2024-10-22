@@ -16,6 +16,7 @@ const goodRequest = {
     queryIdForResponse: 'fb45f64a-7c2b-43e8-85c2-da66a6899446',
   },
 }
+
 const goodResponse = {
   id: 'request-id',
   jsonrpc: '2.0',
@@ -28,6 +29,20 @@ const goodResponse = {
     queryIdForResponse: 'query-id',
   },
 }
+
+const goodResponseChild = {
+  id: 'request-id-2',
+  jsonrpc: '2.0',
+  method: 'submit_query_response',
+  params: {
+    query: 'Scope 3 Carbon Consumption',
+    productId: 'partial-product-id',
+    quantity: 10,
+    emissions: '200',
+    queryIdForResponse: 'child-query-id',
+  },
+}
+
 describe('DrpcEvents', function () {
   let clock: sinon.SinonFakeTimers
   before(function () {
@@ -518,6 +533,69 @@ describe('DrpcEvents', function () {
     })
   })
   describe('DrpcRequestStateChanged-responseReceived', function () {
+    describe('partial query', function () {
+      const childQuery = [{ id: 'child-query-id', query_response: null, parent_id: 'query-id' }]
+      const childConnection = [{ id: 'child-connection-id' }]
+      const { eventsMock, dbMock, args } = withDrpcEventMocks()
+      const drpcEvents = new DrpcEvents(...args)
+
+      beforeEach(async function () {
+        clock.reset()
+        dbMock.get.onFirstCall().resolves(childConnection)
+        dbMock.get.onCall(2).resolves(childQuery)
+
+        drpcEvents.start()
+
+        eventsMock.emit('DrpcRequestStateChanged', {
+          type: 'DrpcRequestStateChanged',
+          payload: {
+            drpcMessageRecord: {
+              request: goodResponseChild,
+              connectionId: 'child-connection-id',
+              role: 'server',
+              state: 'request-received',
+            },
+          },
+        })
+        eventsMock.emit('DrpcRequestStateChanged', {
+          type: 'DrpcRequestStateChanged',
+          payload: {
+            drpcMessageRecord: {
+              request: goodResponse,
+              connectionId: 'connection-id',
+              role: 'server',
+              state: 'request-received',
+            },
+          },
+        })
+
+        await clock.runAllAsync()
+      })
+
+      it('retrieves a regualar query along with partial', () => {
+        const stub = dbMock.get
+        expect(stub.firstCall.args).to.deep.equal(['connection', { agent_connection_id: 'child-connection-id' }])
+        expect(stub.secondCall.args).to.deep.equal(['connection', { agent_connection_id: 'connection-id' }])
+        expect(stub.thirdCall.args).to.deep.equal(['query', { id: 'child-query-id', role: 'requester' }])
+        expect(stub.getCall(3).args).to.deep.equal(['query', { id: 'query-id', role: 'requester' }])
+      })
+
+      it('updates query_response as per drpc request', () => {
+        const stub = dbMock.update
+
+        expect(stub.firstCall.args).to.deep.equal([
+          'query',
+          { id: 'child-query-id' },
+          { query_response: '200', status: 'resolved' },
+        ])
+        expect(stub.lastCall.args).to.deep.equal([
+          'query',
+          { id: 'query-id' },
+          { query_response: '3456', status: 'resolved' },
+        ])
+      })
+    })
+
     describe('happy path', function () {
       let mocks: ReturnType<typeof withDrpcEventMocks>
       beforeEach(async function () {
