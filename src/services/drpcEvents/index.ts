@@ -256,7 +256,7 @@ export default class DrpcEvents {
    * @param childQuery - query that has parent_id (child)
    * @param params - properties that being transfered over drpc e.g: [query,queryIdForResponse,emissions]
    * @param rpcResponse - "let rpcResponse" - replacement
-   * @returns
+   * @returns void
    */
   private async handleParentQuery(
     id: UUID,

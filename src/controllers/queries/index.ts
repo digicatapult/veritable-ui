@@ -2,18 +2,18 @@ import express from 'express'
 import { Body, Get, Path, Post, Produces, Query, Request, Route, Security, SuccessResponse } from 'tsoa'
 import { injectable } from 'tsyringe'
 
+import { Logger } from 'pino'
 import { InvalidInputError, NotFoundError } from '../../errors.js'
 import { PartialQueryPayload } from '../../models/arrays.js'
 import Database from '../../models/db/index.js'
 import { ConnectionRow, QueryRow, Where } from '../../models/db/types.js'
 import { type UUID } from '../../models/strings.js'
-import VeritableCloudagent from '../../models/veritableCloudagent.js'
+import VeritableCloudagent, { DrpcResponse } from '../../models/veritableCloudagent.js'
 import QueriesTemplates from '../../views/queries/queries.js'
 import QueryListTemplates from '../../views/queries/queriesList.js'
 import Scope3CarbonConsumptionTemplates from '../../views/queries/requestCo2scope3.js'
 import Scope3CarbonConsumptionResponseTemplates from '../../views/queries/responseCo2scope3.js'
 import { HTML, HTMLController } from '../HTMLController.js'
-import { DRPCQueryPayload } from './types.js'
 
 @injectable()
 @Security('oauth2')
@@ -409,9 +409,23 @@ export class QueriesController extends HTMLController {
    * @param log - logger, passed so we can keep track of req_id
    * @param method - either receive or sent needed for submitting drpc request
    * @param payload - rest(spread operator) that will contain
-   * @returns
+   * @returns html either success of error
    */
-  public async submitDrpcRequest({ rpcResponse, log, method, ...payload }: DRPCQueryPayload) {
+  public async submitDrpcRequest({
+    rpcResponse,
+    log,
+    method,
+    ...payload
+  }: {
+    query: QueryRow | null
+    method: 'submit_query_request' | 'submit_query_response'
+    log: Logger
+    localQuery: { query: string; queryIdForResponse?: UUID; emissions?: string; quantity?: number; productId?: string }
+    rpcResponse?: DrpcResponse | undefined
+    parentId?: UUID | undefined
+    connectionId?: UUID
+    connection?: ConnectionRow | null
+  }) {
     try {
       const { parentId, connection, localQuery, connectionId } = payload
       const [conn]: ConnectionRow[] = connection
