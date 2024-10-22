@@ -117,6 +117,7 @@ describe('partial query aggregation', function () {
       const [aliceQuery] = await context.db.alice.get('query')
       const { withAlice, withCharlie } = context.bobsConnections
 
+      expect(fromAlice.status).to.be.equal('forwarded')
       expect(fromAlice).to.deep.contain({
         connection_id: withAlice.id,
         parent_id: null,
@@ -127,6 +128,7 @@ describe('partial query aggregation', function () {
         query_response: null,
         role: 'responder',
       })
+      expect(toCharlie.status).to.be.equal('pending_their_input')
       expect(toCharlie).to.deep.contain({
         connection_id: withCharlie.id,
         parent_id: fromAlice.id,
@@ -175,11 +177,11 @@ describe('partial query aggregation', function () {
         const [bobQuery] = await context.db.bob.get('query', { connection_id: withAlice.id })
         const [bobPartialQuery] = await context.db.bob.get('query', { connection_id: withCharlie.id })
 
+        expect(bobQuery.status).to.be.equal('resolved')
         expect(bobQuery).to.deep.contain({
           connection_id: withAlice.id,
           parent_id: null,
           query_type: 'Scope 3 Carbon Consumption',
-          status: 'resolved',
           details: {
             quantity: 1,
             emissions: '700',
@@ -188,6 +190,8 @@ describe('partial query aggregation', function () {
           query_response: '700',
           role: 'responder',
         })
+
+        expect(bobPartialQuery.status).to.be.equal('resolved')
         expect(bobPartialQuery).to.deep.contain({
           connection_id: withCharlie.id,
           parent_id: bobQuery.id,
@@ -208,6 +212,7 @@ describe('partial query aggregation', function () {
       it('also updates Alice query as resolved with a total of Bob and Charlie co2 emissions', async () => {
         const [query] = await context.db.alice.get('query')
 
+        expect(query).to.have.key('query_response').that.is.equal('700')
         expect(query).to.deep.contain({
           parent_id: null,
           query_type: 'Scope 3 Carbon Consumption',
