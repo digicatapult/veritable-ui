@@ -24,7 +24,7 @@ export default class QueryListTemplates {
       case 'forwarded':
         return <p>Sent</p>
       case 'resolved':
-        return <p>Received</p> // TODO confirm with Esther
+        return <p>Received</p>
       default:
         return <p>unknown</p>
     }

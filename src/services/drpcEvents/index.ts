@@ -250,6 +250,14 @@ export default class DrpcEvents {
     }
   }
 
+  /**
+   * Aggregates child contributions. Also, submits a new drpc request and creates a child query (partial)
+   * @param id - UUID, unique identifier of parent (parent_id) query
+   * @param childQuery - query that has parent_id (child)
+   * @param params - properties that being transfered over drpc e.g: [query,queryIdForResponse,emissions]
+   * @param rpcResponse - "let rpcResponse" - replacement
+   * @returns
+   */
   private async handleParentQuery(
     id: UUID,
     childQuery: QueryRow,
