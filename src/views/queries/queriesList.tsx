@@ -2,7 +2,7 @@ import Html from '@kitajs/html'
 import { singleton } from 'tsyringe'
 import { LinkButton, Page, statusToClass } from '../common.js'
 
-type QueryStatus = 'resolved' | 'pending_your_input' | 'pending_their_input' | 'errored'
+type QueryStatus = 'resolved' | 'pending_your_input' | 'pending_their_input' | 'errored' | 'forwarded'
 type QueryRole = 'responder' | 'requester'
 type Query = {
   id: string
@@ -21,9 +21,10 @@ export default class QueryListTemplates {
       case 'pending_your_input':
         return <p>Received</p>
       case 'pending_their_input':
+      case 'forwarded':
         return <p>Sent</p>
       case 'resolved':
-        return <p>Received</p> // TODO confirm with Esther
+        return <p>Received</p>
       default:
         return <p>unknown</p>
     }
@@ -47,6 +48,8 @@ export default class QueryListTemplates {
     } else if (status === 'pending_their_input') {
       return true
     } else if (status === 'errored') {
+      return true
+    } else if (status === 'forwarded') {
       return true
     }
   }

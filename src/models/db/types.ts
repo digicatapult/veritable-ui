@@ -30,7 +30,7 @@ const insertQuery = z.object({
   connection_id: z.string(),
   parent_id: z.string().nullable().optional(),
   query_type: z.string(),
-  status: z.enum(['resolved', 'pending_your_input', 'pending_their_input', 'errored']),
+  status: z.enum(['resolved', 'pending_your_input', 'pending_their_input', 'errored', 'forwarded']),
   details: z.record(z.any()),
   response_id: z.string().nullable(),
   query_response: z.string().nullable(),

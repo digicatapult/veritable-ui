@@ -61,3 +61,22 @@ export const get = async (
   }
   return request(app).get(endpoint).set(headersWithToken)
 }
+
+export const fetchPost = async (
+  endpoint: string,
+  body: BodyInit | Record<string, string | string[]>,
+  headers: Record<string, string> = {}
+): Promise<Response> => {
+  const token = await getToken()
+  const res = await fetch(endpoint, {
+    method: 'POST',
+    headers: {
+      ...headers,
+      authorization: `bearer ${token}`,
+      'content-type': 'application/json',
+    },
+    body: JSON.stringify(body),
+  })
+
+  return res
+}

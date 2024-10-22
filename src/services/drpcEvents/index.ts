@@ -3,7 +3,9 @@ import { z } from 'zod'
 
 import { Logger, type ILogger } from '../../logger.js'
 import Database from '../../models/db/index.js'
-import VeritableCloudagent from '../../models/veritableCloudagent.js'
+import { QueryRow } from '../../models/db/types.js'
+import { UUID } from '../../models/strings.js'
+import VeritableCloudagent, { DrpcResponse } from '../../models/veritableCloudagent.js'
 import { neverFail } from '../../utils/promises.js'
 import VeritableCloudagentEvents, { DrpcRequest, eventData } from '../veritableCloudagentEvents.js'
 
@@ -13,6 +15,7 @@ const submitQueryRpcParams = z.discriminatedUnion('query', [
     productId: z.string(),
     quantity: z.number().int().min(1),
     queryIdForResponse: z.string(),
+    emissions: z.string().optional(),
   }),
 ])
 const submitQueryResponseRpcParams = z.discriminatedUnion('query', [
@@ -95,8 +98,8 @@ export default class DrpcEvents {
         params = submitQueryRpcParams.parse(request.params)
         this.logger.info('submitQueryRpcParams have been parsed %j', params)
       } catch (err) {
-        this.logger.warn('Invalid parameters received for request %s: %o', request.id, request.params)
-        this.logger.debug('Parsing error o%', err)
+        this.logger.warn('Invalid parameters received for request %s: %j', request.id, request.params)
+        this.logger.debug('Parsing error j%', err)
         await this.cloudagent.submitDrpcResponse(request.id, {
           error: {
             code: drpcErrorCode.INVALID_PARAMS,
@@ -206,15 +209,20 @@ export default class DrpcEvents {
       }
 
       //update corresponding query
-      const [query] = await this.db.update(
+      const [query]: QueryRow[] = await this.db.update(
         'query',
         { id: queryRow.id },
         { query_response: params.emissions, status: 'resolved' }
       )
 
+      if (queryRow.parent_id) {
+        await this.handleParentQuery(queryRow.parent_id, query, params)
+      }
+
       const result = {
         state: 'accepted',
       }
+
       await this.cloudagent.submitDrpcResponse(request.id, { result })
       await this.db.insert('query_rpc', {
         query_id: query.id,
@@ -239,6 +247,84 @@ export default class DrpcEvents {
           message: `Internal error`,
         },
       })
+    }
+  }
+
+  /**
+   * Aggregates child contributions. Also, submits a new drpc request and creates a child query (partial)
+   * @param id - UUID, unique identifier of parent (parent_id) query
+   * @param childQuery - query that has parent_id (child)
+   * @param params - properties that being transfered over drpc e.g: [query,queryIdForResponse,emissions]
+   * @param rpcResponse - "let rpcResponse" - replacement
+   * @returns void
+   */
+  private async handleParentQuery(
+    id: UUID,
+    childQuery: QueryRow,
+    params: SubmitQueryResponseRPCParams,
+    rpcResponse?: DrpcResponse
+  ) {
+    try {
+      const [parentQuery]: QueryRow[] = await this.db.get('query', { id })
+      if (!parentQuery || parentQuery.query_response !== null) {
+        throw new Error('parent query already has a response or not found')
+      }
+
+      const [connection] = await this.db.get('connection', { id: parentQuery.connection_id })
+      if (!connection.agent_connection_id) throw new Error('missing agent_id')
+
+      const allChilds = await this.db.get('query', { parent_id: id })
+      if (!allChilds.every(({ status }) => status === 'resolved')) {
+        this.logger.info('not all childs have responded. returning.')
+        return
+      }
+      // adding childs and parent emissions
+      const total: number = allChilds.reduce(
+        (out, { details }) => (out += parseInt(details.emissions) + parseInt(params.emissions || '0')),
+        0
+      )
+      // if all child responded, respond to the parent query
+      rpcResponse = await this.cloudagent.submitDrpcRequest(connection.agent_connection_id, 'submit_query_response', {
+        query: 'Scope 3 Carbon Consumption',
+        emissions: total.toString(),
+        queryIdForResponse: parentQuery.response_id as UUID,
+      })
+      this.logger.info('submitting DRPC request %j', rpcResponse)
+
+      if (!rpcResponse) throw new Error('DRPC has not responded')
+
+      this.logger.info('persisting query_rpc response %j', rpcResponse)
+      await this.db.insert('query_rpc', {
+        agent_rpc_id: rpcResponse.id,
+        query_id: parentQuery.id,
+        role: 'client',
+        method: 'submit_query_request',
+        result: rpcResponse.result,
+        error: rpcResponse.error,
+      })
+
+      if (!rpcResponse.result || rpcResponse.error) {
+        throw new Error('error happened while persisting query_rpc')
+      }
+
+      // setting parent query as resolved
+      await this.db.update(
+        'query',
+        { id: parentQuery.id },
+        {
+          query_response: total.toString(),
+          status: 'resolved',
+        }
+      )
+    } catch (err) {
+      if (rpcResponse?.id) {
+        this.logger.warn('error in rpc response %s to query %s', rpcResponse.id, childQuery?.id)
+        this.logger.debug('DRPC response %j', rpcResponse)
+      }
+      this.logger.warn('unexpected error occured', JSON.stringify(err))
+      this.logger.debug('handling %s child query failed %j', childQuery?.id, childQuery)
+
+      await this.db.update('query', { id: childQuery.id }, { status: 'errored' })
     }
   }
 }

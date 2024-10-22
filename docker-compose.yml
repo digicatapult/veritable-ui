@@ -136,7 +136,7 @@ services:
       - DB_NAME=veritable-ui
       - API_SWAGGER_TITLE=Bob
       - API_SWAGGER_BG_COLOR=#ff3131
-      - PUBLIC_URL=${VERITABLE_BOB_PUBLIC_URL:-http://localhost:3001}
+      - PUBLIC_URL=${VERITABLE_BOB_PUBLIC_URL:-http://localhost:3000}
       - CLOUDAGENT_ADMIN_ORIGIN=http://veritable-cloudagent-bob:3000
       - CLOUDAGENT_ADMIN_WS_ORIGIN=ws://veritable-cloudagent-bob:3000
       - COMPANY_HOUSE_API_URL=https://api.company-information.service.gov.uk
@@ -219,12 +219,12 @@ services:
         npm start | pino-colada"
     environment:
       - NODE_ENV=production
-      - LOG_LEVEL=trace
+      - LOG_LEVEL=debug
       - DB_HOST=postgres-veritable-ui-charlie
       - DB_NAME=veritable-ui
       - API_SWAGGER_TITLE=Charlie
       - API_SWAGGER_BG_COLOR=#ffbd59
-      - PUBLIC_URL=http://localhost:3002
+      - PUBLIC_URL=${VERITABLE_CHARLIE_PUBLIC_URL:-http://localhost:3000}
       - CLOUDAGENT_ADMIN_ORIGIN=http://veritable-cloudagent-charlie:3000
       - CLOUDAGENT_ADMIN_WS_ORIGIN=ws://veritable-cloudagent-charlie:3000
       - COMPANY_HOUSE_API_URL=https://api.company-information.service.gov.uk
@@ -232,7 +232,7 @@ services:
       - DB_PASSWORD=postgres
       - DB_USERNAME=postgres
       - IDP_CLIENT_ID=veritable-ui
-      - IDP_PUBLIC_URL_PREFIX=http://localhost:3080/realms/veritable/protocol/openid-connect
+      - IDP_PUBLIC_URL_PREFIX=${VERITABLE_IDP_PUBLIC_URL_PREFIX:-http://localhost:3080/realms/veritable/protocol/openid-connect}
       - IDP_INTERNAL_URL_PREFIX=http://keycloak:8080/realms/veritable/protocol/openid-connect
       - INVITATION_FROM_COMPANY_NUMBER=10016023
       - INVITATION_PIN_SECRET=secret
@@ -241,10 +241,13 @@ services:
       - ISSUANCE_CRED_DEF_POLICY=EXISTING_OR_NEW
       - DEMO_MODE=true
       - SMTP_HOST=smtp4dev
-      - SMTP_PASS=
+      - SMTP_PASS=password
       - SMTP_PORT=25
-      - SMTP_USER=
+      - SMTP_USER=username
+      - EMAIL_TRANSPORT=SMTP_EMAIL
+      - SMTP_SECURE=false
       - COMPANY_PROFILE_API_KEY=${VERITABLE_COMPANY_PROFILE_API_KEY:-API_KEY}
+
   postgres-veritable-ui-charlie:
     image: postgres:17.0-alpine
     container_name: postgres-veritable-ui-charlie

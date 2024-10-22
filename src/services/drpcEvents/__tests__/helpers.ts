@@ -13,7 +13,7 @@ type QueryMockOptions = {
     query: Partial<QueryRow>[]
   }
 }
-const defaultOptions: QueryMockOptions = {
+export const defaultOptions: QueryMockOptions = {
   getRows: {
     connection: [{ id: 'connection-id' }],
     query: [{ id: 'query-id', query_response: null }],
@@ -31,8 +31,12 @@ export const withDrpcEventMocks = (testOptions: Partial<QueryMockOptions> = {}) 
   }
   const dbMock = {
     get: sinon.stub().callsFake((tableName: 'connection' | 'query') => Promise.resolve(options.getRows[tableName])),
-    insert: sinon.stub().resolves([{ id: 'query-id' }]),
-    update: sinon.stub().resolves([{ id: 'query-id' }]),
+    insert: sinon.stub().callsFake((name, details) => {
+      return Promise.resolve([{ id: `${name}-id`, ...details }])
+    }),
+    update: sinon.stub().callsFake((name, details) => {
+      return Promise.resolve([{ id: `${name}-id`, ...details }])
+    }),
   }
   const logger = pino({ level: 'silent' }) as ILogger
 
