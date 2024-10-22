@@ -304,10 +304,6 @@ export default class DrpcEvents {
         'query',
         { id: parentQuery.id },
         {
-          details: {
-            ...parentQuery.details,
-            emissions: total.toString(),
-          },
           query_response: total.toString(),
           status: 'resolved',
         }

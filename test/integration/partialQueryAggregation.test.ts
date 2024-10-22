@@ -184,7 +184,6 @@ describe('partial query aggregation', function () {
           query_type: 'Scope 3 Carbon Consumption',
           details: {
             quantity: 1,
-            emissions: '700',
             productId: 'toaster-001(AliceReq)',
           },
           query_response: '700',
