@@ -212,7 +212,7 @@ describe('partial query aggregation', function () {
       it('also updates Alice query as resolved with a total of Bob and Charlie co2 emissions', async () => {
         const [query] = await context.db.alice.get('query')
 
-        expect(query).to.have.key('query_response').that.is.equal('700')
+        expect(query.query_response).to.be.equal('700')
         expect(query).to.deep.contain({
           parent_id: null,
           query_type: 'Scope 3 Carbon Consumption',
