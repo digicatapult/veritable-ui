@@ -32,18 +32,30 @@
 
 .negative-margin-left {
   margin-left: -72px;
-  margin-bottom: -10px;
+  margin-bottom: 10px;
   height: 32px;
   width: 70px;
   color: white;
   border: 0;
-  -webkit-appearance: none;
   border-radius: 0.5em;
+  cursor: pointer;
+  position: relative;
+  z-index: 10;
 }
 .in-row {
-  flex-direction: row;
+  display: flex;
+  align-items: center;
 }
 #settings-form {
   display: flex;
   flex-direction: column;
+}
+.hidden {
+  visibility: none;
+  display: none;
+}
+
+.save-button-container {
+  margin-left: 10px;
+  display: flex;
 }

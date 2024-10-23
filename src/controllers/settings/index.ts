@@ -1,4 +1,4 @@
-import { Body, Get, Post, Produces, Request, Route, Security, SuccessResponse } from 'tsoa'
+import { Body, Get, Post, Produces, Query, Request, Route, Security, SuccessResponse } from 'tsoa'
 import { injectable } from 'tsyringe'
 
 import express from 'express'
@@ -46,25 +46,27 @@ export class SettingsController extends HTMLController {
    * @returns
    */
   @SuccessResponse(200)
-  @Post('/update')
+  @Post('/update/:edit?')
   public async updateSettings(
     @Request() req: express.Request,
     @Body()
     body: {
-      action: 'updateSettings'
       admin_email: string
       company_name: string
       companies_house_number: string
       postal_address: string
       from_email: string
-    }
+      action?: 'updateSettings'
+    },
+    @Query('edit') edit?: boolean
   ) {
     req.log.debug('settings update POST request body %o', { body })
+    console.log('edit: ', edit)
     await this.db.update('settings', { setting_key: 'admin_email' }, { setting_value: body.admin_email })
     const settings = await this.db.get('settings', {}, [['updated_at', 'desc']])
     const settingsDict = await this.transformSettingsToDict(settings)
 
-    return this.html(this.settingsTemplates.settingsForm({ settingsProps: settingsDict }))
+    return this.html(this.settingsTemplates.settingsForm({ settingsProps: settingsDict, edit: !edit }))
   }
 
   private async transformSettingsToDict(settings: SettingsRow[]): Promise<SettingsDict> {

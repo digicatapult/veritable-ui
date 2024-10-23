@@ -19,7 +19,7 @@ export default class SettingsTemplates {
           <h2>
             <i>Account Details</i>
           </h2>
-          <this.settingsForm settingsProps={settings} />
+          <this.settingsForm settingsProps={settings} edit={false} />
           <h2>Reset (Demo only)</h2>
           <p>
             Reset or delete all current connections. This will remove any pending, active or other connections
@@ -37,9 +37,9 @@ export default class SettingsTemplates {
     )
   }
 
-  public settingsForm = ({ settingsProps }: { settingsProps: SettingsDict }): JSX.Element => {
+  public settingsForm = ({ settingsProps, edit }: { settingsProps: SettingsDict; edit: boolean }): JSX.Element => {
     return (
-      <form id="settings-form" hx-post="/settings/update" hx-trigger="submit" method="post" hx-swap="innerHTML">
+      <form id="settings-form" hx-post={`/settings/update${edit == true ? '?edit=true' : ''}`} hx-swap="innerHTML">
         <label for="company_name" class="settings-input-label">
           Company Name
         </label>
@@ -99,16 +99,28 @@ export default class SettingsTemplates {
         <div class="in-row">
           <input
             id="admin_email"
-            class="settings-input extra-padding-right"
+            class="settings-input extra-padding-right "
             name="admin_email"
             required
             value={settingsProps.admin_email.setting_value}
             type="text"
             oninput="this.reportValidity()"
             minlength={1}
+            readonly={!edit}
           />
-          <input type="image" src="/public/images/edit.svg" class="negative-margin-left"></input>
-          <FormButton name="action" value="updateSettings" text="Save" style="filled" />
+          {edit == false ? (
+            <input
+              type="image"
+              src="/public/images/edit.svg"
+              class="negative-margin-left"
+              name="action"
+              value="updateSettings"
+            ></input>
+          ) : (
+            <div id="save-button" class="save-button-container hidden">
+              <FormButton name="action" value="updateSettings" text="Save" style="outlined" />
+            </div>
+          )}
         </div>
       </form>
     )
