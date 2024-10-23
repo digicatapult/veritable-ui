@@ -329,7 +329,7 @@ describe('QueriesController', () => {
         })
         .then(toHTMLString)
 
-      expect(result).to.equal('queriesResponse_template')
+      expect(result).to.equal('scope3_success_scope3')
     })
 
     it('sets query status to error if rpc succeeds without response', async () => {

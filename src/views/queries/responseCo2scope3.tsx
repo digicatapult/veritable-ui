@@ -140,7 +140,7 @@ export default class Scope3CarbonConsumptionResponseTemplates {
                   type="checkbox"
                   checked={partial}
                 />
-                <label for="partial-response-input"></label>
+                <label for="partial-response-input">YES/NO</label>
               </div>
               <p style={{ fontStyle: 'italic', fontSize: '14px;' }}>
                 Select which suppliers contributed to the carbon embodiment of this product/component. Their responses
@@ -188,55 +188,53 @@ export default class Scope3CarbonConsumptionResponseTemplates {
       <div class="connections header"></div>
       <div class="card-body">
         <div class="container-scope3-carbon">
-          <div class="box1">
-            <h1>Scope 3 Carbon Consumption</h1>
+          <div class="scope3-co2-left">
+            <h1>Total Carbon Embodiment</h1>
             <p class="query-text-carbon3-consumption">
-              A query for calculationg the total scope 3 carbon consumption for a given product or component.
+              A query for calculating the total carbon embodiment for a given product or component.
             </p>
           </div>
-          <div class="box2">
-            <h2>Query Information</h2>
-            <div class="box3 ">
-              <table>
-                <tr>
-                  <td>Supplier:</td>
-                  <td class="query-results-left-padding-table">{Html.escapeHtml(query.company_name)}</td>
-                </tr>
-                <tr>
-                  <td>ProductID:</td>
-                  <td class="query-results-left-padding-table">{Html.escapeHtml(query.productId)}</td>
-                </tr>
-                <tr>
-                  <td>Quantity:</td>
-                  <td class="query-results-left-padding-table">{Html.escapeHtml(query.quantity)}</td>
-                </tr>
-                <tr>
-                  <td>Query:</td>
-                  <td class="query-results-left-padding-table">
-                    Please provide details on the Scope 3 carbon emissions associated with the product.
-                  </td>
-                </tr>
-              </table>
-            </div>
-            <h2>Response Information</h2>
-            <div class="box3 ">
-              <div class="max-height-table">
-                <table>
-                  <tr>
-                    <td>Date Certified:</td>
-                    <td>
-                      <time class="query-results-left-padding-table">
-                        {Html.escapeHtml(new Date(query.updated_at).toISOString())}
-                      </time>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td>Carbon Emissions:</td>
-                    <td class="query-results-left-padding-table">{Html.escapeHtml(query.emissions)} kg CO2e</td>
-                  </tr>
-                </table>
+          <div class="scope3-co2-right">
+            <div class="row">
+              <h2>Query Information</h2>
+              <div style={{ maxHeight: '25px' }} class="list-item-status" data-status="success">
+                Resolved
               </div>
             </div>
+            <br />
+            <table id="query-response-view">
+              <tr>
+                <td>Supplier:</td>
+                <td class="query-results-left-padding-table">{Html.escapeHtml(query.company_name)}</td>
+              </tr>
+              <tr>
+                <td>ProductID:</td>
+                <td class="query-results-left-padding-table">{Html.escapeHtml(query.productId)}</td>
+              </tr>
+              <tr>
+                <td>Quantity:</td>
+                <td class="query-results-left-padding-table">{Html.escapeHtml(query.quantity)}</td>
+              </tr>
+              <tr>
+                <td>Query:</td>
+                <td class="query-results-left-padding-table">
+                  Please provide details on the total carbon embodiment associated with the product.
+                </td>
+              </tr>
+            </table>
+            <h2>Response Information</h2>
+            <table id="query-response-view">
+              <tr>
+                <td>Date Certified:</td>
+                <td>
+                  <time class="query-results-left-padding-table">{Html.escapeHtml(new Date(query.updated_at))}</time>
+                </td>
+              </tr>
+              <tr>
+                <td>Carbon Emissions:</td>
+                <td class="query-results-left-padding-table">{Html.escapeHtml(query.emissions)} kg CO2e</td>
+              </tr>
+            </table>
             <LinkButton text="Back to Queries" href="/queries" style="filled" />
           </div>
         </div>
@@ -296,7 +294,7 @@ export default class Scope3CarbonConsumptionResponseTemplates {
   private newQuerySuccess = (props: Scope3FormProps): JSX.Element => {
     return (
       <div id="new-query-confirmation-text">
-        <h2>Your Query has been sent!</h2>
+        <h1>Your Query has been sent!</h1>
         <p>Your query has been successfully shared with the following supplier:</p>
         <i>
           <p>{Html.escapeHtml(props.company.company_name)}</p>
@@ -307,8 +305,7 @@ export default class Scope3CarbonConsumptionResponseTemplates {
           for your convenience.
         </p>
         <p>You can check the status of your query in the Queries section of your dashboard.</p>
-        <br />
-        <LinkButton disabled={false} text="Back to Home" href="/" icon={''} style="filled" />
+        <LinkButton disabled={false} text="Back to Queries" href="/queries" icon={''} style="filled" />
       </div>
     )
   }

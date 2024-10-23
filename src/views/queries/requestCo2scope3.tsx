@@ -17,7 +17,7 @@ type Scope3FormProps = {
 }
 type Scope3SuccessProps = {
   formStage: 'success'
-  company: { companyNumber: string; companyName?: string }
+  company: { company_name?: string; companyName?: string }
 }
 type Scope3ErrorProps = {
   formStage: 'error'
@@ -105,7 +105,7 @@ export default class Scope3CarbonConsumptionTemplates {
               <table class="list-page">
                 <thead>
                   {['Select', 'Company Name'].map((name: string) => (
-                    <th width={name === 'Select' ? '5%' : '95%'}>
+                    <th width={name === 'Select' ? '4%' : '96%'}>
                       <span>{Html.escapeHtml(name || 'unknown')}</span>
                       <a class="list-table icon disabled" />
                     </th>
@@ -207,21 +207,25 @@ export default class Scope3CarbonConsumptionTemplates {
     )
   }
 
-  private newQuerySuccess = (props: Scope3SuccessProps): JSX.Element => {
+  private newQuerySuccess = ({ company }: Scope3SuccessProps): JSX.Element => {
     return (
       <div id="new-query-confirmation-text">
-        <h1>Your Query has been sent!</h1>
-        <p>Your query has been successfully shared with the following supplier:</p>
+        <h2>Thank you for your response!</h2>
+        <p>
+          You have successfully forwarded the query to the following supplier(s) for their carbon contribution to the
+          product/component:
+        </p>
         <i>
-          <p>{Html.escapeHtml(props.company.companyName)}</p>
+          <p>{Html.escapeHtml(company.company_name || company.companyName)}</p>
         </i>
         <p>
-          Once all responses are received, the information will be automatically gathered and shared with you. No
-          further action is needed on your part. You can trust that the process is secure, transparent, and streamlined
-          for your convenience.
+          Once all supplier responses are received, they will be automatically gathered and securely sent to Alice’s
+          Company. You do not need to take any further action. The process is fully automated, ensuring transparency and
+          trust in the final result.
         </p>
-        <p>You can check the status of your query in the Queries section of your dashboard.</p>
-        <LinkButton disabled={false} text="Back to Queries" href="/queries" icon={''} style="filled" />
+        <p>You can check the status of your forwarded queries in the Queries section of your dashboard.</p>
+        <br />
+        <LinkButton disabled={false} text="Back to Home" href="/" icon={''} style="filled" />
       </div>
     )
   }
