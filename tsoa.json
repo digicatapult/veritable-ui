@@ -25,7 +25,7 @@
     "esm": true,
     "routesDir": "src",
     "iocModule": "src/ioc",
-    "authenticationModule": "src/authentication",
+    "authenticationModule": "./src/authentication.ts",
     "noWriteIfUnchanged": true
   }
 }
