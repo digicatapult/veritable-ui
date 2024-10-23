@@ -83,18 +83,18 @@ export default class Scope3CarbonConsumptionResponseTemplates {
     return (
       <div class="container-scope3-carbon">
         <div class="scope3-co2-left">
-          <h1 id="scope3-co2-heading">Scope 3 Carbon Consumption</h1>
+          <h1 id="scope3-co2-heading">Total Carbon Embodiment</h1>
           <p style={{ paddingRight: '50px' }} class="query-text-carbon3-consumption">
-            Provide the total scope 3 carbon consumption for the specified products / component.
+            Provide the total carbon embodiment for the specified product/component.
           </p>
           <p class="query-text-carbon3-consumption">
-            If you do not have all the required information, please forward this query to your suppliers, to aggregate
-            their responses before submitting the final total.{' '}
+            If you do not have all the required information, please forward this query to your suppliers to gather their
+            responses. Once you have all the necessary information, you can submit the final total.{''}
           </p>
         </div>
         <div class="scope3-co2-right">
           <p class="query-text-carbon3-consumption">
-            What are the total Scope 3 carbon emissions for the product/component below?
+            What is the total carbon embodiment for the product/component below?
           </p>
           <div hx-swap-oob="true" hx-swap="ignoreTitle:true" id="partial-query">
             <form
@@ -126,6 +126,9 @@ export default class Scope3CarbonConsumptionResponseTemplates {
                 />
               </div>
               <div class="input-container">
+                <p>
+                  Do you need to ask other companies in your supply chain how much carbon they contributed? (Scope 3)
+                </p>
                 <input
                   hx-trigger="changed, click"
                   hx-target="#partial-query"
@@ -143,6 +146,10 @@ export default class Scope3CarbonConsumptionResponseTemplates {
               </p>
               {partial && connections ? (
                 <div class="query-partial-container list-page">
+                  <p>
+                    Select which suppliers contributed to the carbon embodiment of this product/component. Their
+                    responses will be automatically added to your total carbon embodiment.
+                  </p>
                   <table>
                     <thead>
                       {['Select', 'Company Name', 'Product ID', 'Quantity'].map((name: string) => (
@@ -291,10 +298,18 @@ export default class Scope3CarbonConsumptionResponseTemplates {
   private newQuerySuccess = (props: Scope3FormProps): JSX.Element => {
     return (
       <div id="new-query-confirmation-text">
+        <h2>Your Query has been sent!</h2>
+        <p>Your query has been successfully shared with the following supplier:</p>
+        <i>
+          <p>{Html.escapeHtml(props.company.company_name)}</p>
+        </i>
         <p>
-          Your query Response has been shared with the following company: {Html.escapeHtml(props.company.company_name)}.
+          Once all responses are received, the information will be automatically gathered and shared with you. No
+          further action is needed on your part. You can trust that the process is secure, transparent, and streamlined
+          for your convenience.
         </p>
-        <p>Thank you for answering this query, there is no other action required.</p>
+        <p>You can check the status of your query in the Queries section of your dashboard.</p>
+        <br />
         <LinkButton disabled={false} text="Back to Home" href="/" icon={''} style="filled" />
       </div>
     )

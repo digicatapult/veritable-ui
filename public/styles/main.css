@@ -474,12 +474,17 @@ main {
 }
 
 .scope3-co2-left {
+  display: flex;
   flex: 0.5;
+  flex-direction: column;
+  gap: 115px;
   min-height: 425px;
+  max-width: 325px;
   padding-right: 20px;
 }
 
 .scope3-co2-right {
+  display: flex;
   padding-top: 5px;
   flex: 1;
   flex-direction: column;
@@ -568,8 +573,9 @@ main {
 }
 
 #new-query-confirmation-text {
-  font-size: 0.875rem;
+  font-size: 1rem;
   margin-inline: 40px;
+  gap: 10px;
   text-align: center;
   display: flex;
   flex-direction: column;

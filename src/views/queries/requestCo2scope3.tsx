@@ -104,8 +104,8 @@ export default class Scope3CarbonConsumptionTemplates {
 
               <table class="list-page">
                 <thead>
-                  {['Check Company', 'Company Name'].map((name: string) => (
-                    <th>
+                  {['Select', 'Company Name'].map((name: string) => (
+                    <th width={name === 'Select' ? '5%' : '95%'}>
                       <span>{Html.escapeHtml(name || 'unknown')}</span>
                       <a class="list-table icon disabled" />
                     </th>
@@ -149,14 +149,15 @@ export default class Scope3CarbonConsumptionTemplates {
       <div>
         <div class="container-scope3-carbon">
           <div class="scope3-co2-left">
-            <h1>Scope 3 Carbon Consumption</h1>
+            <h1>Total Carbon Embodiment</h1>
             <p class="query-text-carbon3-consumption">
-              Creates a query for calculating the total scope 3 carbon consumption for a given product or component.
+              Creates a query for obtaining the total carbon embodiment for a given product/component.
             </p>
           </div>
           <div class="scope3-co2-right">
             <p>
-              Choose the product that you want to apply the query “What is your scope 1, 2, 3 carbon consumption?” to.
+              Choose the product that you want to apply the query “What is the total carbon embodiment for the
+              product/component below?” to.
             </p>
             <form
               id="scope-3-carbon-consumption"
@@ -209,10 +210,17 @@ export default class Scope3CarbonConsumptionTemplates {
   private newQuerySuccess = (props: Scope3SuccessProps): JSX.Element => {
     return (
       <div id="new-query-confirmation-text">
+        <h1>Your Query has been sent!</h1>
+        <p>Your query has been successfully shared with the following supplier:</p>
+        <i>
+          <p>{Html.escapeHtml(props.company.companyName)}</p>
+        </i>
         <p>
-          Your query request has been shared with the following supplier: {Html.escapeHtml(props.company.companyName)}.
+          Once all responses are received, the information will be automatically gathered and shared with you. No
+          further action is needed on your part. You can trust that the process is secure, transparent, and streamlined
+          for your convenience.
         </p>
-        <p>Please await for responses and check for updates in the query management page.</p>
+        <p>You can check the status of your query in the Queries section of your dashboard.</p>
         <LinkButton disabled={false} text="Back to Queries" href="/queries" icon={''} style="filled" />
       </div>
     )
