@@ -208,7 +208,7 @@ export default class Scope3CarbonConsumptionResponseTemplates {
                 <td class="query-results-left-padding-table">{Html.escapeHtml(query.company_name)}</td>
               </tr>
               <tr>
-                <td>ProductID:</td>
+                <td>Product ID:</td>
                 <td class="query-results-left-padding-table">{Html.escapeHtml(query.productId)}</td>
               </tr>
               <tr>
