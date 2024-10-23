@@ -29,7 +29,7 @@ export default class HomepageTemplates {
             <h1>Onboard/Refer</h1>
             <p>Easily onboard new companies or refer companies to join your network.</p>
           </a>
-          <a href="#" class="disabled">
+          <a href="/settings">
             <img src="/public/images/setting.svg" />
             <h1>Settings</h1>
             <p>Manage your account preferences and profile settings.</p>

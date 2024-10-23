@@ -11,7 +11,7 @@ import {
 
 export const defaultConfig = {
   PORT: envalid.port({ default: 3000 }),
-  LOG_LEVEL: envalid.str({ default: 'info', devDefault: 'debug' }),
+  LOG_LEVEL: envalid.str({ default: 'info', devDefault: 'trace' }),
   DB_HOST: envalid.host({ devDefault: 'localhost' }),
   DB_NAME: envalid.str({ default: 'veritable-ui' }),
   DB_USERNAME: envalid.str({ devDefault: 'postgres' }),

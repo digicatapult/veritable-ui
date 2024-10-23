@@ -30,6 +30,7 @@
   --accent-color: #5670f1;
   --focus-color: rgba(86, 112, 241, 0.6);
   --border-black: #cfd3d4;
+  --danger: #f57e77;
 
   --neutral-accent: var(--accent-color);
   --negative-accent: #f57e77;

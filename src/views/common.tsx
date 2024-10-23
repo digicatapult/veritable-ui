@@ -118,9 +118,8 @@ const SideBar = ({ activePage }: { activePage: PageProps['activePage'] }): JSX.E
       />
       <a
         title="settings"
-        href="#"
+        href="/settings"
         data-active={activePage === 'settings'}
-        class="disabled"
         style={{ ['--background-image' as string]: "url('/public/images/setting.svg')" }}
       />
     </nav>
