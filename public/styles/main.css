@@ -470,14 +470,14 @@ main {
   flex-direction: row;
   flex-wrap: wrap;
   overflow: hidden;
-  min-height: 30em;
+  min-height: 33em;
 }
 
 .scope3-co2-left {
   display: flex;
   flex: 0.5;
   flex-direction: column;
-  gap: 115px;
+  gap: 50px;
   min-height: 425px;
   max-width: 325px;
   padding-right: 20px;

@@ -84,13 +84,15 @@ export default class Scope3CarbonConsumptionResponseTemplates {
       <div class="container-scope3-carbon">
         <div class="scope3-co2-left">
           <h1 id="scope3-co2-heading">Total Carbon Embodiment</h1>
-          <p style={{ paddingRight: '50px' }} class="query-text-carbon3-consumption">
-            Provide the total carbon embodiment for the specified product/component.
-          </p>
-          <p class="query-text-carbon3-consumption">
-            If you do not have all the required information, please forward this query to your suppliers to gather their
-            responses. Once you have all the necessary information, you can submit the final total.{''}
-          </p>
+          <span>
+            <p class="query-text-carbon3-consumption">
+              Provide the total carbon embodiment for the specified product/component.
+            </p>
+            <p class="query-text-carbon3-consumption">
+              If you do not have all the required information, please forward this query to your suppliers to gather
+              their responses. Once you have all the necessary information, you can submit the final total.{''}
+            </p>
+          </span>
         </div>
         <div class="scope3-co2-right">
           <p class="query-text-carbon3-consumption">
@@ -113,7 +115,7 @@ export default class Scope3CarbonConsumptionResponseTemplates {
               <input type="hidden" name="companyId" value={Html.escapeHtml(props.company.id)} />
               <div class="input-container">
                 <label for="co2-emissions-input" class="input-label">
-                  Your Scope 3 carbon emissions
+                  Total carbon from my operations only (Scope 1 & 2)
                 </label>
                 <input
                   id="co2-emissions-input"
@@ -138,18 +140,14 @@ export default class Scope3CarbonConsumptionResponseTemplates {
                   type="checkbox"
                   checked={partial}
                 />
-                <label for="partial-response-input">Partial response</label>
+                <label for="partial-response-input"></label>
               </div>
               <p style={{ fontStyle: 'italic', fontSize: '14px;' }}>
-                *If partial response checkbox is ticked, you must share this query with another supplier in your
-                network, where your responses will be aggregated.
+                Select which suppliers contributed to the carbon embodiment of this product/component. Their responses
+                will be automatically added to your total carbon embodiment.{' '}
               </p>
               {partial && connections ? (
                 <div class="query-partial-container list-page">
-                  <p>
-                    Select which suppliers contributed to the carbon embodiment of this product/component. Their
-                    responses will be automatically added to your total carbon embodiment.
-                  </p>
                   <table>
                     <thead>
                       {['Select', 'Company Name', 'Product ID', 'Quantity'].map((name: string) => (
