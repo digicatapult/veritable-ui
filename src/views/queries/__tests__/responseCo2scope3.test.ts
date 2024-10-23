@@ -61,7 +61,7 @@ describe('Scope3CarbonConsumptionTemplates', () => {
       const rendered = await templates.newScope3CarbonConsumptionFormPage({
         formStage: 'success',
         company: {
-          company_name: 'company1',
+          companyName: 'company1',
         },
       })
       expect(rendered).to.matchSnapshot()

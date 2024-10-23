@@ -17,7 +17,7 @@ type Scope3FormProps = {
 }
 type Scope3SuccessProps = {
   formStage: 'success'
-  company: { company_name?: string; companyName?: string }
+  company: { companyName?: string }
 }
 type Scope3ErrorProps = {
   formStage: 'error'
@@ -207,7 +207,7 @@ export default class Scope3CarbonConsumptionTemplates {
     )
   }
 
-  private newQuerySuccess = ({ company }: Scope3SuccessProps): JSX.Element => {
+  private newQuerySuccess = (props: Scope3SuccessProps): JSX.Element => {
     return (
       <div id="new-query-confirmation-text">
         <h2>Thank you for your response!</h2>
@@ -216,7 +216,7 @@ export default class Scope3CarbonConsumptionTemplates {
           product/component:
         </p>
         <i>
-          <p>{Html.escapeHtml(company.company_name || company.companyName)}</p>
+          <p>{Html.escapeHtml(props.company.companyName)}</p>
         </i>
         <p>
           Once all supplier responses are received, they will be automatically gathered and securely sent to Alice’s
