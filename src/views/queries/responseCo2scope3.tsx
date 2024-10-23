@@ -131,16 +131,27 @@ export default class Scope3CarbonConsumptionResponseTemplates {
                 <p>
                   Do you need to ask other companies in your supply chain how much carbon they contributed? (Scope 3)
                 </p>
-                <input
-                  hx-trigger="changed, click"
-                  hx-target="#partial-query"
-                  hx-get={`/queries/${query.id}/partial`}
-                  id="partial-response-input"
-                  name="partialQuery"
-                  type="checkbox"
-                  checked={partial}
-                />
-                <label for="partial-response-input">YES/NO</label>
+                <div class="row">
+                  <input
+                    hx-trigger="changed, click"
+                    hx-target="#partial-query"
+                    hx-get={`/queries/${query.id}/partial`}
+                    id="partial-response-input"
+                    name="partialQuery"
+                    type="radio"
+                    checked={partial}
+                  />
+                  <label for="partial-response-input">Yes</label>
+                  <input
+                    hx-trigger="changed, click"
+                    hx-target="#partial-query"
+                    hx-get={`/queries/${query.id}/partial`}
+                    id="partial-response-input"
+                    type="radio"
+                    checked={!partial}
+                  />
+                  <label for="partial-response-input">No</label>
+                </div>
               </div>
               <p style={{ fontStyle: 'italic', fontSize: '14px;' }}>
                 Select which suppliers contributed to the carbon embodiment of this product/component. Their responses
