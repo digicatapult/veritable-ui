@@ -102,7 +102,7 @@ export default class SettingsTemplates {
             name="admin_email"
             required
             value={settingsProps.admin_email}
-            type="text"
+            type="email"
             oninput="this.reportValidity()"
             minlength={1}
             readonly={!edit}

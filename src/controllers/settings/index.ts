@@ -3,6 +3,7 @@ import { injectable } from 'tsyringe'
 
 import express from 'express'
 import { Env } from '../../env/index.js'
+import { InternalError } from '../../errors.js'
 import Database from '../../models/db/index.js'
 import { SettingsRow } from '../../models/db/types.js'
 import SettingsTemplates from '../../views/settings/settings.js'
@@ -73,8 +74,18 @@ export class SettingsController extends HTMLController {
     @Query('edit') edit?: boolean
   ) {
     req.log.debug('settings update POST request body %o', { body })
-    console.log('edit: ', edit)
-    await this.db.update('settings', { setting_key: 'admin_email' }, { setting_value: body.admin_email })
+    if (edit === true) {
+      if (body.action == 'updateSettings') {
+        await this.db.update('settings', { setting_key: 'admin_email' }, { setting_value: body.admin_email })
+      } else {
+        req.log.debug('body.action value is incorrect: %s', body.action)
+        throw new InternalError('You tried to update settings but something went wrong.')
+      }
+    } else {
+      req.log.error('Failed to edit settings')
+      throw new InternalError('Failed in edit.')
+    }
+
     const settings = await this.db.get('settings', {}, [['updated_at', 'desc']])
     const settingsDict = await this.transformSettingsToDict(settings)
     const set = {
