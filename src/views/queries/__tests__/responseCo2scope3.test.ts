@@ -62,7 +62,6 @@ describe('Scope3CarbonConsumptionTemplates', () => {
         formStage: 'success',
         company: {
           companyName: 'company1',
-          companyNumber: '111111111',
         },
       })
       expect(rendered).to.matchSnapshot()
