@@ -35,22 +35,6 @@ async function initializeSettings(logger: ILogger, env: Env, db: Database) {
 
   const settings = [
     {
-      setting_key: 'company_name',
-      setting_value: 'DIGITAL CATAPULT',
-    },
-    {
-      setting_key: 'companies_house_number',
-      setting_value: env.get('INVITATION_FROM_COMPANY_NUMBER') || '00000000',
-    },
-    {
-      setting_key: 'postal_address',
-      setting_value: 'Some Address',
-    },
-    {
-      setting_key: 'from_email',
-      setting_value: env.get('EMAIL_FROM_ADDRESS') || 'default@test.com',
-    },
-    {
       setting_key: 'admin_email',
       setting_value: env.get('EMAIL_ADMIN_ADDRESS') || 'default@test.com',
     },

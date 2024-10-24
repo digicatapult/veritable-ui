@@ -2,18 +2,22 @@ import { Body, Get, Post, Produces, Query, Request, Route, Security, SuccessResp
 import { injectable } from 'tsyringe'
 
 import express from 'express'
+import { Env } from '../../env/index.js'
 import Database from '../../models/db/index.js'
 import { SettingsRow } from '../../models/db/types.js'
 import SettingsTemplates from '../../views/settings/settings.js'
 import { HTML, HTMLController } from './../HTMLController.js'
-export type SettingsDict = {
-  company_name: { setting_value: string; created_at: Date; updated_at: Date }
-  companies_house_number: { setting_value: string; created_at: Date; updated_at: Date }
-  email: { setting_value: string; created_at: Date; updated_at: Date }
-  postal_address: { setting_value: string; created_at: Date; updated_at: Date }
-  from_email: { setting_value: string; created_at: Date; updated_at: Date }
+type SettingsDict = {
   admin_email: { setting_value: string; created_at: Date; updated_at: Date }
-} & Record<string, { setting_value: string; created_at: Date; updated_at: Date }> // are we concerned about additional fields?
+} & Record<string, { setting_value: string; created_at: Date; updated_at: Date }>
+
+export type SettingsType = {
+  company_name: string
+  companies_house_number: string
+  from_email: string
+  postal_address: string
+  admin_email: string
+}
 
 @injectable()
 @Security('oauth2')
@@ -22,7 +26,8 @@ export type SettingsDict = {
 export class SettingsController extends HTMLController {
   constructor(
     private settingsTemplates: SettingsTemplates,
-    private db: Database
+    private db: Database,
+    private env: Env
   ) {
     super()
   }
@@ -36,8 +41,15 @@ export class SettingsController extends HTMLController {
     req.log.trace('rendering settings')
     const settings = await this.db.get('settings', {}, [['updated_at', 'desc']])
     const settingsDict = await this.transformSettingsToDict(settings)
+    const set = {
+      company_name: 'DIGITAL CATAPULT',
+      companies_house_number: this.env.get('INVITATION_FROM_COMPANY_NUMBER'),
+      from_email: this.env.get('EMAIL_FROM_ADDRESS'),
+      postal_address: 'Some address',
+      admin_email: settingsDict.admin_email.setting_value,
+    }
 
-    return this.html(this.settingsTemplates.settings(settingsDict))
+    return this.html(this.settingsTemplates.settings(set))
   }
 
   /**
@@ -65,8 +77,15 @@ export class SettingsController extends HTMLController {
     await this.db.update('settings', { setting_key: 'admin_email' }, { setting_value: body.admin_email })
     const settings = await this.db.get('settings', {}, [['updated_at', 'desc']])
     const settingsDict = await this.transformSettingsToDict(settings)
+    const set = {
+      company_name: 'DIGITAL CATAPULT',
+      companies_house_number: this.env.get('INVITATION_FROM_COMPANY_NUMBER'),
+      from_email: this.env.get('EMAIL_FROM_ADDRESS'),
+      postal_address: 'Some address',
+      admin_email: settingsDict.admin_email.setting_value,
+    }
 
-    return this.html(this.settingsTemplates.settingsForm({ settingsProps: settingsDict, edit: !edit }))
+    return this.html(this.settingsTemplates.settingsForm({ settingsProps: set, edit: !edit }))
   }
 
   private async transformSettingsToDict(settings: SettingsRow[]): Promise<SettingsDict> {

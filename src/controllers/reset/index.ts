@@ -1,5 +1,5 @@
 import express from 'express'
-import { Get, Hidden, Produces, Request, Route, Security, SuccessResponse } from 'tsoa'
+import { Delete, Hidden, Produces, Request, Route, Security, SuccessResponse } from 'tsoa'
 import { injectable } from 'tsyringe'
 
 import pino from 'pino'
@@ -47,7 +47,7 @@ export class ResetController {
    * Retrieves the connection list page
    */
   @SuccessResponse(200)
-  @Get('/')
+  @Delete('/')
   public async reset(@Request() req: express.Request): Promise<{ statusCode: number }> {
     const DEMO_MODE = this.env.get('DEMO_MODE')
     if (!DEMO_MODE) {

@@ -8,6 +8,12 @@
   border-radius: 12px;
   padding: 1rem;
 }
+#settings-container h1 {
+  margin-bottom: 10px;
+}
+#settings-container h2 {
+  margin-top: 0px;
+}
 
 .settings-input {
   border: 1px solid var(--border-black);
@@ -30,13 +36,13 @@
   padding-right: 50px;
 }
 
-.negative-margin-left {
-  margin-left: -72px;
-  margin-bottom: 10px;
-  height: 32px;
-  width: 70px;
+.edit-button {
+  margin-left: -50px;
+  margin-bottom: 9px;
+  height: 45px;
+  padding: 13px;
+  width: 50px;
   color: white;
-  border: 0;
   border-radius: 0.5em;
   cursor: pointer;
   position: relative;
@@ -45,6 +51,7 @@
 .in-row {
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
 }
 #settings-form {
   display: flex;
@@ -57,5 +64,48 @@
 
 .save-button-container {
   margin-left: 10px;
+  margin-bottom: 10px;
   display: flex;
+}
+#save-button button {
+  background-color: var(--positive-accent);
+  color: white;
+  border: none;
+}
+#reset-container {
+  margin-top: 25px;
+  cursor: default;
+}
+
+#reset-btn {
+  background-color: var(--negative-accent);
+  color: white;
+  border: none;
+  width: 160px;
+  height: 27px;
+  border-radius: 0.5em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+#reset-btn:hover {
+  opacity: 0.8;
+}
+#reset-image {
+  margin-right: 8px;
+  width: 20px;
+  height: auto;
+}
+
+@media (max-width: 767px) {
+  .save-button-container {
+    margin-left: 5px;
+  }
+  #reset-container {
+    margin-top: 10px;
+  }
+  .edit-button {
+    width: 40px;
+  }
 }
