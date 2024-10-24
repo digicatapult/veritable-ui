@@ -61,3 +61,16 @@ export const get = async (
   }
   return request(app).get(endpoint).set(headersWithToken)
 }
+
+export const del = async (
+  app: express.Express,
+  endpoint: string,
+  headers: Record<string, string> = {}
+): Promise<request.Test> => {
+  const token = await getToken()
+  const headersWithToken = {
+    authorization: `bearer ${token}`,
+    ...headers,
+  }
+  return request(app).delete(endpoint).set(headersWithToken)
+}

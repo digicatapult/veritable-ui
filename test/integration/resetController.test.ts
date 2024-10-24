@@ -13,7 +13,7 @@ import createHttpServer from '../../src/server.js'
 import VeritableCloudagentEvents from '../../src/services/veritableCloudagentEvents.js'
 import { withCompanyHouseMock } from '../helpers/companyHouse.js'
 import { withVerifiedConnection } from '../helpers/connection.js'
-import { get } from '../helpers/routeHelper.js'
+import { del } from '../helpers/routeHelper.js'
 
 describe('integration test for /reset endpoint', function () {
   const db = container.resolve(Database)
@@ -33,7 +33,7 @@ describe('integration test for /reset endpoint', function () {
       remoteCloudagent: VeritableCloudagent
       remoteConnectionId: string
       localConnectionId: string
-      response: Awaited<ReturnType<typeof get>>
+      response: Awaited<ReturnType<typeof del>>
     }
     const context: Context = {} as Context
 
@@ -59,7 +59,7 @@ describe('integration test for /reset endpoint', function () {
       expect(localConnections.length).to.equal(1)
       expect(agentConnections.length).to.equal(1)
 
-      context.response = await get(context.app, '/reset')
+      context.response = await del(context.app, '/reset')
       const localConnectionsNew: ConnectionRow[] = await db.get('connection', {})
       const agentConnectionsNew: Connection[] = await cloudagent.getConnections()
 
