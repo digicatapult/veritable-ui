@@ -1,20 +1,27 @@
 import { randomUUID } from 'node:crypto'
 
 import { BrowserContext, expect, Page } from '@playwright/test'
-import { get } from './routeHelpers'
+import { del } from './routeHelpers'
 
 export interface CustomBrowserContext extends BrowserContext {
   username?: string
 }
 
-export async function withCleanApp(urlAlice: string, urlBob: string, smtp4devUrl: string) {
+export async function withCleanAliceBobEmail(urlAlice: string, urlBob: string, smtp4devUrl: string) {
   const results = await Promise.all([
-    get(urlAlice, '/reset'),
-    get(urlBob, '/reset'),
+    del(urlAlice, '/reset'),
+    del(urlBob, '/reset'),
     fetch(`${smtp4devUrl}/api/Messages/*`, { method: 'delete' }), //updated for test
   ])
   if (!results.every((res) => res.ok)) {
     throw new Error('Error resetting application or deleting emails form smtp4dev')
+  }
+}
+export async function withCleanAlice(urlAlice: string) {
+  const result = await del(urlAlice, '/reset')
+  console.log(result)
+  if (!result.ok) {
+    throw new Error('Error resetting application - Alice')
   }
 }
 
