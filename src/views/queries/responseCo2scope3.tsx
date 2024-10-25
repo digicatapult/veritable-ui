@@ -75,7 +75,7 @@ export default class Scope3CarbonConsumptionResponseTemplates {
   }
 
   public scope3CarbonConsumptionResponseFormPage = ({
-    partial = false,
+    partial = undefined,
     connections = [],
     query,
     ...props
@@ -148,17 +148,17 @@ export default class Scope3CarbonConsumptionResponseTemplates {
                     hx-get={`/queries/${query.id}/partial`}
                     id="partial-response-input"
                     type="radio"
-                    checked={!partial}
+                    checked={partial !== undefined && !partial}
                   />
                   <label for="partial-response-input">No</label>
                 </div>
               </div>
-              <p style={{ fontStyle: 'italic', fontSize: '14px;' }}>
-                Select which suppliers contributed to the carbon embodiment of this product/component. Their responses
-                will be automatically added to your total carbon embodiment.{' '}
-              </p>
               {partial && connections ? (
                 <div class="query-partial-container list-page">
+                  <p style={{ fontStyle: 'italic', fontSize: '14px;' }}>
+                    Select which suppliers contributed to the carbon embodiment of this product/component. Their
+                    responses will be automatically added to your total carbon embodiment.{' '}
+                  </p>
                   <table>
                     <thead>
                       {['Select', 'Company Name', 'Product ID', 'Quantity'].map((name: string) => (
