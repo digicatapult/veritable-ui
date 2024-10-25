@@ -74,22 +74,19 @@ export class SettingsController extends HTMLController {
     @Query('edit') edit?: boolean
   ) {
     req.log.debug('settings update POST request body %o', { body })
-    if (!edit == false) {
-      if (edit === true) {
-        if (body.action == 'updateSettings') {
-          await this.db.update('settings', { setting_key: 'admin_email' }, { setting_value: body.admin_email })
-        } else {
-          req.log.debug('body.action value is incorrect: %s', body.action)
-          throw new InternalError('You tried to update settings but something went wrong.')
-        }
-      } else {
-        req.log.error('Failed to edit settings')
-        throw new InternalError('Failed in edit.')
-      }
-    } else {
+    if (edit === false) {
       req.log.error('Failed to edit settings, edit is set to %s', edit)
       throw new InternalError('Edit failed.')
     }
+    if (edit === true) {
+      if (body.action == 'updateSettings') {
+        await this.db.update('settings', { setting_key: 'admin_email' }, { setting_value: body.admin_email })
+      } else {
+        req.log.debug('body.action value is incorrect: %s', body.action)
+        throw new InternalError('You tried to update settings but something went wrong.')
+      }
+    }
+
     const settings = await this.db.get('settings', {}, [['updated_at', 'desc']])
     const settingsDict = await this.transformSettingsToDict(settings)
     const set = {

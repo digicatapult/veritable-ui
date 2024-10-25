@@ -1,4 +1,4 @@
-import { Page, test } from '@playwright/test'
+import { expect, Page, test } from '@playwright/test'
 import { CustomBrowserContext, withCleanAlice, withLoggedInUser, withRegisteredAccount } from './helpers/registerLogIn'
 
 test.describe('Updating Settings - email', () => {
@@ -32,5 +32,15 @@ test.describe('Updating Settings - email', () => {
 
     await page.waitForSelector('input.edit-button')
     await page.click('input.edit-button')
+
+    await page.focus('#admin_email')
+    await page.fill('#admin_email', 'sometestmail@test.com')
+
+    await page.click('button[data-variant="outlined"][name="action"][value="updateSettings"]')
+    const emailValue = await page.inputValue('#admin_email')
+    expect(emailValue).toBe('sometestmail@test.com')
+
+    const changedEmailValue = await page.inputValue('#admin_email')
+    expect(changedEmailValue).toContain('sometestmail@test.com')
   })
 })

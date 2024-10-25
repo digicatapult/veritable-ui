@@ -19,7 +19,6 @@ export async function withCleanAliceBobEmail(urlAlice: string, urlBob: string, s
 }
 export async function withCleanAlice(urlAlice: string) {
   const result = await del(urlAlice, '/reset')
-  console.log(result)
   if (!result.ok) {
     throw new Error('Error resetting application - Alice')
   }
