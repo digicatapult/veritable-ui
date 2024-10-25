@@ -39,7 +39,7 @@ export default class Scope3CarbonConsumptionTemplates {
         headerLinks={[
           { name: 'Query Management', url: '/queries' },
           { name: 'New', url: '/queries/new' },
-          { name: 'Scope 3 Carbon Consumption', url: '/queries/new/scope-3-carbon-consumption' },
+          { name: 'Total Carbon Embodiment', url: '/queries/new/scope-3-carbon-consumption' },
         ]}
       >
         <div class="connections header"></div>

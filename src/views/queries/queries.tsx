@@ -25,7 +25,7 @@ export default class QueriesTemplates {
           <a class="query-item" href="/queries/new/scope-3-carbon-consumption">
             <h1 class="query-header">Total Carbon Embodiment</h1>
             <p class="query-text">
-              Creates a query for calculating the total scope 3 carbon consumption for a given product or component.
+              Creates a query for calculating the total carbon embodiment for a given product or component.
             </p>
           </a>
           <a class="query-item disabled" href="#">
