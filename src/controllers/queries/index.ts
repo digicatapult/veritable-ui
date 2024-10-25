@@ -478,13 +478,20 @@ export class QueriesController extends HTMLController {
         await this.db.update('query', { id: query.id }, { query_response: localQuery.emissions, status: 'resolved' })
       }
 
-      const render =
-        method === 'submit_query_request'
-          ? this.scope3CarbonConsumptionResponseTemplates.newScope3CarbonConsumptionResponseFormPage
-          : this.scope3CarbonConsumptionTemplates.newScope3CarbonConsumptionFormPage
+      if (!parentId && localQuery.emissions) {
+        await this.db.update('query', { id: query.id }, { query_response: localQuery.emissions, status: 'resolved' })
+        return this.html(
+          this.scope3CarbonConsumptionTemplates.newScope3CarbonConsumptionFormPage({
+            formStage: 'success',
+            company: {
+              companyName: conn.company_name,
+            },
+          })
+        )
+      }
 
       return this.html(
-        render({
+        this.scope3CarbonConsumptionResponseTemplates.newScope3CarbonConsumptionResponseFormPage({
           formStage: 'success',
           company: conn,
           query,

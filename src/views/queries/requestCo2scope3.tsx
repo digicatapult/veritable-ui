@@ -33,7 +33,7 @@ export default class Scope3CarbonConsumptionTemplates {
   public newScope3CarbonConsumptionFormPage = (props: Scope3QueryProps) => {
     return (
       <Page
-        title="Veritable - New Scope 3 Carbon Consumption Query"
+        title="Veritable - New Total Carbon Embodiment Query"
         activePage="queries"
         heading="Select Company To Send Your Query To"
         headerLinks={[
