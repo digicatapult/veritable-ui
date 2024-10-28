@@ -71,7 +71,7 @@ describe('QueriesController', () => {
     })
 
     it('should call page with stage success as expected', async () => {
-      const { args } = withQueriesMocks()
+      const { dbMock, args } = withQueriesMocks()
       const controller = new QueriesController(...args)
       const result = await controller
         .scope3CarbonConsumptionStage(req, {
@@ -82,7 +82,22 @@ describe('QueriesController', () => {
         })
         .then(toHTMLString)
 
-      expect(result).to.equal('scope3_success_scope3')
+      expect(dbMock.insert.getCall(0).args).to.deep.equal([
+        'query',
+        {
+          connection_id: 'cccccccc-0001-0000-0000-d8ae0805059e',
+          details: {
+            productId: 'SomeID',
+            quantity: 111,
+          },
+          query_response: null,
+          query_type: 'Scope 3 Carbon Consumption',
+          response_id: null,
+          role: 'requester',
+          status: 'pending_their_input',
+        },
+      ])
+      expect(result).to.equal('queriesResponse_template')
     })
 
     it('should call page with stage error if rpc fails', async () => {
@@ -103,8 +118,8 @@ describe('QueriesController', () => {
     })
 
     it('should call page with stage error if rpc succeeds without response', async () => {
-      const { args, cloudagentMock } = withQueriesMocks()
-      cloudagentMock.submitDrpcRequest = sinon.stub().resolves(undefined)
+      const { dbMock, args, cloudagentMock } = withQueriesMocks()
+      cloudagentMock.submitDrpcRequest = sinon.stub().resolves(null)
 
       const controller = new QueriesController(...args)
       const result = await controller
@@ -115,12 +130,16 @@ describe('QueriesController', () => {
           quantity: 111,
         })
         .then(toHTMLString)
-
+      expect(dbMock.update.getCall(0).args).to.deep.equal([
+        'query',
+        { id: 'ccaaaaaa-0000-0000-0000-d8ae0805059e' },
+        { status: 'errored' },
+      ])
       expect(result).to.equal('scope3_error_scope3')
     })
 
     it('should call page with stage error if rpc succeeds with error', async () => {
-      const { args, cloudagentMock } = withQueriesMocks()
+      const { dbMock, args, cloudagentMock } = withQueriesMocks()
       cloudagentMock.submitDrpcRequest = sinon.stub().resolves({
         error: new Error('error'),
         id: 'request-id',
@@ -135,6 +154,11 @@ describe('QueriesController', () => {
           quantity: 111,
         })
         .then(toHTMLString)
+      expect(dbMock.update.getCall(0).args).to.deep.equal([
+        'query',
+        { id: 'ccaaaaaa-0000-0000-0000-d8ae0805059e' },
+        { status: 'errored' },
+      ])
 
       expect(result).to.equal('scope3_error_scope3')
     })
@@ -216,7 +240,7 @@ describe('QueriesController', () => {
         })
       })
 
-      it('creates a new query and renders a response view', async () => {
+      it('creates a child query and renders a response view', async () => {
         const { args, dbMock } = withQueriesMocks()
         const controller = new QueriesController(...args)
         const result = await controller
@@ -224,10 +248,10 @@ describe('QueriesController', () => {
             companyId: 'some-company-id',
             action: 'success',
             partialQuery: ['on'],
+            emissions: '10',
             connectionIds: ['conn-id-1', 'conn-id-2'],
             productIds: ['product-1', 'product-2'],
             quantities: ['10', '20'],
-            emissions: '1',
           })
           .then(toHTMLString)
 
@@ -238,7 +262,32 @@ describe('QueriesController', () => {
             query_type: 'Scope 3 Carbon Consumption',
             status: 'pending_their_input',
             parent_id: '5390af91-c551-4d74-b394-d8ae0805059a',
-            details: { quantity: 10, productId: 'product-1', emissions: '1' },
+            details: {
+              quantity: 10,
+              productId: 'product-1',
+              emissions: '10',
+              query: 'Scope 3 Carbon Consumption',
+              queryIdForResponse: 'ccaaaaaa-0000-0000-0000-d8ae0805059e',
+            },
+            response_id: null,
+            query_response: null,
+            role: 'requester',
+          },
+        ])
+        expect(dbMock.insert.getCall(1).args).to.deep.equal([
+          'query',
+          {
+            connection_id: 'cccccccc-0001-0000-0000-d8ae0805059e',
+            parent_id: '5390af91-c551-4d74-b394-d8ae0805059a',
+            query_type: 'Scope 3 Carbon Consumption',
+            status: 'pending_their_input',
+            details: {
+              query: 'Scope 3 Carbon Consumption',
+              quantity: 20,
+              productId: 'product-2',
+              emissions: '10',
+              queryIdForResponse: 'ccaaaaaa-0000-0000-0000-d8ae0805059e',
+            },
             response_id: null,
             query_response: null,
             role: 'requester',
@@ -280,11 +329,11 @@ describe('QueriesController', () => {
         })
         .then(toHTMLString)
 
-      expect(result).to.equal('queriesResponse_template')
+      expect(result).to.equal('scope3_success_scope3')
     })
 
-    it('should call page with stage error if rpc succeeds without response', async () => {
-      const { args, cloudagentMock } = withQueriesMocks()
+    it('sets query status to error if rpc succeeds without response', async () => {
+      const { dbMock, args, cloudagentMock } = withQueriesMocks()
       cloudagentMock.submitDrpcRequest = sinon.stub().resolves(undefined)
 
       const controller = new QueriesController(...args)
@@ -298,11 +347,16 @@ describe('QueriesController', () => {
         .then(toHTMLString)
 
       expect(result).to.equal('scope3_error_scope3')
+      expect(dbMock.update.getCall(0).args).to.deep.equal([
+        'query',
+        { id: '5390af91-c551-4d74-b394-d8ae0805059a' },
+        { status: 'errored' },
+      ])
     })
 
     it('should call page with stage error if rpc fails', async () => {
       const { args, cloudagentMock } = withQueriesMocks()
-      cloudagentMock.submitDrpcRequest = sinon.stub().rejects(new Error())
+      cloudagentMock.submitDrpcRequest = sinon.stub().rejects(new Error('testing'))
 
       const controller = new QueriesController(...args)
       const result = await controller
@@ -318,7 +372,7 @@ describe('QueriesController', () => {
   })
 
   it('should call page with stage error if rpc succeeds with error', async () => {
-    const { args, cloudagentMock } = withQueriesMocks()
+    const { dbMock, args, cloudagentMock } = withQueriesMocks()
     cloudagentMock.submitDrpcRequest = sinon.stub().resolves({
       error: new Error('error'),
       id: 'request-id',
@@ -332,7 +386,11 @@ describe('QueriesController', () => {
         emissions: '25',
       })
       .then(toHTMLString)
-
+    expect(dbMock.update.getCall(0).args).to.deep.equal([
+      'query',
+      { id: '5390af91-c551-4d74-b394-d8ae0805059a' },
+      { status: 'errored' },
+    ])
     expect(result).to.equal('scope3_error_scope3')
   })
 
@@ -438,6 +496,7 @@ describe('QueriesController', () => {
             query: 'Scope 3 Carbon Consumption',
             productId: 'partial-product-id',
             quantity: 10,
+            emissions: '10',
             queryIdForResponse: 'ccaaaaaa-0000-0000-0000-d8ae0805059e',
           },
         ])
@@ -452,13 +511,27 @@ describe('QueriesController', () => {
             parent_id: '5390af91-c551-4d74-b394-d8ae0805059a',
             status: 'pending_their_input',
             details: {
-              emissions: '10',
               productId: 'partial-product-id',
               quantity: 10,
+              emissions: '10',
+              query: 'Scope 3 Carbon Consumption',
+              queryIdForResponse: 'ccaaaaaa-0000-0000-0000-d8ae0805059e',
             },
             response_id: null,
             query_response: null,
             role: 'requester',
+          },
+        ])
+      })
+
+      it('updates existing query status to forwarded', () => {
+        expect(dbMock.update.getCall(0).args).to.deep.equal([
+          'query',
+          {
+            id: '5390af91-c551-4d74-b394-d8ae0805059a',
+          },
+          {
+            status: 'forwarded',
           },
         ])
       })

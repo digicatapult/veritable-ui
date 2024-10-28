@@ -30,6 +30,7 @@ export type ConnectionStatus =
   | 'credential-issued'
   | 'credential-received'
   | 'abandoned'
+  | 'forwarded'
 
 type PageProps = {
   title: string
@@ -219,6 +220,12 @@ export const statusToClass = (status: ConnectionStatus): JSX.Element => {
       return (
         <div class="list-item-status" data-status="warning">
           Pending
+        </div>
+      )
+    case 'forwarded':
+      return (
+        <div class="list-item-status" data-status="warning">
+          Forwarded
         </div>
       )
     case 'pending_your_input':

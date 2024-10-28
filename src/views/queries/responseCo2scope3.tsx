@@ -1,10 +1,9 @@
 import Html from '@kitajs/html'
-import { UUID } from 'crypto'
 import { singleton } from 'tsyringe'
-import { ConnectionRow } from '../../models/db/types.js'
+import { ConnectionRow, QueryRow } from '../../models/db/types.js'
 import { FormButton, LinkButton, Page } from '../common.js'
 
-type QueryStatus = 'resolved' | 'pending_your_input' | 'pending_their_input' | 'errored'
+type QueryStatus = 'resolved' | 'pending_your_input' | 'pending_their_input' | 'errored' | 'forwarded'
 
 interface Query {
   id: string
@@ -24,10 +23,7 @@ export interface Scope3FormProps {
   company: ConnectionRow
   connections?: ConnectionRow[]
   partial?: boolean
-  queryId?: string | UUID
-  productId?: string
-  quantity?: number
-  emissions?: string
+  query: QueryRow
 }
 
 @singleton()
@@ -37,9 +33,7 @@ export default class Scope3CarbonConsumptionResponseTemplates {
   public newScope3CarbonConsumptionResponseFormPage = ({
     formStage,
     company,
-    queryId,
-    quantity,
-    productId,
+    query,
     partial,
     connections,
   }: Scope3FormProps) => {
@@ -51,8 +45,8 @@ export default class Scope3CarbonConsumptionResponseTemplates {
         headerLinks={[
           { name: 'Query Management', url: '/queries' },
           {
-            name: `Query Request ${productId}`,
-            url: `/queries/scope-3-carbon-consumption/${queryId}/response`,
+            name: `Query Request ${query.details.productId}`,
+            url: `/queries/scope-3-carbon-consumption/${query.id}/response`,
           },
         ]}
       >
@@ -61,9 +55,7 @@ export default class Scope3CarbonConsumptionResponseTemplates {
           <this.scope3
             formStage={formStage}
             company={company}
-            productId={productId}
-            quantity={quantity || 0}
-            queryId={queryId}
+            query={query}
             partial={partial}
             connections={connections}
           />
@@ -83,44 +75,47 @@ export default class Scope3CarbonConsumptionResponseTemplates {
   }
 
   public scope3CarbonConsumptionResponseFormPage = ({
-    partial = false,
+    partial = undefined,
     connections = [],
+    query,
     ...props
   }: Scope3FormProps) => {
     return (
       <div class="container-scope3-carbon">
         <div class="scope3-co2-left">
-          <h1 id="scope3-co2-heading">Scope 3 Carbon Consumption</h1>
-          <p style={{ paddingRight: '50px' }} class="query-text-carbon3-consumption">
-            Provide the total scope 3 carbon consumption for the specified products / component.
-          </p>
-          <p class="query-text-carbon3-consumption">
-            If you do not have all the required information, please forward this query to your suppliers, to aggregate
-            their responses before submitting the final total.{' '}
-          </p>
+          <h1 id="scope3-co2-heading">Total Carbon Embodiment</h1>
+          <span>
+            <p class="query-text-carbon3-consumption">
+              Provide the total carbon embodiment for the specified product/component.
+            </p>
+            <p class="query-text-carbon3-consumption">
+              If you do not have all the required information, please forward this query to your suppliers to gather
+              their responses. Once you have all the necessary information, you can submit the final total.{''}
+            </p>
+          </span>
         </div>
         <div class="scope3-co2-right">
           <p class="query-text-carbon3-consumption">
-            What are the total Scope 3 carbon emissions for the product/component below?
+            What is the total carbon embodiment for the product/component below?
           </p>
           <div hx-swap-oob="true" hx-swap="ignoreTitle:true" id="partial-query">
             <form
               id="scope-3-carbon-consumption"
-              hx-post={`/queries/scope-3-carbon-consumption/${props.queryId}/response`}
+              hx-post={`/queries/scope-3-carbon-consumption/${query.id}/response`}
               hx-select="main > *"
               hx-include={"[name='quantity'], [name='companyId'], [name='productId']"}
               hx-target="main"
               hx-swap="innerHTML"
             >
               <p>
-                Product ID: {Html.escapeHtml(props.productId)}
+                Product ID: {Html.escapeHtml(query.details.productId)}
                 <br />
-                Quantity: {props.quantity}
+                Quantity: {Html.escapeHtml(query.details.quantity)}
               </p>
               <input type="hidden" name="companyId" value={Html.escapeHtml(props.company.id)} />
               <div class="input-container">
                 <label for="co2-emissions-input" class="input-label">
-                  Total Scope 3 carbon emissions
+                  Total carbon from my operations only (Scope 1 & 2)
                 </label>
                 <input
                   id="co2-emissions-input"
@@ -128,28 +123,42 @@ export default class Scope3CarbonConsumptionResponseTemplates {
                   placeholder="Value in kg CO2e (to be aggregated)"
                   class="input-with-label"
                   type="text"
-                  value={props.emissions}
+                  value={Html.escapeHtml(query.details.emissions || '')}
                   required={true}
                 />
               </div>
               <div class="input-container">
-                <input
-                  hx-trigger="changed, click"
-                  hx-target="#partial-query"
-                  hx-get={`/queries/${props.queryId}/partial`}
-                  id="partial-response-input"
-                  name="partialQuery"
-                  type="checkbox"
-                  checked={partial}
-                />
-                <label for="partial-response-input">Partial response</label>
+                <p>
+                  Do you need to ask other companies in your supply chain how much carbon they contributed? (Scope 3)
+                </p>
+                <div class="row">
+                  <input
+                    hx-trigger="changed, click"
+                    hx-target="#partial-query"
+                    hx-get={`/queries/${query.id}/partial`}
+                    id="partial-response-input"
+                    name="partialQuery"
+                    type="radio"
+                    checked={partial}
+                  />
+                  <label for="partial-response-input">Yes</label>
+                  <input
+                    hx-trigger="changed, click"
+                    hx-target="#partial-query"
+                    hx-get={`/queries/${query.id}/partial`}
+                    id="partial-response-input"
+                    type="radio"
+                    checked={partial !== undefined && !partial}
+                  />
+                  <label for="partial-response-input">No</label>
+                </div>
               </div>
-              <p style={{ fontStyle: 'italic', fontSize: '14px;' }}>
-                *If partial response checkbox is ticked, you must share this query with another supplier in your
-                network, where your responses will be aggregated.
-              </p>
               {partial && connections ? (
                 <div class="query-partial-container list-page">
+                  <p style={{ fontStyle: 'italic', fontSize: '14px;' }}>
+                    Select which suppliers contributed to the carbon embodiment of this product/component. Their
+                    responses will be automatically added to your total carbon embodiment.{' '}
+                  </p>
                   <table>
                     <thead>
                       {['Select', 'Company Name', 'Product ID', 'Quantity'].map((name: string) => (
@@ -190,55 +199,53 @@ export default class Scope3CarbonConsumptionResponseTemplates {
       <div class="connections header"></div>
       <div class="card-body">
         <div class="container-scope3-carbon">
-          <div class="box1">
-            <h1>Scope 3 Carbon Consumption</h1>
+          <div class="scope3-co2-left">
+            <h1>Total Carbon Embodiment</h1>
             <p class="query-text-carbon3-consumption">
-              A query for calculationg the total scope 3 carbon consumption for a given product or component.
+              A query for calculating the total carbon embodiment for a given product or component.
             </p>
           </div>
-          <div class="box2">
-            <h2>Query Information</h2>
-            <div class="box3 ">
-              <table>
-                <tr>
-                  <td>Supplier:</td>
-                  <td class="query-results-left-padding-table">{Html.escapeHtml(query.company_name)}</td>
-                </tr>
-                <tr>
-                  <td>ProductID:</td>
-                  <td class="query-results-left-padding-table">{Html.escapeHtml(query.productId)}</td>
-                </tr>
-                <tr>
-                  <td>Quantity:</td>
-                  <td class="query-results-left-padding-table">{Html.escapeHtml(query.quantity)}</td>
-                </tr>
-                <tr>
-                  <td>Query:</td>
-                  <td class="query-results-left-padding-table">
-                    Please provide details on the Scope 3 carbon emissions associated with the product.
-                  </td>
-                </tr>
-              </table>
-            </div>
-            <h2>Response Information</h2>
-            <div class="box3 ">
-              <div class="max-height-table">
-                <table>
-                  <tr>
-                    <td>Date Certified:</td>
-                    <td>
-                      <time class="query-results-left-padding-table">
-                        {Html.escapeHtml(new Date(query.updated_at).toISOString())}
-                      </time>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td>Carbon Emissions:</td>
-                    <td class="query-results-left-padding-table">{Html.escapeHtml(query.emissions)} kg CO2e</td>
-                  </tr>
-                </table>
+          <div class="scope3-co2-right">
+            <div class="row">
+              <h2>Query Information</h2>
+              <div style={{ maxHeight: '25px' }} class="list-item-status" data-status="success">
+                Resolved
               </div>
             </div>
+            <br />
+            <table id="query-response-view">
+              <tr>
+                <td>Company name:</td>
+                <td class="query-results-left-padding-table">{Html.escapeHtml(query.company_name)}</td>
+              </tr>
+              <tr>
+                <td>Product ID:</td>
+                <td class="query-results-left-padding-table">{Html.escapeHtml(query.productId)}</td>
+              </tr>
+              <tr>
+                <td>Quantity:</td>
+                <td class="query-results-left-padding-table">{Html.escapeHtml(query.quantity)}</td>
+              </tr>
+              <tr>
+                <td>Query:</td>
+                <td class="query-results-left-padding-table">
+                  Please provide details on the total carbon embodiment associated with the product.
+                </td>
+              </tr>
+            </table>
+            <h2>Response Information</h2>
+            <table id="query-response-view">
+              <tr>
+                <td>Date Certified:</td>
+                <td>
+                  <time class="query-results-left-padding-table">{Html.escapeHtml(new Date(query.updated_at))}</time>
+                </td>
+              </tr>
+              <tr>
+                <td>Carbon Emissions:</td>
+                <td class="query-results-left-padding-table">{Html.escapeHtml(query.emissions)} kg CO2e</td>
+              </tr>
+            </table>
             <LinkButton text="Back to Queries" href="/queries" style="filled" />
           </div>
         </div>
@@ -298,11 +305,18 @@ export default class Scope3CarbonConsumptionResponseTemplates {
   private newQuerySuccess = (props: Scope3FormProps): JSX.Element => {
     return (
       <div id="new-query-confirmation-text">
+        <h1>Your Query has been sent!</h1>
+        <p>Your query has been successfully shared with the following supplier:</p>
+        <i>
+          <p>{Html.escapeHtml(props.company.company_name)}</p>
+        </i>
         <p>
-          Your query Response has been shared with the following company: {Html.escapeHtml(props.company.company_name)}.
+          Once all responses are received, the information will be automatically gathered and shared with you. No
+          further action is needed on your part. You can trust that the process is secure, transparent, and streamlined
+          for your convenience.
         </p>
-        <p>Thank you for answering this query, there is no other action required.</p>
-        <LinkButton disabled={false} text="Back to Home" href="/" icon={''} style="filled" />
+        <p>You can check the status of your query in the Queries section of your dashboard.</p>
+        <LinkButton disabled={false} text="Back to Queries" href="/queries" icon={''} style="filled" />
       </div>
     )
   }

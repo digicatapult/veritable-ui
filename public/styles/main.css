@@ -471,16 +471,21 @@ main {
   flex-direction: row;
   flex-wrap: wrap;
   overflow: hidden;
-  min-height: 30em;
+  min-height: 33em;
 }
 
 .scope3-co2-left {
-  flex: 0.5;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 50px;
   min-height: 425px;
+  max-width: 325px;
   padding-right: 20px;
 }
 
 .scope3-co2-right {
+  display: flex;
   padding-top: 5px;
   flex: 1;
   flex-direction: column;
@@ -490,23 +495,26 @@ main {
   margin-bottom: 150px;
 }
 
-.box3 {
-  flex: 1;
-  display: flex;
-  flex-direction: row;
-}
-.box3 table {
-  font-size: 0.875rem;
+#query-response-view {
   border-collapse: collapse;
+  padding: 10px;
+  margin-bottom: 2rem;
 }
 
-.max-height-table {
-  max-height: 100px;
-}
-
-.box3 td {
+#query-response-view tr {
+  font-size: 0.75rem;
+  line-height: 1rem;
   padding-bottom: 10px;
 }
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 25px;
+  flex-direction: row;
+}
+
+
 .query-results-left-padding-table {
   padding-left: 30px;
 }
@@ -569,8 +577,9 @@ main {
 }
 
 #new-query-confirmation-text {
-  font-size: 0.875rem;
+  font-size: 1rem;
   margin-inline: 40px;
+  gap: 10px;
   text-align: center;
   display: flex;
   flex-direction: column;
@@ -639,6 +648,50 @@ input[type='checkbox']::before {
 }
 
 input[type='checkbox']:checked::before {
+  transform: scale(1);
+}
+
+input[type="radio"] {
+  appearance: none;
+  background-color: #fff;
+  margin: 0;
+  width: 25px;
+  height: 25px;
+  border: 2px solid var(--accent-color);
+  border-radius: 50%;
+  transform: translateY(-0.075em);
+  display: grid;
+  place-content: center;
+  
+}
+
+input[type="radio"]::after {
+  content: "";
+  position:absolute;
+  top: 3px;
+  left: 3px;
+  width: 15px;
+  height: 15px;
+  transform: scale(0);
+  place-content: center;
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-image: url('/public/images/tick-white.svg');
+}
+
+input[type="radio"]::before {
+  content: "";
+  width: 19px;
+  height: 19px;
+  border-radius: 50%;
+  transform: scale(0);
+
+  box-shadow: inset 1em 1em var(--accent-color);
+}
+
+input[type="radio"]:checked::before,
+input[type="radio"]:checked::after {
   transform: scale(1);
 }
 
