@@ -14,6 +14,11 @@ export default class HomepageTemplates {
         stylesheets={['homepage.css']}
       >
         <div id="homepage-container">
+          <a href="/connection">
+            <img src="/public/images/connection.svg" />
+            <h1>Onboard/Refer</h1>
+            <p>Easily onboard new companies or refer companies to join your network.</p>
+          </a>
           <a href="/queries">
             <img src="/public/images/query.svg" />
             <h1>Queries</h1>
@@ -23,11 +28,6 @@ export default class HomepageTemplates {
             <img src="/public/images/credential.svg" />
             <h1>Credentials</h1>
             <p>Manage and verify digital credentials securely within your network.</p>
-          </a>
-          <a href="/connection">
-            <img src="/public/images/connection.svg" />
-            <h1>Onboard/Refer</h1>
-            <p>Easily onboard new companies or refer companies to join your network.</p>
           </a>
           <a href="#" class="disabled">
             <img src="/public/images/setting.svg" />

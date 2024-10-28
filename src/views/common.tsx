@@ -94,6 +94,12 @@ const SideBar = ({ activePage }: { activePage: PageProps['activePage'] }): JSX.E
         style={{ ['--background-image' as string]: "url('/public/images/category.svg')" }}
       />
       <a
+        title="connections"
+        href="/connection"
+        data-active={activePage === 'connections'}
+        style={{ ['--background-image' as string]: "url('/public/images/connection.svg')" }}
+      />
+      <a
         title="queries"
         href="/queries"
         data-active={activePage === 'queries'}
@@ -104,12 +110,6 @@ const SideBar = ({ activePage }: { activePage: PageProps['activePage'] }): JSX.E
         href="/credentials"
         data-active={activePage === 'credentials'}
         style={{ ['--background-image' as string]: "url('/public/images/credential.svg')" }}
-      />
-      <a
-        title="connections"
-        href="/connection"
-        data-active={activePage === 'connections'}
-        style={{ ['--background-image' as string]: "url('/public/images/connection.svg')" }}
       />
       <a
         title="settings"
