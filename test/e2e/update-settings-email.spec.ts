@@ -23,7 +23,7 @@ test.describe('Updating Settings - email', () => {
     await page.close()
   })
 
-  test('Connection from Alice to Bob', async () => {
+  test('Update admin email on alice', async () => {
     test.setTimeout(100000)
 
     await page.waitForSelector('a[href="/settings"]')
