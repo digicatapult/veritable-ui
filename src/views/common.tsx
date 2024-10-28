@@ -188,6 +188,7 @@ export const Page = (props: PropsWithChildren<PageProps>): JSX.Element => (
 export const statusToClass = (status: ConnectionStatus): JSX.Element => {
   switch (status) {
     case 'verified_them':
+    case 'unverified':
       return (
         <div class="list-item-status" data-status="warning">
           Verification Code Required
@@ -195,7 +196,7 @@ export const statusToClass = (status: ConnectionStatus): JSX.Element => {
       )
     case 'verified_us':
       return (
-        <div class="list-item-status" data-status="warning">
+        <div class="list-item-status" data-status="disabled">
           Waiting for Response
         </div>
       )
@@ -203,12 +204,6 @@ export const statusToClass = (status: ConnectionStatus): JSX.Element => {
       return (
         <div class="list-item-status" data-status="disabled">
           Disconnected
-        </div>
-      )
-    case 'unverified':
-      return (
-        <div class="list-item-status" data-status="disabled">
-          Verification Code Required
         </div>
       )
     case 'verified_both':
