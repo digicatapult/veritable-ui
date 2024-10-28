@@ -66,7 +66,20 @@ export class QueriesController extends HTMLController {
    */
   @SuccessResponse(200)
   @Get('/new/scope-3-carbon-consumption')
-  public async scope3CarbonConsumption(@Request() req: express.Request, @Query() search?: string): Promise<HTML> {
+  public async scope3CarbonConsumption(
+    @Request() req: express.Request,
+    @Query() search?: string,
+    @Query() connectionId?: UUID
+  ): Promise<HTML> {
+    if (connectionId) {
+      return this.html(
+        this.scope3CarbonConsumptionTemplates.newScope3CarbonConsumptionFormPage({
+          formStage: 'form',
+          connectionId: connectionId,
+        })
+      )
+    }
+
     const query: Where<'connection'> = []
     if (search) {
       query.push(['company_name', 'ILIKE', `%${search}%`])
@@ -95,21 +108,15 @@ export class QueriesController extends HTMLController {
    * Retrieves the stage page
    */
   @SuccessResponse(200)
-  @Post('/new/scope-3-carbon-consumption/stage')
-  public async scope3CarbonConsumptionStage(
+  @Post('/new/scope-3-carbon-consumption')
+  public async scope3CarbonConsumptionSubmit(
     @Request() req: express.Request,
     @Body()
-    body:
-      | {
-          connectionId: UUID
-          action: 'form'
-        }
-      | {
-          connectionId: UUID
-          productId: string
-          quantity: number
-          action: 'success'
-        }
+    body: {
+      connectionId: UUID
+      productId: string
+      quantity: number
+    }
   ) {
     const [connection] = await this.db.get('connection', { id: body.connectionId, status: 'verified_both' }, [
       ['updated_at', 'desc'],
@@ -125,15 +132,6 @@ export class QueriesController extends HTMLController {
         connection.status
       )
       throw new InvalidInputError(`Cannot query unverified connection`)
-    }
-
-    if (body.action === 'form') {
-      return this.html(
-        this.scope3CarbonConsumptionTemplates.newScope3CarbonConsumptionFormPage({
-          formStage: 'form',
-          connectionId: body.connectionId,
-        })
-      )
     }
 
     const [queryRow] = await this.db.insert('query', {

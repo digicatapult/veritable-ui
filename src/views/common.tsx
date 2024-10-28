@@ -52,7 +52,7 @@ type ButtonProps = SharedButtonProps & {
 }
 
 type FormButtonProps = SharedButtonProps & {
-  name: string
+  name?: string
   value?: string
 }
 
@@ -67,13 +67,7 @@ export const LinkButton = (props: ButtonProps): JSX.Element => {
 }
 
 export const FormButton = (props: FormButtonProps): JSX.Element => (
-  <button
-    class={`button ${props.disabled ? 'disabled' : ''} `}
-    data-variant={props.style}
-    type="submit"
-    name={`${props.name}`}
-    value={`${props.value}`}
-  >
+  <button class={`button ${props.disabled ? 'disabled' : ''} `} data-variant={props.style} type="submit" {...props}>
     {props.icon ? <div style={{ ['--button-icon' as string]: props.icon || '' }} /> : undefined}
     <span>{escapeHtml(props.text || props.value || 'unknown')}</span>
   </button>
@@ -214,13 +208,13 @@ export const statusToClass = (status: ConnectionStatus): JSX.Element => {
     case 'verified_both':
       return (
         <div class="list-item-status" data-status="success">
-          Verified - Established Connection
+          Connected
         </div>
       )
     case 'pending':
       return (
-        <div class="list-item-status" data-status="warning">
-          Pending
+        <div class="list-item-status" data-status="disabled">
+          Invite Sent
         </div>
       )
     case 'forwarded':
@@ -232,13 +226,13 @@ export const statusToClass = (status: ConnectionStatus): JSX.Element => {
     case 'pending_your_input':
       return (
         <div class="list-item-status" data-status="warning">
-          Pending Your Input
+          Verification Code Required
         </div>
       )
     case 'pending_their_input':
       return (
         <div class="list-item-status" data-status="disabled">
-          Pending Their Input
+          Waiting for Response
         </div>
       )
     case 'resolved':
