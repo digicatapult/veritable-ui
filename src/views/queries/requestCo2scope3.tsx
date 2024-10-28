@@ -93,15 +93,12 @@ export default class Scope3CarbonConsumptionTemplates {
             </div>
             <form
               id="company-form"
-              hx-post="/queries/new/scope-3-carbon-consumption/stage"
-              hx-trigger="submit"
-              hx-include=".company-checkbox:checked"
+              hx-get="/queries/new/scope-3-carbon-consumption"
               hx-select="main > *"
               hx-target="main"
               hx-swap="innerHTML"
+              hx-push-url="true"
             >
-              <input type="hidden" name="action" value="form" />
-
               <table class="list-page">
                 <thead>
                   {['Select', 'Company Name'].map((name: string) => (
@@ -161,7 +158,7 @@ export default class Scope3CarbonConsumptionTemplates {
             </p>
             <form
               id="scope-3-carbon-consumption"
-              hx-post={`/queries/new/scope-3-carbon-consumption/stage`}
+              hx-post="/queries/new/scope-3-carbon-consumption"
               hx-select="main > *"
               hx-target="main"
               hx-swap="innerHTML"
@@ -199,7 +196,7 @@ export default class Scope3CarbonConsumptionTemplates {
                 ></input>
                 <p class="additional-input-label">Quantity of product</p>
               </div>
-              <FormButton name="action" value="success" text="Submit Query" style="filled" />
+              <FormButton text="Submit Query" style="filled" />
             </form>
           </div>
         </div>

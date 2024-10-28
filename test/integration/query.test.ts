@@ -53,11 +53,10 @@ describe('query submission', function () {
     withVerifiedConnection(context)
 
     beforeEach(async function () {
-      context.response = await post(context.app, `/queries/new/scope-3-carbon-consumption/stage`, {
+      context.response = await post(context.app, `/queries/new/scope-3-carbon-consumption`, {
         connectionId: context.localConnectionId,
         productId: 'Test',
         quantity: 1,
-        action: 'success',
       })
     })
 

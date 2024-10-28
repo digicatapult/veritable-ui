@@ -63,9 +63,7 @@ describe('QueriesController', () => {
     it('should call page with stage FORM as expected', async () => {
       const { args } = withQueriesMocks()
       const controller = new QueriesController(...args)
-      const result = await controller
-        .scope3CarbonConsumptionStage(req, { connectionId: 'connection-id', action: 'form' })
-        .then(toHTMLString)
+      const result = await controller.scope3CarbonConsumption(req, undefined, 'connection-id').then(toHTMLString)
 
       expect(result).to.equal('scope3_form_scope3')
     })
@@ -74,9 +72,8 @@ describe('QueriesController', () => {
       const { dbMock, args } = withQueriesMocks()
       const controller = new QueriesController(...args)
       const result = await controller
-        .scope3CarbonConsumptionStage(req, {
+        .scope3CarbonConsumptionSubmit(req, {
           connectionId: 'connection-id',
-          action: 'success',
           productId: 'SomeID',
           quantity: 111,
         })
@@ -106,9 +103,8 @@ describe('QueriesController', () => {
 
       const controller = new QueriesController(...args)
       const result = await controller
-        .scope3CarbonConsumptionStage(req, {
+        .scope3CarbonConsumptionSubmit(req, {
           connectionId: 'connection-id',
-          action: 'success',
           productId: 'SomeID',
           quantity: 111,
         })
@@ -123,9 +119,8 @@ describe('QueriesController', () => {
 
       const controller = new QueriesController(...args)
       const result = await controller
-        .scope3CarbonConsumptionStage(req, {
+        .scope3CarbonConsumptionSubmit(req, {
           connectionId: 'connection-id',
-          action: 'success',
           productId: 'SomeID',
           quantity: 111,
         })
@@ -147,9 +142,8 @@ describe('QueriesController', () => {
 
       const controller = new QueriesController(...args)
       const result = await controller
-        .scope3CarbonConsumptionStage(req, {
+        .scope3CarbonConsumptionSubmit(req, {
           connectionId: 'connection-id',
-          action: 'success',
           productId: 'SomeID',
           quantity: 111,
         })
