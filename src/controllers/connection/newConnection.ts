@@ -17,7 +17,7 @@ import {
   type COMPANY_NUMBER,
   type EMAIL,
 } from '../../models/strings.js'
-import VeritableCloudagent from '../../models/veritableCloudagent.js'
+import VeritableCloudagent from '../../models/veritableCloudagent/index.js'
 import { neverFail } from '../../utils/promises.js'
 import { FromInviteTemplates } from '../../views/newConnection/fromInvite.js'
 import { NewInviteFormStage, NewInviteTemplates } from '../../views/newConnection/newInvite.js'

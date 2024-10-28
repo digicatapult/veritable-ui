@@ -1,37 +1,33 @@
 import { expect, Page, test } from '@playwright/test'
 import type express from 'express'
 import { container } from 'tsyringe'
-import { Env } from '../../src/env/index.js'
-import { ILogger, Logger } from '../../src/logger.js'
 import Database from '../../src/models/db/index.js'
 import { ConnectionRow } from '../../src/models/db/types.js'
-import VeritableCloudagent, { Connection } from '../../src/models/veritableCloudagent.js'
+import { EmailServiceInt } from '../../src/models/emailServiceInt/index.js'
+import { Connection, VeritableCloudagentInt } from '../../src/models/veritableCloudagentInt.js'
 import VeritableCloudagentEvents from '../../src/services/veritableCloudagentEvents.js'
 import { withVerifiedConnection } from '../helpers/connection'
 import { del } from '../helpers/routeHelper'
 import { CustomBrowserContext, withCleanAlice, withLoggedInUser, withRegisteredAccount } from './helpers/registerLogIn'
 
-test.describe('Updating Settings - email', () => {
+test.describe('Resetting app', () => {
   const db = container.resolve(Database)
-  const cloudagent = container.resolve(VeritableCloudagent)
+  const cloudagent = container.resolve(VeritableCloudagentInt)
+  const email = container.resolve(EmailServiceInt)
   let context: CustomBrowserContext
   let page: Page
-  const env = container.resolve(Env)
-  const logger = container.resolve<ILogger>(Logger)
 
   const baseUrlAlice = process.env.VERITABLE_ALICE_PUBLIC_URL || 'http://localhost:3000'
 
-  const remoteCloudagent = new VeritableCloudagent(env, logger)
-  const cloudagentEvents = new VeritableCloudagentEvents(env, remoteCloudagent, logger)
-
   type Context = {
     app: express.Express
-    cloudagentEvents
+    cloudagentEvents: VeritableCloudagentEvents
     remoteDatabase: Database
-    remoteCloudagent
+    remoteCloudagent: VeritableCloudagentInt
     remoteConnectionId: string
     localConnectionId: string
     response: Awaited<ReturnType<typeof del>>
+    email: EmailServiceInt
   }
   const connectionContext: Context = {} as Context
 
@@ -60,7 +56,7 @@ test.describe('Updating Settings - email', () => {
 
   test('Click reset on Alice', async () => {
     test.setTimeout(100000)
-    withVerifiedConnection(connectionContext)
+    withVerifiedConnection(connectionContext, email)
 
     await page.waitForSelector('a[href="/settings"]')
     await page.click('a[href="/settings"]')

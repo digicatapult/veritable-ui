@@ -7,7 +7,7 @@ import sinon from 'sinon'
 import { Env } from '../../src/env/index.js'
 import Database from '../../src/models/db/index.js'
 import EmailService from '../../src/models/emailService/index.js'
-import VeritableCloudagent from '../../src/models/veritableCloudagent.js'
+import VeritableCloudagent from '../../src/models/veritableCloudagent/index.js'
 import type * as PartialQuery from '../integration/partialQueryAggregation.test.js'
 import { bob, charlie, validCompanyName, validCompanyNumber } from './fixtures.js'
 import { mockLogger } from './logger.js'
@@ -249,13 +249,16 @@ export const withEstablishedConnectionFromThem = function (context: {
   })
 }
 
-export const withVerifiedConnection = function (context: {
-  app: express.Express
-  remoteDatabase: Database
-  remoteCloudagent: VeritableCloudagent
-  remoteConnectionId: string
-  localConnectionId: string
-}) {
+export const withVerifiedConnection = function (
+  context: {
+    app: express.Express
+    remoteDatabase: Database
+    remoteCloudagent: VeritableCloudagent
+    remoteConnectionId: string
+    localConnectionId: string
+  },
+  emailService: EmailService
+) {
   let emailSendStub: sinon.SinonStub
 
   beforeEach(async function () {
@@ -265,8 +268,7 @@ export const withVerifiedConnection = function (context: {
 
     await cleanupRemote(context)
 
-    const email = container.resolve(EmailService)
-    emailSendStub = sinon.stub(email, 'sendMail')
+    emailSendStub = sinon.stub(emailService, 'sendMail')
     await post(context.app, '/connection/new/create-invitation', {
       companyNumber: validCompanyNumber,
       email: 'alice@example.com',

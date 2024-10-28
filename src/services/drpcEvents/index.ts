@@ -5,7 +5,9 @@ import { Logger, type ILogger } from '../../logger.js'
 import Database from '../../models/db/index.js'
 import { QueryRow } from '../../models/db/types.js'
 import { UUID } from '../../models/strings.js'
-import VeritableCloudagent, { DrpcResponse } from '../../models/veritableCloudagent.js'
+import VeritableCloudagent from '../../models/veritableCloudagent/index.js'
+import { DrpcResponse } from '../../models/veritableCloudagentInt.js'
+
 import { neverFail } from '../../utils/promises.js'
 import VeritableCloudagentEvents, { DrpcRequest, eventData } from '../veritableCloudagentEvents.js'
 
