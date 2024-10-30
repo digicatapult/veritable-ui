@@ -90,7 +90,7 @@ describe('partial query aggregation', function () {
         partialQuery: ['on'],
         partialSelect: ['on'],
         productIds: ['heating-el-001(BobReq)'],
-        quantities: ['10'],
+        quantities: [10],
         connectionIds: [withCharlie.id],
       })
     })
@@ -102,11 +102,11 @@ describe('partial query aggregation', function () {
       expect(query).to.deep.contain({
         connection_id: context.aliceConnectionId,
         parent_id: null,
-        query_type: 'Scope 3 Carbon Consumption',
+        type: 'total_carbon_embodiment',
         status: 'pending_their_input',
-        details: { quantity: 1, productId: 'toaster-001(AliceReq)' },
+        details: { quantity: 1, subjectId: 'toaster-001(AliceReq)' },
         response_id: null,
-        query_response: null,
+        response: null,
         role: 'requester',
       })
     })
@@ -120,27 +120,25 @@ describe('partial query aggregation', function () {
       expect(fromAlice).to.deep.contain({
         connection_id: withAlice.id,
         parent_id: null,
-        query_type: 'Scope 3 Carbon Consumption',
+        type: 'total_carbon_embodiment',
         status: 'forwarded',
-        details: { quantity: 1, productId: 'toaster-001(AliceReq)' },
+        details: { quantity: 1, subjectId: 'toaster-001(AliceReq)' },
         response_id: aliceQuery.id,
-        query_response: null,
+        response: { mass: 200, partialResponses: [], subjectId: 'toaster-001(AliceReq)' },
         role: 'responder',
       })
       expect(toCharlie.status).to.be.equal('pending_their_input')
       expect(toCharlie).to.deep.contain({
         connection_id: withCharlie.id,
         parent_id: fromAlice.id,
-        query_type: 'Scope 3 Carbon Consumption',
+        type: 'total_carbon_embodiment',
         status: 'pending_their_input',
         details: {
-          query: 'Scope 3 Carbon Consumption',
           quantity: 10,
-          productId: 'heating-el-001(BobReq)',
-          emissions: '200',
+          subjectId: 'heating-el-001(BobReq)',
         },
         response_id: null,
-        query_response: null,
+        response: null,
         role: 'requester',
       })
     })
@@ -151,11 +149,11 @@ describe('partial query aggregation', function () {
 
       expect(charlieQuery).to.deep.contain({
         parent_id: null,
-        query_type: 'Scope 3 Carbon Consumption',
+        type: 'total_carbon_embodiment',
         status: 'pending_your_input',
-        details: { quantity: 10, productId: 'heating-el-001(BobReq)' },
+        details: { quantity: 10, subjectId: 'heating-el-001(BobReq)' },
         response_id: bobQuery.id,
-        query_response: null,
+        response: null,
         role: 'responder',
       })
     })
@@ -180,12 +178,26 @@ describe('partial query aggregation', function () {
         expect(bobQuery).to.deep.contain({
           connection_id: withAlice.id,
           parent_id: null,
-          query_type: 'Scope 3 Carbon Consumption',
+          type: 'total_carbon_embodiment',
           details: {
             quantity: 1,
-            productId: 'toaster-001(AliceReq)',
+            subjectId: 'toaster-001(AliceReq)',
           },
-          query_response: '700',
+          response: {
+            mass: 200,
+            partialResponses: [
+              {
+                id: `${bobQuery.response?.partialResponses[0].id}`,
+                data: {
+                  mass: 500,
+                  partialResponses: [],
+                  subjectId: 'heating-el-001(BobReq)',
+                },
+                type: 'https://github.com/digicatapult/veritable-documentation/tree/main/schemas/veritable_messaging/query_types/total_carbon_embodiment/response/0.1',
+              },
+            ],
+            subjectId: 'toaster-001(AliceReq)',
+          },
           role: 'responder',
         })
 
@@ -193,16 +205,18 @@ describe('partial query aggregation', function () {
         expect(bobPartialQuery).to.deep.contain({
           connection_id: withCharlie.id,
           parent_id: bobQuery.id,
-          query_type: 'Scope 3 Carbon Consumption',
+          type: 'total_carbon_embodiment',
           status: 'resolved',
           details: {
-            query: 'Scope 3 Carbon Consumption',
             quantity: 10,
-            emissions: '200',
-            productId: 'heating-el-001(BobReq)',
+            subjectId: 'heating-el-001(BobReq)',
           },
           response_id: null,
-          query_response: '500',
+          response: {
+            mass: 500,
+            partialResponses: [],
+            subjectId: 'heating-el-001(BobReq)',
+          },
           role: 'requester',
         })
       })
@@ -216,7 +230,17 @@ describe('partial query aggregation', function () {
           status: 'resolved',
           details: { quantity: 1, subjectId: 'toaster-001(AliceReq)' },
           response_id: null,
-          response: '700',
+          response: {
+            mass: 200,
+            subjectId: 'toaster-001(AliceReq)',
+            partialResponses: [
+              {
+                id: `${query.response?.partialResponses[0].id}`,
+                type: 'https://github.com/digicatapult/veritable-documentation/tree/main/schemas/veritable_messaging/query_types/total_carbon_embodiment/response/0.1',
+                data: { mass: 500, subjectId: 'heating-el-001(BobReq)', partialResponses: [] },
+              },
+            ],
+          },
           role: 'requester',
         })
       })

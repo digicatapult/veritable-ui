@@ -64,7 +64,7 @@ export const get = async (
 
 export const fetchPost = async (
   endpoint: string,
-  body: BodyInit | Record<string, string | string[]>,
+  body: BodyInit | Record<string, string | string[] | number | number[]>,
   headers: Record<string, string> = {}
 ): Promise<Response> => {
   const token = await getToken()
