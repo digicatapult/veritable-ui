@@ -74,11 +74,10 @@ describe('partial query aggregation', function () {
     withBobAndCharlie(context)
 
     beforeEach(async function () {
-      context.response = await post(context.app, `/queries/new/scope-3-carbon-consumption/stage`, {
+      context.response = await post(context.app, `/queries/new/scope-3-carbon-consumption`, {
         connectionId: context.aliceConnectionId,
         productId: 'toaster-001(AliceReq)',
         quantity: 1,
-        action: 'success',
       })
 
       const queryId = await context.db.bob.get('query').then((res) => res[0].id)

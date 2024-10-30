@@ -52,7 +52,7 @@ type ButtonProps = SharedButtonProps & {
 }
 
 type FormButtonProps = SharedButtonProps & {
-  name: string
+  name?: string
   value?: string
 }
 
@@ -67,13 +67,7 @@ export const LinkButton = (props: ButtonProps): JSX.Element => {
 }
 
 export const FormButton = (props: FormButtonProps): JSX.Element => (
-  <button
-    class={`button ${props.disabled ? 'disabled' : ''} `}
-    data-variant={props.style}
-    type="submit"
-    name={`${props.name}`}
-    value={`${props.value}`}
-  >
+  <button class={`button ${props.disabled ? 'disabled' : ''} `} data-variant={props.style} type="submit" {...props}>
     {props.icon ? <div style={{ ['--button-icon' as string]: props.icon || '' }} /> : undefined}
     <span>{escapeHtml(props.text || props.value || 'unknown')}</span>
   </button>
@@ -100,6 +94,12 @@ const SideBar = ({ activePage }: { activePage: PageProps['activePage'] }): JSX.E
         style={{ ['--background-image' as string]: "url('/public/images/category.svg')" }}
       />
       <a
+        title="connections"
+        href="/connection"
+        data-active={activePage === 'connections'}
+        style={{ ['--background-image' as string]: "url('/public/images/connection.svg')" }}
+      />
+      <a
         title="queries"
         href="/queries"
         data-active={activePage === 'queries'}
@@ -110,12 +110,6 @@ const SideBar = ({ activePage }: { activePage: PageProps['activePage'] }): JSX.E
         href="/credentials"
         data-active={activePage === 'credentials'}
         style={{ ['--background-image' as string]: "url('/public/images/credential.svg')" }}
-      />
-      <a
-        title="connections"
-        href="/connection"
-        data-active={activePage === 'connections'}
-        style={{ ['--background-image' as string]: "url('/public/images/connection.svg')" }}
       />
       <a
         title="settings"
@@ -193,33 +187,34 @@ export const Page = (props: PropsWithChildren<PageProps>): JSX.Element => (
 export const statusToClass = (status: ConnectionStatus): JSX.Element => {
   switch (status) {
     case 'verified_them':
-    case 'verified_us':
+    case 'unverified':
       return (
         <div class="list-item-status" data-status="warning">
-          {status == 'verified_them'
-            ? 'Pending Your Verification'
-            : status == 'verified_us'
-              ? 'Pending Their Verification'
-              : 'unknown'}
+          Verification Code Required
+        </div>
+      )
+    case 'verified_us':
+      return (
+        <div class="list-item-status" data-status="disabled">
+          Waiting for Response
         </div>
       )
     case 'disconnected':
-    case 'unverified':
       return (
         <div class="list-item-status" data-status="disabled">
-          {status == 'disconnected' ? 'Disconnected' : 'Unverified'}
+          Disconnected
         </div>
       )
     case 'verified_both':
       return (
         <div class="list-item-status" data-status="success">
-          Verified - Established Connection
+          Connected
         </div>
       )
     case 'pending':
       return (
-        <div class="list-item-status" data-status="warning">
-          Pending
+        <div class="list-item-status" data-status="disabled">
+          Invite Sent
         </div>
       )
     case 'forwarded':
@@ -231,13 +226,13 @@ export const statusToClass = (status: ConnectionStatus): JSX.Element => {
     case 'pending_your_input':
       return (
         <div class="list-item-status" data-status="warning">
-          Pending Your Input
+          Verification Code Required
         </div>
       )
     case 'pending_their_input':
       return (
         <div class="list-item-status" data-status="disabled">
-          Pending Their Input
+          Waiting for Response
         </div>
       )
     case 'resolved':

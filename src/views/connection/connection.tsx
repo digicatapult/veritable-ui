@@ -3,6 +3,48 @@ import { singleton } from 'tsyringe'
 import { ConnectionRow } from '../../models/db/types.js'
 import { LinkButton, Page, statusToClass } from '../common.js'
 
+const statusToAction = (
+  status: ConnectionRow['status'],
+  connectionId: string,
+  pinTriesRemaining: number | null
+): { disabled: boolean; href: string; text: string } => {
+  switch (status) {
+    case 'pending':
+    case 'verified_us':
+      return {
+        disabled: true,
+        href: '#',
+        text: 'Waiting for Response',
+      }
+    case 'unverified':
+    case 'verified_them':
+      if (pinTriesRemaining === null || pinTriesRemaining > 0) {
+        return {
+          disabled: false,
+          href: `/connection/${connectionId}/pin-submission`,
+          text: 'Complete Verification',
+        }
+      }
+      return {
+        disabled: true,
+        href: '#',
+        text: 'Pin Attempts Exhausted',
+      }
+    case 'disconnected':
+      return {
+        disabled: true,
+        href: '#',
+        text: 'Disconnected',
+      }
+    case 'verified_both':
+      return {
+        disabled: false,
+        href: `/queries/new/scope-3-carbon-consumption?connectionId=${connectionId}`,
+        text: 'Send Query',
+      }
+  }
+}
+
 @singleton()
 export default class ConnectionTemplates {
   constructor() {}
@@ -48,7 +90,7 @@ export default class ConnectionTemplates {
               type="search"
               name="search"
               value={Html.escapeHtml(search)}
-              placeholder="Search"
+              placeholder="Search by Company Name"
               hx-get="/connection"
               hx-trigger="input changed delay:500ms, search"
               hx-target="#search-results"
@@ -58,9 +100,9 @@ export default class ConnectionTemplates {
           </div>
           <table class="list-page">
             <thead>
-              {['Company Name', 'Verification Status', 'Actions'].map((name: string) => (
+              {['Company Name', 'Status', 'Actions'].map((name: string) => (
                 <th>
-                  <span>{Html.escapeHtml(name || 'unknown')}</span>
+                  <span>{Html.escapeHtml(name)}</span>
                   <a class="list-filter-icon disabled" />
                 </th>
               ))}
@@ -71,34 +113,28 @@ export default class ConnectionTemplates {
                   <td>No Connections for that search query. Try again or add a new connection</td>
                 </tr>
               ) : (
-                connections.map(({ company_name, id, status, pin_tries_remaining_count }) => {
-                  const isVerified = ['unverified', 'verified_them'].includes(status)
-                  let disabledButton = isVerified ? false : true
-                  if (pin_tries_remaining_count === 0) {
-                    disabledButton = true
-                  }
-                  const actionHref = isVerified ? `/connection/${id}/pin-submission` : '#'
-                  return (
-                    <tr>
-                      <td>{Html.escapeHtml(company_name)}</td>
-                      <td>{statusToClass(status)}</td>
-                      <td>
-                        <LinkButton
-                          icon='url("/public/images/arrow-right-circle.svg")'
-                          style="outlined"
-                          disabled={disabledButton}
-                          href={actionHref}
-                          text="Complete Verification"
-                        />
-                      </td>
-                    </tr>
-                  )
-                })
+                connections.map(this.connectionRow)
               )}
             </tbody>
           </table>
         </div>
       </Page>
+    )
+  }
+
+  private connectionRow = ({ company_name, id, status, pin_tries_remaining_count }: ConnectionRow) => {
+    return (
+      <tr>
+        <td>{Html.escapeHtml(company_name)}</td>
+        <td>{statusToClass(status)}</td>
+        <td>
+          <LinkButton
+            icon='url("/public/images/arrow-right-circle.svg")'
+            style="outlined"
+            {...statusToAction(status, id, pin_tries_remaining_count)}
+          />
+        </td>
+      </tr>
     )
   }
 }

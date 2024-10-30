@@ -174,7 +174,7 @@ test.describe('Connection from Alice to Bob', () => {
       await page.waitForURL('**/connection')
       await page.waitForSelector('div.list-item-status[data-status="success"]')
       const statusText = await page.textContent('div.list-item-status[data-status="success"]')
-      expect(statusText).toContain('Verified - Established Connection')
+      expect(statusText).toContain('Connected')
     })
   })
 })
