@@ -8,7 +8,6 @@ import { cleanup } from '../helpers/db.js'
 
 import Database from '../../src/models/db/index.js'
 import { ConnectionRow } from '../../src/models/db/types.js'
-import EmailService from '../../src/models/emailService/index.js'
 import VeritableCloudagent from '../../src/models/veritableCloudagent/index.js'
 import { Connection } from '../../src/models/veritableCloudagentInt.js'
 import createHttpServer from '../../src/server.js'
@@ -20,7 +19,6 @@ import { del } from '../helpers/routeHelper.js'
 describe('integration test for /reset endpoint', function () {
   const db = container.resolve(Database)
   const cloudagent = container.resolve(VeritableCloudagent)
-  const email = container.resolve(EmailService)
 
   afterEach(async () => {
     await cleanup()
@@ -54,7 +52,7 @@ describe('integration test for /reset endpoint', function () {
       context.cloudagentEvents.stop()
     })
 
-    withVerifiedConnection(context, email)
+    withVerifiedConnection(context)
 
     it('removes all connections and credentials and returns 200', async function () {
       const localConnections: ConnectionRow[] = await db.get('connection', {})

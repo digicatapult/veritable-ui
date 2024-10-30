@@ -1,8 +1,8 @@
 import { inject, injectable, singleton } from 'tsyringe'
-import { Env } from '../../env'
-import { type ILogger, Logger } from '../../logger'
-import { EmailServiceInt } from '../emailServiceInt'
-import Templates from '../emailServiceInt/templates'
+import { Env } from '../../env/index.js'
+import { type ILogger, Logger } from '../../logger.js'
+import { EmailServiceInt } from '../emailServiceInt/index.js'
+import Templates from '../emailServiceInt/templates/index.js'
 
 @singleton()
 @injectable()

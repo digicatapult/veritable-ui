@@ -249,16 +249,13 @@ export const withEstablishedConnectionFromThem = function (context: {
   })
 }
 
-export const withVerifiedConnection = function (
-  context: {
-    app: express.Express
-    remoteDatabase: Database
-    remoteCloudagent: VeritableCloudagent
-    remoteConnectionId: string
-    localConnectionId: string
-  },
-  emailService: EmailService
-) {
+export const withVerifiedConnection = function (context: {
+  app: express.Express
+  remoteDatabase: Database
+  remoteCloudagent: VeritableCloudagent
+  remoteConnectionId: string
+  localConnectionId: string
+}) {
   let emailSendStub: sinon.SinonStub
 
   beforeEach(async function () {
@@ -268,7 +265,8 @@ export const withVerifiedConnection = function (
 
     await cleanupRemote(context)
 
-    emailSendStub = sinon.stub(emailService, 'sendMail')
+    const email = container.resolve(EmailService)
+    emailSendStub = sinon.stub(email, 'sendMail')
     await post(context.app, '/connection/new/create-invitation', {
       companyNumber: validCompanyNumber,
       email: 'alice@example.com',
