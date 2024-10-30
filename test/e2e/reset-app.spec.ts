@@ -51,7 +51,7 @@ test.describe('Resetting app', () => {
       await page.waitForURL('**/connection')
       await page.waitForSelector('div.list-item-status[data-status="warning"]')
       const statusText = await page.textContent('div.list-item-status[data-status="warning"]')
-      expect(statusText).toContain('Invite Sent')
+      expect(statusText).toContain('Verification Code Required')
     })
 
     await test.step('Click reset on Alice', async () => {
