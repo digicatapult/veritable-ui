@@ -49,8 +49,8 @@ test.describe('Resetting app', () => {
       await page.waitForSelector('a[href="/connection"]')
       await page.click('a[href="/connection"]')
       await page.waitForURL('**/connection')
-      await page.waitForSelector('div.list-item-status[data-status="disabled"]')
-      const statusText = await page.textContent('div.list-item-status[data-status="disabled"]')
+      await page.waitForSelector('div.list-item-status[data-status="warning"]')
+      const statusText = await page.textContent('div.list-item-status[data-status="warning"]')
       expect(statusText).toContain('Invite Sent')
     })
 
