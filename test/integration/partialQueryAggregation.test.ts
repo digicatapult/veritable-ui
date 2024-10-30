@@ -210,14 +210,13 @@ describe('partial query aggregation', function () {
       it('also updates Alice query as resolved with a total of Bob and Charlie co2 emissions', async () => {
         const [query] = await context.db.alice.get('query')
 
-        expect(query.query_response).to.be.equal('700')
         expect(query).to.deep.contain({
           parent_id: null,
-          query_type: 'Scope 3 Carbon Consumption',
+          type: 'total_carbon_embodiment',
           status: 'resolved',
-          details: { quantity: 1, productId: 'toaster-001(AliceReq)' },
+          details: { quantity: 1, subjectId: 'toaster-001(AliceReq)' },
           response_id: null,
-          query_response: '700',
+          response: '700',
           role: 'requester',
         })
       })

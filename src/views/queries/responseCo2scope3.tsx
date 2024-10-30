@@ -1,21 +1,8 @@
 import Html from '@kitajs/html'
 import { singleton } from 'tsyringe'
 import { ConnectionRow, QueryRow } from '../../models/db/types.js'
+import { CarbonEmbodimentRes } from '../../models/drpc.js'
 import { FormButton, LinkButton, Page } from '../common.js'
-
-type QueryStatus = 'resolved' | 'pending_your_input' | 'pending_their_input' | 'errored' | 'forwarded'
-
-interface Query {
-  id: string
-  company_name: string
-  query_type: string
-  updated_at: Date
-  status: QueryStatus
-  role: 'responder' | 'requester'
-  quantity: string
-  productId: string
-  emissions: string
-}
 
 export type Scope3FormStage = 'form' | 'success' | 'error'
 export interface Scope3FormProps {
@@ -45,7 +32,7 @@ export default class Scope3CarbonConsumptionResponseTemplates {
         headerLinks={[
           { name: 'Query Management', url: '/queries' },
           {
-            name: `Query Request ${query.details.productId}`,
+            name: `Query Request ${query.details.subjectId}`,
             url: `/queries/scope-3-carbon-consumption/${query.id}/response`,
           },
         ]}
@@ -68,9 +55,9 @@ export default class Scope3CarbonConsumptionResponseTemplates {
       case 'form':
         return <this.scope3CarbonConsumptionResponseFormPage {...props}></this.scope3CarbonConsumptionResponseFormPage>
       case 'success':
-        return <this.newQuerySuccess {...props}></this.newQuerySuccess>
+        return <this.queryResponseSuccess {...props}></this.queryResponseSuccess>
       case 'error':
-        return <this.newQueryError {...props}></this.newQueryError>
+        return <this.queryResponseError {...props}></this.queryResponseError>
     }
   }
 
@@ -108,7 +95,7 @@ export default class Scope3CarbonConsumptionResponseTemplates {
               hx-swap="innerHTML"
             >
               <p>
-                Product ID: {Html.escapeHtml(query.details.productId)}
+                Product ID: {Html.escapeHtml(query.details.subjectId)}
                 <br />
                 Quantity: {Html.escapeHtml(query.details.quantity)}
               </p>
@@ -123,7 +110,6 @@ export default class Scope3CarbonConsumptionResponseTemplates {
                   placeholder="Value in kg CO2e (to be aggregated)"
                   class="input-with-label"
                   type="text"
-                  value={Html.escapeHtml(query.details.emissions || '')}
                   required={true}
                 />
               </div>
@@ -186,72 +172,89 @@ export default class Scope3CarbonConsumptionResponseTemplates {
     )
   }
 
-  public view = (query: Query): JSX.Element => (
-    <Page
-      title="Veritable - Query Response"
-      activePage="queries"
-      heading="View response to your query"
-      headerLinks={[
-        { name: 'Queries', url: '/queries' },
-        { name: query.company_name, url: `/queries/scope-3-carbon-consumption/${query.id}/view-response` },
-      ]}
-    >
-      <div class="connections header"></div>
-      <div class="card-body">
-        <div class="container-scope3-carbon">
-          <div class="scope3-co2-left">
-            <h1>Total Carbon Embodiment</h1>
-            <p class="query-text-carbon3-consumption">
-              A query for calculating the total carbon embodiment for a given product or component.
-            </p>
-          </div>
-          <div class="scope3-co2-right">
-            <div class="row">
-              <h2>Query Information</h2>
-              <div style={{ maxHeight: '25px' }} class="list-item-status" data-status="success">
-                Resolved
-              </div>
+  private reduceResponse = (query: CarbonEmbodimentRes['data']): number => {
+    return (
+      query.mass +
+      query.partialResponses.reduce((acc, response) => {
+        return acc + this.reduceResponse(response.data)
+      }, 0)
+    )
+  }
+
+  public view = (connection: ConnectionRow, query: QueryRow): JSX.Element => {
+    if (!query.response) {
+      throw new Error('Cannot view query response without a response')
+    }
+
+    return (
+      <Page
+        title="Veritable - Query Response"
+        activePage="queries"
+        heading="View response to your query"
+        headerLinks={[
+          { name: 'Queries', url: '/queries' },
+          { name: connection.company_name, url: `/queries/scope-3-carbon-consumption/${query.id}/view-response` },
+        ]}
+      >
+        <div class="connections header"></div>
+        <div class="card-body">
+          <div class="container-scope3-carbon">
+            <div class="scope3-co2-left">
+              <h1>Total Carbon Embodiment</h1>
+              <p class="query-text-carbon3-consumption">
+                A query for calculating the total carbon embodiment for a given product or component.
+              </p>
             </div>
-            <br />
-            <table id="query-response-view">
-              <tr>
-                <td>Company name:</td>
-                <td class="query-results-left-padding-table">{Html.escapeHtml(query.company_name)}</td>
-              </tr>
-              <tr>
-                <td>Product ID:</td>
-                <td class="query-results-left-padding-table">{Html.escapeHtml(query.productId)}</td>
-              </tr>
-              <tr>
-                <td>Quantity:</td>
-                <td class="query-results-left-padding-table">{Html.escapeHtml(query.quantity)}</td>
-              </tr>
-              <tr>
-                <td>Query:</td>
-                <td class="query-results-left-padding-table">
-                  Please provide details on the total carbon embodiment associated with the product.
-                </td>
-              </tr>
-            </table>
-            <h2>Response Information</h2>
-            <table id="query-response-view">
-              <tr>
-                <td>Date Certified:</td>
-                <td>
-                  <time class="query-results-left-padding-table">{Html.escapeHtml(new Date(query.updated_at))}</time>
-                </td>
-              </tr>
-              <tr>
-                <td>Carbon Emissions:</td>
-                <td class="query-results-left-padding-table">{Html.escapeHtml(query.emissions)} kg CO2e</td>
-              </tr>
-            </table>
-            <LinkButton text="Back to Queries" href="/queries" style="filled" />
+            <div class="scope3-co2-right">
+              <div class="row">
+                <h2>Query Information</h2>
+                <div style={{ maxHeight: '25px' }} class="list-item-status" data-status="success">
+                  Resolved
+                </div>
+              </div>
+              <br />
+              <table id="query-response-view">
+                <tr>
+                  <td>Company name:</td>
+                  <td class="query-results-left-padding-table">{Html.escapeHtml(connection.company_name)}</td>
+                </tr>
+                <tr>
+                  <td>Product ID:</td>
+                  <td class="query-results-left-padding-table">{Html.escapeHtml(query.details.subjectId)}</td>
+                </tr>
+                <tr>
+                  <td>Quantity:</td>
+                  <td class="query-results-left-padding-table">{Html.escapeHtml(query.details.quantity)}</td>
+                </tr>
+                <tr>
+                  <td>Query:</td>
+                  <td class="query-results-left-padding-table">
+                    Please provide details on the total carbon embodiment associated with the product.
+                  </td>
+                </tr>
+              </table>
+              <h2>Response Information</h2>
+              <table id="query-response-view">
+                <tr>
+                  <td>Date Certified:</td>
+                  <td>
+                    <time class="query-results-left-padding-table">{Html.escapeHtml(new Date(query.updated_at))}</time>
+                  </td>
+                </tr>
+                <tr>
+                  <td>Carbon Emissions:</td>
+                  <td class="query-results-left-padding-table">
+                    {Html.escapeHtml(this.reduceResponse(query.response))} kg CO2e
+                  </td>
+                </tr>
+              </table>
+              <LinkButton text="Back to Queries" href="/queries" style="filled" />
+            </div>
           </div>
         </div>
-      </div>
-    </Page>
-  )
+      </Page>
+    )
+  }
 
   public tableRow = ({
     checked = false,
@@ -302,30 +305,34 @@ export default class Scope3CarbonConsumptionResponseTemplates {
     )
   }
 
-  private newQuerySuccess = (props: Scope3FormProps): JSX.Element => {
+  private queryResponseSuccess = (props: Scope3FormProps): JSX.Element => {
     return (
       <div id="new-query-confirmation-text">
-        <h1>Your Query has been sent!</h1>
-        <p>Your query has been successfully shared with the following supplier:</p>
+        <h2>Thank you for your response!</h2>
+        <p>
+          You have successfully forwarded the query to the following supplier(s) for their carbon contribution to the
+          product/component:
+        </p>
         <i>
           <p>{Html.escapeHtml(props.company.company_name)}</p>
         </i>
         <p>
-          Once all responses are received, the information will be automatically gathered and shared with you. No
-          further action is needed on your part. You can trust that the process is secure, transparent, and streamlined
-          for your convenience.
+          Once all supplier responses are received, they will be automatically gathered and securely sent to Alice’s
+          Company. You do not need to take any further action. The process is fully automated, ensuring transparency and
+          trust in the final result.
         </p>
-        <p>You can check the status of your query in the Queries section of your dashboard.</p>
-        <LinkButton disabled={false} text="Back to Queries" href="/queries" icon={''} style="filled" />
+        <p>You can check the status of your forwarded queries in the Queries section of your dashboard.</p>
+        <br />
+        <LinkButton disabled={false} text="Back to Home" href="/" icon={''} style="filled" />
       </div>
     )
   }
 
-  private newQueryError = (props: Scope3FormProps): JSX.Element => {
+  private queryResponseError = (props: Scope3FormProps): JSX.Element => {
     return (
       <div id="new-query-confirmation-text">
         <p>
-          There has been an error when responding to the querry by following company:{' '}
+          There has been an error when responding to the query by following company:{' '}
           {Html.escapeHtml(props.company.company_name)}.
         </p>
         <p>Please try again or contact the respective company to resolve this issue.</p>

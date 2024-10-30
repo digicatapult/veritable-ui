@@ -60,21 +60,24 @@ const defaultOptions: QueryMockOptions = {
       {
         id: '5390af91-c551-4d74-b394-d8ae0805059a',
         status: 'pending_their_input',
+        type: 'total_carbon_embodiment',
         connection_id: mockIds.companyId,
-        details: { quantity: 2, queryId: mockIds.queryId },
+        details: { quantity: 2, subjectId: mockIds.queryId },
         response_id: '5390af91-c551-4d74-b394-d8ae0805059e',
       },
       {
         id: '5390af91-c551-4d74-b394-d8ae0805059a',
         status: 'pending_your_input',
+        type: 'total_carbon_embodiment',
         connection_id: mockIds.connectionId,
-        details: { quantity: 2, queryId: mockIds.queryId },
+        details: { quantity: 2, subjectId: mockIds.queryId },
         response_id: '5390af91-c551-4d74-b394-d8ae0805059e',
       },
       {
         status: 'pending_your_input',
+        type: 'total_carbon_embodiment',
         connection_id: mockIds.connectionId,
-        details: { quantity: 2, queryId: mockIds.queryId },
+        details: { quantity: 2, subjectId: mockIds.queryId },
         response_id: '5390af91-c551-4d74-b394-d8ae0805059e',
       },
     ],
@@ -82,15 +85,14 @@ const defaultOptions: QueryMockOptions = {
       {
         id: 'ccaaaaaa-0000-0000-0000-d8ae0805059e',
         connection_id: mockIds.connectionId,
-        query_type: 'Scope 3 Carbon Consumption',
+        type: 'total_carbon_embodiment',
         status: 'pending_their_input',
         details: {
-          productIds: 'test-1',
-          quantities: '10',
-          connectionIds: 'cccccccc-0000-0000-0000-d8ae0805059e',
+          subjectId: 'test-1',
+          quantity: 10,
         },
         response_id: null,
-        query_response: null,
+        response: null,
         role: 'requester',
       },
     ],
@@ -99,6 +101,7 @@ const defaultOptions: QueryMockOptions = {
 
 function templateFake(templateName: string, props?: Scope3FormProps) {
   if (props?.partial) return Promise.resolve(`${templateName}_template-${JSON.stringify(props)}`)
+  if (props?.formStage) return Promise.resolve(`${templateName}_${props.formStage}_template`)
   return Promise.resolve(`${templateName}_template`)
 }
 function templateListFake(templateName: string, ...args: unknown[]) {

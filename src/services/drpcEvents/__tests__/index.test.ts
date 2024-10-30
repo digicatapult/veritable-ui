@@ -2,31 +2,36 @@ import { expect } from 'chai'
 import { beforeEach, describe, it } from 'mocha'
 import sinon from 'sinon'
 
+import { DrpcRequest } from '../../veritableCloudagentEvents.js'
 import DrpcEvents from '../index.js'
 import { withDrpcEventMocks } from './helpers.js'
 
-const goodRequest = {
+const goodRequest: DrpcRequest = {
   id: 'request-id',
   jsonrpc: '2.0',
   method: 'submit_query_request',
   params: {
-    query: 'Scope 3 Carbon Consumption',
-    productId: 'product-id',
-    quantity: 42,
-    queryIdForResponse: 'fb45f64a-7c2b-43e8-85c2-da66a6899446',
+    id: 'fb45f64a-7c2b-43e8-85c2-da66a6899446',
+    data: {
+      subjectId: 'product-id',
+      quantity: 42,
+    },
+    type: 'https://github.com/digicatapult/veritable-documentation/tree/main/schemas/veritable_messaging/query_types/total_carbon_embodiment/request/0.1',
   },
 }
 
-const goodResponse = {
+const goodResponse: DrpcRequest = {
   id: 'request-id',
   jsonrpc: '2.0',
   method: 'submit_query_response',
   params: {
-    query: 'Scope 3 Carbon Consumption',
-    productId: 'product-id',
-    quantity: 42,
-    emissions: '3456',
-    queryIdForResponse: 'query-id',
+    id: 'query-id',
+    type: 'https://github.com/digicatapult/veritable-documentation/tree/main/schemas/veritable_messaging/query_types/total_carbon_embodiment/response/0.1',
+    data: {
+      mass: 3456,
+      subjectId: 'product-id',
+      partialResponses: [],
+    },
   },
 }
 
@@ -35,11 +40,13 @@ const goodResponseChild = {
   jsonrpc: '2.0',
   method: 'submit_query_response',
   params: {
-    query: 'Scope 3 Carbon Consumption',
-    productId: 'partial-product-id',
-    quantity: 10,
-    emissions: '200',
-    queryIdForResponse: 'child-query-id',
+    id: 'child-query-id',
+    type: 'https://github.com/digicatapult/veritable-documentation/tree/main/schemas/veritable_messaging/query_types/total_carbon_embodiment/response/0.1',
+    data: {
+      mass: 200,
+      subjectId: 'partial-product-id',
+      partialResponses: [],
+    },
   },
 }
 
@@ -95,11 +102,11 @@ describe('DrpcEvents', function () {
           {
             connection_id: 'connection-id',
             status: 'pending_your_input',
-            query_type: 'Scope 3 Carbon Consumption',
-            details: { productId: 'product-id', quantity: 42 },
+            type: 'total_carbon_embodiment',
+            details: { subjectId: 'product-id', quantity: 42 },
             response_id: 'fb45f64a-7c2b-43e8-85c2-da66a6899446',
             role: 'responder',
-            query_response: null,
+            response: null,
           },
         ])
         expect(stub.secondCall.args).to.deep.equal([
@@ -333,7 +340,7 @@ describe('DrpcEvents', function () {
                 ...goodRequest,
                 params: {
                   ...goodRequest.params,
-                  query: 'invalid_query',
+                  type: 'invalid_query',
                 },
               },
               connectionId: 'agent-connection-id',
@@ -496,10 +503,10 @@ describe('DrpcEvents', function () {
           {
             connection_id: 'connection-id',
             status: 'pending_your_input',
-            query_type: 'Scope 3 Carbon Consumption',
-            details: { productId: 'product-id', quantity: 42 },
+            type: 'total_carbon_embodiment',
+            details: { subjectId: 'product-id', quantity: 42 },
             response_id: 'fb45f64a-7c2b-43e8-85c2-da66a6899446',
-            query_response: null,
+            response: null,
             role: 'responder',
           },
         ])
@@ -534,15 +541,42 @@ describe('DrpcEvents', function () {
   })
   describe('DrpcRequestStateChanged-responseReceived', function () {
     describe('partial query', function () {
-      const childQuery = [{ id: 'child-query-id', query_response: null, parent_id: 'query-id' }]
+      const childQuery = [{ id: 'child-query-id', response: null, parent_id: 'query-id' }]
+      const parentQuery = [
+        {
+          id: 'query-id',
+          details: {
+            subjectId: 'parent-product-id',
+          },
+          response: {
+            mass: 58,
+          },
+          status: 'forwarded',
+          connection_id: 'parent-connection-id',
+        },
+      ]
+      const allChildQuery = [
+        {
+          id: 'child-query-id',
+          response: {
+            subjectId: 'child-product-id',
+            mass: 42,
+          },
+          parent_id: 'query-id',
+          status: 'resolved',
+        },
+      ]
       const childConnection = [{ id: 'child-connection-id' }]
+
       const { eventsMock, dbMock, args } = withDrpcEventMocks()
       const drpcEvents = new DrpcEvents(...args)
 
-      beforeEach(async function () {
+      before(async function () {
         clock.reset()
         dbMock.get.onFirstCall().resolves(childConnection)
-        dbMock.get.onCall(2).resolves(childQuery)
+        dbMock.get.onCall(1).resolves(childQuery)
+        dbMock.get.onCall(2).resolves(parentQuery)
+        dbMock.get.onCall(4).resolves(allChildQuery)
 
         drpcEvents.start()
 
@@ -557,41 +591,56 @@ describe('DrpcEvents', function () {
             },
           },
         })
-        eventsMock.emit('DrpcRequestStateChanged', {
-          type: 'DrpcRequestStateChanged',
-          payload: {
-            drpcMessageRecord: {
-              request: goodResponse,
-              connectionId: 'connection-id',
-              role: 'server',
-              state: 'request-received',
-            },
-          },
-        })
 
         await clock.runAllAsync()
       })
 
-      it('retrieves a regualar query along with partial', () => {
+      it('retrieves a regular query along with partial', () => {
         const stub = dbMock.get
-        expect(stub.firstCall.args).to.deep.equal(['connection', { agent_connection_id: 'child-connection-id' }])
-        expect(stub.secondCall.args).to.deep.equal(['connection', { agent_connection_id: 'connection-id' }])
-        expect(stub.thirdCall.args).to.deep.equal(['query', { id: 'child-query-id', role: 'requester' }])
-        expect(stub.getCall(3).args).to.deep.equal(['query', { id: 'query-id', role: 'requester' }])
+        expect(stub.callCount).to.equal(5)
+        expect(stub.getCall(0).args).to.deep.equal(['connection', { agent_connection_id: 'child-connection-id' }])
+        expect(stub.getCall(1).args).to.deep.equal(['query', { id: 'child-query-id', role: 'requester' }])
+        expect(stub.getCall(2).args).to.deep.equal(['query', { id: 'query-id', role: 'responder' }])
+        expect(stub.getCall(3).args).to.deep.equal(['connection', { id: 'parent-connection-id' }])
+        expect(stub.getCall(4).args).to.deep.equal(['query', { parent_id: 'query-id', role: 'requester' }])
       })
 
-      it('updates query_response as per drpc request', () => {
+      it('updates response as per drpc request', () => {
         const stub = dbMock.update
 
+        expect(stub.callCount).to.equal(2)
         expect(stub.firstCall.args).to.deep.equal([
           'query',
           { id: 'child-query-id' },
-          { query_response: '200', status: 'resolved' },
+          {
+            response: {
+              mass: 200,
+              partialResponses: [],
+              subjectId: 'partial-product-id',
+            },
+            status: 'resolved',
+          },
         ])
         expect(stub.lastCall.args).to.deep.equal([
           'query',
           { id: 'query-id' },
-          { query_response: '3456', status: 'resolved' },
+          {
+            response: {
+              mass: 58,
+              partialResponses: [
+                {
+                  data: {
+                    mass: 42,
+                    subjectId: 'child-product-id',
+                  },
+                  id: 'child-query-id',
+                  type: 'https://github.com/digicatapult/veritable-documentation/tree/main/schemas/veritable_messaging/query_types/undefined/response/0.1',
+                },
+              ],
+              subjectId: 'parent-product-id',
+            },
+            status: 'resolved',
+          },
         ])
       })
     })
@@ -638,7 +687,14 @@ describe('DrpcEvents', function () {
         expect(stub.firstCall.args).to.deep.equal([
           'query',
           { id: 'query-id' },
-          { query_response: '3456', status: 'resolved' },
+          {
+            response: {
+              mass: 3456,
+              partialResponses: [],
+              subjectId: 'product-id',
+            },
+            status: 'resolved',
+          },
         ])
         expect(stub2.firstCall.args).to.deep.equal([
           'query_rpc',
@@ -897,7 +953,14 @@ describe('DrpcEvents', function () {
         expect(stub.firstCall.args).to.deep.equal([
           'query',
           { id: 'query-id' },
-          { query_response: '3456', status: 'resolved' },
+          {
+            response: {
+              mass: 3456,
+              partialResponses: [],
+              subjectId: 'product-id',
+            },
+            status: 'resolved',
+          },
         ])
       })
 
