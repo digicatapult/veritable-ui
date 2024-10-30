@@ -30,6 +30,7 @@ test.describe('Resetting app', () => {
 
   test.afterEach(async () => {
     await withCleanAlice(baseUrlAlice)
+    await withCleanAliceBobEmail(baseUrlAlice, baseUrlBob, smtp4devUrl)
     await page.close()
   })
   test.beforeEach(async () => {
@@ -38,7 +39,7 @@ test.describe('Resetting app', () => {
     page = await context.newPage()
     await withLoggedInUser(page, context, baseUrlAlice)
 
-    await withConnection()
+    await withConnection(smtp4devUrl, baseUrlAlice, baseUrlBob)
   })
 
   test('Reset all on Alice', async () => {
