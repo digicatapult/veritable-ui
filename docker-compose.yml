@@ -1,7 +1,7 @@
 services:
   # -------------------- shared -------------------------------#
   keycloak:
-    image: quay.io/keycloak/keycloak:26.0.2
+    image: quay.io/keycloak/keycloak:26.0.4
     container_name: keycloak
     environment:
       - KEYCLOAK_ADMIN=admin
@@ -136,7 +136,7 @@ services:
       - DB_NAME=veritable-ui
       - API_SWAGGER_TITLE=Bob
       - API_SWAGGER_BG_COLOR=#ff3131
-      - PUBLIC_URL=${VERITABLE_BOB_PUBLIC_URL:-http://localhost:3000}
+      - PUBLIC_URL=${VERITABLE_BOB_PUBLIC_URL:-http://localhost:3001}
       - CLOUDAGENT_ADMIN_ORIGIN=http://veritable-cloudagent-bob:3000
       - CLOUDAGENT_ADMIN_WS_ORIGIN=ws://veritable-cloudagent-bob:3000
       - COMPANY_HOUSE_API_URL=https://api.company-information.service.gov.uk
@@ -224,7 +224,7 @@ services:
       - DB_NAME=veritable-ui
       - API_SWAGGER_TITLE=Charlie
       - API_SWAGGER_BG_COLOR=#ffbd59
-      - PUBLIC_URL=${VERITABLE_CHARLIE_PUBLIC_URL:-http://localhost:3000}
+      - PUBLIC_URL=${VERITABLE_CHARLIE_PUBLIC_URL:-http://localhost:3002}
       - CLOUDAGENT_ADMIN_ORIGIN=http://veritable-cloudagent-charlie:3000
       - CLOUDAGENT_ADMIN_WS_ORIGIN=ws://veritable-cloudagent-charlie:3000
       - COMPANY_HOUSE_API_URL=https://api.company-information.service.gov.uk

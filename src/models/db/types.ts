@@ -1,5 +1,6 @@
 import { Knex } from 'knex'
 import { z } from 'zod'
+import { carbonEmbodimentRequestData, carbonEmbodimentResponseData } from '../drpc.js'
 
 export const tablesList = ['connection', 'connection_invite', 'query', 'query_rpc', 'settings'] as const
 
@@ -26,16 +27,28 @@ const insertConnectionInvite = z.object({
   expires_at: z.date(),
   validity: z.union([z.literal('valid'), z.literal('expired'), z.literal('too_many_attempts'), z.literal('used')]),
 })
-const insertQuery = z.object({
+
+const insertQueryShared = z.object({
   connection_id: z.string(),
   parent_id: z.string().nullable().optional(),
-  query_type: z.string(),
+  type: z.literal('total_carbon_embodiment'),
   status: z.enum(['resolved', 'pending_your_input', 'pending_their_input', 'errored', 'forwarded']),
-  details: z.record(z.any()),
   response_id: z.string().nullable(),
-  query_response: z.string().nullable(),
   role: z.enum(['requester', 'responder']),
 })
+const totalCarbonEmbodimentQuery = z.object({
+  type: z.literal('total_carbon_embodiment'),
+  details: carbonEmbodimentRequestData,
+  response: carbonEmbodimentResponseData.nullable(),
+})
+const insertQuery = z.discriminatedUnion('type', [totalCarbonEmbodimentQuery.merge(insertQueryShared)])
+
+const defaultFields = z.object({
+  id: z.string(),
+  created_at: z.date(),
+  updated_at: z.date(),
+})
+
 const insertQueryRpc = z.object({
   query_id: z.string(),
   agent_rpc_id: z.string(),
@@ -52,35 +65,19 @@ const insertSettings = z.object({
 const Zod = {
   connection: {
     insert: insertConnection,
-    get: insertConnection.extend({
-      id: z.string(),
-      created_at: z.date(),
-      updated_at: z.date(),
-    }),
+    get: insertConnection.merge(defaultFields),
   },
   connection_invite: {
     insert: insertConnectionInvite,
-    get: insertConnectionInvite.extend({
-      id: z.string(),
-      created_at: z.date(),
-      updated_at: z.date(),
-    }),
+    get: insertConnectionInvite.merge(defaultFields),
   },
   query: {
     insert: insertQuery,
-    get: insertQuery.extend({
-      id: z.string(),
-      created_at: z.date(),
-      updated_at: z.date(),
-    }),
+    get: z.discriminatedUnion('type', [totalCarbonEmbodimentQuery.merge(insertQueryShared).merge(defaultFields)]),
   },
   query_rpc: {
     insert: insertQueryRpc,
-    get: insertQueryRpc.extend({
-      id: z.string(),
-      created_at: z.date(),
-      updated_at: z.date(),
-    }),
+    get: insertQueryRpc.merge(defaultFields),
   },
   settings: {
     insert: insertSettings,

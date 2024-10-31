@@ -15,8 +15,8 @@ type QueryMockOptions = {
 }
 export const defaultOptions: QueryMockOptions = {
   getRows: {
-    connection: [{ id: 'connection-id' }],
-    query: [{ id: 'query-id', query_response: null }],
+    connection: [{ id: 'connection-id', agent_connection_id: 'agent_connection_id' }],
+    query: [{ id: 'query-id', response: null }],
   },
 }
 
@@ -28,6 +28,10 @@ export const withDrpcEventMocks = (testOptions: Partial<QueryMockOptions> = {}) 
   const eventsMock = new EventEmitter()
   const cloudagentMock = {
     submitDrpcResponse: sinon.stub().resolves(),
+    submitDrpcRequest: sinon.stub().resolves({
+      id: 'drpc-id',
+      result: {},
+    }),
   }
   const dbMock = {
     get: sinon.stub().callsFake((tableName: 'connection' | 'query') => Promise.resolve(options.getRows[tableName])),

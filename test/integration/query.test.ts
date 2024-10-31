@@ -80,8 +80,8 @@ describe('query submission', function () {
 
       expect(queryLocal as QueryRow).deep.include({
         status: 'pending_their_input',
-        query_type: 'Scope 3 Carbon Consumption',
-        details: { productId: 'Test', quantity: 1 },
+        type: 'total_carbon_embodiment',
+        details: { subjectId: 'Test', quantity: 1 },
       })
     })
 
@@ -101,8 +101,8 @@ describe('query submission', function () {
 
       expect(queryRemote as QueryRow).deep.include({
         status: 'pending_your_input',
-        query_type: 'Scope 3 Carbon Consumption',
-        details: { productId: 'Test', quantity: 1 },
+        type: 'total_carbon_embodiment',
+        details: { subjectId: 'Test', quantity: 1 },
       })
     })
   })

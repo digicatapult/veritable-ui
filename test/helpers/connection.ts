@@ -52,10 +52,13 @@ const charlieDbConfig = {
   },
 }
 
-const mockEnv = {
+const mockEnvAlice = {
   get(name) {
+    if (name === 'PORT') {
+      return 3000
+    }
     if (name === 'CLOUDAGENT_ADMIN_ORIGIN') {
-      return 'http://localhost:3101'
+      return 'http://localhost:3100'
     }
     throw new Error('Unexpected env variable request')
   },
@@ -114,7 +117,7 @@ export const withEstablishedConnectionFromUs = function (context: {
   beforeEach(async function () {
     const localDatabase = container.resolve(Database)
     context.remoteDatabase = new Database(knex(remoteDbConfig))
-    context.remoteCloudagent = new VeritableCloudagent(mockEnv, mockLogger)
+    context.remoteCloudagent = new VeritableCloudagent(mockEnvBob, mockLogger)
 
     await cleanupRemote(context)
 
@@ -189,7 +192,7 @@ export const withEstablishedConnectionFromThem = function (context: {
   beforeEach(async function () {
     const localDatabase = container.resolve(Database)
     context.remoteDatabase = new Database(knex(remoteDbConfig))
-    context.remoteCloudagent = new VeritableCloudagent(mockEnv, mockLogger)
+    context.remoteCloudagent = new VeritableCloudagent(mockEnvBob, mockLogger)
 
     await cleanupRemote(context)
 
@@ -261,7 +264,7 @@ export const withVerifiedConnection = function (context: {
   beforeEach(async function () {
     const localDatabase = container.resolve(Database)
     context.remoteDatabase = new Database(knex(remoteDbConfig))
-    context.remoteCloudagent = new VeritableCloudagent(mockEnv, mockLogger)
+    context.remoteCloudagent = new VeritableCloudagent(mockEnvBob, mockLogger)
 
     await cleanupRemote(context)
 
@@ -325,7 +328,7 @@ export const withBobAndCharlie = function (context: PartialQuery.Context) {
   beforeEach(async function () {
     context.agent = {
       bob: new VeritableCloudagent(mockEnvBob, mockLogger),
-      alice: new VeritableCloudagent(mockEnv, mockLogger),
+      alice: new VeritableCloudagent(mockEnvAlice, mockLogger),
       charlie: new VeritableCloudagent(mockEnvCharlie, mockLogger),
     }
     context.db = {
@@ -341,7 +344,7 @@ export const withBobAndCharlie = function (context: PartialQuery.Context) {
     emailSendStub = sinon.stub(email, 'sendMail')
     await post(context.app, '/connection/new/create-invitation', {
       companyNumber: bob.company_number,
-      email: 'alice@example.com',
+      email: 'bob@example.com',
       action: 'submit',
     })
     const invite = (emailSendStub.args.find(([name]) => name === 'connection_invite') || [])[1].invite

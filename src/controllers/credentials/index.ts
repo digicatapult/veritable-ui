@@ -56,10 +56,8 @@ export class CredentialsController extends HTMLController {
 
     const result = {
       companyName: connection.company_name,
-      role: credential.role,
-      state: credential.state,
-      id: credential.id,
       type: 'Supplier credentials' as const,
+      ...credential,
     }
     req.log.debug('Credential found %s: %j', credential.id, result)
     return result

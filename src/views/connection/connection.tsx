@@ -1,7 +1,7 @@
 import Html from '@kitajs/html'
 import { singleton } from 'tsyringe'
 import { ConnectionRow } from '../../models/db/types.js'
-import { LinkButton, Page, statusToClass } from '../common.js'
+import { connectionStatusToClass, LinkButton, Page } from '../common.js'
 
 const statusToAction = (
   status: ConnectionRow['status'],
@@ -126,7 +126,7 @@ export default class ConnectionTemplates {
     return (
       <tr>
         <td>{Html.escapeHtml(company_name)}</td>
-        <td>{statusToClass(status)}</td>
+        <td>{connectionStatusToClass(status)}</td>
         <td>
           <LinkButton
             icon='url("/public/images/arrow-right-circle.svg")'

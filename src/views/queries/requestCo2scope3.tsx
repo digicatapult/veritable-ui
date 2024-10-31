@@ -207,22 +207,18 @@ export default class Scope3CarbonConsumptionTemplates {
   private newQuerySuccess = (props: Scope3SuccessProps): JSX.Element => {
     return (
       <div id="new-query-confirmation-text">
-        <h2>Thank you for your response!</h2>
-        <p>
-          You have successfully forwarded the query to the following supplier(s) for their carbon contribution to the
-          product/component:
-        </p>
+        <h1>Your Query has been sent!</h1>
+        <p>Your query has been successfully shared with the following supplier:</p>
         <i>
           <p>{Html.escapeHtml(props.company.companyName)}</p>
         </i>
         <p>
-          Once all supplier responses are received, they will be automatically gathered and securely sent to Alice’s
-          Company. You do not need to take any further action. The process is fully automated, ensuring transparency and
-          trust in the final result.
+          Once all responses are received, the information will be automatically gathered and shared with you. No
+          further action is needed on your part. You can trust that the process is secure, transparent, and streamlined
+          for your convenience.
         </p>
-        <p>You can check the status of your forwarded queries in the Queries section of your dashboard.</p>
-        <br />
-        <LinkButton disabled={false} text="Back to Home" href="/" icon={''} style="filled" />
+        <p>You can check the status of your query in the Queries section of your dashboard.</p>
+        <LinkButton disabled={false} text="Back to Queries" href="/queries" icon={''} style="filled" />
       </div>
     )
   }

@@ -3,6 +3,8 @@ import { z } from 'zod'
 import { type PartialEnv } from '../env/index.js'
 import { InternalError } from '../errors.js'
 import { type ILogger } from '../logger.js'
+import { MapDiscriminatedUnion } from '../utils/types.js'
+import { DrpcQueryRequest } from './drpc.js'
 
 const oobParser = z.object({
   invitationUrl: z.string(),
@@ -161,7 +163,20 @@ type parserFn<O> = (res: Response) => O | Promise<O>
 /*
   This is in internal class used for e2e tests. Rest of the repository is using VeritableCloudagent which extends this class.
 */
-export class VeritableCloudagentInt {
+export interface DrpcRequest {
+  method: string
+  params: Record<string, unknown>
+}
+
+export interface CloudagentConfig {
+  drpcRequest: DrpcRequest
+}
+
+type DefaultConfig = {
+  drpcRequest: DrpcQueryRequest
+}
+
+export default class VeritableCloudagentInt<Config extends CloudagentConfig = DefaultConfig> {
   constructor(
     private env: PartialEnv<'CLOUDAGENT_ADMIN_ORIGIN'>,
     protected logger: ILogger
@@ -308,10 +323,10 @@ export class VeritableCloudagentInt {
     return this.postRequest(`/v1/credentials/${credentialId}/accept-proposal`, body, this.buildParser(credentialParser))
   }
 
-  public async submitDrpcRequest(
+  public async submitDrpcRequest<M extends Config['drpcRequest']['method']>(
     connectionId: string,
-    method: string,
-    params: Record<string, unknown>
+    method: M,
+    params: MapDiscriminatedUnion<Config['drpcRequest'], 'method'>[M]['params']
   ): Promise<DrpcResponse | undefined> {
     const body = {
       jsonrpc: '2.0',

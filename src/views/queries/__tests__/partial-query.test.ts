@@ -21,15 +21,15 @@ const connectionsExample: ConnectionRow[] = [{}, {}, {}, {}].map((_, i) => ({
 const queryExample: QueryRow = {
   id: 'aaaaaaaa-0001-0000-0000-d8ae0805059e',
   connection_id: 'cccccccc-0001-0000-0000-d8ae0805059e',
-  query_type: 'Scope 3 Carbon Consumption',
+  type: 'total_carbon_embodiment',
   parent_id: '5390af91-c551-4d74-b394-d8ae0805059a',
   status: 'resolved',
   details: {
-    productId: 'partial-product-id',
+    subjectId: 'partial-product-id',
     quantity: 10,
   },
   response_id: null,
-  query_response: null,
+  response: null,
   role: 'requester',
   created_at: new Date(),
   updated_at: new Date(),
