@@ -2,7 +2,7 @@ import { inject, injectable, singleton } from 'tsyringe'
 import { type PartialEnv } from '../../env/common.js'
 import { Env } from '../../env/index.js'
 import { type ILogger, Logger } from '../../logger.js'
-import { VeritableCloudagentInt } from '../veritableCloudagentInt.js'
+import VeritableCloudagentInt from '../veritableCloudagentInt.js'
 
 /*
   This has been moved to separate file due to e2e testing. 
