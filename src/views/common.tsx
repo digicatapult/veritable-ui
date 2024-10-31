@@ -63,7 +63,7 @@ export const FormButton = (props: FormButtonProps): JSX.Element => (
 const SideBar = ({ activePage }: { activePage: PageProps['activePage'] }): JSX.Element => {
   const title = env.get('API_SWAGGER_TITLE').slice(0, 1)
   const backgroundColor = env.get('API_SWAGGER_BG_COLOR')
-  const aboutPageInDemoMode = env.get('DEMO_MODE') == true ? '/about' : '/'
+  const aboutPageInDemoMode = env.get('DEMO_MODE') ? '/about' : '/'
 
   return (
     <nav id="side-bar">
