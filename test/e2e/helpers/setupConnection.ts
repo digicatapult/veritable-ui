@@ -21,7 +21,6 @@ export async function withConnection(smtp4devUrl: string, aliceUrl: string, bobU
   if (extractedPin.length !== 6) {
     throw new Error('Pin does not have the expected length.')
   }
-  const pinForBob = extractedPin
   const invite = await extractInvite(inviteEmail.id, smtp4devUrl)
   if (!invite) throw new Error('Invitation for Bob was not found.')
 
@@ -30,6 +29,4 @@ export async function withConnection(smtp4devUrl: string, aliceUrl: string, bobU
     invite: invite,
     action: 'createConnection',
   })
-
-  // Do we want to verify this connection?
 }
