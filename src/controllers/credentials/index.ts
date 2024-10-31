@@ -4,7 +4,8 @@ import { injectable } from 'tsyringe'
 
 import Database from '../../models/db/index.js'
 import { ConnectionRow } from '../../models/db/types.js'
-import VeritableCloudagent, { Credential } from '../../models/veritableCloudagent.js'
+import VeritableCloudagent from '../../models/veritableCloudagent/index.js'
+import { Credential } from '../../models/veritableCloudagentInt.js'
 import CredentialListTemplates from '../../views/credentials/index.js'
 import { HTML, HTMLController } from '../HTMLController.js'
 

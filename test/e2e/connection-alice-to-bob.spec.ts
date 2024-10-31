@@ -1,5 +1,10 @@
 import { expect, Page, test } from '@playwright/test'
-import { CustomBrowserContext, withCleanApp, withLoggedInUser, withRegisteredAccount } from './helpers/registerLogIn.js'
+import {
+  CustomBrowserContext,
+  withCleanAliceBobEmail,
+  withLoggedInUser,
+  withRegisteredAccount,
+} from './helpers/registerLogIn.js'
 import { checkEmails, extractInvite, extractPin, findNewAdminEmail, getHostPort } from './helpers/smtpEmails.js'
 
 test.describe('Connection from Alice to Bob', () => {
@@ -26,13 +31,13 @@ test.describe('Connection from Alice to Bob', () => {
   })
 
   test.beforeEach(async () => {
-    await withCleanApp(baseUrlAlice, baseUrlBob, smtp4devUrl)
+    await withCleanAliceBobEmail(baseUrlAlice, baseUrlBob, smtp4devUrl)
     page = await context.newPage()
     await withLoggedInUser(page, context, baseUrlAlice)
   })
 
   test.afterEach(async () => {
-    await withCleanApp(baseUrlAlice, baseUrlBob, smtp4devUrl)
+    await withCleanAliceBobEmail(baseUrlAlice, baseUrlBob, smtp4devUrl)
     await page.close()
   })
   // End-to-end process: Alice registers, invites Bob, Bob submits invite & pin, Alice submits pin

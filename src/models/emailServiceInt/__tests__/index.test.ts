@@ -7,7 +7,7 @@ import sinon from 'sinon'
 import nodemailer from 'nodemailer'
 
 import type { ILogger } from '../../../logger.js'
-import EmailService from '../index.js'
+import EmailService from '../../emailService/index.js'
 import { mockEnvSmtpEmail, mockEnvStream } from './helpers/mocks.js'
 
 const mkMockLogger = () => {

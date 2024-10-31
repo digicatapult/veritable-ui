@@ -15,7 +15,7 @@ import {
 import { withCloudagentMock } from './helpers/mockCloudagent.js'
 
 import { InternalError } from '../../errors.js'
-import VeritableCloudagent from '../veritableCloudagent.js'
+import VeritableCloudagent from '../veritableCloudagent/index.js'
 
 describe('veritableCloudagent', () => {
   let expect: Chai.ExpectStatic

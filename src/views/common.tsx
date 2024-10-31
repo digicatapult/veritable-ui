@@ -5,7 +5,7 @@ import { container } from 'tsyringe'
 import { Env } from '../env/index.js'
 
 import type { ConnectionRow, QueryRow } from '../models/db/types.js'
-import type { Credential } from '../models/veritableCloudagent.js'
+import type { Credential } from '../models/veritableCloudagentInt.js'
 
 const env = container.resolve(Env)
 
@@ -96,9 +96,8 @@ const SideBar = ({ activePage }: { activePage: PageProps['activePage'] }): JSX.E
       />
       <a
         title="settings"
-        href="#"
+        href="/settings"
         data-active={activePage === 'settings'}
-        class="disabled"
         style={{ ['--background-image' as string]: "url('/public/images/setting.svg')" }}
       />
     </nav>

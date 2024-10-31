@@ -1,5 +1,5 @@
 import express from 'express'
-import { Get, Hidden, Produces, Request, Route, Security, SuccessResponse } from 'tsoa'
+import { Delete, Hidden, Produces, Request, Route, Security, SuccessResponse } from 'tsoa'
 import { injectable } from 'tsyringe'
 
 import pino from 'pino'
@@ -7,7 +7,8 @@ import { Env } from '../../env/index.js'
 import { BadRequestError, InternalError } from '../../errors.js'
 import Database from '../../models/db/index.js'
 import type { TABLE } from '../../models/db/types.js'
-import VeritableCloudagent, { Connection, Credential } from '../../models/veritableCloudagent.js'
+import VeritableCloudagent from '../../models/veritableCloudagent/index.js'
+import { Connection, Credential } from '../../models/veritableCloudagentInt.js'
 
 @injectable()
 @Security('oauth2')
@@ -47,7 +48,7 @@ export class ResetController {
    * Retrieves the connection list page
    */
   @SuccessResponse(200)
-  @Get('/')
+  @Delete('/')
   public async reset(@Request() req: express.Request): Promise<{ statusCode: number }> {
     const DEMO_MODE = this.env.get('DEMO_MODE')
     if (!DEMO_MODE) {

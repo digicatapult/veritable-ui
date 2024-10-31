@@ -10,7 +10,9 @@ import {
   submitQueryRpcParams,
 } from '../../models/drpc.js'
 import { UUID } from '../../models/strings.js'
-import VeritableCloudagent, { DrpcResponse } from '../../models/veritableCloudagent.js'
+import VeritableCloudagent from '../../models/veritableCloudagent/index.js'
+import { DrpcResponse } from '../../models/veritableCloudagentInt.js'
+
 import { neverFail } from '../../utils/promises.js'
 import VeritableCloudagentEvents, { DrpcRequest, eventData } from '../veritableCloudagentEvents.js'
 
