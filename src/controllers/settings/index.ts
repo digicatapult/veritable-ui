@@ -59,7 +59,7 @@ export class SettingsController extends HTMLController {
    * @returns
    */
   @SuccessResponse(200)
-  @Post('/update/:edit?')
+  @Post('/:edit?')
   public async updateSettings(
     @Request() req: express.Request,
     @Body()

@@ -49,7 +49,7 @@ describe('integration tests for settings page', function () {
       const setting = await db.get('settings')
       expect(setting.length).to.equal(1)
       expect(setting[0].setting_value).to.contain('admin@testmail.com')
-      const response = await post(server.app, '/settings/update?edit=true', testEditBody)
+      const response = await post(server.app, '/settings/?edit=true', testEditBody)
       const setting1 = await db.get('settings')
       expect(setting1.length).to.equal(1)
       expect(setting1[0].setting_value).to.contain('madmin@testmail.com')
@@ -60,15 +60,15 @@ describe('integration tests for settings page', function () {
 
   describe('sad path', function () {
     it('returns fail on edit mode being false', async function () {
-      const response = await post(server.app, '/settings/update?edit=false', testEditBody)
+      const response = await post(server.app, '/settings/?edit=false', testEditBody)
       expect(response.status).to.equal(501)
     })
     it('returns fail on missing property and false edit mode', async function () {
-      const response = await post(server.app, '/settings/update?edit=false', testBody)
+      const response = await post(server.app, '/settings/?edit=false', testBody)
       expect(response.status).to.equal(501)
     })
     it('returns fail on missing property even if edit is turned on', async function () {
-      const response = await post(server.app, '/settings/update?edit=true', testBody)
+      const response = await post(server.app, '/settings/?edit=true', testBody)
       expect(response.status).to.equal(501)
     })
   })

@@ -38,7 +38,7 @@ export default class SettingsTemplates {
 
   public settingsForm = ({ settingsProps, edit }: { settingsProps: SettingsType; edit: boolean }): JSX.Element => {
     return (
-      <form id="settings-form" hx-post={`/settings/update${edit == true ? '?edit=true' : ''}`} hx-swap="innerHTML">
+      <form id="settings-form" hx-post={`/settings/${edit == true ? '?edit=true' : ''}`} hx-swap="innerHTML">
         <label for="company_name" class="settings-input-label">
           Company Name
         </label>

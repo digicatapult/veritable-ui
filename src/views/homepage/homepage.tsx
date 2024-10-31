@@ -29,11 +29,6 @@ export default class HomepageTemplates {
             <h1>Credentials</h1>
             <p>Manage and verify digital credentials securely within your network.</p>
           </a>
-          <a href="/connection">
-            <img src="/public/images/connection.svg" />
-            <h1>Onboard/Refer</h1>
-            <p>Easily onboard new companies or refer companies to join your network.</p>
-          </a>
           <a href="/settings">
             <img src="/public/images/setting.svg" />
             <h1>Settings</h1>
