@@ -1,32 +1,18 @@
 import { inject, injectable, singleton } from 'tsyringe'
-import { z } from 'zod'
 
 import { Logger, type ILogger } from '../../logger.js'
 import Database from '../../models/db/index.js'
 import { QueryRow } from '../../models/db/types.js'
+import {
+  submitQueryResponseRpcParams,
+  SubmitQueryResponseRpcParams,
+  SubmitQueryRpcParams,
+  submitQueryRpcParams,
+} from '../../models/drpc.js'
 import { UUID } from '../../models/strings.js'
 import VeritableCloudagent, { DrpcResponse } from '../../models/veritableCloudagent.js'
 import { neverFail } from '../../utils/promises.js'
 import VeritableCloudagentEvents, { DrpcRequest, eventData } from '../veritableCloudagentEvents.js'
-
-const submitQueryRpcParams = z.discriminatedUnion('query', [
-  z.object({
-    query: z.literal('Scope 3 Carbon Consumption'),
-    productId: z.string(),
-    quantity: z.number().int().min(1),
-    queryIdForResponse: z.string(),
-    emissions: z.string().optional(),
-  }),
-])
-const submitQueryResponseRpcParams = z.discriminatedUnion('query', [
-  z.object({
-    query: z.literal('Scope 3 Carbon Consumption'),
-    queryIdForResponse: z.string(),
-    emissions: z.string().optional(),
-  }),
-])
-type SubmitQueryRPCParams = z.infer<typeof submitQueryRpcParams>
-type SubmitQueryResponseRPCParams = z.infer<typeof submitQueryResponseRpcParams>
 
 const drpcErrorCode = {
   METHOD_NOT_FOUND: -32601,
@@ -93,7 +79,7 @@ export default class DrpcEvents {
         request.method
       )
 
-      let params: SubmitQueryRPCParams
+      let params: SubmitQueryRpcParams
       try {
         params = submitQueryRpcParams.parse(request.params)
         this.logger.info('submitQueryRpcParams have been parsed %j', params)
@@ -118,13 +104,13 @@ export default class DrpcEvents {
       const [query] = await this.db.insert('query', {
         connection_id: connection.id,
         status: 'pending_your_input',
-        query_type: 'Scope 3 Carbon Consumption',
+        type: 'total_carbon_embodiment',
         details: {
-          productId: params.productId,
-          quantity: params.quantity,
+          subjectId: params.data.subjectId,
+          quantity: params.data.quantity,
         },
-        response_id: params.queryIdForResponse, //save to send back in response
-        query_response: null,
+        response_id: params.id, //save to send back in response
+        response: null,
         role: 'responder',
       })
       queryId = query.id
@@ -176,7 +162,7 @@ export default class DrpcEvents {
         request.method
       )
 
-      let params: SubmitQueryResponseRPCParams
+      let params: SubmitQueryResponseRpcParams
       try {
         params = submitQueryResponseRpcParams.parse(request.params)
       } catch (err) {
@@ -185,7 +171,7 @@ export default class DrpcEvents {
         await this.cloudagent.submitDrpcResponse(request.id, {
           error: {
             code: drpcErrorCode.INVALID_PARAMS,
-            message: `invalid params object`,
+            message: 'invalid params object',
           },
         })
         return
@@ -197,26 +183,26 @@ export default class DrpcEvents {
       }
       //find corresponding query based on queryIdForResponse provided by responder,
       //this should match a query id in our db
-      const [queryRow] = await this.db.get('query', { id: params.queryIdForResponse, role: 'requester' })
+      const [queryRow] = await this.db.get('query', { id: params.id, role: 'requester' })
       if (!queryRow) {
-        this.logger.warn('Invalid queryId for drpc message %s', params.queryIdForResponse)
+        this.logger.warn('Invalid queryId for drpc message %s', params.id)
         return
       }
 
-      if (queryRow.query_response !== null) {
-        this.logger.warn('It appears this query: %s has already been answered.', params.queryIdForResponse)
+      if (queryRow.response !== null) {
+        this.logger.warn('It appears this query: %s has already been answered.', params.id)
         return
       }
 
       //update corresponding query
       const [query]: QueryRow[] = await this.db.update(
         'query',
-        { id: queryRow.id },
-        { query_response: params.emissions, status: 'resolved' }
+        { id: params.id },
+        { response: params.data, status: 'resolved' }
       )
 
       if (queryRow.parent_id) {
-        await this.handleParentQuery(queryRow.parent_id, query, params)
+        await this.handleParentQuery(queryRow.parent_id, query)
       }
 
       const result = {
@@ -258,36 +244,46 @@ export default class DrpcEvents {
    * @param rpcResponse - "let rpcResponse" - replacement
    * @returns void
    */
-  private async handleParentQuery(
-    id: UUID,
-    childQuery: QueryRow,
-    params: SubmitQueryResponseRPCParams,
-    rpcResponse?: DrpcResponse
-  ) {
+  private async handleParentQuery(id: UUID, childQuery: QueryRow) {
+    let rpcResponse: DrpcResponse | undefined
     try {
-      const [parentQuery]: QueryRow[] = await this.db.get('query', { id })
-      if (!parentQuery || parentQuery.query_response !== null) {
+      const [parentQuery]: QueryRow[] = await this.db.get('query', { id, role: 'responder' })
+      if (!parentQuery || parentQuery.status !== 'forwarded') {
         throw new Error('parent query already has a response or not found')
+      }
+      if (!parentQuery.response) {
+        throw new Error('parent query does not have a response from us')
       }
 
       const [connection] = await this.db.get('connection', { id: parentQuery.connection_id })
       if (!connection.agent_connection_id) throw new Error('missing agent_id')
 
-      const allChilds = await this.db.get('query', { parent_id: id })
+      const allChilds = await this.db.get('query', { parent_id: id, role: 'requester' })
       if (!allChilds.every(({ status }) => status === 'resolved')) {
         this.logger.info('not all childs have responded. returning.')
         return
       }
-      // adding childs and parent emissions
-      const total: number = allChilds.reduce(
-        (out, { details }) => (out += parseInt(details.emissions) + parseInt(params.emissions || '0')),
-        0
-      )
+      const partialResponses = allChilds.map(({ id, type, response }) => {
+        if (!response || type != parentQuery.type) {
+          throw new Error('Unexpected child query in resolved status without response')
+        }
+        return {
+          id,
+          type: `https://github.com/digicatapult/veritable-documentation/tree/main/schemas/veritable_messaging/query_types/${type}/response/0.1` as const,
+          data: response,
+        }
+      })
+      const response = {
+        mass: parentQuery.response.mass,
+        partialResponses,
+        subjectId: parentQuery.details.subjectId,
+      }
+
       // if all child responded, respond to the parent query
       rpcResponse = await this.cloudagent.submitDrpcRequest(connection.agent_connection_id, 'submit_query_response', {
-        query: 'Scope 3 Carbon Consumption',
-        emissions: total.toString(),
-        queryIdForResponse: parentQuery.response_id as UUID,
+        id: parentQuery.response_id as UUID,
+        type: `https://github.com/digicatapult/veritable-documentation/tree/main/schemas/veritable_messaging/query_types/${parentQuery.type}/response/0.1`,
+        data: response,
       })
       this.logger.info('submitting DRPC request %j', rpcResponse)
 
@@ -312,7 +308,7 @@ export default class DrpcEvents {
         'query',
         { id: parentQuery.id },
         {
-          query_response: total.toString(),
+          response,
           status: 'resolved',
         }
       )
@@ -321,7 +317,7 @@ export default class DrpcEvents {
         this.logger.warn('error in rpc response %s to query %s', rpcResponse.id, childQuery?.id)
         this.logger.debug('DRPC response %j', rpcResponse)
       }
-      this.logger.warn('unexpected error occured', JSON.stringify(err))
+      this.logger.warn('unexpected error occurred', JSON.stringify(err))
       this.logger.debug('handling %s child query failed %j', childQuery?.id, childQuery)
 
       await this.db.update('query', { id: childQuery.id }, { status: 'errored' })

@@ -4,6 +4,8 @@ import { z } from 'zod'
 import { Env, type PartialEnv } from '../env/index.js'
 import { InternalError } from '../errors.js'
 import { Logger, type ILogger } from '../logger.js'
+import { MapDiscriminatedUnion } from '../utils/types.js'
+import { DrpcQueryRequest } from './drpc.js'
 
 const oobParser = z.object({
   invitationUrl: z.string(),
@@ -159,9 +161,22 @@ export type CredentialProposalAcceptInput = {
 
 type parserFn<O> = (res: Response) => O | Promise<O>
 
+export interface DrpcRequest {
+  method: string
+  params: Record<string, unknown>
+}
+
+export interface CloudagentConfig {
+  drpcRequest: DrpcRequest
+}
+
+type DefaultConfig = {
+  drpcRequest: DrpcQueryRequest
+}
+
 @singleton()
 @injectable()
-export default class VeritableCloudagent {
+export default class VeritableCloudagent<Config extends CloudagentConfig = DefaultConfig> {
   constructor(
     @inject(Env) private env: PartialEnv<'CLOUDAGENT_ADMIN_ORIGIN'>,
     @inject(Logger) protected logger: ILogger
@@ -308,10 +323,10 @@ export default class VeritableCloudagent {
     return this.postRequest(`/v1/credentials/${credentialId}/accept-proposal`, body, this.buildParser(credentialParser))
   }
 
-  public async submitDrpcRequest(
+  public async submitDrpcRequest<M extends Config['drpcRequest']['method']>(
     connectionId: string,
-    method: string,
-    params: Record<string, unknown>
+    method: M,
+    params: MapDiscriminatedUnion<Config['drpcRequest'], 'method'>[M]['params']
   ): Promise<DrpcResponse | undefined> {
     const body = {
       jsonrpc: '2.0',
