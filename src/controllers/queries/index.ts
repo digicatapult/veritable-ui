@@ -7,8 +7,10 @@ import { InvalidInputError, NotFoundError } from '../../errors.js'
 import { PartialQueryPayload } from '../../models/arrays.js'
 import Database from '../../models/db/index.js'
 import { ConnectionRow, QueryRow, Where } from '../../models/db/types.js'
+import { DrpcQueryRequest, SubmitQueryRequest } from '../../models/drpc.js'
+import { UInt } from '../../models/numbers.js'
 import { type UUID } from '../../models/strings.js'
-import VeritableCloudagent, { DrpcResponse } from '../../models/veritableCloudagent.js'
+import VeritableCloudagent from '../../models/veritableCloudagent/index.js'
 import QueriesTemplates from '../../views/queries/queries.js'
 import QueryListTemplates from '../../views/queries/queriesList.js'
 import Scope3CarbonConsumptionTemplates from '../../views/queries/requestCo2scope3.js'
@@ -134,30 +136,11 @@ export class QueriesController extends HTMLController {
       throw new InvalidInputError(`Cannot query unverified connection`)
     }
 
-    const [queryRow] = await this.db.insert('query', {
-      connection_id: connection.id,
-      query_type: 'Scope 3 Carbon Consumption',
-      status: 'pending_their_input',
-      details: {
-        productId: body.productId,
+    return await this.handleQueryRequest(req.log, connection.id, null, {
+      type: 'https://github.com/digicatapult/veritable-documentation/tree/main/schemas/veritable_messaging/query_types/total_carbon_embodiment/request/0.1',
+      data: {
+        subjectId: body.productId,
         quantity: body.quantity,
-      },
-      response_id: null,
-      query_response: null,
-      role: 'requester',
-    })
-    req.log.info('local query has been persisted %j', queryRow)
-
-    return this.submitDrpcRequest({
-      method: 'submit_query_request',
-      log: req.log,
-      connection,
-      query: queryRow,
-      localQuery: {
-        query: 'Scope 3 Carbon Consumption',
-        productId: body.productId,
-        quantity: body.quantity,
-        queryIdForResponse: queryRow.id,
       },
     })
   }
@@ -278,12 +261,12 @@ export class QueriesController extends HTMLController {
     body: {
       companyId: UUID
       action: 'success'
-      emissions?: string
-      partialQuery?: 'on'[]
-      partialSelect?: 'on'[]
+      emissions: number
+      partialQuery?: 'on'[] // TODO: remove
+      partialSelect?: 'on'[] // TODO: remove
       connectionIds?: string[]
       productIds?: string[]
-      quantities?: string[]
+      quantities?: UInt[]
     }
   ): Promise<HTML> {
     const { action, companyId, emissions, partialQuery, partialSelect, ...partial } = body
@@ -301,61 +284,58 @@ export class QueriesController extends HTMLController {
       throw new InvalidInputError(`Cannot query unverified connection`)
     }
     const [queryRow]: QueryRow[] = await this.db.get('query', { id: queryId })
+    if (!queryRow) {
+      req.log.warn('invalid input error %j', { queryId })
+      throw new InvalidInputError(`Invalid query id.`)
+    }
     if (!queryRow.response_id) {
       req.log.warn('missing DRPC response_id to respond to %j', queryRow)
       throw new InvalidInputError(`Missing response_id to respond to.`)
     }
 
-    if (partial && partialQuery) {
-      if (!partial.connectionIds || !partial.productIds || !partial.quantities) {
-        throw new InvalidInputError('missing a property in the request body')
-      }
-      req.log.info('processing partial query %j', partial)
-      const size: number = this.validatePartialQuery(partial)
+    if (!partialQuery) {
+      return this.handleQueryResponse(req.log, connection, queryRow, emissions)
+    }
 
+    if (!partial.connectionIds || !partial.productIds || !partial.quantities) {
+      throw new InvalidInputError('missing a property in the request body')
+    }
+    req.log.info('processing partial query %j', partial)
+    const size: number = this.validatePartialQuery(partial)
+
+    const { connectionIds, productIds, quantities } = partial
+    if (connectionIds && productIds && quantities) {
       await Promise.all(
         new Array(size).fill({}).map((_, i) => {
-          if (partial.connectionIds && partial.productIds && partial.quantities) {
-            req.log.debug('submitting DRPC request to %s connection', partial.connectionIds[i])
-
-            return this.submitDrpcRequest({
-              parentId: queryRow.id,
-              method: 'submit_query_request',
-              connectionId: partial.connectionIds[i],
-              log: req.log,
-              localQuery: {
-                query: 'Scope 3 Carbon Consumption',
-                quantity: parseInt(partial.quantities[i]),
-                productId: partial.productIds[i],
-                emissions,
-              },
-              query: null,
-              connection: null,
-            })
-          }
-        })
-      )
-
-      return this.html(
-        this.scope3CarbonConsumptionResponseTemplates.newScope3CarbonConsumptionResponseFormPage({
-          formStage: 'success',
-          company: connection,
-          query: queryRow,
+          req.log.debug('submitting DRPC request to %s connection', connectionIds[i])
+          // TODO: handle errors
+          return this.handleQueryRequest(req.log, connectionIds[i], queryRow.id, {
+            type: 'https://github.com/digicatapult/veritable-documentation/tree/main/schemas/veritable_messaging/query_types/total_carbon_embodiment/request/0.1',
+            data: {
+              subjectId: productIds[i],
+              quantity: quantities[i],
+            },
+          })
         })
       )
     }
 
-    return this.submitDrpcRequest({
-      connection,
-      method: 'submit_query_response',
-      log: req.log,
-      localQuery: {
-        query: 'Scope 3 Carbon Consumption',
-        emissions,
-        queryIdForResponse: queryRow.response_id,
-      },
-      query: queryRow,
-    })
+    await this.db.update(
+      'query',
+      { id: queryId },
+      {
+        status: 'forwarded',
+        response: { mass: emissions, partialResponses: [], subjectId: queryRow.details.subjectId },
+      }
+    )
+
+    return this.html(
+      this.scope3CarbonConsumptionResponseTemplates.newScope3CarbonConsumptionResponseFormPage({
+        formStage: 'success',
+        company: connection,
+        query: queryRow,
+      })
+    )
   }
 
   /**
@@ -371,7 +351,7 @@ export class QueriesController extends HTMLController {
     const [query]: QueryRow[] = await this.db.get('query', { id: queryId })
 
     if (!query) throw new NotFoundError(`There has been an issue retrieving the query.`)
-    if (query.query_response === null) throw new InvalidInputError(`This query does not seem to have a response yet.`)
+    if (query.response === null) throw new InvalidInputError(`This query does not seem to have a response yet.`)
 
     const [connection] = await this.db.get('connection', { id: query.connection_id })
     if (!connection) {
@@ -381,15 +361,7 @@ export class QueriesController extends HTMLController {
 
     req.log.info('connection and query has been found %j', { query, connection })
 
-    return this.html(
-      this.scope3CarbonConsumptionResponseTemplates.view({
-        company_name: connection.company_name,
-        quantity: query.details['quantity'],
-        productId: query.details['productId'],
-        emissions: query.query_response,
-        ...query,
-      })
-    )
+    return this.html(this.scope3CarbonConsumptionResponseTemplates.view(connection, query))
   }
 
   private validatePartialQuery({ connectionIds: a, productIds: b, quantities: c }: PartialQueryPayload): number {
@@ -401,120 +373,147 @@ export class QueriesController extends HTMLController {
     return a.length
   }
 
-  /**
-   *
-   * @param rpcResponse
-   * @param log - logger, passed so we can keep track of req_id
-   * @param method - either receive or sent needed for submitting drpc request
-   * @param payload - rest(spread operator) that will contain
-   * @returns html either success of error
-   */
-  public async submitDrpcRequest({
-    rpcResponse,
-    log,
-    method,
-    ...payload
-  }: {
-    query: QueryRow | null
-    method: 'submit_query_request' | 'submit_query_response'
-    log: Logger
-    localQuery: { query: string; queryIdForResponse?: UUID; emissions?: string; quantity?: number; productId?: string }
-    rpcResponse?: DrpcResponse | undefined
-    parentId?: UUID | undefined
-    connectionId?: UUID
-    connection?: ConnectionRow | null
-  }) {
+  private async handleQueryRequest(
+    log: Logger,
+    connectionId: UUID,
+    parentId: UUID | null,
+    params: Omit<SubmitQueryRequest['params'], 'id'>
+  ) {
+    const [connection]: ConnectionRow[] = await this.db.get(
+      'connection',
+      { id: connectionId, status: 'verified_both' },
+      [['updated_at', 'desc']]
+    )
+    if (!connection.agent_connection_id) throw new InvalidInputError('missing agent_id from connection')
+
+    const [query] = await this.db.insert('query', {
+      connection_id: connectionId,
+      type: 'total_carbon_embodiment',
+      status: 'pending_their_input',
+      details: params.data,
+      response_id: null,
+      response: null,
+      role: 'requester',
+      parent_id: parentId,
+    })
+
     try {
-      const { parentId, connection, localQuery, connectionId } = payload
-      const [conn]: ConnectionRow[] = connection
-        ? [connection]
-        : await this.db.get('connection', { id: connectionId, status: 'verified_both' }, [['updated_at', 'desc']])
-
-      if (!conn.agent_connection_id) throw new InvalidInputError('missing agent_id from connection')
-      if (parentId) {
-        const [query] = await this.db.insert('query', {
-          connection_id: conn.id,
-          parent_id: parentId,
-          query_type: 'Scope 3 Carbon Consumption',
-          status: 'pending_their_input',
-          details: localQuery,
-          response_id: null,
-          query_response: null,
-          role: 'requester',
-        })
-        if (!payload.query) payload.query = query
-
-        await this.db.update('query', { id: parentId }, { status: 'forwarded' })
-        log.info('child query has been created %s that is fowarded from %s parent query', query.id, parentId)
-        log.debug('before submision of DRPC request %j', { payload, query, connection: conn })
-        localQuery.queryIdForResponse = query.id
-      }
-      const { query } = payload
-
-      if (!query || query.query_response != null) throw new Error('query already has a response')
-      rpcResponse = await this.cloudagent.submitDrpcRequest(conn.agent_connection_id, method, localQuery)
-
-      if (!rpcResponse) throw new Error('failed to retrieve rpc response')
-      log.debug('DRPC response %j', { rpcResponse, localQuery })
-      log.info('persisting query_rpc response', rpcResponse)
-
-      await this.db.insert('query_rpc', {
-        agent_rpc_id: rpcResponse.id,
-        query_id: query.id,
-        role: 'client',
+      await this.submitDrpcQueryAndStoreResult(log, connection.agent_connection_id, query, {
         method: 'submit_query_request',
-        result: rpcResponse.result,
-        error: rpcResponse.error,
+        params: {
+          id: query.id,
+          ...params,
+        },
       })
-
-      if (!rpcResponse.result || rpcResponse.error) {
-        log.warn('error happened while persisting query_rpc %j', rpcResponse.error)
-        throw new Error(JSON.stringify(rpcResponse.error))
-      }
-
-      if (!parentId && localQuery.emissions) {
-        await this.db.update('query', { id: query.id }, { query_response: localQuery.emissions, status: 'resolved' })
-      }
-
-      if (!parentId && localQuery.emissions) {
-        await this.db.update('query', { id: query.id }, { query_response: localQuery.emissions, status: 'resolved' })
-        return this.html(
-          this.scope3CarbonConsumptionTemplates.newScope3CarbonConsumptionFormPage({
-            formStage: 'success',
-            company: {
-              companyName: conn.company_name,
-            },
-          })
-        )
-      }
-
-      return this.html(
-        this.scope3CarbonConsumptionResponseTemplates.newScope3CarbonConsumptionResponseFormPage({
-          formStage: 'success',
-          company: conn,
-          query,
-        })
-      )
     } catch (err) {
-      const { query, connection } = payload
-      if (rpcResponse?.id) {
-        log.warn('error in rpc response %s to query %s to connection %s', rpcResponse.id, query?.id, connection?.id)
-        log.debug('DRPC response %j', rpcResponse)
-      }
-      log.warn('unexpected error occured', JSON.stringify(err))
-      log.debug('query %s has errored for %s connection %j', query?.id, connection?.id, { query, connection })
-
       await this.db.update('query', { id: query?.id }, { status: 'errored' })
 
       return this.html(
         this.scope3CarbonConsumptionTemplates.newScope3CarbonConsumptionFormPage({
           formStage: 'error',
           company: {
-            companyName: connection?.company_name,
-            companyNumber: connection?.company_number || '',
+            companyNumber: connection.company_number,
+            companyName: connection.company_name,
           },
         })
       )
+    }
+
+    return this.html(
+      this.scope3CarbonConsumptionTemplates.newScope3CarbonConsumptionFormPage({
+        formStage: 'success',
+        company: {
+          companyName: connection.company_name,
+        },
+      })
+    )
+  }
+
+  private async handleQueryResponse(log: Logger, connection: ConnectionRow, query: QueryRow, emissions?: number) {
+    if (query.response) {
+      log.warn('Attempted to respond to already completed query %j', query)
+      throw new InvalidInputError(`Query with id ${query.id} has already been responded to`)
+    }
+    if (!query.response_id || query.role === 'requester') {
+      log.warn('Cannot respond to query without a response_id %j', query)
+      throw new InvalidInputError(`Query from self with id ${query.id} cannot be responded to`)
+    }
+    if (emissions === undefined) {
+      log.warn('Attempt to respond to query without response %j', query)
+      throw new InvalidInputError(`Must provide response to respond to query`)
+    }
+    if (connection.agent_connection_id === null) {
+      log.error('Internal error attempting to respond to pending connection %j', { connection })
+      throw new Error(`Cannot respond on connection ${connection.id} without an agent id`)
+    }
+
+    try {
+      await this.submitDrpcQueryAndStoreResult(log, connection.agent_connection_id, query, {
+        method: 'submit_query_response',
+        params: {
+          id: query.response_id,
+          type: 'https://github.com/digicatapult/veritable-documentation/tree/main/schemas/veritable_messaging/query_types/total_carbon_embodiment/response/0.1',
+          data: {
+            subjectId: query.details.subjectId,
+            mass: emissions,
+            partialResponses: [],
+          },
+        },
+      })
+
+      await this.db.update(
+        'query',
+        { id: query.id },
+        {
+          status: 'resolved',
+          response: { mass: emissions, partialResponses: [], subjectId: query.details.subjectId },
+        }
+      )
+    } catch (err) {
+      await this.db.update('query', { id: query.id }, { status: 'errored' })
+
+      return this.html(
+        this.scope3CarbonConsumptionResponseTemplates.newScope3CarbonConsumptionResponseFormPage({
+          formStage: 'error',
+          company: connection,
+          query,
+        })
+      )
+    }
+
+    return this.html(
+      this.scope3CarbonConsumptionResponseTemplates.newScope3CarbonConsumptionResponseFormPage({
+        formStage: 'success',
+        company: connection,
+        query,
+      })
+    )
+  }
+
+  private async submitDrpcQueryAndStoreResult(
+    log: Logger,
+    agentConnectionId: string,
+    query: QueryRow,
+    rpcRequest: DrpcQueryRequest
+  ) {
+    const rpcResponse = await this.cloudagent.submitDrpcRequest(agentConnectionId, rpcRequest.method, rpcRequest.params)
+
+    if (!rpcResponse) throw new Error('failed to retrieve rpc response')
+    log.debug('DRPC response %j', { rpcResponse, rpcRequest })
+    log.info('persisting query_rpc response', rpcResponse)
+
+    await this.db.insert('query_rpc', {
+      agent_rpc_id: rpcResponse.id,
+      query_id: query.id,
+      role: 'client',
+      method: 'submit_query_response',
+      result: rpcResponse.result,
+      error: rpcResponse.error,
+    })
+
+    if (!rpcResponse.result || rpcResponse.error) {
+      log.warn('error happened with query rpc %j', { rpcResponse })
+      throw new Error(`Error occurred submitting response to query ${query.response_id}`)
     }
   }
 }
@@ -536,7 +535,7 @@ function combineData(query_subset: QueryRow[], connections: ConnectionRow[]) {
       return {
         id: query.id,
         company_name: company_name,
-        query_type: query.query_type,
+        type: query.type,
         updated_at: query.updated_at,
         status: query.status,
         role: query.role,

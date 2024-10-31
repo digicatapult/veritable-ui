@@ -1,30 +1,16 @@
 import Html from '@kitajs/html'
 import { singleton } from 'tsyringe'
-import { UUID } from '../../models/strings.js'
-import { ConnectionStatus, LinkButton, Page, statusToClass } from '../common.js'
+import { credentialStatusToClass, LinkButton, Page } from '../common.js'
 
-type State =
-  | 'pending'
-  | 'proposal-sent'
-  | 'proposal-received'
-  | 'offer-sent'
-  | 'offer-received'
-  | 'declined'
-  | 'request-sent'
-  | 'request-received'
-  | 'credential-issued'
-  | 'credential-received'
-  | 'done'
-  | 'abandoned'
-type Role = 'issuer' | 'holder'
-type CredentialType = 'Supplier credentials'
-export type Credential = { companyName: string; role: Role; state: State; id: UUID; type: CredentialType }
+import type { Credential } from '../../models/veritableCloudagentInt.js'
+
+type ExtendedCredential = Credential & { companyName: string; type: 'Supplier credentials' }
 
 @singleton()
 export default class CredentialListTemplates {
   constructor() {}
 
-  private roleToDirection = (role: Role): JSX.Element => {
+  private roleToDirection = (role: Credential['role']): JSX.Element => {
     switch (role) {
       case 'holder':
         return <p>Received</p>
@@ -35,10 +21,8 @@ export default class CredentialListTemplates {
     }
   }
 
-  private buttonText = (state: State): string => {
+  private buttonText = (state: Credential['state']): string => {
     switch (state) {
-      case 'pending':
-        return 'View Request'
       case 'done':
         return 'View Credential'
       default:
@@ -46,7 +30,7 @@ export default class CredentialListTemplates {
     }
   }
 
-  public listPage = (credentials: Credential[], search: string = '') => {
+  public listPage = (credentials: ExtendedCredential[], search: string = '') => {
     return (
       <Page
         title="Veritable - Credentials"
@@ -109,7 +93,7 @@ export default class CredentialListTemplates {
                       <td>{Html.escapeHtml(cred.companyName)}</td>
                       <td>{Html.escapeHtml(cred.type)}</td>
                       <td>{this.roleToDirection(cred.role)}</td>
-                      <td>{statusToClass(cred.state as ConnectionStatus)}</td>
+                      <td>{credentialStatusToClass(cred.state)}</td>
                       <td>
                         <LinkButton
                           icon='url("/public/images/dot-icon.svg")'

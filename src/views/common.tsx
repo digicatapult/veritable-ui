@@ -4,33 +4,16 @@ import { container } from 'tsyringe'
 
 import { Env } from '../env/index.js'
 
+import type { ConnectionRow, QueryRow } from '../models/db/types.js'
+import type { Credential } from '../models/veritableCloudagentInt.js'
+
 const env = container.resolve(Env)
 
 type HeaderLink = { name: string; url: string }
 
-export type ConnectionStatus =
-  | 'pending'
-  | 'unverified'
-  | 'verified_them'
-  | 'verified_us'
-  | 'verified_both'
-  | 'disconnected'
-  | 'pending_their_input'
-  | 'pending_your_input'
-  | 'done'
-  | 'errored'
-  | 'resolved'
-  | 'proposal-sent'
-  | 'proposal-received'
-  | 'offer-sent'
-  | 'offer-received'
-  | 'declined'
-  | 'request-sent'
-  | 'request-received'
-  | 'credential-issued'
-  | 'credential-received'
-  | 'abandoned'
-  | 'forwarded'
+type ConnectionStatus = ConnectionRow['status']
+type QueryStatus = QueryRow['status']
+type CredentialStatus = Credential['state']
 
 type PageProps = {
   title: string
@@ -114,9 +97,8 @@ const SideBar = ({ activePage }: { activePage: PageProps['activePage'] }): JSX.E
       />
       <a
         title="settings"
-        href="#"
+        href="/settings"
         data-active={activePage === 'settings'}
-        class="disabled"
         style={{ ['--background-image' as string]: "url('/public/images/setting.svg')" }}
       />
     </nav>
@@ -186,7 +168,7 @@ export const Page = (props: PropsWithChildren<PageProps>): JSX.Element => (
   </>
 )
 
-export const statusToClass = (status: ConnectionStatus): JSX.Element => {
+export const connectionStatusToClass = (status: ConnectionStatus): JSX.Element => {
   switch (status) {
     case 'verified_them':
     case 'unverified':
@@ -219,6 +201,11 @@ export const statusToClass = (status: ConnectionStatus): JSX.Element => {
           Invite Sent
         </div>
       )
+  }
+}
+
+export const queryStatusToClass = (status: QueryStatus): JSX.Element => {
+  switch (status) {
     case 'forwarded':
       return (
         <div class="list-item-status" data-status="warning">
@@ -228,13 +215,13 @@ export const statusToClass = (status: ConnectionStatus): JSX.Element => {
     case 'pending_your_input':
       return (
         <div class="list-item-status" data-status="warning">
-          Verification Code Required
+          Pending Your Input
         </div>
       )
     case 'pending_their_input':
       return (
         <div class="list-item-status" data-status="disabled">
-          Waiting for Response
+          Pending Their Input
         </div>
       )
     case 'resolved':
@@ -249,6 +236,10 @@ export const statusToClass = (status: ConnectionStatus): JSX.Element => {
           Errored
         </div>
       )
+  }
+}
+export const credentialStatusToClass = (status: CredentialStatus): JSX.Element => {
+  switch (status) {
     case 'proposal-sent':
       return (
         <div class="list-item-status" data-status="disabled">
@@ -313,12 +304,6 @@ export const statusToClass = (status: ConnectionStatus): JSX.Element => {
       return (
         <div class="list-item-status" data-status="error">
           Cancelled
-        </div>
-      )
-    default:
-      return (
-        <div class="list-item-status" data-status="error">
-          unknown
         </div>
       )
   }

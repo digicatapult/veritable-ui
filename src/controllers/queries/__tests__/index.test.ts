@@ -84,17 +84,18 @@ describe('QueriesController', () => {
         {
           connection_id: 'cccccccc-0001-0000-0000-d8ae0805059e',
           details: {
-            productId: 'SomeID',
+            subjectId: 'SomeID',
             quantity: 111,
           },
-          query_response: null,
-          query_type: 'Scope 3 Carbon Consumption',
+          parent_id: null,
+          response: null,
+          type: 'total_carbon_embodiment',
           response_id: null,
           role: 'requester',
           status: 'pending_their_input',
         },
       ])
-      expect(result).to.equal('queriesResponse_template')
+      expect(result).to.equal('scope3_success_scope3')
     })
 
     it('should call page with stage error if rpc fails', async () => {
@@ -133,7 +134,7 @@ describe('QueriesController', () => {
       expect(result).to.equal('scope3_error_scope3')
     })
 
-    it('should call page with stage error if rpc succeeds with error', async () => {
+    it('should call page with stage error if rpc returns with error', async () => {
       const { dbMock, args, cloudagentMock } = withQueriesMocks()
       cloudagentMock.submitDrpcRequest = sinon.stub().resolves({
         error: new Error('error'),
@@ -170,7 +171,8 @@ describe('QueriesController', () => {
               action: 'success',
               partialQuery: ['on'],
               productIds: ['product-1', 'product-2'],
-              quantities: ['10', '20'],
+              quantities: [10, 20],
+              emissions: 10,
             })
             // the below expect should never happen since we expect test to throw
             expect(false).to.be.equal(true)
@@ -188,7 +190,8 @@ describe('QueriesController', () => {
               action: 'success',
               partialQuery: ['on'],
               connectionIds: ['conn-id-1', 'conn-id-2'],
-              quantities: ['10', '20'],
+              quantities: [10, 20],
+              emissions: 10,
             })
             // the below expect should never happen since we expect test to throw
             expect(false).to.be.equal(true)
@@ -206,6 +209,7 @@ describe('QueriesController', () => {
               action: 'success',
               partialQuery: ['on'],
               connectionIds: ['conn-id-1', 'conn-id-2'],
+              emissions: 10,
             })
             // the below expect should never happen since we expect test to throw
             expect(false).to.be.equal(true)
@@ -223,8 +227,9 @@ describe('QueriesController', () => {
               action: 'success',
               partialQuery: ['on'],
               productIds: ['product-id-1'],
-              quantities: ['1', '2', '3'],
+              quantities: [1, 2, 3],
               connectionIds: ['conn-id-1', 'conn-id-2'],
+              emissions: 10,
             })
             // the below expect should never happen since we expect test to throw
             expect(false).to.be.equal(true)
@@ -242,48 +247,43 @@ describe('QueriesController', () => {
             companyId: 'some-company-id',
             action: 'success',
             partialQuery: ['on'],
-            emissions: '10',
+            emissions: 10,
+            partialSelect: ['on', 'on'],
             connectionIds: ['conn-id-1', 'conn-id-2'],
             productIds: ['product-1', 'product-2'],
-            quantities: ['10', '20'],
+            quantities: [10, 20],
           })
           .then(toHTMLString)
 
         expect(dbMock.insert.getCall(0).args).to.deep.equal([
           'query',
           {
-            connection_id: 'cccccccc-0001-0000-0000-d8ae0805059e',
-            query_type: 'Scope 3 Carbon Consumption',
+            connection_id: 'conn-id-1',
+            type: 'total_carbon_embodiment',
             status: 'pending_their_input',
             parent_id: '5390af91-c551-4d74-b394-d8ae0805059a',
             details: {
               quantity: 10,
-              productId: 'product-1',
-              emissions: '10',
-              query: 'Scope 3 Carbon Consumption',
-              queryIdForResponse: 'ccaaaaaa-0000-0000-0000-d8ae0805059e',
+              subjectId: 'product-1',
             },
             response_id: null,
-            query_response: null,
+            response: null,
             role: 'requester',
           },
         ])
         expect(dbMock.insert.getCall(1).args).to.deep.equal([
           'query',
           {
-            connection_id: 'cccccccc-0001-0000-0000-d8ae0805059e',
+            connection_id: 'conn-id-2',
             parent_id: '5390af91-c551-4d74-b394-d8ae0805059a',
-            query_type: 'Scope 3 Carbon Consumption',
+            type: 'total_carbon_embodiment',
             status: 'pending_their_input',
             details: {
-              query: 'Scope 3 Carbon Consumption',
               quantity: 20,
-              productId: 'product-2',
-              emissions: '10',
-              queryIdForResponse: 'ccaaaaaa-0000-0000-0000-d8ae0805059e',
+              subjectId: 'product-2',
             },
             response_id: null,
-            query_response: null,
+            response: null,
             role: 'requester',
           },
         ])
@@ -291,7 +291,7 @@ describe('QueriesController', () => {
           dbMock.get.firstCall.calledWith('connection', { id: 'some-company-id', status: 'verified_both' })
         ).to.equal(true)
         expect(dbMock.get.secondCall.calledWith('query', { id: 'query-partial-id-test' })).to.equal(true)
-        expect(result).to.be.equal('queriesResponse_template')
+        expect(result).to.be.equal('queriesResponse_success_template')
       })
     })
 
@@ -309,7 +309,7 @@ describe('QueriesController', () => {
       const controller = new QueriesController(...args)
       const result = await controller.scope3CarbonConsumptionResponse(req, 'someId123').then(toHTMLString)
 
-      expect(result).to.equal('queriesResponse_template')
+      expect(result).to.equal('queriesResponse_form_template')
     })
 
     it('should call query response page with stage SUCCESS as expected', async () => {
@@ -319,11 +319,11 @@ describe('QueriesController', () => {
         .scope3CarbonConsumptionResponseSubmit(req, '5390af91-c551-4d74-b394-d8ae0805059e', {
           companyId: '2345789',
           action: 'success',
-          emissions: '25',
+          emissions: 25,
         })
         .then(toHTMLString)
 
-      expect(result).to.equal('scope3_success_scope3')
+      expect(result).to.equal('queriesResponse_success_template')
     })
 
     it('sets query status to error if rpc succeeds without response', async () => {
@@ -336,11 +336,11 @@ describe('QueriesController', () => {
         .scope3CarbonConsumptionResponseSubmit(req, '5390af91-c551-4d74-b394-d8ae0805059e', {
           companyId: '2345789',
           action: 'success',
-          emissions: '25',
+          emissions: 25,
         })
         .then(toHTMLString)
 
-      expect(result).to.equal('scope3_error_scope3')
+      expect(result).to.equal('queriesResponse_error_template')
       expect(dbMock.update.getCall(0).args).to.deep.equal([
         'query',
         { id: '5390af91-c551-4d74-b394-d8ae0805059a' },
@@ -357,11 +357,11 @@ describe('QueriesController', () => {
         .scope3CarbonConsumptionResponseSubmit(req, '5390af91-c551-4d74-b394-d8ae0805059e', {
           companyId: '2345789',
           action: 'success',
-          emissions: '25',
+          emissions: 25,
         })
         .then(toHTMLString)
 
-      expect(result).to.equal('scope3_error_scope3')
+      expect(result).to.equal('queriesResponse_error_template')
     })
   })
 
@@ -377,7 +377,7 @@ describe('QueriesController', () => {
       .scope3CarbonConsumptionResponseSubmit(req, '5390af91-c551-4d74-b394-d8ae0805059e', {
         companyId: '2345789',
         action: 'success',
-        emissions: '25',
+        emissions: 25,
       })
       .then(toHTMLString)
     expect(dbMock.update.getCall(0).args).to.deep.equal([
@@ -385,7 +385,7 @@ describe('QueriesController', () => {
       { id: '5390af91-c551-4d74-b394-d8ae0805059a' },
       { status: 'errored' },
     ])
-    expect(result).to.equal('scope3_error_scope3')
+    expect(result).to.equal('queriesResponse_error_template')
   })
 
   describe('viewing query responses', () => {
@@ -427,7 +427,7 @@ describe('QueriesController', () => {
           )
           .then(toHTMLString)
 
-        expect(result).to.be.equal('queriesResponse_template')
+        expect(result).to.be.equal('queriesResponse_form_template')
       })
     })
 
@@ -474,24 +474,25 @@ describe('QueriesController', () => {
             partialQuery: ['on'],
             partialSelect: ['on'],
             productIds: ['partial-product-id'],
-            quantities: ['10'],
+            quantities: [10],
             connectionIds: ['cccccccc-0000-0000-0000-d8ae0805059e'],
-            emissions: '10',
+            emissions: 10,
           })
           .then(toHTMLString)
       })
 
       it('submits a Drpc request to the cloudagent', () => {
         expect(cloudagentMock.submitDrpcRequest.callCount).to.equal(1)
-        expect(cloudagentMock.submitDrpcRequest.args[0]).to.have.deep.members([
+        expect(cloudagentMock.submitDrpcRequest.firstCall.args).to.have.deep.members([
           'aaaaaaaa-0000-0000-0000-d8ae0805059e',
           'submit_query_request',
           {
-            query: 'Scope 3 Carbon Consumption',
-            productId: 'partial-product-id',
-            quantity: 10,
-            emissions: '10',
-            queryIdForResponse: 'ccaaaaaa-0000-0000-0000-d8ae0805059e',
+            data: {
+              subjectId: 'partial-product-id',
+              quantity: 10,
+            },
+            id: 'ccaaaaaa-0000-0000-0000-d8ae0805059e',
+            type: 'https://github.com/digicatapult/veritable-documentation/tree/main/schemas/veritable_messaging/query_types/total_carbon_embodiment/request/0.1',
           },
         ])
       })
@@ -500,32 +501,34 @@ describe('QueriesController', () => {
         expect(dbMock.insert.getCall(0).args).to.have.deep.members([
           'query',
           {
-            connection_id: 'cccccccc-0001-0000-0000-d8ae0805059e',
-            query_type: 'Scope 3 Carbon Consumption',
-            parent_id: '5390af91-c551-4d74-b394-d8ae0805059a',
+            connection_id: 'cccccccc-0000-0000-0000-d8ae0805059e',
+            type: 'total_carbon_embodiment',
             status: 'pending_their_input',
+            parent_id: '5390af91-c551-4d74-b394-d8ae0805059a',
             details: {
-              productId: 'partial-product-id',
               quantity: 10,
-              emissions: '10',
-              query: 'Scope 3 Carbon Consumption',
-              queryIdForResponse: 'ccaaaaaa-0000-0000-0000-d8ae0805059e',
+              subjectId: 'partial-product-id',
             },
             response_id: null,
-            query_response: null,
+            response: null,
             role: 'requester',
           },
         ])
       })
 
       it('updates existing query status to forwarded', () => {
-        expect(dbMock.update.getCall(0).args).to.deep.equal([
+        expect(dbMock.update.firstCall.args).to.deep.equal([
           'query',
           {
-            id: '5390af91-c551-4d74-b394-d8ae0805059a',
+            id: mockIds.queryId,
           },
           {
             status: 'forwarded',
+            response: {
+              mass: 10,
+              partialResponses: [],
+              subjectId: '00000000-0000-0000-0000-d8ae0805059e',
+            },
           },
         ])
       })
@@ -537,7 +540,7 @@ describe('QueriesController', () => {
             agent_rpc_id: 'request-id',
             query_id: 'ccaaaaaa-0000-0000-0000-d8ae0805059e',
             role: 'client',
-            method: 'submit_query_request',
+            method: 'submit_query_response',
             result: 'result',
             error: undefined,
           },
@@ -545,7 +548,7 @@ describe('QueriesController', () => {
       })
 
       it('renders success page', () => {
-        expect(result).to.equal('queriesResponse_template')
+        expect(result).to.equal('queriesResponse_success_template')
       })
     })
   })

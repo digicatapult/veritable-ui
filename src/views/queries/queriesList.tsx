@@ -1,32 +1,32 @@
 import Html from '@kitajs/html'
 import { singleton } from 'tsyringe'
-import { LinkButton, Page, statusToClass } from '../common.js'
+import { QueryRow } from '../../models/db/types.js'
+import { LinkButton, Page, queryStatusToClass } from '../common.js'
 
-type QueryStatus = 'resolved' | 'pending_your_input' | 'pending_their_input' | 'errored' | 'forwarded'
-type QueryRole = 'responder' | 'requester'
+type QueryStatus = QueryRow['status']
+type QueryRole = QueryRow['role']
+
 type Query = {
-  id: string
   company_name: string
-  query_type: string
-  updated_at: Date
-  status: QueryStatus
-  role: QueryRole
+} & Pick<QueryRow, 'type' | 'status' | 'updated_at' | 'role' | 'id'>
+
+function mapQueryType(query: Query) {
+  switch (query.type) {
+    case 'total_carbon_embodiment':
+      return 'Total Carbon Embodiment'
+  }
 }
+
 @singleton()
 export default class QueryListTemplates {
   constructor() {}
 
-  private direction = (status: string | QueryStatus): JSX.Element => {
-    switch (status) {
-      case 'pending_your_input':
+  private direction = (role: QueryRole): JSX.Element => {
+    switch (role) {
+      case 'responder':
         return <p>Received</p>
-      case 'pending_their_input':
-      case 'forwarded':
+      case 'requester':
         return <p>Sent</p>
-      case 'resolved':
-        return <p>Received</p>
-      default:
-        return <p>unknown</p>
     }
   }
   private buttonText = (status: string | QueryStatus, role: QueryRole) => {
@@ -98,7 +98,7 @@ export default class QueryListTemplates {
           </div>
           <table class="list-page">
             <thead>
-              {['Company Name', 'Query Type', 'Direction', 'Requested deadline', 'Verification Status', 'Actions'].map(
+              {['Company Name', 'Query Type', 'Direction', 'Requested deadline', 'Status', 'Actions'].map(
                 (name: string) => (
                   <th>
                     <span>{Html.escapeHtml(name || 'unknown')}</span>
@@ -116,12 +116,12 @@ export default class QueryListTemplates {
                 queries.map((query) => (
                   <tr>
                     <td>{Html.escapeHtml(query.company_name)}</td>
-                    <td>{Html.escapeHtml(query.query_type)}</td>
-                    <td>{this.direction(query.status)}</td>
+                    <td>{Html.escapeHtml(mapQueryType(query))}</td>
+                    <td>{this.direction(query.role)}</td>
                     <td>
                       <time>{Html.escapeHtml(new Date(query.updated_at).toISOString())}</time>
                     </td>
-                    <td>{statusToClass(query.status)}</td>
+                    <td>{queryStatusToClass(query.status)}</td>
 
                     <td>
                       <LinkButton

@@ -62,9 +62,21 @@ export const get = async (
   return request(app).get(endpoint).set(headersWithToken)
 }
 
+export const del = async (
+  app: express.Express,
+  endpoint: string,
+  headers: Record<string, string> = {}
+): Promise<request.Test> => {
+  const token = await getToken()
+  const headersWithToken = {
+    authorization: `bearer ${token}`,
+    ...headers,
+  }
+  return request(app).delete(endpoint).set(headersWithToken)
+}
 export const fetchPost = async (
   endpoint: string,
-  body: BodyInit | Record<string, string | string[]>,
+  body: BodyInit | Record<string, string | string[] | number | number[]>,
   headers: Record<string, string> = {}
 ): Promise<Response> => {
   const token = await getToken()
