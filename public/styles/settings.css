@@ -89,6 +89,12 @@
   justify-content: center;
   cursor: pointer;
 }
+#reset-btn:disabled {
+  background-color: grey;
+  color: #bfbfbf;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
 #reset-btn:hover {
   opacity: 0.8;
 }

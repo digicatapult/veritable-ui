@@ -26,7 +26,14 @@ export default class SettingsTemplates {
               Reset or delete all current connections. This will remove any pending, active or other connections
               associated with your account.
             </p>
-            <button id="reset-btn" disabled={false} hx-delete="/reset" hx-target="this" hx-swap="none" style="filled">
+            <button
+              id="reset-btn"
+              disabled={!settings.reset_enabled}
+              hx-delete="/reset"
+              hx-target="this"
+              hx-swap="none"
+              style="filled"
+            >
               <img id="reset-image" src="/public/images/reset.svg" alt="Reset" />
               Reset
             </button>

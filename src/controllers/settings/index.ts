@@ -18,6 +18,7 @@ export type SettingsType = {
   from_email: string
   postal_address: string
   admin_email: string
+  reset_enabled: boolean
 }
 
 @injectable()
@@ -42,12 +43,14 @@ export class SettingsController extends HTMLController {
     req.log.trace('rendering settings')
     const settings = await this.db.get('settings', {}, [['updated_at', 'desc']])
     const settingsDict = await this.transformSettingsToDict(settings)
+    const resetEnabled = this.env.get('DEMO_MODE')
     const set = {
       company_name: 'DIGITAL CATAPULT',
       companies_house_number: this.env.get('INVITATION_FROM_COMPANY_NUMBER'),
       from_email: this.env.get('EMAIL_FROM_ADDRESS'),
       postal_address: 'Some address',
       admin_email: settingsDict.admin_email.setting_value,
+      reset_enabled: resetEnabled,
     }
 
     return this.html(this.settingsTemplates.settings(set))
@@ -89,12 +92,14 @@ export class SettingsController extends HTMLController {
 
     const settings = await this.db.get('settings', {}, [['updated_at', 'desc']])
     const settingsDict = await this.transformSettingsToDict(settings)
+    const resetEnabled = this.env.get('DEMO_MODE')
     const set = {
       company_name: 'DIGITAL CATAPULT',
       companies_house_number: this.env.get('INVITATION_FROM_COMPANY_NUMBER'),
       from_email: this.env.get('EMAIL_FROM_ADDRESS'),
       postal_address: 'Some address',
       admin_email: settingsDict.admin_email.setting_value,
+      reset_enabled: resetEnabled,
     }
 
     return this.html(this.settingsTemplates.settingsForm({ settingsProps: set, edit: !edit }))

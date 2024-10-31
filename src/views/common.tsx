@@ -5,7 +5,7 @@ import { container } from 'tsyringe'
 import { Env } from '../env/index.js'
 
 import type { ConnectionRow, QueryRow } from '../models/db/types.js'
-import type { Credential } from '../models/veritableCloudagent.js'
+import type { Credential } from '../models/veritableCloudagentInt.js'
 
 const env = container.resolve(Env)
 
