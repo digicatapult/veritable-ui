@@ -10,7 +10,7 @@ export default class SettingsTemplates {
       <Page
         title="Veritable - Settings"
         heading="Settings"
-        activePage="categories"
+        activePage="settings"
         headerLinks={[{ name: 'Settings', url: '/settings' }]}
         stylesheets={['settings.css']}
       >

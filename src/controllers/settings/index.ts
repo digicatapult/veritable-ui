@@ -4,6 +4,7 @@ import { injectable } from 'tsyringe'
 import express from 'express'
 import { Env } from '../../env/index.js'
 import { InternalError } from '../../errors.js'
+import CompanyHouseEntity from '../../models/companyHouseEntity.js'
 import Database from '../../models/db/index.js'
 import { SettingsRow } from '../../models/db/types.js'
 import SettingsTemplates from '../../views/settings/settings.js'
@@ -28,6 +29,7 @@ export type SettingsType = {
 export class SettingsController extends HTMLController {
   constructor(
     private settingsTemplates: SettingsTemplates,
+    private companyHouse: CompanyHouseEntity,
     private db: Database,
     private env: Env
   ) {
@@ -44,11 +46,12 @@ export class SettingsController extends HTMLController {
     const settings = await this.db.get('settings', {}, [['updated_at', 'desc']])
     const settingsDict = await this.transformSettingsToDict(settings)
     const resetEnabled = this.env.get('DEMO_MODE')
+    const profile = await this.companyHouse.localCompanyHouseProfile()
     const set = {
-      company_name: 'DIGITAL CATAPULT',
+      company_name: profile.company_name,
       companies_house_number: this.env.get('INVITATION_FROM_COMPANY_NUMBER'),
       from_email: this.env.get('EMAIL_FROM_ADDRESS'),
-      postal_address: 'Some address',
+      postal_address: await this.formatAddress(profile.registered_office_address),
       admin_email: settingsDict.admin_email.setting_value,
       reset_enabled: resetEnabled,
     }
@@ -93,11 +96,12 @@ export class SettingsController extends HTMLController {
     const settings = await this.db.get('settings', {}, [['updated_at', 'desc']])
     const settingsDict = await this.transformSettingsToDict(settings)
     const resetEnabled = this.env.get('DEMO_MODE')
+    const profile = await this.companyHouse.localCompanyHouseProfile()
     const set = {
-      company_name: 'DIGITAL CATAPULT',
+      company_name: profile.company_name,
       companies_house_number: this.env.get('INVITATION_FROM_COMPANY_NUMBER'),
       from_email: this.env.get('EMAIL_FROM_ADDRESS'),
-      postal_address: 'Some address',
+      postal_address: await this.formatAddress(profile.registered_office_address),
       admin_email: settingsDict.admin_email.setting_value,
       reset_enabled: resetEnabled,
     }
@@ -114,5 +118,30 @@ export class SettingsController extends HTMLController {
       }
       return acc
     }, {} as SettingsDict)
+  }
+  private async formatAddress(registeredOfficeAddress: {
+    address_line_1?: string
+    address_line_2?: string
+    care_of?: string
+    country?: string
+    locality?: string
+    po_box?: string
+    postal_code?: string
+    premises?: string
+    region?: string
+  }): Promise<string> {
+    return [
+      registeredOfficeAddress.care_of,
+      registeredOfficeAddress.premises,
+      registeredOfficeAddress.address_line_1,
+      registeredOfficeAddress.address_line_2,
+      registeredOfficeAddress.po_box,
+      registeredOfficeAddress.locality,
+      registeredOfficeAddress.region,
+      registeredOfficeAddress.postal_code,
+      registeredOfficeAddress.country,
+    ]
+      .filter(Boolean)
+      .join(', ')
   }
 }
