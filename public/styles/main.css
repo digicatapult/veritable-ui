@@ -19,14 +19,6 @@
     url('/public/fonts/RobotoMono-Regular.woff2') format('woff2');
   font-style: normal;
 }
-@font-face {
-  font-family: 'Roboto';
-  src:
-    local('Roboto'),
-    url('/public/fonts/Roboto-Bold.woff') format('woff');
-  font-style: normal;
-  font-weight: 700;
-}
 
 :root {
   /* color pallete */
