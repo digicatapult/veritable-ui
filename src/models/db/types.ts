@@ -2,7 +2,7 @@ import { Knex } from 'knex'
 import { z } from 'zod'
 import { carbonEmbodimentRequestData, carbonEmbodimentResponseData } from '../drpc.js'
 
-export const tablesList = ['connection', 'connection_invite', 'query', 'query_rpc'] as const
+export const tablesList = ['connection', 'connection_invite', 'query', 'query_rpc', 'settings'] as const
 
 const insertConnection = z.object({
   company_name: z.string(),
@@ -57,6 +57,10 @@ const insertQueryRpc = z.object({
   result: z.union([z.record(z.any()), z.null()]).optional(),
   error: z.union([z.record(z.any()), z.null()]).optional(),
 })
+const insertSettings = z.object({
+  setting_key: z.string(),
+  setting_value: z.string(),
+})
 
 const Zod = {
   connection: {
@@ -75,11 +79,20 @@ const Zod = {
     insert: insertQueryRpc,
     get: insertQueryRpc.merge(defaultFields),
   },
+  settings: {
+    insert: insertSettings,
+    get: insertSettings.extend({
+      id: z.string(),
+      created_at: z.date(),
+      updated_at: z.date(),
+    }),
+  },
 }
 
 export type InsertConnection = z.infer<typeof Zod.connection.insert>
 export type ConnectionRow = z.infer<typeof Zod.connection.get>
 export type QueryRow = z.infer<typeof Zod.query.get>
+export type SettingsRow = z.infer<typeof Zod.settings.get>
 
 export type TABLES_TUPLE = typeof tablesList
 export type TABLE = TABLES_TUPLE[number]

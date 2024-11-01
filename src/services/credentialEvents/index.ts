@@ -3,12 +3,8 @@ import { inject, injectable, singleton } from 'tsyringe'
 import { ZodType, z } from 'zod'
 import { Logger, type ILogger } from '../../logger.js'
 import Database from '../../models/db/index.js'
-import {
-  default as VeritableCloudagent,
-  type Credential,
-  type CredentialFormatData,
-  type Schema,
-} from '../../models/veritableCloudagent.js'
+import { default as VeritableCloudagent } from '../../models/veritableCloudagent/index.js'
+import { type Credential, type CredentialFormatData, type Schema } from '../../models/veritableCloudagentInt.js'
 import VeritableCloudagentEvents, { eventData } from '../veritableCloudagentEvents.js'
 import CompanyDetailsV1Handler from './companyDetailsV1.js'
 import { CredentialEventHandler, CredentialEventHandlerBase } from './types.js'

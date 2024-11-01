@@ -1,9 +1,8 @@
-import { inject, injectable, singleton } from 'tsyringe'
 import { z } from 'zod'
 
-import { Env, type PartialEnv } from '../env/index.js'
+import { type PartialEnv } from '../env/index.js'
 import { InternalError } from '../errors.js'
-import { Logger, type ILogger } from '../logger.js'
+import { type ILogger } from '../logger.js'
 import { MapDiscriminatedUnion } from '../utils/types.js'
 import { DrpcQueryRequest } from './drpc.js'
 
@@ -161,6 +160,9 @@ export type CredentialProposalAcceptInput = {
 
 type parserFn<O> = (res: Response) => O | Promise<O>
 
+/*
+  This is in internal class used for e2e tests. Rest of the repository is using VeritableCloudagent which extends this class.
+*/
 export interface DrpcRequest {
   method: string
   params: Record<string, unknown>
@@ -174,12 +176,10 @@ type DefaultConfig = {
   drpcRequest: DrpcQueryRequest
 }
 
-@singleton()
-@injectable()
-export default class VeritableCloudagent<Config extends CloudagentConfig = DefaultConfig> {
+export default class VeritableCloudagentInt<Config extends CloudagentConfig = DefaultConfig> {
   constructor(
-    @inject(Env) private env: PartialEnv<'CLOUDAGENT_ADMIN_ORIGIN'>,
-    @inject(Logger) protected logger: ILogger
+    private env: PartialEnv<'CLOUDAGENT_ADMIN_ORIGIN'>,
+    protected logger: ILogger
   ) {}
 
   public async createOutOfBandInvite(params: { companyName: string }): Promise<OutOfBandInvite> {

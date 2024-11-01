@@ -5,7 +5,7 @@ import { container } from 'tsyringe'
 import { Env } from '../env/index.js'
 
 import type { ConnectionRow, QueryRow } from '../models/db/types.js'
-import type { Credential } from '../models/veritableCloudagent.js'
+import type { Credential } from '../models/veritableCloudagentInt.js'
 
 const env = container.resolve(Env)
 
@@ -63,10 +63,11 @@ export const FormButton = (props: FormButtonProps): JSX.Element => (
 const SideBar = ({ activePage }: { activePage: PageProps['activePage'] }): JSX.Element => {
   const title = env.get('API_SWAGGER_TITLE').slice(0, 1)
   const backgroundColor = env.get('API_SWAGGER_BG_COLOR')
+  const aboutPageInDemoMode = env.get('DEMO_MODE') ? '/about' : '/'
 
   return (
     <nav id="side-bar">
-      <img src="/public/images/logo-square.svg" />
+      <a id="veritable-logo" href={aboutPageInDemoMode}></a>
       <div class="profile-icon" style={{ backgroundColor }}>
         {escapeHtml(title)}
       </div>
@@ -96,9 +97,8 @@ const SideBar = ({ activePage }: { activePage: PageProps['activePage'] }): JSX.E
       />
       <a
         title="settings"
-        href="#"
+        href="/settings"
         data-active={activePage === 'settings'}
-        class="disabled"
         style={{ ['--background-image' as string]: "url('/public/images/setting.svg')" }}
       />
     </nav>

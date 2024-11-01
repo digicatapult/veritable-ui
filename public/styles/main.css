@@ -30,6 +30,7 @@
   --accent-color: #5670f1;
   --focus-color: rgba(86, 112, 241, 0.6);
   --border-black: #cfd3d4;
+  --danger: #f57e77;
 
   --neutral-accent: var(--accent-color);
   --negative-accent: #f57e77;
@@ -104,6 +105,17 @@ body {
 main {
   display: flex;
   flex-direction: column;
+}
+#veritable-logo {
+  border: none !important;
+  width: 61px !important;
+  height: 61px !important;
+  margin-bottom: 4rem;
+  background-color: transparent;
+  background-image: url('/public/images/logo-square.svg');
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: contain;
 }
 
 #content-header {
@@ -513,7 +525,6 @@ main {
   flex-direction: row;
 }
 
-
 .query-results-left-padding-table {
   padding-left: 30px;
 }
@@ -650,7 +661,7 @@ input[type='checkbox']:checked::before {
   transform: scale(1);
 }
 
-input[type="radio"] {
+input[type='radio'] {
   appearance: none;
   background-color: #fff;
   margin: 0;
@@ -661,12 +672,11 @@ input[type="radio"] {
   transform: translateY(-0.075em);
   display: grid;
   place-content: center;
-  
 }
 
-input[type="radio"]::after {
-  content: "";
-  position:absolute;
+input[type='radio']::after {
+  content: '';
+  position: absolute;
   top: 3px;
   left: 3px;
   width: 15px;
@@ -679,8 +689,8 @@ input[type="radio"]::after {
   background-image: url('/public/images/tick-white.svg');
 }
 
-input[type="radio"]::before {
-  content: "";
+input[type='radio']::before {
+  content: '';
   width: 19px;
   height: 19px;
   border-radius: 50%;
@@ -689,8 +699,8 @@ input[type="radio"]::before {
   box-shadow: inset 1em 1em var(--accent-color);
 }
 
-input[type="radio"]:checked::before,
-input[type="radio"]:checked::after {
+input[type='radio']:checked::before,
+input[type='radio']:checked::after {
   transform: scale(1);
 }
 

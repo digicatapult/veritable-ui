@@ -1,0 +1,117 @@
+#settings-container {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  cursor: pointer;
+  background-color: #fff;
+  border-radius: 12px;
+  padding: 1rem;
+}
+#settings-container h1 {
+  margin-bottom: 10px;
+}
+#settings-container h2 {
+  margin-top: 0px;
+}
+
+.settings-input {
+  border: 1px solid var(--border-black);
+  box-shadow: none;
+  width: 100%;
+  min-width: 32ch;
+  max-width: 40ch;
+  padding: 0.75em;
+  border-radius: 0.5em;
+  margin: 0.5em 0em 1em 0em;
+}
+.settings-input-label {
+  padding: 0px 10px;
+  font-size: 12px;
+  color: #333;
+  opacity: 0.6;
+}
+
+.extra-padding-right {
+  padding-right: 50px;
+}
+
+.edit-button {
+  margin-left: -50px;
+  margin-bottom: 9px;
+  height: 45px;
+  padding: 13px;
+  width: 50px;
+  color: white;
+  border-radius: 0.5em;
+  cursor: pointer;
+  position: relative;
+  z-index: 10;
+}
+.in-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+}
+#settings-form {
+  display: flex;
+  flex-direction: column;
+}
+.hidden {
+  visibility: none;
+  display: none;
+}
+
+.save-button-container {
+  margin-left: 10px;
+  margin-bottom: 10px;
+  display: flex;
+}
+#save-button button {
+  background-color: var(--positive-accent);
+  color: white;
+  border: none;
+}
+#reset-container {
+  margin-top: 25px;
+  cursor: default;
+}
+
+#reset-btn {
+  background-color: var(--negative-accent);
+  color: white;
+  border: none;
+  width: 160px;
+  height: 27px;
+  border-radius: 0.5em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+#reset-btn:disabled {
+  background-color: grey;
+  color: #bfbfbf;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+#reset-btn:hover {
+  opacity: 0.8;
+}
+#reset-image {
+  margin-right: 8px;
+  width: 20px;
+  height: auto;
+}
+
+@media (max-width: 767px) {
+  .save-button-container {
+    margin-left: 5px;
+  }
+  #reset-container {
+    margin-top: 10px;
+  }
+  .edit-button {
+    width: 40px;
+  }
+}

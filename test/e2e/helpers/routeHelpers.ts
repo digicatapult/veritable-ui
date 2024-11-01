@@ -9,3 +9,16 @@ export const get = async (appUrl: string, endpoint: string, headers: Record<stri
 
   return await fetch(`${appUrl}${endpoint}`, { headers: headersWithToken })
 }
+
+export const del = async (appUrl: string, endpoint: string, headers: Record<string, string> = {}) => {
+  const token = await getToken()
+  const headersWithToken = {
+    authorization: `bearer ${token}`,
+    ...headers,
+  }
+
+  return await fetch(`${appUrl}${endpoint}`, {
+    method: 'DELETE',
+    headers: headersWithToken,
+  })
+}
