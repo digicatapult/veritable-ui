@@ -6,11 +6,11 @@ import { checkEmails, extractInvite, extractPin, getHostPort } from './smtpEmail
 
 
 // TODO update to take company number and URL emails can be issuer@ / holder@
-export async function withConnection(issuerUrl: string, holderUrl: string) {
+export async function withConnection(invitatorUrl: string, holderUrl: string) {
   const uuidRegex = /[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-4[0-9a-fA-F]{3}-[89ab][0-9a-fA-F]{3}-[0-9a-fA-F]{12}/g
   const smtp4devUrl = process.env.VERITABLE_SMTP_ADDRESS || 'http://localhost:5001'
 
-  await fetchPost(`${issuerUrl}/connection/new/create-invitation`, {
+  await fetchPost(`${invitatorUrl}/connection/new/create-invitation`, {
     companyNumber: '04659351',
     email: 'alice@testmail.com',
     action: 'submit',
@@ -22,8 +22,8 @@ export async function withConnection(issuerUrl: string, holderUrl: string) {
     throw new Error(`Unspecified smtp4dev host or port ${smtp4devUrl}`)
   }
   const { inviteEmail, adminEmail } = await checkEmails(host, port)
-  const issuerPin = await extractPin(adminEmail.id, smtp4devUrl)
-  if (!issuerPin) throw new Error(`PIN for ${holderUrl} was not found.`)
+  const invitatorPin = await extractPin(adminEmail.id, smtp4devUrl)
+  if (!invitatorPin) throw new Error(`PIN for ${holderUrl} was not found.`)
 
   const inviteBase64 = await extractInvite(inviteEmail.id, smtp4devUrl)
   if (!inviteBase64) throw new Error('Invitation for Bob was not found.')
@@ -34,10 +34,11 @@ export async function withConnection(issuerUrl: string, holderUrl: string) {
     action: 'createConnection',
   })
   const [holderConnectionId] = (await receive.text()).match(uuidRegex) || []
+  if (!holderConnectionId) throw new Error(`Connection was not found`)
 
   await fetchPost(`${holderUrl}/connection/${holderConnectionId}/pin-submission`, {
     action: 'submitPinCode',
-    pin: issuerPin,
+    pin: invitatorPin,
     stepCount: '3',
   })
 
@@ -45,16 +46,16 @@ export async function withConnection(issuerUrl: string, holderUrl: string) {
   expect(holderEmail).not.toEqual(inviteEmail)
   expect(holderEmail).not.toEqual(adminEmail)
 
-  const holderPin = await extractPin(holderEmail.id, smtp4devUrl)
+  const receiverPin = await extractPin(holderEmail.id, smtp4devUrl)
 
-  const connections = await fetchGet(`${issuerUrl}/connection?search=OFFSHORE RENEWABLE ENERGY CATAPULT`)
+  const connections = await fetchGet(`${invitatorUrl}/connection?search=OFFSHORE RENEWABLE ENERGY CATAPULT`)
   const [issuerConnectionId] = (await connections.text()).match(uuidRegex) || []
-  if (!holderPin)
-    throw new Error(`PIN ${holderPin} or Connection ID ${issuerConnectionId} not found`)
+  if (!receiverPin || !issuerConnectionId)
+    throw new Error(`PIN ${receiverPin} or Connection ID ${issuerConnectionId} not found`)
 
-  await fetchPost(`${issuerUrl}/connection/${issuerConnectionId}/pin-submission`, {
+  await fetchPost(`${invitatorUrl}/connection/${issuerConnectionId}/pin-submission`, {
     action: 'submitPinCode',
-    pin: holderPin,
+    pin: receiverPin,
     stepCount: '2',
   })
 }

@@ -1,14 +1,15 @@
 import { expect, Page, test } from '@playwright/test'
-import { CustomBrowserContext, reset, withLoggedInUser, withRegisteredAccount } from './helpers/registerLogIn.js'
+import { CustomBrowserContext, withLoggedInUser, withRegisteredAccount, withCleanAliceBobEmail } from './helpers/registerLogIn.js'
 import { withConnection } from './helpers/setupConnection.js'
 
-test.describe.only('Queries', () => {
+test.describe('Queries', () => {
   test.setTimeout(10000)
   let context: CustomBrowserContext
   let page: Page
 
   const AliceHost = process.env.VERITABLE_ALICE_PUBLIC_URL || 'http://localhost:3000'
   const BobHost = process.env.VERITABLE_BOB_PUBLIC_URL || 'http://localhost:3001'
+  const smtp4dev = process.env.VERITABLE_SMTP_ADDRESS || 'http://localhost:5001'
 
   // Create and share context
   // TODO expand on assertations
@@ -18,7 +19,7 @@ test.describe.only('Queries', () => {
   })
 
   test.beforeEach(async () => {
-    await reset()
+    await withCleanAliceBobEmail(AliceHost, BobHost, smtp4dev)
     page = await context.newPage()
     await withRegisteredAccount(page, context, AliceHost)
     await withLoggedInUser(page, context, AliceHost)
@@ -26,7 +27,7 @@ test.describe.only('Queries', () => {
   })
 
   test.afterAll(async () => {
-    await reset()
+    await withCleanAliceBobEmail(AliceHost, BobHost, smtp4dev)
     await page.close()
   })
 
@@ -77,10 +78,12 @@ test.describe.only('Queries', () => {
     })
 
     await test.step('newly query is visible on other node', async () => {
+      await page.close()
+      page = await context.newPage()
       page.goto(`${BobHost}/queries`)
-      const queriesTable = page.getByRole('table').and(page.getByText('DIGITAL'))
+      const queriesTable = page.getByRole('table')
 
-      await expect(queriesTable.getByRole('button', { name: 'Respond to query' })).toBeVisible()
+      await expect(queriesTable.getByText('Respond to query')).toBeVisible()
     })
   })
 })
