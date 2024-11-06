@@ -4,9 +4,10 @@ import 'reflect-metadata'
 import { fetchGet, fetchPost } from '../../helpers/routeHelper.js'
 import { checkEmails, extractInvite, extractPin, getHostPort } from './smtpEmails.js'
 
-const uuidRegex = /[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-4[0-9a-fA-F]{3}-[89ab][0-9a-fA-F]{3}-[0-9a-fA-F]{12}/g
 
-export async function withConnection(issuerUrl, holderUrl) {
+// TODO update to take company number and URL emails can be issuer@ / holder@
+export async function withConnection(issuerUrl: string, holderUrl: string) {
+  const uuidRegex = /[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-4[0-9a-fA-F]{3}-[89ab][0-9a-fA-F]{3}-[0-9a-fA-F]{12}/g
   const smtp4devUrl = process.env.VERITABLE_SMTP_ADDRESS || 'http://localhost:5001'
 
   await fetchPost(`${issuerUrl}/connection/new/create-invitation`, {
@@ -33,6 +34,7 @@ export async function withConnection(issuerUrl, holderUrl) {
     action: 'createConnection',
   })
   const [holderConnectionId] = (await receive.text()).match(uuidRegex) || []
+
   await fetchPost(`${holderUrl}/connection/${holderConnectionId}/pin-submission`, {
     action: 'submitPinCode',
     pin: issuerPin,

@@ -15,7 +15,7 @@
     "test:unit": "NODE_ENV=test ./node_modules/.bin/mocha --config ./test/mocharc.json ./src/**/*.test.ts",
     "test:integration": "NODE_ENV=test ./node_modules/.bin/mocha --config ./test/mocharc.json ./test/**/*.test.ts",
     "test:e2e": "playwright test --ui",
-    "test:playwright": "playwright test --trace on --max-failures=1",
+    "test:playwright": "playwright test --trace on --debug --max-failures=1",
     "check": "npm run tsoa:build && tsc --noEmit",
     "build": "npm run tsoa:build && swc ./src -d ./build --strip-leading-paths --copy-files",
     "tsoa:build": "tsoa spec-and-routes",
