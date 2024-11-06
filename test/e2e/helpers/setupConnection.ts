@@ -1,87 +1,58 @@
+import { expect } from '@playwright/test'
 import 'reflect-metadata'
+
 import { fetchGet, fetchPost } from '../../helpers/routeHelper.js'
 import { checkEmails, extractInvite, extractPin, getHostPort } from './smtpEmails.js'
 
-export async function withVerifiedConnection(issuerHost, holderHost) {
+const uuidRegex = /[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-4[0-9a-fA-F]{3}-[89ab][0-9a-fA-F]{3}-[0-9a-fA-F]{12}/g
+
+export async function withConnection(issuerUrl, holderUrl) {
   const smtp4devUrl = process.env.VERITABLE_SMTP_ADDRESS || 'http://localhost:5001'
 
-  await fetchPost(`${issuerHost}/connection/new/create-invitation`, {
+  await fetchPost(`${issuerUrl}/connection/new/create-invitation`, {
     companyNumber: '04659351',
     email: 'alice@testmail.com',
     action: 'submit',
   })
 
-  // Get pin and invite
+  // Get pin and invite for the new holder
   const { host, port } = getHostPort(smtp4devUrl)
   if (host === null || port === null) {
     throw new Error(`Unspecified smtp4dev host or port ${smtp4devUrl}`)
   }
   const { inviteEmail, adminEmail } = await checkEmails(host, port)
   const issuerPin = await extractPin(adminEmail.id, smtp4devUrl)
-  if (!issuerPin) throw new Error(`PIN for ${holderHost} was not found.`)
-  if (issuerPin.length !== 6) {
-    throw new Error('Pin does not have the expected length.')
-  }
+  if (!issuerPin) throw new Error(`PIN for ${holderUrl} was not found.`)
 
-  const invite = await extractInvite(inviteEmail.id, smtp4devUrl)
-  if (!invite) throw new Error('Invitation for Bob was not found.')
+  const inviteBase64 = await extractInvite(inviteEmail.id, smtp4devUrl)
+  if (!inviteBase64) throw new Error('Invitation for Bob was not found.')
 
-  // Use invite and from Bob's side
-  const b = await fetchPost(`${holderHost}/connection/new/receive-invitation`, {
-    invite: invite,
+  // Verify and validate a new connection - holder
+  const receive = await fetchPost(`${holderUrl}/connection/new/receive-invitation`, {
+    invite: inviteBase64,
     action: 'createConnection',
   })
-
-  const uuidRegex = /[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-4[0-9a-fA-F]{3}-[89ab][0-9a-fA-F]{3}-[0-9a-fA-F]{12}/g
-  const [holderConnectionId] = (await b.text()).match(uuidRegex) || []
-
-  await fetchPost(`${holderHost}/connection/${holderConnectionId}/pin-submission`, {
+  const [holderConnectionId] = (await receive.text()).match(uuidRegex) || []
+  await fetchPost(`${holderUrl}/connection/${holderConnectionId}/pin-submission`, {
     action: 'submitPinCode',
     pin: issuerPin,
     stepCount: '3',
   })
 
-  const responseEmail = await checkEmails(host, port).then(({ results }) => results[0])
-  const holderPin = await extractPin(responseEmail.id, smtp4devUrl)
+  const holderEmail = await checkEmails(host, port).then(({ results }) => results[0])
+  expect(holderEmail).not.toEqual(inviteEmail)
+  expect(holderEmail).not.toEqual(adminEmail)
 
-  const issuerConnections = await fetchGet(`${issuerHost}/connection?search=OFFSHORE RENEWABLE ENERGY CATAPULT`)
-  const [issuerConnectionId] = (await issuerConnections.text()).match(uuidRegex) || []
+  const holderPin = await extractPin(holderEmail.id, smtp4devUrl)
 
-  if (!holderPin) throw new Error(`PIN for ${issuerHost} was not found.`)
+  const connections = await fetchGet(`${issuerUrl}/connection?search=OFFSHORE RENEWABLE ENERGY CATAPULT`)
+  const [issuerConnectionId] = (await connections.text()).match(uuidRegex) || []
+  if (!holderPin)
+    throw new Error(`PIN ${holderPin} or Connection ID ${issuerConnectionId} not found`)
 
-  await fetchPost(`${issuerHost}/connection/${issuerConnectionId}/pin-submission`, {
+  await fetchPost(`${issuerUrl}/connection/${issuerConnectionId}/pin-submission`, {
     action: 'submitPinCode',
     pin: holderPin,
     stepCount: '2',
-  })
-}
-
-export async function withConnection(smtp4devUrl: string, aliceUrl: string, bobUrl: string) {
-  // Send an invite from Alice to Bob
-  await fetchPost(`${aliceUrl}/connection/new/create-invitation`, {
-    companyNumber: '04659351',
-    email: 'alice@testmail.com',
-    action: 'submit',
-  })
-
-  // Get pin and invite
-  const { host, port } = getHostPort(smtp4devUrl)
-  if (host === null || port === null) {
-    throw new Error(`Unspecified smtp4dev host or port ${smtp4devUrl}`)
-  }
-  const { inviteEmail, adminEmail } = await checkEmails(host, port)
-  const extractedPin = await extractPin(adminEmail.id, smtp4devUrl)
-  if (!extractedPin) throw new Error('PIN for Bob was not found.')
-  if (extractedPin.length !== 6) {
-    throw new Error('Pin does not have the expected length.')
-  }
-
-  const invite = await extractInvite(inviteEmail.id, smtp4devUrl)
-  if (!invite) throw new Error('Invitation for Bob was not found.')
-
-  // Use invite and from Bob's side
-  await fetchPost(`${bobUrl}/connection/new/receive-invitation`, {
-    invite: invite,
-    action: 'createConnection',
   })
 }

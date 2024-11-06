@@ -39,7 +39,7 @@ test.describe('Resetting app', () => {
     page = await context.newPage()
     await withLoggedInUser(page, context, baseUrlAlice)
 
-    await withConnection(smtp4devUrl, baseUrlAlice, baseUrlBob)
+    await withConnection(baseUrlAlice, baseUrlBob)
   })
 
   test('Reset all on Alice', async () => {

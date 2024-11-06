@@ -1,8 +1,8 @@
 import { expect, Page, test } from '@playwright/test'
 import { CustomBrowserContext, reset, withLoggedInUser, withRegisteredAccount } from './helpers/registerLogIn.js'
-import { withVerifiedConnection } from './helpers/setupConnection.js'
+import { withConnection } from './helpers/setupConnection.js'
 
-test.describe.only('query request', () => {
+test.describe('query request', () => {
   let context: CustomBrowserContext
   let page: Page
 
@@ -20,7 +20,7 @@ test.describe.only('query request', () => {
     page = await context.newPage()
     await withRegisteredAccount(page, context, AliceHost)
     await withLoggedInUser(page, context, AliceHost)
-    await withVerifiedConnection(AliceHost, BobHost)
+    await withConnection(AliceHost, BobHost)
   })
 
   test.afterEach(async () => {
