@@ -93,10 +93,7 @@ export const fetchPost = async (
   return res
 }
 
-export const fetchGet = async (
-  endpoint: string,
-  headers: Record<string, string> = {}
-): Promise<Response> => {
+export const fetchGet = async (endpoint: string, headers: Record<string, string> = {}): Promise<Response> => {
   const token = await getToken()
   const res = await fetch(endpoint, {
     method: 'GET',

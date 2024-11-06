@@ -1,10 +1,5 @@
 import { expect, Page, test } from '@playwright/test'
-import {
-  CustomBrowserContext,
-  reset,
-  withLoggedInUser,
-  withRegisteredAccount,
-} from './helpers/registerLogIn.js'
+import { CustomBrowserContext, reset, withLoggedInUser, withRegisteredAccount } from './helpers/registerLogIn.js'
 import { withVerifiedConnection } from './helpers/setupConnection.js'
 
 test.describe.only('query request', () => {
@@ -21,7 +16,7 @@ test.describe.only('query request', () => {
   })
 
   test.beforeEach(async () => {
-    await reset() 
+    await reset()
     page = await context.newPage()
     await withRegisteredAccount(page, context, AliceHost)
     await withLoggedInUser(page, context, AliceHost)
@@ -35,7 +30,7 @@ test.describe.only('query request', () => {
   // End-to-end process: Alice registers, invites Bob, Bob submits invite & pin, Alice submits pin
 
   test.skip('Query request from Alice to Bob', () => {
-    test.step('Alice submits a new query request',() => {})
+    test.step('Alice submits a new query request', () => {})
     test.step('Alice sees a new query with correct status', () => {})
     test.step('Bob sees a query from alice with ability to respond', () => {})
   })

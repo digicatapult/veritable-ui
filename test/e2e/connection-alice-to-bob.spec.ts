@@ -27,7 +27,7 @@ test.describe('Connection from Alice to Bob', () => {
   test.beforeAll(async ({ browser }) => {
     context = await browser.newContext()
     page = await context.newPage()
-    
+
     await withRegisteredAccount(page, context, baseUrlAlice)
   })
 

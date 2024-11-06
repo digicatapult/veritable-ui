@@ -32,7 +32,10 @@ export type Email = {
   isUnread: boolean
 }
 
-async function checkEmails(host: string, port: string): Promise<{ inviteEmail: Email; adminEmail: Email, results: Email[] }> {
+async function checkEmails(
+  host: string,
+  port: string
+): Promise<{ inviteEmail: Email; adminEmail: Email; results: Email[] }> {
   return new Promise((resolve, reject) => {
     const options = {
       hostname: host,

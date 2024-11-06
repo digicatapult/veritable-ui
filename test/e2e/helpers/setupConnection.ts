@@ -1,5 +1,5 @@
 import 'reflect-metadata'
-import { fetchPost, fetchGet } from '../../helpers/routeHelper.js'
+import { fetchGet, fetchPost } from '../../helpers/routeHelper.js'
 import { checkEmails, extractInvite, extractPin, getHostPort } from './smtpEmails.js'
 
 export async function withVerifiedConnection(issuerHost, holderHost) {
@@ -26,20 +26,19 @@ export async function withVerifiedConnection(issuerHost, holderHost) {
   const invite = await extractInvite(inviteEmail.id, smtp4devUrl)
   if (!invite) throw new Error('Invitation for Bob was not found.')
 
-
   // Use invite and from Bob's side
   const b = await fetchPost(`${holderHost}/connection/new/receive-invitation`, {
     invite: invite,
     action: 'createConnection',
   })
 
-  const uuidRegex = /[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-4[0-9a-fA-F]{3}-[89ab][0-9a-fA-F]{3}-[0-9a-fA-F]{12}/g;
+  const uuidRegex = /[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-4[0-9a-fA-F]{3}-[89ab][0-9a-fA-F]{3}-[0-9a-fA-F]{12}/g
   const [holderConnectionId] = (await b.text()).match(uuidRegex) || []
 
   await fetchPost(`${holderHost}/connection/${holderConnectionId}/pin-submission`, {
-    action: "submitPinCode",
+    action: 'submitPinCode',
     pin: issuerPin,
-    stepCount: "3",
+    stepCount: '3',
   })
 
   const responseEmail = await checkEmails(host, port).then(({ results }) => results[0])
@@ -51,10 +50,10 @@ export async function withVerifiedConnection(issuerHost, holderHost) {
   if (!holderPin) throw new Error(`PIN for ${issuerHost} was not found.`)
 
   await fetchPost(`${issuerHost}/connection/${issuerConnectionId}/pin-submission`, {
-    action: "submitPinCode",
+    action: 'submitPinCode',
     pin: holderPin,
-    stepCount: "2",
-  }) 
+    stepCount: '2',
+  })
 }
 
 export async function withConnection(smtp4devUrl: string, aliceUrl: string, bobUrl: string) {
