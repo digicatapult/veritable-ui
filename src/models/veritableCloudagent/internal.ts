@@ -346,8 +346,6 @@ export default class VeritableCloudagentInt<Config extends CloudagentConfig = De
       params,
     }
 
-    console.log('submitDrpcRequest', JSON.stringify(body, null, 2))
-
     const parser = this.buildParser(drpcResponseParser)
     return this.postRequest(`/v1/drpc/${connectionId}/request`, body, (response) => {
       if (response.status === 204) {
@@ -361,15 +359,6 @@ export default class VeritableCloudagentInt<Config extends CloudagentConfig = De
     requestId: string,
     response: { result?: Config['drpcResponseResult']; error?: JsonRpcError }
   ): Promise<void> {
-    console.log(
-      'submitDrpcResponse',
-      JSON.stringify({
-        jsonrpc: '2.0',
-        ...response,
-      }),
-      null,
-      2
-    )
     return this.postRequest(
       `/v1/drpc/${requestId}/response`,
       {
