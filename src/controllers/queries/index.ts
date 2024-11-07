@@ -425,6 +425,12 @@ export class QueriesController extends HTMLController {
         },
       })
     } catch (err) {
+      if (err instanceof Error) {
+        log.error('Error submitting Drpc query %s', err.message)
+      } else {
+        log.error('Error submitting Drpc query %j', { error: err })
+      }
+
       await this.db.update('query', { id: query?.id }, { status: 'errored' })
 
       return this.html(
@@ -491,6 +497,12 @@ export class QueriesController extends HTMLController {
         }
       )
     } catch (err) {
+      if (err instanceof Error) {
+        log.error('Error submitting Drpc query %s', err.message)
+      } else {
+        log.error('Error submitting Drpc query %j', { error: err })
+      }
+
       await this.db.update('query', { id: query.id }, { status: 'errored' })
 
       return this.html(

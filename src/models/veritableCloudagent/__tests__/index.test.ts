@@ -536,7 +536,7 @@ describe('veritableCloudagent', () => {
           someKey: string
         }
       }
-      drpcResponseResult: {}
+      drpcResponseResult: unknown
     }
 
     describe('success with response', function () {
