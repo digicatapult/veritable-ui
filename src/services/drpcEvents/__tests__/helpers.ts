@@ -30,7 +30,9 @@ export const withDrpcEventMocks = (testOptions: Partial<QueryMockOptions> = {}) 
     submitDrpcResponse: sinon.stub().resolves(),
     submitDrpcRequest: sinon.stub().resolves({
       id: 'drpc-id',
-      result: {},
+      result: {
+        type: 'https://github.com/digicatapult/veritable-documentation/tree/main/schemas/veritable_messaging/query_ack/0.1',
+      },
     }),
   }
   const dbMock = {

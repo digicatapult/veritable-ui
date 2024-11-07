@@ -3,14 +3,23 @@ import { describe, it } from 'mocha'
 import sinon from 'sinon'
 
 import { Request } from 'express'
+import { InvalidInputError } from '../../../errors.js'
 import { mockLogger } from '../../__tests__/helpers.js'
 import { QueriesController } from '../index.js'
 import { mockIds, toHTMLString, withQueriesMocks } from './helpers.js'
 
+const expiresAtExpectation = new Date(1000 + 7 * 24 * 60 * 60 * 1000)
+
 describe('QueriesController', () => {
   const req = { log: mockLogger } as unknown as Request
+  let clock: sinon.SinonFakeTimers | null = null
+
+  beforeEach(() => {
+    clock = sinon.useFakeTimers({ now: 1000, toFake: ['Date'] })
+  })
 
   afterEach(() => {
+    clock?.restore()
     sinon.restore()
   })
 
@@ -93,6 +102,7 @@ describe('QueriesController', () => {
           response_id: null,
           role: 'requester',
           status: 'pending_their_input',
+          expires_at: expiresAtExpectation,
         },
       ])
       expect(result).to.equal('scope3_success_scope3')
@@ -175,8 +185,11 @@ describe('QueriesController', () => {
               emissions: 10,
             })
             // the below expect should never happen since we expect test to throw
-            expect(false).to.be.equal(true)
+            expect.fail('Expected exception to be thrown')
           } catch (err) {
+            if (!(err instanceof InvalidInputError)) {
+              expect.fail('expected InvalidInputError')
+            }
             expect(err.toString()).to.be.equal('Error: missing a property in the request body')
           }
         })
@@ -193,9 +206,11 @@ describe('QueriesController', () => {
               quantities: [10, 20],
               emissions: 10,
             })
-            // the below expect should never happen since we expect test to throw
-            expect(false).to.be.equal(true)
+            expect.fail('Expected exception to be thrown')
           } catch (err) {
+            if (!(err instanceof InvalidInputError)) {
+              expect.fail('expected InvalidInputError')
+            }
             expect(err.toString()).to.be.equal('Error: missing a property in the request body')
           }
         })
@@ -211,9 +226,11 @@ describe('QueriesController', () => {
               connectionIds: ['conn-id-1', 'conn-id-2'],
               emissions: 10,
             })
-            // the below expect should never happen since we expect test to throw
-            expect(false).to.be.equal(true)
+            expect.fail('Expected exception to be thrown')
           } catch (err) {
+            if (!(err instanceof InvalidInputError)) {
+              expect.fail('expected InvalidInputError')
+            }
             expect(err.toString()).to.be.equal('Error: missing a property in the request body')
           }
         })
@@ -231,9 +248,11 @@ describe('QueriesController', () => {
               connectionIds: ['conn-id-1', 'conn-id-2'],
               emissions: 10,
             })
-            // the below expect should never happen since we expect test to throw
-            expect(false).to.be.equal(true)
+            expect.fail('Expected exception to be thrown')
           } catch (err) {
+            if (!(err instanceof InvalidInputError)) {
+              expect.fail('expected InvalidInputError')
+            }
             expect(err.toString()).to.be.equal('Error: partial query validation failed, invalid data')
           }
         })
@@ -269,6 +288,7 @@ describe('QueriesController', () => {
             response_id: null,
             response: null,
             role: 'requester',
+            expires_at: new Date(),
           },
         ])
         expect(dbMock.insert.getCall(1).args).to.deep.equal([
@@ -285,6 +305,7 @@ describe('QueriesController', () => {
             response_id: null,
             response: null,
             role: 'requester',
+            expires_at: new Date(),
           },
         ])
         expect(
@@ -465,7 +486,7 @@ describe('QueriesController', () => {
     })
 
     describe('partial query submit', () => {
-      beforeEach(async () => {
+      before(async () => {
         const controller = new QueriesController(...args)
         result = await controller
           .scope3CarbonConsumptionResponseSubmit(req, mockIds.queryId, {
@@ -493,6 +514,8 @@ describe('QueriesController', () => {
             },
             id: 'ccaaaaaa-0000-0000-0000-d8ae0805059e',
             type: 'https://github.com/digicatapult/veritable-documentation/tree/main/schemas/veritable_messaging/query_types/total_carbon_embodiment/request/0.1',
+            createdTime: 1,
+            expiresTime: 1,
           },
         ])
       })
@@ -512,6 +535,7 @@ describe('QueriesController', () => {
             response_id: null,
             response: null,
             role: 'requester',
+            expires_at: new Date(),
           },
         ])
       })
@@ -540,9 +564,10 @@ describe('QueriesController', () => {
             agent_rpc_id: 'request-id',
             query_id: 'ccaaaaaa-0000-0000-0000-d8ae0805059e',
             role: 'client',
-            method: 'submit_query_response',
-            result: 'result',
-            error: undefined,
+            method: 'submit_query_request',
+            result: {
+              type: 'https://github.com/digicatapult/veritable-documentation/tree/main/schemas/veritable_messaging/query_ack/0.1',
+            },
           },
         ])
       })

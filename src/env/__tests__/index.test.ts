@@ -162,11 +162,16 @@ describe('Env', function () {
       }
       expect(Object.keys(error.errors)).to.deep.equal(['EMAIL_TRANSPORT'])
 
-      const nestedErrors = error.errors['EMAIL_TRANSPORT']
-      if (!(nestedErrors instanceof EnvalidTestReporterError)) {
-        expect.fail()
+      const nestedErrors = error.errors
+      if (!('EMAIL_TRANSPORT' in nestedErrors)) {
+        expect.fail('Expect EMAIL_TRANSPORT error')
       }
-      expect(Object.keys(nestedErrors.errors).sort()).to.deep.equal(
+      const transportError = nestedErrors.EMAIL_TRANSPORT
+      if (!(transportError instanceof EnvalidTestReporterError)) {
+        expect.fail('Expect EMAIL_TRANSPORT error to be of type EnvalidTestReporterError')
+      }
+
+      expect(Object.keys(transportError.errors).sort()).to.deep.equal(
         ['SMTP_HOST', 'SMTP_PORT', 'SMTP_USER', 'SMTP_PASS'].sort()
       )
     })

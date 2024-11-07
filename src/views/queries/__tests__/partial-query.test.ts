@@ -33,6 +33,7 @@ const queryExample: QueryRow = {
   role: 'requester',
   created_at: new Date(),
   updated_at: new Date(),
+  expires_at: new Date(),
 }
 
 describe('Partial Query', () => {

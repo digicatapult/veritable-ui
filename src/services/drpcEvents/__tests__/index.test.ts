@@ -17,6 +17,8 @@ const goodRequest: DrpcRequest = {
       quantity: 42,
     },
     type: 'https://github.com/digicatapult/veritable-documentation/tree/main/schemas/veritable_messaging/query_types/total_carbon_embodiment/request/0.1',
+    createdTime: 0,
+    expiresTime: 1,
   },
 }
 
@@ -91,7 +93,14 @@ describe('DrpcEvents', function () {
       it('should call submitDrpcResponse correctly', function () {
         const stub = mocks.cloudagentMock.submitDrpcResponse
         expect(stub.callCount).to.equal(1)
-        expect(stub.firstCall.args).to.deep.equal(['request-id', { result: { state: 'accepted' } }])
+        expect(stub.firstCall.args).to.deep.equal([
+          'request-id',
+          {
+            result: {
+              type: 'https://github.com/digicatapult/veritable-documentation/tree/main/schemas/veritable_messaging/query_ack/0.1',
+            },
+          },
+        ])
       })
 
       it('should insert into the database a query and query_rpc', function () {
@@ -107,6 +116,7 @@ describe('DrpcEvents', function () {
             response_id: 'fb45f64a-7c2b-43e8-85c2-da66a6899446',
             role: 'responder',
             response: null,
+            expires_at: new Date(1000),
           },
         ])
         expect(stub.secondCall.args).to.deep.equal([
@@ -116,7 +126,9 @@ describe('DrpcEvents', function () {
             method: 'submit_query_request',
             role: 'server',
             agent_rpc_id: 'request-id',
-            result: { state: 'accepted' },
+            result: {
+              type: 'https://github.com/digicatapult/veritable-documentation/tree/main/schemas/veritable_messaging/query_ack/0.1',
+            },
           },
         ])
       })
@@ -508,6 +520,7 @@ describe('DrpcEvents', function () {
             response_id: 'fb45f64a-7c2b-43e8-85c2-da66a6899446',
             response: null,
             role: 'responder',
+            expires_at: new Date(1000),
           },
         ])
       })
@@ -676,7 +689,14 @@ describe('DrpcEvents', function () {
       it('should call submitDrpcResponse correctly', function () {
         const stub = mocks.cloudagentMock.submitDrpcResponse
         expect(stub.callCount).to.equal(1)
-        expect(stub.firstCall.args).to.deep.equal(['request-id', { result: { state: 'accepted' } }])
+        expect(stub.firstCall.args).to.deep.equal([
+          'request-id',
+          {
+            result: {
+              type: 'https://github.com/digicatapult/veritable-documentation/tree/main/schemas/veritable_messaging/query_ack/0.1',
+            },
+          },
+        ])
       })
       it('should update a query in the database and insert a query_rpc', function () {
         const stub = mocks.dbMock.update
@@ -703,7 +723,9 @@ describe('DrpcEvents', function () {
             method: 'submit_query_response',
             role: 'server',
             agent_rpc_id: 'request-id',
-            result: { state: 'accepted' },
+            result: {
+              type: 'https://github.com/digicatapult/veritable-documentation/tree/main/schemas/veritable_messaging/query_ack/0.1',
+            },
           },
         ])
       })

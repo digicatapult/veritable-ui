@@ -64,6 +64,8 @@ const defaultOptions: QueryMockOptions = {
         connection_id: mockIds.companyId,
         details: { quantity: 2, subjectId: mockIds.queryId },
         response_id: '5390af91-c551-4d74-b394-d8ae0805059e',
+        expires_at: new Date(1000),
+        created_at: new Date(1000),
       },
       {
         id: '5390af91-c551-4d74-b394-d8ae0805059a',
@@ -72,6 +74,8 @@ const defaultOptions: QueryMockOptions = {
         connection_id: mockIds.connectionId,
         details: { quantity: 2, subjectId: mockIds.queryId },
         response_id: '5390af91-c551-4d74-b394-d8ae0805059e',
+        expires_at: new Date(1000),
+        created_at: new Date(1000),
       },
       {
         status: 'pending_your_input',
@@ -79,6 +83,8 @@ const defaultOptions: QueryMockOptions = {
         connection_id: mockIds.connectionId,
         details: { quantity: 2, subjectId: mockIds.queryId },
         response_id: '5390af91-c551-4d74-b394-d8ae0805059e',
+        expires_at: new Date(1000),
+        created_at: new Date(1000),
       },
     ],
     queryInsert: [
@@ -94,6 +100,8 @@ const defaultOptions: QueryMockOptions = {
         response_id: null,
         response: null,
         role: 'requester',
+        expires_at: new Date(1000),
+        created_at: new Date(1000),
       },
     ],
   },
@@ -126,7 +134,9 @@ export const withQueriesMocks = (testOptions: Partial<QueryMockOptions> = {}) =>
   } as QueriesTemplates
   const cloudagentMock = {
     submitDrpcRequest: sinon.stub().resolves({
-      result: 'result',
+      result: {
+        type: 'https://github.com/digicatapult/veritable-documentation/tree/main/schemas/veritable_messaging/query_ack/0.1',
+      },
       id: 'request-id',
     }),
   }
