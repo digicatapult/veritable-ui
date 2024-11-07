@@ -1,0 +1,44 @@
+```
+- We should deduplicate logic as much as possible with the other query template (total carbon embodiment).
+- The user Alice would click in the Product Provenance template and ask for the product provenance confirmation for a Product (with Product ID) + send it to a selected supplier, such as Bob
+- Bob would input his Yes or No answer to whether or not the products come from non-compliant countries. + He would also select a company to forward this to: Charlie.
+- The forwarded queries would be sent to Charlie, and after responded, would aggregate up and Alice may view the response (such as if anyone said YES)
+```
+
+
+
+> Refactors: Ideally should become a reusable set of components where we can add more queries without the need to develop components
+
+[x] - List of common props between provenance and total emissions
+[x] - List of required props for
+    a. send a query
+    b. respond
+    c. show 
+    d. partials
+
+[ ] - Deduplicate/Prepere current total co2 (this is will be broken down into more tasks)
+
+Send a Query:
+  [ ] - Main container to be broken down into two sections (left/right)
+  [ ] - Right section: should take a form as an prop (as childs or component?)
+  [ ] - Left section: is straight forward should take heading and subtext as props
+    
+
+Respond to a Query;
+  [ ] - partial query - abstract away from respond
+  [ ] - For provenance dropdown component to be added
+  [ ] - Pass as childs or component to the Right Section
+
+Responses (once resolved):
+  [ ] - needs to render status specific to a query. could be send as key/value pair where value can be a component (for rendering snack bars). Total Co2 is just plain text
+  [ ] - query_type: for title
+  [ ] - map query_type to some subtexts e.g. for co2 as well
+  [ ] - Supplier
+
+Companies list:
+  [ ] - this is pretty much done, basically reuse and deduplicate
+
+Success/Error (modals):
+  [ ] - confirm what it takes to have one modal rather than two success/error
+  
+

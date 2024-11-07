@@ -2,12 +2,7 @@ import dotenv from 'dotenv'
 import envalid from 'envalid'
 
 import { container } from 'tsyringe'
-import {
-  emailTransportValidator,
-  issuanceRecordValidator,
-  pinSecretValidator,
-  strArrayValidator,
-} from './validators.js'
+import { emailTransportValidator, issuanceRecordValidator, pinSecretValidator } from './validators.js'
 
 export const defaultConfig = {
   PORT: envalid.port({ default: 3000 }),
@@ -17,7 +12,8 @@ export const defaultConfig = {
   DB_USERNAME: envalid.str({ devDefault: 'postgres' }),
   DB_PASSWORD: envalid.str({ devDefault: 'postgres' }),
   DB_PORT: envalid.port({ default: 5432 }),
-  COOKIE_SESSION_KEYS: strArrayValidator({ devDefault: ['secret'] }),
+  COOKIE_SESSION_KEYS: envalid.str({ devDefault: 'secret' }),
+  OPA_ORIGIN: envalid.str({ default: 'http://localhost:8181' }),
   PUBLIC_URL: envalid.url({ devDefault: 'http://localhost:3000' }),
   API_SWAGGER_BG_COLOR: envalid.str({ devDefault: '#38b6ff', default: '#ffffff' }),
   API_SWAGGER_TITLE: envalid.str({ devDefault: 'Alice', default: 'veritable' }),

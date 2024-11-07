@@ -406,6 +406,7 @@ export class QueriesController extends HTMLController {
         },
       })
     } catch (err) {
+      log.warn('error occured while submitting a query request', err?.toString())
       await this.db.update('query', { id: query?.id }, { status: 'errored' })
 
       return this.html(
@@ -470,6 +471,7 @@ export class QueriesController extends HTMLController {
         }
       )
     } catch (err) {
+      log.warn('error occured while submitting a query response', err?.toString())
       await this.db.update('query', { id: query.id }, { status: 'errored' })
 
       return this.html(

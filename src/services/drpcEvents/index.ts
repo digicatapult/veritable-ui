@@ -169,7 +169,7 @@ export default class DrpcEvents {
         params = submitQueryResponseRpcParams.parse(request.params)
       } catch (err) {
         this.logger.warn('Invalid parameters received for request %s: %o', request.id, request.params)
-        this.logger.debug('Parsing error o%', err)
+        this.logger.debug('Parsing error j%', err)
         await this.cloudagent.submitDrpcResponse(request.id, {
           error: {
             code: drpcErrorCode.INVALID_PARAMS,
