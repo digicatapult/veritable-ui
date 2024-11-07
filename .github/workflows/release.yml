@@ -1,237 +1,39 @@
-name: Release
-
+name: Release (NPM)
 on:
   push:
     branches: ['main']
-
 jobs:
-  preconditions:
-    runs-on: ubuntu-latest
-    outputs:
-      repo_name: ${{ steps.repo_ids.outputs.REPO_NAME }}
-      org_name: ${{ steps.repo_ids.outputs.ORG_NAME }}
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-      - name: Check token
-        run: |
-          if [ -z "${{ secrets.GITHUB_TOKEN }}"]; then
-            echo "Must provide a GITHUB_TOKEN secret in order to run release workflow"
-            exit 1
-          fi
-      - name: Get repository identifiers
-        id: repo_ids
-        run: |
-          REPO_NAME=$(echo "${{ github.event.repository.name }}" | tr '[:upper:]' '[:lower:]')
-          ORG_NAME=$(echo "${{ github.event.repository.owner.name }}" | tr '[:upper:]' '[:lower:]')
-          echo "REPO_NAME=$REPO_NAME" >> $GITHUB_OUTPUT
-          echo "ORG_NAME=$ORG_NAME" >> $GITHUB_OUTPUT
-
-  static-checks:
-    name: Run Static Analysis Checks
-    strategy:
-      fail-fast: false
-      matrix:
-        command: [lint, depcheck, xss-scan, check]
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 20.x
-      - name: Cache Node.js modules
-        uses: actions/cache@v4
-        with:
-          path: ~/.npm # npm cache files are stored in `~/.npm` on Linux/macOS
-          key: ${{ runner.OS }}-node-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.OS }}-node-
-            ${{ runner.OS }}-
-      - name: Install Packages
-        run: npm ci
-      - name: Lint
-        run: npm run ${{ matrix.command }}
-
-  tests:
-    name: Run tests
-    strategy:
-      fail-fast: false
-      matrix:
-        command: ['test:unit', 'test:integration']
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 20.x
-      - name: Cache Node.js modules
-        uses: actions/cache@v4
-        with:
-          path: ~/.npm # npm cache files are stored in `~/.npm` on Linux/macOS
-          key: ${{ runner.OS }}-node-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.OS }}-node-
-            ${{ runner.OS }}-
-      - name: Install Packages
-        run: npm ci
-      - name: Build tsoa
-        run: npm run tsoa:build
-      - name: touch env
-        run: touch .env
-      - name: Setup dependencies
-        run: docker compose up -d
-      - name: Sleep
-        uses: kibertoad/wait-action@1.0.1
-        with:
-          time: '30s'
-      - name: Run database migrations
-        run: npm run db:migrate
-        env:
-          NODE_ENV: test
-      - name: Run tests
-        run: npm run ${{ matrix.command }}
-
-  e2e-tests:
-    timeout-minutes: 60
-    runs-on: ubuntu-latest
-    steps:
-      - name: Setup Docker Buildx
-        id: buildx
-        uses: docker/setup-buildx-action@v3
-        with:
-          buildkitd-flags: '--debug'
-      - uses: actions/checkout@v4
-      - name: Build e2e containers
-        uses: docker/bake-action@v5
-        with:
-          builder: ${{ steps.buildx.outputs.name }}
-          files: ./docker-compose.e2e.yml
-      - name: Run e2e tests
-        env:
-          VERITABLE_COMPANY_PROFILE_API_KEY: ${{ secrets.COMPANIES_HOUSE_API }}
-          VERITABLE_E2E_OUT_DIR: ${{ runner.temp }}
-        run: docker compose -f docker-compose.e2e.yml up --exit-code-from e2e-tests --abort-on-container-exit --quiet-pull
-      - uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: playwright-report
-          path: ${{ runner.temp }}/playwright-report/
-          retention-days: 90
-      - name: Publish CTRF Test Summary Results
-        run: npx github-actions-ctrf ${{ runner.temp }}/playwright-report/ctrf-report.json
-        if: always()
-
-  check-version:
-    name: 'Check version'
-    runs-on: ubuntu-latest
-    outputs:
-      is_new_version: ${{ steps.get_version.outputs.IS_NEW_VERSION }}
-      version: ${{ steps.get_version.outputs.VERSION }}
-      build_date: ${{ steps.get_version.outputs.BUILD_DATE }}
-      is_prerelease: ${{ steps.get_version.outputs.IS_PRERELEASE }}
-
-    steps:
-      - uses: actions/checkout@v4
-      - name: Check version
-        id: get_version
-        uses: digicatapult/check-version@v1
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-
-  publish:
-    name: 'Publish package'
-    needs: [preconditions, static-checks, tests, e2e-tests, check-version]
-    runs-on: ubuntu-latest
-    if: ${{ needs.check-version.outputs.is_new_version == 'true' }}
-
-    steps:
-      - uses: actions/checkout@v4
-
-      # Docker build
-      - name: Setup QEMU
-        uses: docker/setup-qemu-action@v3
-        with:
-          platforms: all
-      - name: Setup Docker Buildx
-        id: buildx
-        uses: docker/setup-buildx-action@v3
-        with:
-          buildkitd-flags: '--debug'
-      - name: Generate tags
-        id: generate-tags
-        env:
-          VERSION: ${{ needs.check-version.outputs.version }}
-          IS_NEW_VERSION: ${{ needs.check-version.outputs.is_new_version }}
-          IS_PRERELEASE: ${{ needs.check-version.outputs.is_prerelease }}
-        # if it's a new non prerelease version tag with hash, version latest-dev and latest
-        # if it's a new prerelease version tag with hash, version and latest-dev
-        # if it's a non new version tag with hash and latest-dev
-        run: |
-          if [ "$IS_NEW_VERSION" == "true" ]; then
-            echo "GHCR_VERSION_TAG=ghcr.io/${{ needs.preconditions.outputs.org_name }}/${{ needs.preconditions.outputs.repo_name }}:$VERSION" >> $GITHUB_OUTPUT
-            echo "DOCKERHUB_VERSION_TAG=${{ needs.preconditions.outputs.org_name }}/${{ needs.preconditions.outputs.repo_name }}:$VERSION" >> $GITHUB_OUTPUT
-            if [ "$IS_PRERELEASE" == "false" ]; then
-              echo "GHCR_LATEST_TAG=ghcr.io/${{ needs.preconditions.outputs.org_name }}/${{ needs.preconditions.outputs.repo_name }}:latest" >> $GITHUB_OUTPUT
-              echo "DOCKERHUB_LATEST_TAG=${{ needs.preconditions.outputs.org_name }}/${{ needs.preconditions.outputs.repo_name }}:latest" >> $GITHUB_OUTPUT
-            else
-              echo "GHCR_LATEST_TAG=" >> $GITHUB_OUTPUT
-              echo "DOCKERHUB_LATEST_TAG=" >> $GITHUB_OUTPUT
-            fi;
-          else
-            echo "GHCR_VERSION_TAG=" >> $GITHUB_OUTPUT
-            echo "GHCR_LATEST_TAG=" >> $GITHUB_OUTPUT
-            echo "DOCKERHUB_VERSION_TAG=" >> $GITHUB_OUTPUT
-            echo "DOCKERHUB_LATEST_TAG=" >> $GITHUB_OUTPUT
-          fi;
-      - name: Login to GitHub Container Registry
-        uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: ${{ github.repository_owner }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-      - name: Login to Dockerhub Registry
-        uses: docker/login-action@v3
-        with:
-          username: ${{ secrets.SQNC_DOCKERHUB_USERNAME }}
-          password: ${{ secrets.SQNC_DOCKERHUB_TOKEN }}
-      - name: Build image
-        uses: docker/build-push-action@v6
-        with:
-          builder: ${{ steps.buildx.outputs.name }}
-          context: .
-          file: ./Dockerfile
-          platforms: linux/amd64, linux/arm64
-          push: true
-          tags: |
-            ghcr.io/${{ needs.preconditions.outputs.org_name }}/${{ needs.preconditions.outputs.repo_name }}:${{ github.sha }}
-            ${{ steps.generate-tags.outputs.GHCR_VERSION_TAG }}
-            ${{ steps.generate-tags.outputs.GHCR_LATEST_TAG }}
-            ${{ needs.preconditions.outputs.org_name }}/${{ needs.preconditions.outputs.repo_name }}:${{ github.sha }}
-            ${{ steps.generate-tags.outputs.DOCKERHUB_VERSION_TAG }}
-            ${{ steps.generate-tags.outputs.DOCKERHUB_LATEST_TAG }}
-          labels: |
-            org.opencontainers.image.title=${{ needs.preconditions.outputs.repo_name }}
-            org.opencontainers.image.description=${{ github.event.repository.description }}
-            org.opencontainers.image.source=${{ github.event.repository.html_url }}
-            org.opencontainers.image.url=${{ github.event.repository.html_url }}
-            org.opencontainers.image.revision=${{ github.sha }}
-            org.opencontainers.image.version=${{ needs.check-version.outputs.version }}
-            org.opencontainers.image.created=${{ needs.check-version.outputs.build_date }}
-
-      # Build github release
-      - name: Build release version
-        uses: 'marvinpinto/action-automatic-releases@latest'
-        with:
-          repo_token: '${{ secrets.GITHUB_TOKEN }}'
-          automatic_release_tag: ${{ needs.check-version.outputs.version }}
-          prerelease: false
-          title: Release ${{ needs.check-version.outputs.version }}
-      - name: Build release latest
-        uses: 'marvinpinto/action-automatic-releases@latest'
-        with:
-          repo_token: '${{ secrets.GITHUB_TOKEN }}'
-          automatic_release_tag: latest
-          prerelease: false
-          title: Latest Release ${{ needs.check-version.outputs.version }}
+  static-checks-npm:
+    uses: digicatapult/shared-workflows/.github/workflows/static-checks-npm.yml@feature/shared-npm-tests
+  tests-npm:
+    uses: digicatapult/shared-workflows/.github/workflows/tests-npm.yml@feature/shared-npm-tests
+    with:
+      npm_build_command: 'npm run tsoa:build'
+      pre_test_command: 'npm run db:migrate'
+      docker_compose_file: docker-compose.yml
+  e2e-tests-npm:
+    uses: digicatapult/shared-workflows/.github/workflows/tests-e2e-npm.yml@feature/shared-npm-tests
+    with:
+      docker_compose_file: docker-compose.e2e.yml
+      test_command: 'docker compose -f docker-compose.e2e.yml up --exit-code-from e2e-tests --abort-on-container-exit --quiet-pull'
+    permissions:
+      contents: write
+    secrets: inherit
+  build-docker:
+    needs: [e2e-tests-npm, tests-npm, static-checks-npm]
+    uses: digicatapult/shared-workflows/.github/workflows/build-docker.yml@feature/shared-npm-tests
+    with:
+      push_dockerhub: true
+      push_ghcr: true
+    permissions:
+      packages: write
+      contents: write
+    secrets:
+      DOCKERHUB_TOKEN: ${{ secrets.SQNC_DOCKERHUB_TOKEN }}
+      DOCKERHUB_USERNAME: ${{ secrets.SQNC_DOCKERHUB_USERNAME }}
+  release-github:
+    needs: [build-docker]
+    uses: digicatapult/shared-workflows/.github/workflows/release-github.yml@feature/shared-npm-tests
+    permissions:
+      contents: write
+    secrets: inherit
