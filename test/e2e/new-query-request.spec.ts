@@ -8,22 +8,20 @@ import {
 import { withConnection } from './helpers/setupConnection.js'
 
 test.describe('Queries', () => {
-  test.setTimeout(10000)
-  let context: CustomBrowserContext
-  let page: Page
-
   const AliceHost = process.env.VERITABLE_ALICE_PUBLIC_URL || 'http://localhost:3000'
   const BobHost = process.env.VERITABLE_BOB_PUBLIC_URL || 'http://localhost:3001'
   const smtp4dev = process.env.VERITABLE_SMTP_ADDRESS || 'http://localhost:5001'
 
-  // Create and share context
-  // TODO expand on assertations
+  test.setTimeout(10000)
+  let context: CustomBrowserContext
+  let page: Page
+
   test.beforeEach(async ({ browser }) => {
+    await withCleanAliceBobEmail(AliceHost, BobHost, smtp4dev)
     context = await browser.newContext()
     page = await context.newPage()
     await withRegisteredAccount(page, context, AliceHost)
     await withLoggedInUser(page, context, AliceHost)
-    await withCleanAliceBobEmail(AliceHost, BobHost, smtp4dev)
     await withConnection(AliceHost, BobHost)
   })
 
@@ -32,8 +30,8 @@ test.describe('Queries', () => {
     await page.close()
   })
 
-  test('total carbon embodiment new query request (Alice)', async () => {
-    await test.step('creates a new Query Request for total co2 emissions', async () => {
+  test('new query request - total carbon embodiment (Alice)', async () => {
+    await test.step('creates a new query request for total co2 emissions', async () => {
       await page.goto(`${AliceHost}/queries`)
       await page.click('text=Query Request')
 
@@ -75,14 +73,12 @@ test.describe('Queries', () => {
       await page.getByLabel('Quantity').fill('10')
       await page.getByRole('button', { name: 'Submit Query' }).click()
 
-      expect(content.locator(page.getByRole('heading')))
       const successModal = page.locator('#new-query-confirmation-text')
       await expect(successModal).toBeVisible()
-      await expect(
-        successModal.getByText('Your query has been successfully shared with the following supplier:')
-      ).toBeVisible()
-      await expect(successModal.getByText('OFFSHORE RENEWABLE ENERGY')).toBeVisible()
-      await expect(successModal.getByText('You can check the status of')).toBeVisible()
+      await expect(successModal.getByRole('heading')).toContainText('Your Query has been sent!')
+      expect(await successModal.textContent()).toContain(
+        'Your Query has been sent!Your query has been successfully shared with the following supplier:OFFSHORE RENEWABLE ENERGY CATAPULTOnce all responses are received, the information will be automatically gathered and shared with you. No further action is needed on your part. You can trust that the process is secure, transparent, and streamlined for your convenience.You can check the status of your query in the Queries section of your dashboard.Back to Queries'
+      )
     })
 
     await test.step('new query is visible on other node (Bob) and can be responded to', async () => {
