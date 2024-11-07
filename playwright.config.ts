@@ -25,7 +25,7 @@ export default defineConfig({
     actionTimeout: 10000,
     colorScheme: 'dark',
     navigationTimeout: 5000,
-    testIdAttribute: 'data-testid'
+    testIdAttribute: 'data-testid',
   },
   expect: {
     timeout: 10 * 1500,

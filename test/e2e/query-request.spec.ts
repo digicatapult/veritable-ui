@@ -1,5 +1,10 @@
 import { expect, Page, test } from '@playwright/test'
-import { CustomBrowserContext, withLoggedInUser, withRegisteredAccount, withCleanAliceBobEmail } from './helpers/registerLogIn.js'
+import {
+  CustomBrowserContext,
+  withCleanAliceBobEmail,
+  withLoggedInUser,
+  withRegisteredAccount,
+} from './helpers/registerLogIn.js'
 import { withConnection } from './helpers/setupConnection.js'
 
 test.describe('Queries', () => {
@@ -43,7 +48,9 @@ test.describe('Queries', () => {
       expect(queryTypes.nth(3)).toHaveClass('query-item  disabled')
 
       const co2Card = await page.$('a[href="/queries/new/scope-3-carbon-consumption"]')
-      expect(await co2Card?.textContent()).toContain('Total Carbon EmbodimentCreates a query for calculating the total carbon embodiment for a given product or component.')
+      expect(await co2Card?.textContent()).toContain(
+        'Total Carbon EmbodimentCreates a query for calculating the total carbon embodiment for a given product or component.'
+      )
       await co2Card?.click()
     })
 
@@ -64,7 +71,9 @@ test.describe('Queries', () => {
     await test.step('enters product ID along with quantities and submits a new query request', async () => {
       expect(page.url()).toContain('/queries/new/scope-3-carbon-consumption')
       const content = page.locator('#content-main')
-      await expect(content.locator(page.getByText('Choose the product'))).toHaveText("Choose the product that you want to apply the query “What is the total carbon embodiment for the product/component below?” to.")
+      await expect(content.locator(page.getByText('Choose the product'))).toHaveText(
+        'Choose the product that you want to apply the query “What is the total carbon embodiment for the product/component below?” to.'
+      )
       await page.getByPlaceholder('BX20001').fill('E2E-Product-id')
       await page.getByLabel('Quantity').fill('10')
       await page.getByRole('button', { name: 'Submit Query' }).click()
@@ -72,7 +81,9 @@ test.describe('Queries', () => {
       expect(content.locator(page.getByRole('heading')))
       const successModal = page.locator('#new-query-confirmation-text')
       await expect(successModal).toBeVisible()
-      await expect(successModal.getByText('Your query has been successfully shared with the following supplier:')).toBeVisible()
+      await expect(
+        successModal.getByText('Your query has been successfully shared with the following supplier:')
+      ).toBeVisible()
       await expect(successModal.getByText('OFFSHORE RENEWABLE ENERGY')).toBeVisible()
       await expect(successModal.getByText('You can check the status of')).toBeVisible()
     })

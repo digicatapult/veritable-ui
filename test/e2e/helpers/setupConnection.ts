@@ -4,7 +4,6 @@ import 'reflect-metadata'
 import { fetchGet, fetchPost } from '../../helpers/routeHelper.js'
 import { checkEmails, extractInvite, extractPin, getHostPort } from './smtpEmails.js'
 
-
 // TODO update to take company number and URL emails can be issuer@ / holder@
 export async function withConnection(invitatorUrl: string, holderUrl: string) {
   const uuidRegex = /[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-4[0-9a-fA-F]{3}-[89ab][0-9a-fA-F]{3}-[0-9a-fA-F]{12}/g
