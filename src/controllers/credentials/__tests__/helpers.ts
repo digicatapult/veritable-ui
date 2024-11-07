@@ -1,7 +1,7 @@
 import sinon from 'sinon'
 import Database from '../../../models/db/index.js'
-import VeritableCloudagent from '../../../models/veritableCloudagent.js'
-import { default as CredentialListTemplates, type Credential } from '../../../views/credentials/index.js'
+import VeritableCloudagent from '../../../models/veritableCloudagent/index.js'
+import { default as CredentialListTemplates, type ExtendedCredential } from '../../../views/credentials/index.js'
 import { AliceCredentials, BobCredentials } from './fixtures.js'
 
 function templateFake(templateName: string, ...args: unknown[]) {
@@ -10,7 +10,7 @@ function templateFake(templateName: string, ...args: unknown[]) {
 
 export const withConnectionMocks = () => {
   const templateMock = {
-    listPage: sinon.stub().callsFake((creds: Credential[]) => {
+    listPage: sinon.stub().callsFake((creds: ExtendedCredential[]) => {
       const vals = creds.map((cred) => [cred.role, cred.state, cred.companyName, cred.type]).flat()
       return templateFake('listCredentials', ...vals)
     }),

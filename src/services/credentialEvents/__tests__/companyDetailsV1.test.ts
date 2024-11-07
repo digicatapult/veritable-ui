@@ -31,17 +31,14 @@ describe('companyDetailsV1', function () {
         {
           proposalAttributes: [
             {
-              'mime-type': 'text/plain',
               name: 'company_name',
               value: 'NAME',
             },
             {
-              'mime-type': 'text/plain',
               name: 'company_number',
               value: 'NUMBER',
             },
             {
-              'mime-type': 'text/plain',
               name: 'pin',
               value: '123456',
             },
@@ -107,17 +104,14 @@ describe('companyDetailsV1', function () {
         {
           proposalAttributes: [
             {
-              'mime-type': 'text/plain',
               name: 'company_name',
               value: 'NAME',
             },
             {
-              'mime-type': 'text/plain',
               name: 'company_number',
               value: 'NUMBER',
             },
             {
-              'mime-type': 'text/plain',
               name: 'pin',
               value: '123456',
             },
@@ -174,12 +168,10 @@ describe('companyDetailsV1', function () {
         {
           proposalAttributes: [
             {
-              'mime-type': 'text/plain',
               name: 'company_number',
               value: 'NUMBER',
             },
             {
-              'mime-type': 'text/plain',
               name: 'pin',
               value: '123456',
             },
@@ -206,12 +198,10 @@ describe('companyDetailsV1', function () {
         {
           proposalAttributes: [
             {
-              'mime-type': 'text/plain',
               name: 'company_name',
               value: 'NAME',
             },
             {
-              'mime-type': 'text/plain',
               name: 'pin',
               value: '123456',
             },
@@ -238,12 +228,10 @@ describe('companyDetailsV1', function () {
         {
           proposalAttributes: [
             {
-              'mime-type': 'text/plain',
               name: 'company_name',
               value: 'NAME',
             },
             {
-              'mime-type': 'text/plain',
               name: 'company_number',
               value: 'NUMBER',
             },
@@ -272,17 +260,14 @@ describe('companyDetailsV1', function () {
           {
             proposalAttributes: [
               {
-                'mime-type': 'text/plain',
                 name: 'company_name',
                 value: 'NAME',
               },
               {
-                'mime-type': 'text/plain',
                 name: 'company_number',
                 value: 'NUMBER',
               },
               {
-                'mime-type': 'text/plain',
                 name: 'pin',
                 value: '123456',
               },
@@ -325,17 +310,14 @@ describe('companyDetailsV1', function () {
           {
             proposalAttributes: [
               {
-                'mime-type': 'text/plain',
                 name: 'company_name',
                 value: 'NAME',
               },
               {
-                'mime-type': 'text/plain',
                 name: 'company_number',
                 value: 'NUMBER',
               },
               {
-                'mime-type': 'text/plain',
                 name: 'pin',
                 value: '123456',
               },
@@ -363,17 +345,14 @@ describe('companyDetailsV1', function () {
         {
           proposalAttributes: [
             {
-              'mime-type': 'text/plain',
               name: 'company_name',
               value: 'INVALID',
             },
             {
-              'mime-type': 'text/plain',
               name: 'company_number',
               value: 'NUMBER',
             },
             {
-              'mime-type': 'text/plain',
               name: 'pin',
               value: '123456',
             },
@@ -400,17 +379,14 @@ describe('companyDetailsV1', function () {
         {
           proposalAttributes: [
             {
-              'mime-type': 'text/plain',
               name: 'company_name',
               value: 'NAME',
             },
             {
-              'mime-type': 'text/plain',
               name: 'company_number',
               value: 'INVALID',
             },
             {
-              'mime-type': 'text/plain',
               name: 'pin',
               value: '123456',
             },
@@ -437,17 +413,14 @@ describe('companyDetailsV1', function () {
         {
           proposalAttributes: [
             {
-              'mime-type': 'text/plain',
               name: 'company_name',
               value: 'NAME',
             },
             {
-              'mime-type': 'text/plain',
               name: 'company_number',
               value: 'NUMBER',
             },
             {
-              'mime-type': 'text/plain',
               name: 'pin',
               value: '123456',
             },
@@ -500,17 +473,14 @@ describe('companyDetailsV1', function () {
         {
           proposalAttributes: [
             {
-              'mime-type': 'text/plain',
               name: 'company_name',
               value: 'NAME',
             },
             {
-              'mime-type': 'text/plain',
               name: 'company_number',
               value: 'NUMBER',
             },
             {
-              'mime-type': 'text/plain',
               name: 'pin',
               value: 'INVALID',
             },
@@ -553,17 +523,14 @@ describe('companyDetailsV1', function () {
         {
           proposalAttributes: [
             {
-              'mime-type': 'text/plain',
               name: 'company_name',
               value: 'NAME',
             },
             {
-              'mime-type': 'text/plain',
               name: 'company_number',
               value: 'NUMBER',
             },
             {
-              'mime-type': 'text/plain',
               name: 'pin',
               value: '123456',
             },
@@ -608,17 +575,14 @@ describe('companyDetailsV1', function () {
         {
           proposalAttributes: [
             {
-              'mime-type': 'text/plain',
               name: 'company_name',
               value: 'NAME',
             },
             {
-              'mime-type': 'text/plain',
               name: 'company_number',
               value: 'NUMBER',
             },
             {
-              'mime-type': 'text/plain',
               name: 'pin',
               value: '123456',
             },
@@ -656,17 +620,14 @@ describe('companyDetailsV1', function () {
         {
           proposalAttributes: [
             {
-              'mime-type': 'text/plain',
               name: 'company_name',
               value: 'NAME',
             },
             {
-              'mime-type': 'text/plain',
               name: 'company_number',
               value: 'NUMBER',
             },
             {
-              'mime-type': 'text/plain',
               name: 'pin',
               value: '123456',
             },
@@ -722,29 +683,24 @@ describe('companyDetailsV1', function () {
           {
             proposalAttributes: [
               {
-                'mime-type': 'text/plain',
                 name: 'company_name',
                 value: 'NAME',
               },
               {
-                'mime-type': 'text/plain',
                 name: 'company_number',
                 value: 'NUMBER',
               },
               {
-                'mime-type': 'text/plain',
                 name: 'pin',
                 value: '123456',
               },
             ],
             offerAttributes: [
               {
-                'mime-type': 'text/plain',
                 name: 'company_name',
                 value: 'NAME',
               },
               {
-                'mime-type': 'text/plain',
                 name: 'company_number',
                 value: 'NUMBER',
               },
@@ -772,24 +728,20 @@ describe('companyDetailsV1', function () {
           {
             proposalAttributes: [
               {
-                'mime-type': 'text/plain',
                 name: 'company_number',
                 value: 'NUMBER',
               },
               {
-                'mime-type': 'text/plain',
                 name: 'pin',
                 value: '123456',
               },
             ],
             offerAttributes: [
               {
-                'mime-type': 'text/plain',
                 name: 'company_name',
                 value: 'NAME',
               },
               {
-                'mime-type': 'text/plain',
                 name: 'company_number',
                 value: 'NUMBER',
               },
@@ -816,24 +768,20 @@ describe('companyDetailsV1', function () {
           {
             proposalAttributes: [
               {
-                'mime-type': 'text/plain',
                 name: 'company_name',
                 value: 'NAME',
               },
               {
-                'mime-type': 'text/plain',
                 name: 'pin',
                 value: '123456',
               },
             ],
             offerAttributes: [
               {
-                'mime-type': 'text/plain',
                 name: 'company_name',
                 value: 'NAME',
               },
               {
-                'mime-type': 'text/plain',
                 name: 'company_number',
                 value: 'NUMBER',
               },
@@ -860,24 +808,20 @@ describe('companyDetailsV1', function () {
           {
             proposalAttributes: [
               {
-                'mime-type': 'text/plain',
                 name: 'company_name',
                 value: 'NAME',
               },
               {
-                'mime-type': 'text/plain',
                 name: 'company_number',
                 value: 'NUMBER',
               },
               {
-                'mime-type': 'text/plain',
                 name: 'pin',
                 value: '123456',
               },
             ],
             offerAttributes: [
               {
-                'mime-type': 'text/plain',
                 name: 'company_number',
                 value: 'NUMBER',
               },
@@ -904,24 +848,20 @@ describe('companyDetailsV1', function () {
           {
             proposalAttributes: [
               {
-                'mime-type': 'text/plain',
                 name: 'company_name',
                 value: 'NAME',
               },
               {
-                'mime-type': 'text/plain',
                 name: 'company_number',
                 value: 'NUMBER',
               },
               {
-                'mime-type': 'text/plain',
                 name: 'pin',
                 value: '123456',
               },
             ],
             offerAttributes: [
               {
-                'mime-type': 'text/plain',
                 name: 'company_name',
                 value: 'NAME',
               },
@@ -948,29 +888,24 @@ describe('companyDetailsV1', function () {
           {
             proposalAttributes: [
               {
-                'mime-type': 'text/plain',
                 name: 'company_name',
                 value: 'NAME',
               },
               {
-                'mime-type': 'text/plain',
                 name: 'company_number',
                 value: 'NUMBER',
               },
               {
-                'mime-type': 'text/plain',
                 name: 'pin',
                 value: '123456',
               },
             ],
             offerAttributes: [
               {
-                'mime-type': 'text/plain',
                 name: 'company_name',
                 value: 'INVALID',
               },
               {
-                'mime-type': 'text/plain',
                 name: 'company_number',
                 value: 'NUMBER',
               },
@@ -997,29 +932,24 @@ describe('companyDetailsV1', function () {
           {
             proposalAttributes: [
               {
-                'mime-type': 'text/plain',
                 name: 'company_name',
                 value: 'NAME',
               },
               {
-                'mime-type': 'text/plain',
                 name: 'company_number',
                 value: 'NUMBER',
               },
               {
-                'mime-type': 'text/plain',
                 name: 'pin',
                 value: '123456',
               },
             ],
             offerAttributes: [
               {
-                'mime-type': 'text/plain',
                 name: 'company_name',
                 value: 'NAME',
               },
               {
-                'mime-type': 'text/plain',
                 name: 'company_number',
                 value: 'INVALID',
               },

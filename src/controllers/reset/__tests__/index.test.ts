@@ -7,7 +7,7 @@ import { Env } from '../../../env/index.js'
 import { BadRequestError, InternalError } from '../../../errors.js'
 import Database from '../../../models/db/index.js'
 import { TABLE } from '../../../models/db/types.js'
-import VeritableCloudagent from '../../../models/veritableCloudagent.js'
+import VeritableCloudagent from '../../../models/veritableCloudagent/index.js'
 import { mockLogger } from '../../__tests__/helpers.js'
 import { ResetController } from '../index.js'
 
@@ -29,6 +29,7 @@ const fixtures = {
   ],
   agent_connections: [{ id: 'some-agent-id-1' }, { id: 'some-agent-id-2' }, { id: 'some-agent-id-3' }],
   agent_credentials: [{ id: 'some-agent-credential-id-1' }, { id: 'some-agent-credential-id-2' }],
+  settings: [],
 }
 
 const dbMock = {

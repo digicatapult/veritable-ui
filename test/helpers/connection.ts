@@ -88,14 +88,14 @@ const mockEnvCharlie = {
   },
 } as Env
 
-const cleanupConnections = async (agent, db) => {
+const cleanupConnections = async (agent: VeritableCloudagent, db: Database) => {
   for (const { id } of await agent.getConnections()) {
     await agent.deleteConnection(id)
   }
   await db.delete('connection', {})
 }
 
-const cleanupRemote = async (context) => {
+const cleanupRemote = async (context: { remoteCloudagent: VeritableCloudagent; remoteDatabase: Database }) => {
   for (const { id } of await context.remoteCloudagent.getConnections()) {
     await context.remoteCloudagent.deleteConnection(id)
   }

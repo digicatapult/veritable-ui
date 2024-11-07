@@ -5,7 +5,7 @@ import sinon from 'sinon'
 import { ILogger } from '../../../logger.js'
 import Database from '../../../models/db/index.js'
 import { ConnectionRow, QueryRow } from '../../../models/db/types.js'
-import VeritableCloudagent from '../../../models/veritableCloudagent.js'
+import VeritableCloudagent from '../../../models/veritableCloudagent/index.js'
 import VeritableCloudagentEvents from '../../veritableCloudagentEvents.js'
 type QueryMockOptions = {
   getRows: {

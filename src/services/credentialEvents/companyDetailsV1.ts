@@ -6,7 +6,7 @@ import { Logger, type ILogger } from '../../logger.js'
 import { CredentialSchema } from '../../models/credentialSchema.js'
 import Database from '../../models/db/index.js'
 import { default as VeritableCloudagent } from '../../models/veritableCloudagent/index.js'
-import { type Credential, type CredentialFormatData } from '../../models/veritableCloudagentInt.js'
+import { type Credential, type CredentialFormatData } from '../../models/veritableCloudagent/internal.js'
 import { CredentialEventHandler } from './types.js'
 
 @singleton()
