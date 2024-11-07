@@ -18,16 +18,12 @@ test.describe('Queries', () => {
 
   // Create and share context
   // TODO expand on assertations
-  test.beforeAll(async ({ browser }) => {
+  test.beforeEach(async ({ browser }) => {
     context = await browser.newContext()
-    page = await context.newPage()
-  })
-
-  test.beforeEach(async () => {
-    await withCleanAliceBobEmail(AliceHost, BobHost, smtp4dev)
     page = await context.newPage()
     await withRegisteredAccount(page, context, AliceHost)
     await withLoggedInUser(page, context, AliceHost)
+    await withCleanAliceBobEmail(AliceHost, BobHost, smtp4dev)
     await withConnection(AliceHost, BobHost)
   })
 
@@ -36,16 +32,17 @@ test.describe('Queries', () => {
     await page.close()
   })
 
-  test('Total CO2 request from Alice to Bob', async () => {
+  test('total carbon embodiment new query request (Alice)', async () => {
     await test.step('creates a new Query Request for total co2 emissions', async () => {
       await page.goto(`${AliceHost}/queries`)
       await page.click('text=Query Request')
 
       const queryTypes = page.locator('.query-item')
       expect((await queryTypes.all()).length).toBe(4)
+      expect(queryTypes.nth(0)).not.toHaveClass('query-item disabled')
       expect(queryTypes.nth(1)).toHaveClass('query-item disabled')
-      expect(queryTypes.nth(2)).toHaveClass('query-item  disabled')
-      expect(queryTypes.nth(3)).toHaveClass('query-item  disabled')
+      expect(queryTypes.nth(2)).toHaveClass('query-item disabled')
+      expect(queryTypes.nth(3)).toHaveClass('query-item disabled')
 
       const co2Card = await page.$('a[href="/queries/new/scope-3-carbon-consumption"]')
       expect(await co2Card?.textContent()).toContain(
@@ -88,13 +85,17 @@ test.describe('Queries', () => {
       await expect(successModal.getByText('You can check the status of')).toBeVisible()
     })
 
-    await test.step('newly query is visible on other node', async () => {
-      await page.close()
-      page = await context.newPage()
+    await test.step('new query is visible on other node (Bob) and can be responded to', async () => {
       page.goto(`${BobHost}/queries`)
-      const queriesTable = page.getByRole('table')
+      const queryRow = page.getByRole('table').getByRole('row', { name: 'DIGITAL CATAPULT' })
+      const button = queryRow.getByText('Respond to Query')
 
-      await expect(queriesTable.getByText('Respond to query')).toBeVisible()
+      await expect(button).toBeVisible()
+      await expect(button).toBeVisible()
+      await expect(button).toBeEnabled()
+      await expect(queryRow.getByText('Total Carbon Embodiment')).toBeVisible()
+      await expect(queryRow.getByText('Received')).toBeVisible()
+      await expect(queryRow.getByText('Pending Your Input')).toHaveClass('list-item-status')
     })
   })
 })

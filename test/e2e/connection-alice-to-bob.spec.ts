@@ -5,7 +5,7 @@ import {
   withLoggedInUser,
   withRegisteredAccount,
 } from './helpers/registerLogIn.js'
-import { checkEmails, extractInvite, extractPin, findNewAdminEmail, getHostPort } from './helpers/smtpEmails.js'
+import { checkEmails, extractInvite, extractPin, findNewAdminEmail } from './helpers/smtpEmails.js'
 
 test.describe('Connection from Alice to Bob', () => {
   let context: CustomBrowserContext
@@ -18,10 +18,6 @@ test.describe('Connection from Alice to Bob', () => {
   const baseUrlAlice = process.env.VERITABLE_ALICE_PUBLIC_URL || 'http://localhost:3000'
   const baseUrlBob = process.env.VERITABLE_BOB_PUBLIC_URL || 'http://localhost:3001'
   const smtp4devUrl = process.env.VERITABLE_SMTP_ADDRESS || 'http://localhost:5001'
-  const { host, port } = getHostPort(smtp4devUrl)
-  if (host === null || port === null) {
-    throw new Error(`Unspecified smtp4dev host or port ${smtp4devUrl}`)
-  }
 
   // Create and share context
   test.beforeAll(async ({ browser }) => {
@@ -29,12 +25,11 @@ test.describe('Connection from Alice to Bob', () => {
     page = await context.newPage()
 
     await withRegisteredAccount(page, context, baseUrlAlice)
+    await withLoggedInUser(page, context, baseUrlAlice)
   })
 
   test.beforeEach(async () => {
     await withCleanAliceBobEmail(baseUrlAlice, baseUrlBob, smtp4devUrl)
-    page = await context.newPage()
-    await withLoggedInUser(page, context, baseUrlAlice)
   })
 
   test.afterEach(async () => {
@@ -48,11 +43,9 @@ test.describe('Connection from Alice to Bob', () => {
     await test.step('Alice invites Bob to connect', async () => {
       await page.waitForSelector('a[href="/connection"]')
       await page.click('a[href="/connection"]')
-      await page.waitForURL(`${baseUrlAlice}/connection`)
 
       await page.waitForSelector('text=Invite New Connection')
       await page.click('a.button[href="connection/new"]')
-      await page.waitForURL('**/connection/new')
 
       await page.fill('#new-invite-company-number-input', '04659351')
       await page.fill('#new-invite-email-input', 'alice@testmail.com')
@@ -81,30 +74,27 @@ test.describe('Connection from Alice to Bob', () => {
 
       await page.waitForSelector('a[href="/connection"]')
       await page.click('a[href="/connection"]')
-      await page.waitForURL('**/connection')
       expect(page.url()).toContain('/connection')
     })
 
     await test.step('Retrieve invite and pin for Bob', async () => {
-      const { inviteEmail, adminEmail } = await checkEmails(host, port)
+      const adminEmail = await checkEmails('admin@veritable.com')
+      const inviteEmail = await checkEmails('alice@testmail.com')
       adminEmailId = adminEmail.id
 
-      const extractedPin = await extractPin(adminEmail.id, smtp4devUrl)
+      const extractedPin = await extractPin(adminEmail.id)
       expect(extractedPin).toHaveLength(6)
       if (!extractedPin) throw new Error('PIN for Bob was not found.')
       pinForBob = extractedPin
-      invite = await extractInvite(inviteEmail.id, smtp4devUrl)
+      invite = await extractInvite(inviteEmail.id)
       if (!invite) throw new Error('Invitation for Bob was not found.')
     })
 
     await test.step('Bob submits invite and pin', async () => {
       await page.goto(`${baseUrlBob}/connection`)
-      await page.waitForURL('**/connection')
       expect(page.url()).toContain('/connection')
       // Submit invite
-      await page.waitForSelector('text=Add from Invitation')
       await page.click('text=Add from Invitation')
-      await page.waitForURL('**/connection/new?fromInvite=true')
 
       // Fill in invite without last character, then enter last character to simulate typing
       if (!invite) throw new Error('Invitation for Bob was not found.')
@@ -126,12 +116,10 @@ test.describe('Connection from Alice to Bob', () => {
       await page.click('button[type="submit"][name="action"][value="createConnection"]')
 
       // Submit pin
-      await page.waitForURL('**/pin-submission')
 
       await page.fill('#new-connection-invite-input-pin', pinForBob)
       await page.click('button[type="submit"][name="action"][value="submitPinCode"]')
 
-      await page.waitForURL('**/pin-submission')
       await page.waitForSelector('#new-connection-invite-input')
       const confirmationElement = await page.$('#new-connection-invite-input')
       expect(confirmationElement).not.toBeNull()
@@ -139,12 +127,11 @@ test.describe('Connection from Alice to Bob', () => {
       expect(confirmationText).toContain('PIN Code has been submitted for DIGITAL CATAPULT company ID.')
       await page.waitForSelector('a[href="/connection"]')
       await page.click('a[href="/connection"]')
-      await page.waitForURL('**/connection')
     })
 
     await test.step('Retrieve pin for Alice', async () => {
-      const newAdminEmail = await findNewAdminEmail(adminEmailId, host, port)
-      const extractedPin = await extractPin(newAdminEmail.id, smtp4devUrl)
+      const newAdminEmail = await findNewAdminEmail(adminEmailId)
+      const extractedPin = await extractPin(newAdminEmail.id)
       expect(extractedPin).toHaveLength(6)
       if (!extractedPin) throw new Error('PIN from admin email was not found.')
 
@@ -153,10 +140,8 @@ test.describe('Connection from Alice to Bob', () => {
 
     await test.step('Alice submits her PIN', async () => {
       await page.goto(`${baseUrlAlice}/connection`)
-      await page.waitForURL('**/connection')
 
       const hrefRegex = /\/connection\/[0-9a-fA-F-]{36}\/pin-submission/
-      await page.waitForSelector(`a[href*="/connection/"][href*="/pin-submission"]`)
       const hrefElement = await page.$(`a[href*="/connection/"][href*="/pin-submission"]`)
       expect(hrefElement).not.toBeNull()
 
@@ -164,16 +149,11 @@ test.describe('Connection from Alice to Bob', () => {
       expect(href).toMatch(hrefRegex)
 
       await page.click(`a[href="${href}"]`)
-      await page.waitForURL('**/pin-submission')
-
       await page.fill('#new-connection-invite-input-pin', pinForAlice)
       await page.click('button[type="submit"][name="action"][value="submitPinCode"]')
     })
     await test.step('Check connection is in state verified', async () => {
-      await page.waitForSelector('a[href="/connection"]')
-      await page.click('a[href="/connection"]')
-      await page.waitForURL('**/connection')
-      await page.waitForSelector('div.list-item-status[data-status="success"]')
+      await page.click('a[href="/connection"]', { delay: 5000 })
       const statusText = await page.textContent('div.list-item-status[data-status="success"]')
       expect(statusText).toContain('Connected')
     })

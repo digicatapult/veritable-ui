@@ -33,9 +33,7 @@ export async function withRegisteredAccount(page: Page, context: CustomBrowserCo
   const url = page.url()
   expect(url).toContain(expectedKeycloakUrl)
 
-  await page.waitForSelector('a[href*="/realms/veritable/login-actions/registration"]')
   await page.click('a[href*="/realms/veritable/login-actions/registration"]')
-  await page.waitForURL('**/realms/veritable/login-actions/registration**')
 
   context.username = `user-${randomUUID()}`
 
@@ -46,7 +44,6 @@ export async function withRegisteredAccount(page: Page, context: CustomBrowserCo
   await page.fill('#firstName', 'name')
   await page.fill('#lastName', 'lastname')
   await page.click('input[type="submit"][value="Register"]')
-  await page.waitForURL(loginUrl)
 }
 
 export async function withLoggedInUser(page: Page, context: CustomBrowserContext, loginUrl: string) {
@@ -61,6 +58,5 @@ export async function withLoggedInUser(page: Page, context: CustomBrowserContext
     await page.fill('#username', context.username)
     await page.fill('#password', 'password')
     await page.click('input[type="submit"][value="Sign In"]')
-    await page.waitForURL(loginUrl)
   }
 }
