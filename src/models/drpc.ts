@@ -2,9 +2,19 @@ import z from 'zod'
 
 import { UUID } from './strings.js'
 
+const subjectIdParser = z.discriminatedUnion('idType', [
+  z.object({
+    idType: z.literal('product_and_quantity'),
+    content: z.object({
+      productId: z.string(),
+      quantity: z.number().int().gte(1),
+    }),
+  }),
+])
+type SubjectId = z.infer<typeof subjectIdParser>
+
 export const carbonEmbodimentRequestData = z.object({
-  subjectId: z.string(),
-  quantity: z.number().int().min(1),
+  subjectId: subjectIdParser,
 })
 export const carbonEmbodimentRequest = z.object({
   id: z.string(),
@@ -37,13 +47,15 @@ export type CarbonEmbodimentRes = {
   expiresAt?: number
   data: {
     mass: number
-    subjectId: string
+    unit: 'ug' | 'mg' | 'g' | 'kg' | 'tonne'
+    subjectId: SubjectId
     partialResponses: CarbonEmbodimentRes[]
   }
 }
 export const carbonEmbodimentResponseData: z.ZodType<CarbonEmbodimentRes['data']> = z.object({
   mass: z.number(),
-  subjectId: z.string(),
+  unit: z.union([z.literal('ug'), z.literal('mg'), z.literal('g'), z.literal('kg'), z.literal('tonne')]),
+  subjectId: subjectIdParser,
   partialResponses: z.lazy(() => carbonEmbodimentResponse.array()),
 })
 export const carbonEmbodimentResponse: z.ZodType<CarbonEmbodimentRes> = z.object({

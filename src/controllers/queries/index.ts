@@ -146,8 +146,13 @@ export class QueriesController extends HTMLController {
       {
         type: 'https://github.com/digicatapult/veritable-documentation/tree/main/schemas/veritable_messaging/query_types/total_carbon_embodiment/request/0.1',
         data: {
-          subjectId: body.productId,
-          quantity: body.quantity,
+          subjectId: {
+            idType: 'product_and_quantity',
+            content: {
+              productId: body.productId,
+              quantity: body.quantity,
+            },
+          },
         },
       },
       expiresTime
@@ -325,8 +330,13 @@ export class QueriesController extends HTMLController {
             {
               type: 'https://github.com/digicatapult/veritable-documentation/tree/main/schemas/veritable_messaging/query_types/total_carbon_embodiment/request/0.1',
               data: {
-                subjectId: productIds[i],
-                quantity: quantities[i],
+                subjectId: {
+                  idType: 'product_and_quantity',
+                  content: {
+                    productId: productIds[i],
+                    quantity: quantities[i],
+                  },
+                },
               },
             },
             queryRow.expires_at
@@ -340,7 +350,7 @@ export class QueriesController extends HTMLController {
       { id: queryId },
       {
         status: 'forwarded',
-        response: { mass: emissions, partialResponses: [], subjectId: queryRow.details.subjectId },
+        response: { mass: emissions, unit: 'kg', partialResponses: [], subjectId: queryRow.details.subjectId },
       }
     )
 
@@ -483,6 +493,7 @@ export class QueriesController extends HTMLController {
           data: {
             subjectId: query.details.subjectId,
             mass: emissions,
+            unit: 'kg',
             partialResponses: [],
           },
         },
@@ -493,7 +504,7 @@ export class QueriesController extends HTMLController {
         { id: query.id },
         {
           status: 'resolved',
-          response: { mass: emissions, partialResponses: [], subjectId: query.details.subjectId },
+          response: { mass: emissions, unit: 'kg', partialResponses: [], subjectId: query.details.subjectId },
         }
       )
     } catch (err) {

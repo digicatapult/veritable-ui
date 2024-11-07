@@ -25,8 +25,10 @@ const queryExample: QueryRow = {
   parent_id: '5390af91-c551-4d74-b394-d8ae0805059a',
   status: 'resolved',
   details: {
-    subjectId: 'partial-product-id',
-    quantity: 10,
+    subjectId: {
+      idType: 'product_and_quantity',
+      content: { productId: 'partial-product-id', quantity: 10 },
+    },
   },
   response_id: null,
   response: null,

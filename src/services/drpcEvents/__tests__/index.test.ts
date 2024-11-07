@@ -13,8 +13,10 @@ const goodRequest: DrpcRequest = {
   params: {
     id: 'fb45f64a-7c2b-43e8-85c2-da66a6899446',
     data: {
-      subjectId: 'product-id',
-      quantity: 42,
+      subjectId: {
+        idType: 'product_and_quantity',
+        content: { productId: 'product-id', quantity: 42 },
+      },
     },
     type: 'https://github.com/digicatapult/veritable-documentation/tree/main/schemas/veritable_messaging/query_types/total_carbon_embodiment/request/0.1',
     createdTime: 0,
@@ -31,7 +33,11 @@ const goodResponse: DrpcRequest = {
     type: 'https://github.com/digicatapult/veritable-documentation/tree/main/schemas/veritable_messaging/query_types/total_carbon_embodiment/response/0.1',
     data: {
       mass: 3456,
-      subjectId: 'product-id',
+      unit: 'kg',
+      subjectId: {
+        idType: 'product_and_quantity',
+        content: { productId: 'product-id', quantity: 42 },
+      },
       partialResponses: [],
     },
   },
@@ -46,7 +52,11 @@ const goodResponseChild = {
     type: 'https://github.com/digicatapult/veritable-documentation/tree/main/schemas/veritable_messaging/query_types/total_carbon_embodiment/response/0.1',
     data: {
       mass: 200,
-      subjectId: 'partial-product-id',
+      unit: 'kg',
+      subjectId: {
+        idType: 'product_and_quantity',
+        content: { productId: 'partial-product-id', quantity: 42 },
+      },
       partialResponses: [],
     },
   },
@@ -112,7 +122,12 @@ describe('DrpcEvents', function () {
             connection_id: 'connection-id',
             status: 'pending_your_input',
             type: 'total_carbon_embodiment',
-            details: { subjectId: 'product-id', quantity: 42 },
+            details: {
+              subjectId: {
+                idType: 'product_and_quantity',
+                content: { productId: 'product-id', quantity: 42 },
+              },
+            },
             response_id: 'fb45f64a-7c2b-43e8-85c2-da66a6899446',
             role: 'responder',
             response: null,
@@ -516,7 +531,12 @@ describe('DrpcEvents', function () {
             connection_id: 'connection-id',
             status: 'pending_your_input',
             type: 'total_carbon_embodiment',
-            details: { subjectId: 'product-id', quantity: 42 },
+            details: {
+              subjectId: {
+                idType: 'product_and_quantity',
+                content: { productId: 'product-id', quantity: 42 },
+              },
+            },
             response_id: 'fb45f64a-7c2b-43e8-85c2-da66a6899446',
             response: null,
             role: 'responder',
@@ -559,10 +579,17 @@ describe('DrpcEvents', function () {
         {
           id: 'query-id',
           details: {
-            subjectId: 'parent-product-id',
+            subjectId: {
+              idType: 'product_and_quantity',
+              content: {
+                productId: 'parent-product-id',
+                quantity: 42,
+              },
+            },
           },
           response: {
             mass: 58,
+            unit: 'kg',
           },
           status: 'forwarded',
           connection_id: 'parent-connection-id',
@@ -572,8 +599,15 @@ describe('DrpcEvents', function () {
         {
           id: 'child-query-id',
           response: {
-            subjectId: 'child-product-id',
+            subjectId: {
+              idType: 'product_and_quantity',
+              content: {
+                productId: 'child-product-id',
+                quantity: 42,
+              },
+            },
             mass: 42,
+            unit: 'kg',
           },
           parent_id: 'query-id',
           status: 'resolved',
@@ -628,8 +662,12 @@ describe('DrpcEvents', function () {
           {
             response: {
               mass: 200,
+              unit: 'kg',
               partialResponses: [],
-              subjectId: 'partial-product-id',
+              subjectId: {
+                idType: 'product_and_quantity',
+                content: { productId: 'partial-product-id', quantity: 42 },
+              },
             },
             status: 'resolved',
           },
@@ -640,17 +678,25 @@ describe('DrpcEvents', function () {
           {
             response: {
               mass: 58,
+              unit: 'kg',
               partialResponses: [
                 {
                   data: {
                     mass: 42,
-                    subjectId: 'child-product-id',
+                    unit: 'kg',
+                    subjectId: {
+                      idType: 'product_and_quantity',
+                      content: { productId: 'child-product-id', quantity: 42 },
+                    },
                   },
                   id: 'child-query-id',
                   type: 'https://github.com/digicatapult/veritable-documentation/tree/main/schemas/veritable_messaging/query_types/undefined/response/0.1',
                 },
               ],
-              subjectId: 'parent-product-id',
+              subjectId: {
+                idType: 'product_and_quantity',
+                content: { productId: 'parent-product-id', quantity: 42 },
+              },
             },
             status: 'resolved',
           },
@@ -710,8 +756,12 @@ describe('DrpcEvents', function () {
           {
             response: {
               mass: 3456,
+              unit: 'kg',
               partialResponses: [],
-              subjectId: 'product-id',
+              subjectId: {
+                idType: 'product_and_quantity',
+                content: { productId: 'product-id', quantity: 42 },
+              },
             },
             status: 'resolved',
           },
@@ -978,8 +1028,12 @@ describe('DrpcEvents', function () {
           {
             response: {
               mass: 3456,
+              unit: 'kg',
               partialResponses: [],
-              subjectId: 'product-id',
+              subjectId: {
+                idType: 'product_and_quantity',
+                content: { productId: 'product-id', quantity: 42 },
+              },
             },
             status: 'resolved',
           },

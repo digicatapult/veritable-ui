@@ -93,8 +93,13 @@ describe('QueriesController', () => {
         {
           connection_id: 'cccccccc-0001-0000-0000-d8ae0805059e',
           details: {
-            subjectId: 'SomeID',
-            quantity: 111,
+            subjectId: {
+              idType: 'product_and_quantity',
+              content: {
+                productId: 'SomeID',
+                quantity: 111,
+              },
+            },
           },
           parent_id: null,
           response: null,
@@ -282,8 +287,13 @@ describe('QueriesController', () => {
             status: 'pending_their_input',
             parent_id: '5390af91-c551-4d74-b394-d8ae0805059a',
             details: {
-              quantity: 10,
-              subjectId: 'product-1',
+              subjectId: {
+                idType: 'product_and_quantity',
+                content: {
+                  productId: 'product-1',
+                  quantity: 10,
+                },
+              },
             },
             response_id: null,
             response: null,
@@ -299,8 +309,13 @@ describe('QueriesController', () => {
             type: 'total_carbon_embodiment',
             status: 'pending_their_input',
             details: {
-              quantity: 20,
-              subjectId: 'product-2',
+              subjectId: {
+                idType: 'product_and_quantity',
+                content: {
+                  productId: 'product-2',
+                  quantity: 20,
+                },
+              },
             },
             response_id: null,
             response: null,
@@ -509,8 +524,13 @@ describe('QueriesController', () => {
           'submit_query_request',
           {
             data: {
-              subjectId: 'partial-product-id',
-              quantity: 10,
+              subjectId: {
+                idType: 'product_and_quantity',
+                content: {
+                  productId: 'partial-product-id',
+                  quantity: 10,
+                },
+              },
             },
             id: 'ccaaaaaa-0000-0000-0000-d8ae0805059e',
             type: 'https://github.com/digicatapult/veritable-documentation/tree/main/schemas/veritable_messaging/query_types/total_carbon_embodiment/request/0.1',
@@ -529,8 +549,13 @@ describe('QueriesController', () => {
             status: 'pending_their_input',
             parent_id: '5390af91-c551-4d74-b394-d8ae0805059a',
             details: {
-              quantity: 10,
-              subjectId: 'partial-product-id',
+              subjectId: {
+                idType: 'product_and_quantity',
+                content: {
+                  quantity: 10,
+                  productId: 'partial-product-id',
+                },
+              },
             },
             response_id: null,
             response: null,
@@ -550,8 +575,15 @@ describe('QueriesController', () => {
             status: 'forwarded',
             response: {
               mass: 10,
+              unit: 'kg',
               partialResponses: [],
-              subjectId: '00000000-0000-0000-0000-d8ae0805059e',
+              subjectId: {
+                idType: 'product_and_quantity',
+                content: {
+                  productId: '00000000-0000-0000-0000-d8ae0805059e',
+                  quantity: 2,
+                },
+              },
             },
           },
         ])

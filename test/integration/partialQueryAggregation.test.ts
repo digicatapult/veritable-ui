@@ -104,7 +104,15 @@ describe('partial query aggregation', function () {
         parent_id: null,
         type: 'total_carbon_embodiment',
         status: 'pending_their_input',
-        details: { quantity: 1, subjectId: 'toaster-001(AliceReq)' },
+        details: {
+          subjectId: {
+            idType: 'product_and_quantity',
+            content: {
+              quantity: 1,
+              productId: 'toaster-001(AliceReq)',
+            },
+          },
+        },
         response_id: null,
         response: null,
         role: 'requester',
@@ -122,9 +130,28 @@ describe('partial query aggregation', function () {
         parent_id: null,
         type: 'total_carbon_embodiment',
         status: 'forwarded',
-        details: { quantity: 1, subjectId: 'toaster-001(AliceReq)' },
+        details: {
+          subjectId: {
+            idType: 'product_and_quantity',
+            content: {
+              quantity: 1,
+              productId: 'toaster-001(AliceReq)',
+            },
+          },
+        },
         response_id: aliceQuery.id,
-        response: { mass: 200, partialResponses: [], subjectId: 'toaster-001(AliceReq)' },
+        response: {
+          mass: 200,
+          unit: 'kg',
+          partialResponses: [],
+          subjectId: {
+            idType: 'product_and_quantity',
+            content: {
+              quantity: 1,
+              productId: 'toaster-001(AliceReq)',
+            },
+          },
+        },
         role: 'responder',
       })
       expect(toCharlie.status).to.be.equal('pending_their_input')
@@ -134,8 +161,13 @@ describe('partial query aggregation', function () {
         type: 'total_carbon_embodiment',
         status: 'pending_their_input',
         details: {
-          quantity: 10,
-          subjectId: 'heating-el-001(BobReq)',
+          subjectId: {
+            idType: 'product_and_quantity',
+            content: {
+              quantity: 10,
+              productId: 'heating-el-001(BobReq)',
+            },
+          },
         },
         response_id: null,
         response: null,
@@ -151,7 +183,15 @@ describe('partial query aggregation', function () {
         parent_id: null,
         type: 'total_carbon_embodiment',
         status: 'pending_your_input',
-        details: { quantity: 10, subjectId: 'heating-el-001(BobReq)' },
+        details: {
+          subjectId: {
+            idType: 'product_and_quantity',
+            content: {
+              quantity: 10,
+              productId: 'heating-el-001(BobReq)',
+            },
+          },
+        },
         response_id: bobQuery.id,
         response: null,
         role: 'responder',
@@ -180,23 +220,42 @@ describe('partial query aggregation', function () {
           parent_id: null,
           type: 'total_carbon_embodiment',
           details: {
-            quantity: 1,
-            subjectId: 'toaster-001(AliceReq)',
+            subjectId: {
+              idType: 'product_and_quantity',
+              content: {
+                quantity: 1,
+                productId: 'toaster-001(AliceReq)',
+              },
+            },
           },
           response: {
             mass: 200,
+            unit: 'kg',
             partialResponses: [
               {
                 id: `${bobQuery.response?.partialResponses[0].id}`,
                 data: {
                   mass: 500,
+                  unit: 'kg',
                   partialResponses: [],
-                  subjectId: 'heating-el-001(BobReq)',
+                  subjectId: {
+                    idType: 'product_and_quantity',
+                    content: {
+                      quantity: 10,
+                      productId: 'heating-el-001(BobReq)',
+                    },
+                  },
                 },
                 type: 'https://github.com/digicatapult/veritable-documentation/tree/main/schemas/veritable_messaging/query_types/total_carbon_embodiment/response/0.1',
               },
             ],
-            subjectId: 'toaster-001(AliceReq)',
+            subjectId: {
+              idType: 'product_and_quantity',
+              content: {
+                quantity: 1,
+                productId: 'toaster-001(AliceReq)',
+              },
+            },
           },
           role: 'responder',
         })
@@ -208,14 +267,26 @@ describe('partial query aggregation', function () {
           type: 'total_carbon_embodiment',
           status: 'resolved',
           details: {
-            quantity: 10,
-            subjectId: 'heating-el-001(BobReq)',
+            subjectId: {
+              idType: 'product_and_quantity',
+              content: {
+                quantity: 10,
+                productId: 'heating-el-001(BobReq)',
+              },
+            },
           },
           response_id: null,
           response: {
             mass: 500,
+            unit: 'kg',
             partialResponses: [],
-            subjectId: 'heating-el-001(BobReq)',
+            subjectId: {
+              idType: 'product_and_quantity',
+              content: {
+                quantity: 10,
+                productId: 'heating-el-001(BobReq)',
+              },
+            },
           },
           role: 'requester',
         })
@@ -228,16 +299,42 @@ describe('partial query aggregation', function () {
           parent_id: null,
           type: 'total_carbon_embodiment',
           status: 'resolved',
-          details: { quantity: 1, subjectId: 'toaster-001(AliceReq)' },
+          details: {
+            subjectId: {
+              idType: 'product_and_quantity',
+              content: {
+                quantity: 1,
+                productId: 'toaster-001(AliceReq)',
+              },
+            },
+          },
           response_id: null,
           response: {
             mass: 200,
-            subjectId: 'toaster-001(AliceReq)',
+            unit: 'kg',
+            subjectId: {
+              idType: 'product_and_quantity',
+              content: {
+                quantity: 1,
+                productId: 'toaster-001(AliceReq)',
+              },
+            },
             partialResponses: [
               {
                 id: `${query.response?.partialResponses[0].id}`,
                 type: 'https://github.com/digicatapult/veritable-documentation/tree/main/schemas/veritable_messaging/query_types/total_carbon_embodiment/response/0.1',
-                data: { mass: 500, subjectId: 'heating-el-001(BobReq)', partialResponses: [] },
+                data: {
+                  mass: 500,
+                  unit: 'kg',
+                  subjectId: {
+                    idType: 'product_and_quantity',
+                    content: {
+                      quantity: 10,
+                      productId: 'heating-el-001(BobReq)',
+                    },
+                  },
+                  partialResponses: [],
+                },
               },
             ],
           },

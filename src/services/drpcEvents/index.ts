@@ -115,7 +115,6 @@ export default class DrpcEvents {
         type: 'total_carbon_embodiment',
         details: {
           subjectId: params.data.subjectId,
-          quantity: params.data.quantity,
         },
         response_id: params.id, //save to send back in response
         response: null,
@@ -287,6 +286,7 @@ export default class DrpcEvents {
       })
       const response = {
         mass: parentQuery.response.mass,
+        unit: parentQuery.response.unit,
         partialResponses,
         subjectId: parentQuery.details.subjectId,
       }

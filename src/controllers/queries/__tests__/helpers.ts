@@ -62,7 +62,15 @@ const defaultOptions: QueryMockOptions = {
         status: 'pending_their_input',
         type: 'total_carbon_embodiment',
         connection_id: mockIds.companyId,
-        details: { quantity: 2, subjectId: mockIds.queryId },
+        details: {
+          subjectId: {
+            idType: 'product_and_quantity',
+            content: {
+              productId: mockIds.queryId,
+              quantity: 2,
+            },
+          },
+        },
         response_id: '5390af91-c551-4d74-b394-d8ae0805059e',
         expires_at: new Date(1000),
         created_at: new Date(1000),
@@ -72,7 +80,15 @@ const defaultOptions: QueryMockOptions = {
         status: 'pending_your_input',
         type: 'total_carbon_embodiment',
         connection_id: mockIds.connectionId,
-        details: { quantity: 2, subjectId: mockIds.queryId },
+        details: {
+          subjectId: {
+            idType: 'product_and_quantity',
+            content: {
+              productId: mockIds.queryId,
+              quantity: 2,
+            },
+          },
+        },
         response_id: '5390af91-c551-4d74-b394-d8ae0805059e',
         expires_at: new Date(1000),
         created_at: new Date(1000),
@@ -81,7 +97,15 @@ const defaultOptions: QueryMockOptions = {
         status: 'pending_your_input',
         type: 'total_carbon_embodiment',
         connection_id: mockIds.connectionId,
-        details: { quantity: 2, subjectId: mockIds.queryId },
+        details: {
+          subjectId: {
+            idType: 'product_and_quantity',
+            content: {
+              productId: mockIds.queryId,
+              quantity: 2,
+            },
+          },
+        },
         response_id: '5390af91-c551-4d74-b394-d8ae0805059e',
         expires_at: new Date(1000),
         created_at: new Date(1000),
@@ -94,8 +118,13 @@ const defaultOptions: QueryMockOptions = {
         type: 'total_carbon_embodiment',
         status: 'pending_their_input',
         details: {
-          subjectId: 'test-1',
-          quantity: 10,
+          subjectId: {
+            idType: 'product_and_quantity',
+            content: {
+              productId: 'test-1',
+              quantity: 10,
+            },
+          },
         },
         response_id: null,
         response: null,
