@@ -1,6 +1,8 @@
 import type { Knex } from 'knex'
 
 export async function up(knex: Knex): Promise<void> {
+  await knex('query').del()
+
   await knex.schema.alterTable('query', (def) => {
     def.dateTime('expires_at').nullable()
   })
@@ -13,6 +15,8 @@ export async function up(knex: Knex): Promise<void> {
 }
 
 export async function down(knex: Knex): Promise<void> {
+  await knex('query').del()
+
   await knex.schema.alterTable('query', (def) => {
     def.dropColumn('expires_at')
   })
