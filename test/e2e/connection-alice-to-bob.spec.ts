@@ -85,6 +85,7 @@ test.describe('Connection from Alice to Bob', () => {
 
     await test.step('Bob submits invite and pin', async () => {
       await page.goto(`${baseUrlBob}/connection`)
+      await page.waitForURL('**/connection')
       expect(page.url()).toContain('/connection')
       // Submit invite
       await page.click('text=Add from Invitation')
