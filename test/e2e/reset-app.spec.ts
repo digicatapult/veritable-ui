@@ -16,27 +16,26 @@ test.describe('Resetting app', () => {
   const baseUrlBob = process.env.VERITABLE_BOB_PUBLIC_URL || 'http://localhost:3001'
   const smtp4devUrl = process.env.VERITABLE_SMTP_ADDRESS || 'http://localhost:5001'
 
-  test.beforeAll(async ({ browser }) => {
+  test.beforeAll(async () => {
     await withCleanAliceBobEmail(baseUrlAlice, baseUrlBob, smtp4devUrl)
+  })
+
+  test.beforeEach(async ({ browser }) => {
     context = await browser.newContext()
     page = await context.newPage()
     await withRegisteredAccount(page, context, baseUrlAlice)
     await withLoggedInUser(page, context, baseUrlAlice)
+    await withConnection(baseUrlAlice, baseUrlBob)
   })
 
-  test.afterAll(async () => {
+  test.afterEach(async () => {
     await withCleanAliceBobEmail(baseUrlAlice, baseUrlBob, smtp4devUrl)
     await page.close()
   })
 
-  test.beforeEach(async () => {
-    await withConnection(baseUrlAlice, baseUrlBob)
-  })
-
   test('Reset all on Alice', async () => {
     await test.step('Check there is a connection', async () => {
-      await page.goto(`${baseUrlAlice}`)
-      await page.click('a[href="/connection"]')
+      await page.goto(`${baseUrlAlice}/connection`)
       const statusText = await page.textContent('div.list-item-status[data-status="success"]')
       expect(statusText).toContain('Connected')
     })
