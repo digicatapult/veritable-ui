@@ -30,6 +30,7 @@ test.describe('Resetting app', () => {
   test('Reset all on Alice', async () => {
     await test.step('Check there is a connection', async () => {
       await page.goto(`${baseUrlAlice}/connection`)
+      await page.waitForSelector('div.list-item-status[data-status="success"]')
       const statusText = await page.textContent('div.list-item-status[data-status="success"]')
       expect(statusText).toContain('Connected')
     })
