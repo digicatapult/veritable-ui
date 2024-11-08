@@ -15,8 +15,11 @@ test.describe('New query request', () => {
   let context: CustomBrowserContext
   let page: Page
 
-  test.beforeEach(async ({ browser }) => {
+  test.beforeAll(async () => {
     await withCleanAliceBobEmail(AliceHost, BobHost, smtp4dev)
+  })
+
+  test.beforeEach(async ({ browser }) => {
     context = await browser.newContext()
     page = await context.newPage()
     await withRegisteredAccount(page, context, AliceHost)
@@ -24,7 +27,7 @@ test.describe('New query request', () => {
     await withConnection(AliceHost, BobHost)
   })
 
-  test.afterAll(async () => {
+  test.afterEach(async () => {
     await withCleanAliceBobEmail(AliceHost, BobHost, smtp4dev)
     await page.close()
   })
