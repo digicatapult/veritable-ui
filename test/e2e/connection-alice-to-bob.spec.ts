@@ -20,16 +20,16 @@ test.describe('Connection from Alice to Bob', () => {
   const smtp4devUrl = process.env.VERITABLE_SMTP_ADDRESS || 'http://localhost:5001'
 
   // Create and share context
-  test.beforeAll(async ({ browser }) => {
+  test.beforeAll(async () => {
+    await withCleanAliceBobEmail(baseUrlAlice, baseUrlBob, smtp4devUrl)
+  })
+
+  test.beforeEach(async ({ browser }) => {
     context = await browser.newContext()
     page = await context.newPage()
 
     await withRegisteredAccount(page, context, baseUrlAlice)
     await withLoggedInUser(page, context, baseUrlAlice)
-  })
-
-  test.beforeEach(async () => {
-    await withCleanAliceBobEmail(baseUrlAlice, baseUrlBob, smtp4devUrl)
   })
 
   test.afterEach(async () => {
@@ -92,6 +92,7 @@ test.describe('Connection from Alice to Bob', () => {
 
     await test.step('Bob submits invite and pin', async () => {
       await page.goto(`${baseUrlBob}/connection`)
+      await page.waitForURL('**/connection')
       expect(page.url()).toContain('/connection')
       // Submit invite
       await page.click('text=Add from Invitation')
