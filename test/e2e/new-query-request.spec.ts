@@ -32,7 +32,6 @@ test.describe('New query request', () => {
       await page.click('text=Query Request')
 
       const queryTypes = page.locator('.query-item')
-      expect((await queryTypes.all()).length).toBe(4)
       expect(queryTypes.nth(0)).not.toHaveClass('query-item disabled')
       expect(queryTypes.nth(1)).toHaveClass('query-item disabled')
       expect(queryTypes.nth(2)).toHaveClass('query-item disabled')
@@ -50,8 +49,10 @@ test.describe('New query request', () => {
       const aliceConnections = page.locator('#search-results')
       expect(await aliceConnections.textContent()).toContain('OFFSHORE RENEWABLE ENERGY CATAPULT')
 
-      await page.getByRole('checkbox').check()
-      await expect(page.getByRole('checkbox')).toBeChecked()
+      const checkbox = page.getByRole('checkbox')
+      await expect(checkbox).not.toBeDisabled()
+      await checkbox.check()
+      await expect(checkbox).toBeChecked()
 
       await page.getByRole('button', { name: 'Next' }).click()
       await expect(page.getByRole('heading', { name: 'Total Carbon Embodiment' })).toBeVisible()

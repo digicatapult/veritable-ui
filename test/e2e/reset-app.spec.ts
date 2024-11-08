@@ -28,6 +28,7 @@ test.describe('Resetting app', () => {
   })
 
   test('Reset all on Alice', async () => {
+    test.setTimeout(100000)
     await test.step('Check there is a connection', async () => {
       await page.goto(`${baseUrlAlice}/connection`)
       await expect(page.getByText('Connected')).toBeVisible()

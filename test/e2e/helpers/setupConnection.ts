@@ -49,10 +49,10 @@ export async function withConnection(invitatorUrl: string, receiverUrl: string) 
     throw new Error(`PIN ${receiverPin} or Connection ID ${invitatorConnectionId} not found`)
   }
 
-  await delay(2000)
   await fetchPost(`${invitatorUrl}/connection/${invitatorConnectionId}/pin-submission`, {
     action: 'submitPinCode',
     pin: receiverPin,
     stepCount: '2',
   })
+  await delay(1000)
 }
