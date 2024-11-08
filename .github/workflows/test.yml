@@ -5,6 +5,8 @@ on:
 jobs:
   static-checks-npm:
     uses: digicatapult/shared-workflows/.github/workflows/static-checks-npm.yml@main
+    with:
+      matrix_commands: '["lint", "depcheck", "check", "xss-scan"]'
   tests-npm:
     uses: digicatapult/shared-workflows/.github/workflows/tests-npm.yml@main
     with:
