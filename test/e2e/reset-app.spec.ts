@@ -22,7 +22,7 @@ test.describe('Resetting app', () => {
     await withConnection(baseUrlAlice, baseUrlBob)
   })
 
-  test.afterEach(async () => {
+  test.afterAll(async () => {
     await cleanup([baseUrlAlice, baseUrlBob])
     await page.close()
   })
@@ -30,9 +30,7 @@ test.describe('Resetting app', () => {
   test('Reset all on Alice', async () => {
     await test.step('Check there is a connection', async () => {
       await page.goto(`${baseUrlAlice}/connection`)
-      await page.waitForSelector('div.list-item-status[data-status="success"]')
-      const statusText = await page.textContent('div.list-item-status[data-status="success"]')
-      expect(statusText).toContain('Connected')
+      await expect(page.getByText('Connected')).toBeVisible()
     })
 
     await test.step('Click reset on Alice', async () => {
@@ -44,7 +42,7 @@ test.describe('Resetting app', () => {
     await test.step('Check there are no connections on Alice', async () => {
       await page.goto(`${baseUrlAlice}/connection`)
       await page.reload()
-      await page.waitForSelector('text=No Connections for that search query. Try again or add a new connection')
+      await expect(page.getByText('No Connections for that search query.')).toBeVisible()
     })
   })
 })

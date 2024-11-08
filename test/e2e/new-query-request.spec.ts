@@ -50,8 +50,7 @@ test.describe('New query request', () => {
       const aliceConnections = page.locator('#search-results')
       expect(await aliceConnections.textContent()).toContain('OFFSHORE RENEWABLE ENERGY CATAPULT')
 
-      const checkbox = await page.waitForSelector('input[type="checkbox"]')
-      await checkbox.click()
+      await page.getByRole('checkbox').check()
       await expect(page.getByRole('checkbox')).toBeChecked()
 
       await page.getByRole('button', { name: 'Next' }).click()

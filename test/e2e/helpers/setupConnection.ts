@@ -1,3 +1,4 @@
+import { expect } from '@playwright/test'
 import 'reflect-metadata'
 
 import { fetchGet, fetchPost } from '../../helpers/routeHelper.js'
@@ -37,6 +38,8 @@ export async function withConnection(invitatorUrl: string, receiverUrl: string) 
   })
 
   const receiverEmail = await checkEmails('admin@veritable.com')
+  expect(receiverEmail).not.toEqual(inviteEmail)
+  expect(receiverEmail).not.toEqual(adminEmail)
   const receiverPin = await extractPin(receiverEmail.id)
 
   await delay(1000)
@@ -46,10 +49,10 @@ export async function withConnection(invitatorUrl: string, receiverUrl: string) 
     throw new Error(`PIN ${receiverPin} or Connection ID ${invitatorConnectionId} not found`)
   }
 
+  await delay(2000)
   await fetchPost(`${invitatorUrl}/connection/${invitatorConnectionId}/pin-submission`, {
     action: 'submitPinCode',
     pin: receiverPin,
     stepCount: '2',
   })
-  await delay(2000)
 }
