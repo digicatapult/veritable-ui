@@ -8,7 +8,7 @@ import {
 } from './helpers/registerLogIn.js'
 import { withConnection } from './helpers/setupConnection.js'
 
-test.describe.only('New query response', () => {
+test.describe('New query response', () => {
   const AliceHost = process.env.VERITABLE_ALICE_PUBLIC_URL || 'http://localhost:3000'
   const BobHost = process.env.VERITABLE_BOB_PUBLIC_URL || 'http://localhost:3001'
   const smtp4dev = process.env.VERITABLE_SMTP_ADDRESS || 'http://localhost:5001'
