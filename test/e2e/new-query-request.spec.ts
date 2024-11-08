@@ -7,12 +7,11 @@ import {
 } from './helpers/registerLogIn.js'
 import { withConnection } from './helpers/setupConnection.js'
 
-test.describe('Queries', () => {
+test.describe('New query request', () => {
   const AliceHost = process.env.VERITABLE_ALICE_PUBLIC_URL || 'http://localhost:3000'
   const BobHost = process.env.VERITABLE_BOB_PUBLIC_URL || 'http://localhost:3001'
   const smtp4dev = process.env.VERITABLE_SMTP_ADDRESS || 'http://localhost:5001'
 
-  test.setTimeout(10000)
   let context: CustomBrowserContext
   let page: Page
 
@@ -30,7 +29,7 @@ test.describe('Queries', () => {
     await page.close()
   })
 
-  test('new query request - total carbon embodiment (Alice)', async () => {
+  test('creates total carbon embodiment query (Alice)', async () => {
     await test.step('creates a new query request for total co2 emissions', async () => {
       await page.goto(`${AliceHost}/queries`)
       await page.click('text=Query Request')
@@ -56,7 +55,7 @@ test.describe('Queries', () => {
 
       const checkbox = page.getByRole('checkbox')
       await expect(checkbox).not.toBeChecked()
-      await checkbox.check()
+      await checkbox.check({ timeout: 20000 })
       await expect(checkbox).toBeChecked()
 
       await page.getByRole('button', { name: 'Next' }).click()

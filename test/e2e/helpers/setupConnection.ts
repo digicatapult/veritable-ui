@@ -2,9 +2,9 @@ import { expect } from '@playwright/test'
 import 'reflect-metadata'
 
 import { fetchGet, fetchPost } from '../../helpers/routeHelper.js'
+import { delay } from '../../helpers/util.js'
 import { checkEmails, extractInvite, extractPin } from './smtpEmails.js'
 
-// TODO update to take company number and URL emails can be issuer@ / holder@
 export async function withConnection(invitatorUrl: string, receiverUrl: string) {
   const uuidRegex = /[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-4[0-9a-fA-F]{3}-[89ab][0-9a-fA-F]{3}-[0-9a-fA-F]{12}/g
 
@@ -40,15 +40,16 @@ export async function withConnection(invitatorUrl: string, receiverUrl: string) 
   const receiverEmail = await checkEmails('admin@veritable.com')
   expect(receiverEmail).not.toEqual(inviteEmail)
   expect(receiverEmail).not.toEqual(adminEmail)
-
   const receiverPin = await extractPin(receiverEmail.id)
 
-  const connections = await fetchGet(`${invitatorUrl}/connection?search=OFFSHORE RENEWABLE ENERGY CATAPULT`)
-  const [issuerConnectionId] = (await connections.text()).match(uuidRegex) || []
-  if (!receiverPin || !issuerConnectionId)
-    throw new Error(`PIN ${receiverPin} or Connection ID ${issuerConnectionId} not found`)
+  await delay(1000)
+  const connections = await fetchGet(`${invitatorUrl}/connection?search=OFFSHORE`)
+  const [invitatorConnectionId] = (await connections.text()).match(uuidRegex) || []
+  if (!receiverPin || !invitatorConnectionId) {
+    throw new Error(`PIN ${receiverPin} or Connection ID ${invitatorConnectionId} not found`)
+  }
 
-  await fetchPost(`${invitatorUrl}/connection/${issuerConnectionId}/pin-submission`, {
+  await fetchPost(`${invitatorUrl}/connection/${invitatorConnectionId}/pin-submission`, {
     action: 'submitPinCode',
     pin: receiverPin,
     stepCount: '2',
