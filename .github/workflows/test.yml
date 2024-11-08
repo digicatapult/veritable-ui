@@ -4,15 +4,15 @@ on:
     branches-ignore: ['main']
 jobs:
   static-checks-npm:
-    uses: digicatapult/shared-workflows/.github/workflows/static-checks-npm.yml@feature/shared-npm-tests
+    uses: digicatapult/shared-workflows/.github/workflows/static-checks-npm.yml@main
   tests-npm:
-    uses: digicatapult/shared-workflows/.github/workflows/tests-npm.yml@feature/shared-npm-tests
+    uses: digicatapult/shared-workflows/.github/workflows/tests-npm.yml@main
     with:
       npm_build_command: 'npm run tsoa:build'
       pre_test_command: 'npm run db:migrate'
       docker_compose_file: docker-compose.yml
   e2e-tests-npm:
-    uses: digicatapult/shared-workflows/.github/workflows/tests-e2e-npm.yml@feature/shared-npm-tests
+    uses: digicatapult/shared-workflows/.github/workflows/tests-e2e-npm.yml@main
     with:
       docker_compose_file: docker-compose.e2e.yml
       test_command: 'docker compose -f docker-compose.e2e.yml up --exit-code-from e2e-tests --abort-on-container-exit --quiet-pull'
@@ -20,7 +20,7 @@ jobs:
       contents: write
     secrets: inherit
   build-docker:
-    uses: digicatapult/shared-workflows/.github/workflows/build-docker.yml@feature/shared-npm-tests
+    uses: digicatapult/shared-workflows/.github/workflows/build-docker.yml@main
     permissions:
       packages: write
       contents: write
