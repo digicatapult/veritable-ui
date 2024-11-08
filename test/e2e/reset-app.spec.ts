@@ -1,11 +1,6 @@
 import { expect, Page, test } from '@playwright/test'
 import 'reflect-metadata'
-import {
-  CustomBrowserContext,
-  withCleanAliceBobEmail,
-  withLoggedInUser,
-  withRegisteredAccount,
-} from './helpers/registerLogIn.js'
+import { cleanup, CustomBrowserContext, withLoggedInUser, withRegisteredAccount } from './helpers/registerLogIn.js'
 import { withConnection } from './helpers/setupConnection.js'
 
 test.describe('Resetting app', () => {
@@ -14,10 +9,9 @@ test.describe('Resetting app', () => {
 
   const baseUrlAlice = process.env.VERITABLE_ALICE_PUBLIC_URL || 'http://localhost:3000'
   const baseUrlBob = process.env.VERITABLE_BOB_PUBLIC_URL || 'http://localhost:3001'
-  const smtp4devUrl = process.env.VERITABLE_SMTP_ADDRESS || 'http://localhost:5001'
 
   test.beforeAll(async () => {
-    await withCleanAliceBobEmail(baseUrlAlice, baseUrlBob, smtp4devUrl)
+    await cleanup([baseUrlAlice, baseUrlBob])
   })
 
   test.beforeEach(async ({ browser }) => {
@@ -29,7 +23,7 @@ test.describe('Resetting app', () => {
   })
 
   test.afterEach(async () => {
-    await withCleanAliceBobEmail(baseUrlAlice, baseUrlBob, smtp4devUrl)
+    await cleanup([baseUrlAlice, baseUrlBob])
     await page.close()
   })
 

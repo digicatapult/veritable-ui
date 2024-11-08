@@ -406,7 +406,12 @@ export class QueriesController extends HTMLController {
         },
       })
     } catch (err) {
-      log.warn('error occured while submitting a query request', err?.toString())
+      if (err instanceof Error) {
+        log.warn('error %s while submitting a query request: %j', err.name, err)
+      } else {
+        log.warn('unknown error occured while submitting a query request %j', err)
+      }
+
       await this.db.update('query', { id: query?.id }, { status: 'errored' })
 
       return this.html(

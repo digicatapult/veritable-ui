@@ -1,10 +1,5 @@
 import { expect, Page, test } from '@playwright/test'
-import {
-  CustomBrowserContext,
-  withCleanAliceBobEmail,
-  withLoggedInUser,
-  withRegisteredAccount,
-} from './helpers/registerLogIn.js'
+import { cleanup, CustomBrowserContext, withLoggedInUser, withRegisteredAccount } from './helpers/registerLogIn.js'
 import { checkEmails, extractInvite, extractPin, findNewAdminEmail } from './helpers/smtpEmails.js'
 
 test.describe('Connection from Alice to Bob', () => {
@@ -17,11 +12,10 @@ test.describe('Connection from Alice to Bob', () => {
 
   const baseUrlAlice = process.env.VERITABLE_ALICE_PUBLIC_URL || 'http://localhost:3000'
   const baseUrlBob = process.env.VERITABLE_BOB_PUBLIC_URL || 'http://localhost:3001'
-  const smtp4devUrl = process.env.VERITABLE_SMTP_ADDRESS || 'http://localhost:5001'
 
   // Create and share context
   test.beforeAll(async () => {
-    await withCleanAliceBobEmail(baseUrlAlice, baseUrlBob, smtp4devUrl)
+    await cleanup([baseUrlAlice, baseUrlBob])
   })
 
   test.beforeEach(async ({ browser }) => {
@@ -33,7 +27,7 @@ test.describe('Connection from Alice to Bob', () => {
   })
 
   test.afterEach(async () => {
-    await withCleanAliceBobEmail(baseUrlAlice, baseUrlBob, smtp4devUrl)
+    await cleanup([baseUrlAlice, baseUrlBob])
     await page.close()
   })
   // End-to-end process: Alice registers, invites Bob, Bob submits invite & pin, Alice submits pin
@@ -41,7 +35,7 @@ test.describe('Connection from Alice to Bob', () => {
     test.setTimeout(100000)
 
     await test.step('Alice invites Bob to connect', async () => {
-      await page.waitForSelector('a[href="/connection"]')
+      await page.goto(`${baseUrlAlice}`)
       await page.click('a[href="/connection"]')
 
       await page.waitForSelector('text=Invite New Connection')
@@ -72,7 +66,6 @@ test.describe('Connection from Alice to Bob', () => {
         'text="Your connection invitation has been sent. Please wait for their verification. As the post may take 2-3 days to arrive, please wait for their verification and keep updated by viewing the verification status."'
       )
 
-      await page.waitForSelector('a[href="/connection"]')
       await page.click('a[href="/connection"]')
       expect(page.url()).toContain('/connection')
     })
@@ -92,7 +85,6 @@ test.describe('Connection from Alice to Bob', () => {
 
     await test.step('Bob submits invite and pin', async () => {
       await page.goto(`${baseUrlBob}/connection`)
-      await page.waitForURL('**/connection')
       expect(page.url()).toContain('/connection')
       // Submit invite
       await page.click('text=Add from Invitation')
@@ -126,8 +118,7 @@ test.describe('Connection from Alice to Bob', () => {
       expect(confirmationElement).not.toBeNull()
       const confirmationText = await confirmationElement?.textContent()
       expect(confirmationText).toContain('PIN Code has been submitted for DIGITAL CATAPULT company ID.')
-      await page.waitForSelector('a[href="/connection"]')
-      await page.click('a[href="/connection"]')
+      await page.click('a[href="/connection"]', { delay: 1000 })
     })
 
     await test.step('Retrieve pin for Alice', async () => {

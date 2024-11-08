@@ -7,20 +7,10 @@ export interface CustomBrowserContext extends BrowserContext {
   username?: string
 }
 
-export async function withCleanAliceBobEmail(urlAlice: string, urlBob: string, smtp4devUrl: string) {
-  const results = await Promise.all([
-    del(urlAlice, '/reset'),
-    del(urlBob, '/reset'),
-    fetch(`${smtp4devUrl}/api/Messages/*`, { method: 'delete' }), //updated for test
-  ])
+export async function cleanup(urls: string[]) {
+  const results = await Promise.all(urls.map((url) => del(url, '/reset')))
   if (!results.every((res) => res.ok)) {
     throw new Error('Error resetting application or deleting emails form smtp4dev')
-  }
-}
-export async function withCleanAlice(urlAlice: string) {
-  const result = await del(urlAlice, '/reset')
-  if (!result.ok) {
-    throw new Error('Error resetting application - Alice')
   }
 }
 

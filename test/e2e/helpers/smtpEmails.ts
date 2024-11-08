@@ -21,7 +21,7 @@ const EmailResponseSchema = z.object({
 })
 
 // removing smtp4dev url since only one platform
-const smtp4devUrl = process.env.VERITABLE_SMTP_ADDRESS || 'http://localhost:5001'
+export const smtp4devUrl = process.env.VERITABLE_SMTP_ADDRESS || 'http://localhost:5001'
 const { host, port } = getHostPort(smtp4devUrl)
 
 export type Email = {
