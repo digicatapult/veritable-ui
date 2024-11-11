@@ -13,10 +13,6 @@ const cleanupShared = async function (agent: VeritableCloudagent) {
     }
   } catch (err) {
     console.log(err)
-    console.log(err.name)
-    console.log(err.message)
-    console.log(`all errrors: `)
-    console.log(err.errors)
 
     throw new Error(err)
   }

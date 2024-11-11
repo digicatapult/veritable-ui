@@ -17,7 +17,7 @@ import { delay } from '../helpers/util.js'
 
 const db = container.resolve(Database)
 
-describe.only('NewConnectionController', () => {
+describe('NewConnectionController', () => {
   let server: { app: express.Express; cloudagentEvents: VeritableCloudagentEvents }
 
   afterEach(async () => {
@@ -44,7 +44,7 @@ describe.only('NewConnectionController', () => {
       server.cloudagentEvents.stop()
     })
 
-    it.only('should return success', async () => {
+    it('should return success', async () => {
       expect(response.status).to.equal(200)
     })
 
@@ -67,6 +67,7 @@ describe.only('NewConnectionController', () => {
     const context: { invite: string } = { invite: '' }
 
     withBobCloudAgentInvite(context)
+    console.log(context.invite)
 
     beforeEach(async () => {
       await cleanup()

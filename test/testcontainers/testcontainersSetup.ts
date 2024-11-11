@@ -30,6 +30,7 @@ interface VeritableCloudAgentEnvConfig extends PostgresPasswordAndUser {
 }
 
 interface VeritableUIConfig extends PostgresValuesInterface {
+  containerName: string
   dbHost: string
   postgresPort: string
   idpPublicUrlPrefix: string
@@ -58,25 +59,48 @@ interface VeritableUIConfig extends PostgresValuesInterface {
   issuanceSchemaPolicy?: string
   issuanceCredDefPolicy?: string
 }
+const network = await new Network().start()
 
-export async function bringUpAllContainers() {
-  let aliceVeritableUIPostgres: StartedTestContainer
-  let aliceVeritableCloudagentPostgres: StartedTestContainer
-  let smtp4dev: StartedTestContainer
-  let aliceCloudAgentContainer: StartedTestContainer
+export async function bringUpSharedContainers() {
   let ipfsContainer: StartedTestContainer
   let keycloakContainer: StartedTestContainer
-  let aliceVeritableUIContainer: StartedTestContainer
+  let smtp4dev: StartedTestContainer
   const __filename = fileURLToPath(import.meta.url)
   const __dirname = path.dirname(__filename)
 
   const keycloakDataPath = path.resolve(__dirname, '../../docker/keycloak')
-  const network = await new Network().start()
 
-  // assign containers
   keycloakContainer = await composeKeycloakContainer(network, keycloakDataPath)
   ipfsContainer = await composeIpfsContainer(network)
   smtp4dev = await composeSmtp4dev(network)
+  return [keycloakContainer, ipfsContainer, smtp4dev]
+}
+export async function bringUpAliceUIContainer() {
+  let aliceVeritableUIContainer: StartedTestContainer
+
+  const aliceVeritableUIConfig: VeritableUIConfig = {
+    containerName: 'veritable-ui-alice',
+    dbHost: 'postgres-veritable-ui-alice',
+    postgresPort: '5432',
+    idpPublicUrlPrefix:
+      process.env.VERITABLE_IDP_PUBLIC_URL_PREFIX || 'http://localhost:3080/realms/veritable/protocol/openid-connect',
+    cloudagentAdminOrigin: 'http://veritable-cloudagent-alice:3000',
+    cloudagentAdminWsOrigin: 'ws://veritable-cloudagent-alice:3000',
+    invitationFromCompanyNumber: '07964699',
+    publicUrl: process.env.VERITABLE_ALICE_PUBLIC_URL || 'http://localhost:3000',
+    apiSwaggerBgColor: '#ff3131',
+    apiSwaggerTitle: 'Alice',
+    companyProfileApiKey: 'https://api.company-information.service.gov.uk',
+    postgresDb: 'veritable-ui',
+  }
+  aliceVeritableUIContainer = await veritableUIContainer(network, aliceVeritableUIConfig)
+  return [aliceVeritableUIContainer]
+}
+
+export async function bringUpAliceDependenciesContainers() {
+  let aliceVeritableUIPostgres: StartedTestContainer
+  let aliceVeritableCloudagentPostgres: StartedTestContainer
+  let aliceCloudAgentContainer: StartedTestContainer
 
   // Alice containers
   aliceVeritableUIPostgres = await veritableUIPostgresDbContainer(
@@ -107,30 +131,113 @@ export async function bringUpAllContainers() {
     aliceCloudagentEnvConfig
   )
 
-  const aliceVeritableUIConfig: VeritableUIConfig = {
-    dbHost: 'postgres-veritable-ui-alice',
+  return [aliceVeritableUIPostgres, aliceVeritableCloudagentPostgres, aliceCloudAgentContainer]
+}
+
+export async function bringUpBobContainers() {
+  let bobVeritableUIPostgres: StartedTestContainer
+  let bobVeritableCloudagentPostgres: StartedTestContainer
+  let bobCloudAgentContainer: StartedTestContainer
+  let bobVeritableUIContainer: StartedTestContainer
+
+  bobVeritableUIPostgres = await veritableUIPostgresDbContainer(
+    network,
+    'postgres-veritable-ui-bob',
+    { containerPort: 5432, hostPort: 5433 },
+    { postgresDb: 'veritable-ui' }
+  )
+  bobVeritableCloudagentPostgres = await veritableCloudagentPostgresContainer(
+    network,
+    'postgres-veritable-cloudagent-bob',
+    { postgresDb: 'postgres-veritable-cloudagent' }
+  )
+  const aliceCloudagentEnvConfig: VeritableCloudAgentEnvConfig = {
+    endpoint: 'ws://veritable-cloudagent-bob:5003',
+    walletId: 'bob',
+    walletKey: 'bob-key',
+    postgresHost: 'postgres-veritable-cloudagent-bob',
+  }
+  bobCloudAgentContainer = await cloudagentContainer(
+    network,
+    'veritable-cloudagent-bob',
+    {
+      containerPort: 3000,
+      hostPort: 3101,
+    },
+    aliceCloudagentEnvConfig
+  )
+  const bobVeritableUIConfig: VeritableUIConfig = {
+    containerName: 'veritable-ui-bob',
+    dbHost: 'postgres-veritable-ui-bob',
     postgresPort: '5432',
     idpPublicUrlPrefix:
       process.env.VERITABLE_IDP_PUBLIC_URL_PREFIX || 'http://localhost:3080/realms/veritable/protocol/openid-connect',
-    cloudagentAdminOrigin: 'http://veritable-cloudagent-alice:3000',
-    cloudagentAdminWsOrigin: 'ws://veritable-cloudagent-alice:3000',
-    invitationFromCompanyNumber: '07964699',
-    publicUrl: process.env.VERITABLE_ALICE_PUBLIC_URL || 'http://localhost:3000',
+    cloudagentAdminOrigin: 'http://veritable-cloudagent-bob:3000',
+    cloudagentAdminWsOrigin: 'ws://veritable-cloudagent-bob:3000',
+    invitationFromCompanyNumber: '04659351',
+    publicUrl: process.env.VERITABLE_ALICE_PUBLIC_URL || 'http://localhost:3001',
     apiSwaggerBgColor: '#ff3131',
-    apiSwaggerTitle: 'Alice',
+    apiSwaggerTitle: 'Bob',
     companyProfileApiKey: 'https://api.company-information.service.gov.uk',
     postgresDb: 'veritable-ui',
   }
-  aliceVeritableUIContainer = await veritableUIContainer(network, aliceVeritableUIConfig)
+  bobVeritableUIContainer = await veritableUIContainer(network, bobVeritableUIConfig)
+  return [bobVeritableUIPostgres, bobVeritableCloudagentPostgres, bobCloudAgentContainer, bobVeritableUIContainer]
+}
 
+export async function bringUpCharlieContainers() {
+  let charlieVeritableUIPostgres: StartedTestContainer
+  let charlieVeritableCloudagentPostgres: StartedTestContainer
+  let charlieCloudAgentContainer: StartedTestContainer
+  let charlieVeritableUIContainer: StartedTestContainer
+
+  charlieVeritableUIPostgres = await veritableUIPostgresDbContainer(
+    network,
+    'postgres-veritable-ui-charlie',
+    { containerPort: 5432, hostPort: 5434 },
+    { postgresDb: 'veritable-ui' }
+  )
+  charlieVeritableCloudagentPostgres = await veritableCloudagentPostgresContainer(
+    network,
+    'postgres-veritable-cloudagent-charlie',
+    { postgresDb: 'postgres-veritable-cloudagent' }
+  )
+  const charlieCloudagentEnvConfig: VeritableCloudAgentEnvConfig = {
+    endpoint: 'ws://veritable-cloudagent-charlie:5003',
+    walletId: 'charlie',
+    walletKey: 'charlie-key',
+    postgresHost: 'postgres-veritable-cloudagent-charlie',
+  }
+  charlieCloudAgentContainer = await cloudagentContainer(
+    network,
+    'veritable-cloudagent-charlie',
+    {
+      containerPort: 3000,
+      hostPort: 3102,
+    },
+    charlieCloudagentEnvConfig
+  )
+  const charlieVeritableUIConfig: VeritableUIConfig = {
+    containerName: 'veritable-ui-charlie',
+    dbHost: 'postgres-veritable-ui-charlie',
+    postgresPort: '5432',
+    idpPublicUrlPrefix:
+      process.env.VERITABLE_IDP_PUBLIC_URL_PREFIX || 'http://localhost:3080/realms/veritable/protocol/openid-connect',
+    cloudagentAdminOrigin: 'http://veritable-cloudagent-charlie:3000',
+    cloudagentAdminWsOrigin: 'ws://veritable-cloudagent-charlie:3000',
+    invitationFromCompanyNumber: '10016023',
+    publicUrl: process.env.VERITABLE_ALICE_PUBLIC_URL || 'http://localhost:3002',
+    apiSwaggerBgColor: '#ffbd59',
+    apiSwaggerTitle: 'Charlie',
+    companyProfileApiKey: 'https://api.company-information.service.gov.uk',
+    postgresDb: 'veritable-ui',
+  }
+  charlieVeritableUIContainer = await veritableUIContainer(network, charlieVeritableUIConfig)
   return [
-    keycloakContainer,
-    ipfsContainer,
-    smtp4dev,
-    aliceVeritableUIPostgres,
-    aliceVeritableCloudagentPostgres,
-    aliceCloudAgentContainer,
-    aliceVeritableUIContainer,
+    charlieVeritableUIPostgres,
+    charlieVeritableCloudagentPostgres,
+    charlieCloudAgentContainer,
+    charlieVeritableUIContainer,
   ]
 }
 
@@ -281,6 +388,7 @@ export async function composeSmtp4dev(network: StartedNetwork) {
 }
 export async function veritableUIContainer(network: StartedNetwork, env: VeritableUIConfig) {
   const {
+    containerName,
     dbHost,
     postgresPort,
     publicUrl,
@@ -314,7 +422,7 @@ export async function veritableUIContainer(network: StartedNetwork, env: Veritab
   } = env
   const base = await GenericContainer.fromDockerfile('./').withTarget('test').build()
   const veritableUIContainer = await base
-    .withName('veritable-ui-alice')
+    .withName(containerName)
     .withLogConsumer((stream) => {
       stream.on('data', (line) => console.log(line))
       stream.on('err', (line) => console.error(line))
