@@ -20,7 +20,6 @@ describe('integration tests for settings page', function () {
 
   const keycloakDataPath = path.resolve(__dirname, '../../docker/keycloak')
 
-  console.log('here')
   before(async () => {
     console.log('before all')
     const network = await new Network().start()

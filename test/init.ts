@@ -13,13 +13,13 @@ before(async function () {
   chaiJestSnapshot.resetSnapshotRegistry()
 })
 
-// after(async function () {
-//   await Promise.all(
-//     containers.map(async function (container) {
-//       await container.stop({ remove: false })
-//     })
-//   )
-// })
+after(async function () {
+  await Promise.all(
+    containers.map(async function (container) {
+      await container.stop({})
+    })
+  )
+})
 
 beforeEach(function () {
   chaiJestSnapshot.configureUsingMochaContext(this)
