@@ -1,4 +1,3 @@
-import { expect } from '@playwright/test'
 import 'reflect-metadata'
 
 import { fetchGet, fetchPost } from '../../helpers/routeHelper.js'
