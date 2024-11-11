@@ -30,12 +30,26 @@ export async function withConnection(invitatorUrl: string, receiverUrl: string) 
   const [holderConnectionId] = (await receive.text()).match(uuidRegex) || []
   if (!holderConnectionId) throw new Error(`Connection was not found`)
 
+  let retries = 30
+
+  while (retries) {
+    await delay(500)
+    const receiverConnection = await fetchGet(`${receiverUrl}/connection?search=DIGI`)
+    const [receiverConnectionStatus] = (await receiverConnection.text()).match('Verification Code') || []
+    if (receiverConnectionStatus) {
+      retries = 0
+    } else if (retries === 1 && !receiverConnectionStatus) {
+      throw new Error('timeout')
+    } else {
+      retries--
+    }
+  }
+
   await fetchPost(`${receiverUrl}/connection/${holderConnectionId}/pin-submission`, {
     action: 'submitPinCode',
     pin: invitatorPin,
     stepCount: '3',
   })
-  await delay(3000)
 
   const receiverEmail = await checkEmails('admin@veritable.com')
   const receiverPin = await extractPin(receiverEmail.id)
@@ -51,5 +65,18 @@ export async function withConnection(invitatorUrl: string, receiverUrl: string) 
     pin: receiverPin,
     stepCount: '2',
   })
-  await delay(2000)
+
+  retries = 20
+  while (retries) {
+    await delay(500)
+    const invitatorConnection = await fetchGet(`${invitatorUrl}/connection?search=OFFSHORE`)
+    const [invitatorConnectionStatus] = (await invitatorConnection.text()).match('Send Query') || []
+    if (invitatorConnectionStatus) {
+      retries = 0
+    } else if (retries === 1 && !invitatorConnectionStatus) {
+      throw new Error('timeout')
+    } else {
+      retries--
+    }
+  }
 }
