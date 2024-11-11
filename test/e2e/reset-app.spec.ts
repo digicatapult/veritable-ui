@@ -17,8 +17,8 @@ test.describe('Resetting app', () => {
   })
 
   test.afterEach(async () => {
-    await cleanup([baseUrlAlice, baseUrlBob])
     await page.close()
+    await cleanup([baseUrlAlice, baseUrlBob])
   })
   test.beforeEach(async () => {
     await cleanup([baseUrlAlice, baseUrlBob])

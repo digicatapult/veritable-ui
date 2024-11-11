@@ -23,8 +23,8 @@ test.describe('New query request', () => {
   })
 
   test.afterEach(async () => {
-    await cleanup([AliceHost, BobHost])
     await page.close()
+    await cleanup([AliceHost, BobHost])
   })
 
   test('creates total carbon embodiment query (Alice)', async () => {
@@ -67,7 +67,7 @@ test.describe('New query request', () => {
       )
       await page.getByPlaceholder('BX20001').fill('E2E-Product-id')
       await page.getByLabel('Quantity').fill('10')
-      await page.getByRole('button', { name: 'Submit Query' }).click()
+      await page.getByRole('button', { name: 'Submit Query' }).click({ delay: 2000 })
 
       const successModal = page.locator('#new-query-confirmation-text')
       await expect(successModal).toBeVisible()

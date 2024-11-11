@@ -35,11 +35,11 @@ export async function withConnection(invitatorUrl: string, receiverUrl: string) 
     pin: invitatorPin,
     stepCount: '3',
   })
+  await delay(3000)
 
   const receiverEmail = await checkEmails('admin@veritable.com')
   const receiverPin = await extractPin(receiverEmail.id)
 
-  await delay(3000)
   const connections = await fetchGet(`${invitatorUrl}/connection?search=OFFSHORE`)
   const [invitatorConnectionId] = (await connections.text()).match(uuidRegex) || []
   if (!receiverPin || !invitatorConnectionId) {

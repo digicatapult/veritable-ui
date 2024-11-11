@@ -27,8 +27,8 @@ test.describe('Connection from Alice to Bob', () => {
   })
 
   test.afterEach(async () => {
-    await cleanup([baseUrlAlice, baseUrlBob])
     await page.close()
+    await cleanup([baseUrlAlice, baseUrlBob])
   })
   // End-to-end process: Alice registers, invites Bob, Bob submits invite & pin, Alice submits pin
   test('Connection from Alice to Bob', async () => {
