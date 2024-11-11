@@ -212,6 +212,24 @@ docker compose -f docker-compose.e2e.yml up
 
 Then you'll find the test results in directory `playwright-report` at root level.
 
+### Testcontainers
+
+so see logs from a container e.g. if it is dying on startup add:
+
+```
+.withLogConsumer((stream) => {
+    stream.on('data', (line) => console.log(line))
+    stream.on('err', (line) => console.error(line))
+    stream.on('end', () => console.log('Stream closed'))
+})
+```
+
+and run with
+
+```
+DEBUG=testcontainers* npm run test:testcontainers
+```
+
 ## Database
 
 This service is dependant on postgreSQL which will sync up across all nodes and will update cloudagent when needed. We use `knex` wrapper for wrapping [create, read, write, update] database quries. We also have different models for inserting and returning data which gives us a control of sensitive data or data we do not want to get along the record. We also use **zod** for enchanted validation. It's currently used in `src/models/db/types.ts` file.

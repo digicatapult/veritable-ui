@@ -14,6 +14,7 @@
     "depcheck": "depcheck",
     "test:unit": "NODE_ENV=test ./node_modules/.bin/mocha --config ./test/mocharc.json ./src/**/*.test.ts",
     "test:integration": "NODE_ENV=test ./node_modules/.bin/mocha --config ./test/mocharc.json ./test/**/*.test.ts",
+    "test:testcontainers": "NODE_ENV=test ./node_modules/.bin/mocha --config ./test/mocharc.json ./test/testcontainers/*.test.ts",
     "test:e2e": "playwright test --ui",
     "test:playwright": "playwright test --trace on --max-failures=1",
     "check": "npm run tsoa:build && tsc --noEmit",
@@ -95,6 +96,8 @@
     "prettier-plugin-organize-imports": "^4.1.0",
     "sinon": "^19.0.2",
     "supertest": "^7.0.0",
+    "testcontainers": "^10.13.2",
+    "ts-node": "^10.9.2",
     "typescript": "^5.6.3",
     "undici": "^6.20.1"
   }

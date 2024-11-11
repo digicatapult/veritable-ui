@@ -6,9 +6,19 @@ import { validCompanyName, validCompanyNumber } from './fixtures.js'
 import { mockLogger } from './logger.js'
 
 const cleanupShared = async function (agent: VeritableCloudagent) {
-  const connections = await agent.getConnections()
-  for (const connection of connections) {
-    await agent.deleteConnection(connection.id)
+  try {
+    const connections = await agent.getConnections() // fails here in the after loop the clou
+    for (const connection of connections) {
+      await agent.deleteConnection(connection.id)
+    }
+  } catch (err) {
+    console.log(err)
+    console.log(err.name)
+    console.log(err.message)
+    console.log(`all errrors: `)
+    console.log(err.errors)
+
+    throw new Error(err)
   }
 }
 

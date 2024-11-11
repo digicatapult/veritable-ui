@@ -17,7 +17,7 @@ import { delay } from '../helpers/util.js'
 
 const db = container.resolve(Database)
 
-describe('NewConnectionController', () => {
+describe.only('NewConnectionController', () => {
   let server: { app: express.Express; cloudagentEvents: VeritableCloudagentEvents }
 
   afterEach(async () => {
@@ -27,7 +27,6 @@ describe('NewConnectionController', () => {
 
   describe('create invitation (happy path)', function () {
     let response: Awaited<ReturnType<typeof post>>
-
     beforeEach(async () => {
       await cleanup()
       await cleanupCloudagent()
@@ -37,14 +36,15 @@ describe('NewConnectionController', () => {
         email: 'alice@example.com',
         action: 'submit',
       })
+      console.log(response)
     })
 
     afterEach(async () => {
-      await cleanupCloudagent()
+      await cleanupCloudagent() //errors here
       server.cloudagentEvents.stop()
     })
 
-    it('should return success', async () => {
+    it.only('should return success', async () => {
       expect(response.status).to.equal(200)
     })
 

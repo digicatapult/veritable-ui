@@ -36,7 +36,7 @@ RUN npx playwright install --with-deps
 CMD ["npm", "run", "test:playwright"]
 
 
-# service
+# # service
 FROM node:current-alpine AS service
 
 WORKDIR /veritable-ui
