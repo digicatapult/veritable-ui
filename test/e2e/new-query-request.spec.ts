@@ -49,6 +49,7 @@ test.describe('New query request', () => {
       const aliceConnections = page.locator('#search-results')
       expect(await aliceConnections.textContent()).toContain('OFFSHORE RENEWABLE ENERGY CATAPULT')
 
+      await page.waitForTimeout(3000)
       const checkbox = page.getByRole('checkbox')
       await expect(checkbox).not.toBeDisabled()
       await checkbox.check({ timeout: 20000 })
