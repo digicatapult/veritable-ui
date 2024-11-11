@@ -7,7 +7,7 @@ import { Env } from '../../../../env/index.js'
 import { ILogger } from '../../../../logger.js'
 import { CredentialSchema } from '../../../../models/credentialSchema.js'
 import Database from '../../../../models/db/index.js'
-import VeritableCloudagent from '../../../../models/veritableCloudagent.js'
+import VeritableCloudagent from '../../../../models/veritableCloudagent/index.js'
 import VeritableCloudagentEvents from '../../../veritableCloudagentEvents.js'
 import CompanyDetailsV1Handler from '../../companyDetailsV1.js'
 

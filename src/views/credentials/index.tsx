@@ -2,9 +2,9 @@ import Html from '@kitajs/html'
 import { singleton } from 'tsyringe'
 import { credentialStatusToClass, LinkButton, Page } from '../common.js'
 
-import type { Credential } from '../../models/veritableCloudagentInt.js'
+import type { Credential } from '../../models/veritableCloudagent/internal.js'
 
-type ExtendedCredential = Credential & { companyName: string; type: 'Supplier credentials' }
+export type ExtendedCredential = Credential & { companyName: string; type: 'Supplier credentials' }
 
 @singleton()
 export default class CredentialListTemplates {

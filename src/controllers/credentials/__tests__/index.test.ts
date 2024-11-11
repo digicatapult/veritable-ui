@@ -82,7 +82,7 @@ describe('CredentialsController', () => {
       await controller.listCredentials(req, '').then(toHTMLString)
 
       expect(templateMock.listPage.lastCall.args[0].length).to.deep.equal(4)
-      templateMock.listPage.lastCall.args[0].forEach((credential) => {
+      templateMock.listPage.lastCall.args[0].forEach((credential: unknown) => {
         expect(credential).to.have.property('companyName')
       })
     })

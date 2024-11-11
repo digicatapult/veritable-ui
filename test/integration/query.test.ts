@@ -4,7 +4,7 @@ import { afterEach, beforeEach, describe } from 'mocha'
 import { container } from 'tsyringe'
 
 import Database from '../../src/models/db/index.js'
-import VeritableCloudagent from '../../src/models/veritableCloudagent.js'
+import VeritableCloudagent from '../../src/models/veritableCloudagent/index.js'
 import { cleanupCloudagent } from '../helpers/cloudagent.js'
 import { withCompanyHouseMock } from '../helpers/companyHouse.js'
 import { cleanup } from '../helpers/db.js'
@@ -81,7 +81,15 @@ describe('query submission', function () {
       expect(queryLocal as QueryRow).deep.include({
         status: 'pending_their_input',
         type: 'total_carbon_embodiment',
-        details: { subjectId: 'Test', quantity: 1 },
+        details: {
+          subjectId: {
+            idType: 'product_and_quantity',
+            content: {
+              quantity: 1,
+              productId: 'Test',
+            },
+          },
+        },
       })
     })
 
@@ -102,7 +110,15 @@ describe('query submission', function () {
       expect(queryRemote as QueryRow).deep.include({
         status: 'pending_your_input',
         type: 'total_carbon_embodiment',
-        details: { subjectId: 'Test', quantity: 1 },
+        details: {
+          subjectId: {
+            idType: 'product_and_quantity',
+            content: {
+              quantity: 1,
+              productId: 'Test',
+            },
+          },
+        },
       })
     })
   })

@@ -35,6 +35,7 @@ const insertQueryShared = z.object({
   status: z.enum(['resolved', 'pending_your_input', 'pending_their_input', 'errored', 'forwarded']),
   response_id: z.string().nullable(),
   role: z.enum(['requester', 'responder']),
+  expires_at: z.date(),
 })
 const totalCarbonEmbodimentQuery = z.object({
   type: z.literal('total_carbon_embodiment'),

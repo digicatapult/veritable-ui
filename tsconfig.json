@@ -27,10 +27,7 @@
     ]
   },
   "include": [
-    "src"
+    "src",
+    "test"
   ],
-  "exclude": [
-    "test",
-    "**/__tests__"
-  ]
 }

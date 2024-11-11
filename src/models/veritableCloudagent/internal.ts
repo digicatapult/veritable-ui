@@ -1,10 +1,10 @@
 import { z } from 'zod'
 
-import { type PartialEnv } from '../env/index.js'
-import { InternalError } from '../errors.js'
-import { type ILogger } from '../logger.js'
-import { MapDiscriminatedUnion } from '../utils/types.js'
-import { DrpcQueryRequest } from './drpc.js'
+import { type PartialEnv } from '../../env/index.js'
+import { InternalError } from '../../errors.js'
+import { type ILogger } from '../../logger.js'
+import { MapDiscriminatedUnion } from '../../utils/types.js'
+import { DrpcQueryRequest, DrpcQueryResponse } from '../drpc.js'
 
 const oobParser = z.object({
   invitationUrl: z.string(),
@@ -120,17 +120,27 @@ export const credentialFormatDataParser = z.object({
 })
 export type CredentialFormatData = z.infer<typeof credentialFormatDataParser>
 
-export const drpcResponseParser = z.object({
+const responseCommonParser = z.object({
   jsonrpc: z.literal('2.0'),
-  result: z.any().optional(),
-  error: z
-    .object({
-      code: z.number(),
-      message: z.string(),
-    })
-    .optional(),
   id: z.string(),
 })
+export const jsonRpcError = z.object({
+  code: z.number(),
+  message: z.string(),
+})
+export const drpcResponseParser = z.union([
+  z
+    .object({
+      result: z.object({}).passthrough(),
+    })
+    .merge(responseCommonParser),
+  z
+    .object({
+      error: jsonRpcError,
+    })
+    .merge(responseCommonParser),
+])
+export type JsonRpcError = z.infer<typeof jsonRpcError>
 export type DrpcResponse = z.infer<typeof drpcResponseParser>
 
 const connectionListParser = z.array(connectionParser)
@@ -160,9 +170,6 @@ export type CredentialProposalAcceptInput = {
 
 type parserFn<O> = (res: Response) => O | Promise<O>
 
-/*
-  This is in internal class used for e2e tests. Rest of the repository is using VeritableCloudagent which extends this class.
-*/
 export interface DrpcRequest {
   method: string
   params: Record<string, unknown>
@@ -170,12 +177,17 @@ export interface DrpcRequest {
 
 export interface CloudagentConfig {
   drpcRequest: DrpcRequest
+  drpcResponseResult: unknown
 }
 
-type DefaultConfig = {
+export type DefaultConfig = {
   drpcRequest: DrpcQueryRequest
+  drpcResponseResult: DrpcQueryResponse
 }
 
+/*
+  This is in internal class which implements the cloudagent without dependency injection. Can be used in e2e tests
+*/
 export default class VeritableCloudagentInt<Config extends CloudagentConfig = DefaultConfig> {
   constructor(
     private env: PartialEnv<'CLOUDAGENT_ADMIN_ORIGIN'>,
@@ -343,13 +355,15 @@ export default class VeritableCloudagentInt<Config extends CloudagentConfig = De
     })
   }
 
-  public async submitDrpcResponse(requestId: string, response: Omit<DrpcResponse, 'id' | 'jsonrpc'>): Promise<void> {
+  public async submitDrpcResponse(
+    requestId: string,
+    response: { result?: Config['drpcResponseResult']; error?: JsonRpcError }
+  ): Promise<void> {
     return this.postRequest(
       `/v1/drpc/${requestId}/response`,
       {
         jsonrpc: '2.0',
-        result: response.result,
-        error: response.error,
+        ...response,
       },
       () => {}
     )

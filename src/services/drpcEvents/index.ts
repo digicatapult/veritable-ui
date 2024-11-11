@@ -4,6 +4,8 @@ import { Logger, type ILogger } from '../../logger.js'
 import Database from '../../models/db/index.js'
 import { QueryRow } from '../../models/db/types.js'
 import {
+  drpcQueryAck,
+  DrpcQueryResponse,
   submitQueryResponseRpcParams,
   SubmitQueryResponseRpcParams,
   SubmitQueryRpcParams,
@@ -11,7 +13,7 @@ import {
 } from '../../models/drpc.js'
 import { UUID } from '../../models/strings.js'
 import VeritableCloudagent from '../../models/veritableCloudagent/index.js'
-import { DrpcResponse } from '../../models/veritableCloudagentInt.js'
+import { DrpcResponse, JsonRpcError } from '../../models/veritableCloudagent/internal.js'
 
 import { neverFail } from '../../utils/promises.js'
 import VeritableCloudagentEvents, { DrpcRequest, eventData } from '../veritableCloudagentEvents.js'
@@ -50,11 +52,12 @@ export default class DrpcEvents {
   }
 
   private async handleRequestReceived(request: DrpcRequest, agentConnectionId: string) {
-    switch (request.method) {
+    const method = request.method
+    switch (method) {
       case 'submit_query_request':
-        return await neverFail(this.handleSubmitQueryRequest(request, agentConnectionId))
+        return await neverFail(this.handleSubmitQueryRequest({ ...request, method }, agentConnectionId))
       case 'submit_query_response':
-        return await neverFail(this.handleSubmitQueryResponse(request, agentConnectionId))
+        return await neverFail(this.handleSubmitQueryResponse({ ...request, method }, agentConnectionId))
     }
 
     return await this.handleInvalidMethod(request)
@@ -71,7 +74,10 @@ export default class DrpcEvents {
     return
   }
 
-  private async handleSubmitQueryRequest(request: DrpcRequest, agentConnectionId: string) {
+  private async handleSubmitQueryRequest(
+    request: DrpcRequest & { method: 'submit_query_request' },
+    agentConnectionId: string
+  ) {
     let queryId: string | null = null
     try {
       this.logger.info(
@@ -109,21 +115,21 @@ export default class DrpcEvents {
         type: 'total_carbon_embodiment',
         details: {
           subjectId: params.data.subjectId,
-          quantity: params.data.quantity,
         },
         response_id: params.id, //save to send back in response
         response: null,
         role: 'responder',
+        expires_at: new Date(params.expiresTime * 1000),
       })
       queryId = query.id
 
       const result = {
-        state: 'accepted',
+        type: 'https://github.com/digicatapult/veritable-documentation/tree/main/schemas/veritable_messaging/query_ack/0.1' as const,
       }
       await this.cloudagent.submitDrpcResponse(request.id, { result })
       await this.db.insert('query_rpc', {
         query_id: query.id,
-        method: 'submit_query_request',
+        method: request.method,
         role: 'server',
         agent_rpc_id: request.id,
         result,
@@ -155,7 +161,10 @@ export default class DrpcEvents {
     }
   }
 
-  private async handleSubmitQueryResponse(request: DrpcRequest, agentConnectionId: string) {
+  private async handleSubmitQueryResponse(
+    request: DrpcRequest & { method: 'submit_query_response' },
+    agentConnectionId: string
+  ) {
     try {
       this.logger.info(
         'DRPC response (%s) received on connection %s of method %s',
@@ -208,7 +217,7 @@ export default class DrpcEvents {
       }
 
       const result = {
-        state: 'accepted',
+        type: 'https://github.com/digicatapult/veritable-documentation/tree/main/schemas/veritable_messaging/query_ack/0.1' as const,
       }
 
       await this.cloudagent.submitDrpcResponse(request.id, { result })
@@ -277,6 +286,7 @@ export default class DrpcEvents {
       })
       const response = {
         mass: parentQuery.response.mass,
+        unit: parentQuery.response.unit,
         partialResponses,
         subjectId: parentQuery.details.subjectId,
       }
@@ -292,17 +302,27 @@ export default class DrpcEvents {
       if (!rpcResponse) throw new Error('DRPC has not responded')
 
       this.logger.info('persisting query_rpc response %j', rpcResponse)
+
+      const { id: agent_rpc_id, jsonrpc: _, ...resultOrError } = rpcResponse
       await this.db.insert('query_rpc', {
-        agent_rpc_id: rpcResponse.id,
+        agent_rpc_id,
         query_id: parentQuery.id,
         role: 'client',
-        method: 'submit_query_request',
-        result: rpcResponse.result,
-        error: rpcResponse.error,
+        method: 'submit_query_response',
+        ...resultOrError,
       })
 
-      if (!rpcResponse.result || rpcResponse.error) {
-        throw new Error('error happened while persisting query_rpc')
+      let result: DrpcQueryResponse | null = null
+      let error: JsonRpcError | null = null
+      if ('result' in rpcResponse) {
+        result = drpcQueryAck.parse(rpcResponse.result)
+      } else {
+        error = rpcResponse.error
+      }
+
+      if (!result || error) {
+        this.logger.warn('error happened with query rpc %j', { rpcResponse })
+        throw new Error(`Error occurred submitting response to query ${parentQuery.response_id}`)
       }
 
       // setting parent query as resolved
