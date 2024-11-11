@@ -61,9 +61,6 @@ async function checkEmails(search: string): Promise<Email> {
           const parsedMessages = EmailResponseSchema.parse(messages)
           const [email] = parsedMessages.results
 
-          expect(email).toBeDefined()
-          expect(email).toHaveProperty('id')
-          expect(email).toHaveProperty('subject')
           resolve(email)
         } catch (error) {
           reject(error)

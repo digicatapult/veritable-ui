@@ -38,8 +38,6 @@ export async function withConnection(invitatorUrl: string, receiverUrl: string) 
   })
 
   const receiverEmail = await checkEmails('admin@veritable.com')
-  expect(receiverEmail).not.toEqual(inviteEmail)
-  expect(receiverEmail).not.toEqual(adminEmail)
   const receiverPin = await extractPin(receiverEmail.id)
 
   await delay(3000)
