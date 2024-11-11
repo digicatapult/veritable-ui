@@ -54,5 +54,5 @@ export async function withConnection(invitatorUrl: string, receiverUrl: string) 
     pin: receiverPin,
     stepCount: '2',
   })
-  await delay(2000)
+  await delay(1000)
 }
