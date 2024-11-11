@@ -9,22 +9,24 @@ test.describe('Resetting app', () => {
 
   const baseUrlAlice = process.env.VERITABLE_ALICE_PUBLIC_URL || 'http://localhost:3000'
   const baseUrlBob = process.env.VERITABLE_BOB_PUBLIC_URL || 'http://localhost:3001'
+  const smtp4devUrl = process.env.VERITABLE_SMTP_ADDRESS || 'http://localhost:5001'
 
   test.beforeAll(async ({ browser }) => {
     context = await browser.newContext()
     page = await context.newPage()
     await withRegisteredAccount(page, context, baseUrlAlice)
   })
-  test.beforeEach(async () => {
-    await cleanup([baseUrlAlice, baseUrlBob])
-    page = await context.newPage()
-    await withLoggedInUser(page, context, baseUrlAlice)
-    await withConnection(baseUrlAlice, baseUrlBob)
-  })
 
   test.afterEach(async () => {
     await cleanup([baseUrlAlice, baseUrlBob])
     await page.close()
+  })
+  test.beforeEach(async () => {
+    await cleanup([baseUrlAlice, baseUrlBob])
+    page = await context.newPage()
+    await withLoggedInUser(page, context, baseUrlAlice)
+
+    await withConnection(baseUrlAlice, baseUrlBob)
   })
 
   test('Reset all on Alice', async () => {
@@ -46,6 +48,7 @@ test.describe('Resetting app', () => {
       await page.waitForSelector('#reset-btn')
       await page.click('#reset-btn')
     })
+
     await test.step('Check there are no connections on Alice', async () => {
       await page.goto(`${baseUrlAlice}/connection`)
       await page.waitForURL('**/connection')
