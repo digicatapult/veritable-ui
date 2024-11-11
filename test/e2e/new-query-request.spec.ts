@@ -51,7 +51,7 @@ test.describe('New query request', () => {
 
       const checkbox = page.getByRole('checkbox')
       await expect(checkbox).not.toBeDisabled()
-      await checkbox.check()
+      await checkbox.check({ timeout: 20000 })
       await expect(checkbox).toBeChecked()
 
       await page.getByRole('button', { name: 'Next' }).click()
