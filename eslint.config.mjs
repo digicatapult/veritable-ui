@@ -47,6 +47,6 @@ export default [
     },
   },
   {
-    ignores: ['build/', '.tsimp/', 'public/scripts/', 'playwright-report/'],
+    ignores: ['build/', '.tsimp/', 'public/scripts/', 'playwright-report/', 'test-results/'],
   },
 ]
