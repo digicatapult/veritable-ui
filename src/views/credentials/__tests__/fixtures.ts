@@ -1,6 +1,6 @@
-import type { Credential } from '../index.js'
+import type { ExtendedCredential } from '../index.js'
 
-export const AliceCredentials: Credential[] = [
+export const AliceCredentials = [
   {
     id: 'ee24e268-b1eb-4501-8ecf-37c2a3e76b82',
     state: 'done',
@@ -15,9 +15,9 @@ export const AliceCredentials: Credential[] = [
     companyName: 'CARE ONUS LTD',
     type: 'Supplier credentials',
   },
-]
+] as ExtendedCredential[]
 
-export const BobCredentials: Credential[] = [
+export const BobCredentials = [
   {
     id: '1e88254d-4e90-4859-b6ad-50c0a30cd947',
     state: 'done',
@@ -32,4 +32,4 @@ export const BobCredentials: Credential[] = [
     companyName: 'DIGITAL CATAPULT',
     type: 'Supplier credentials',
   },
-]
+] as ExtendedCredential[]

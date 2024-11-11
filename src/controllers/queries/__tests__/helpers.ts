@@ -4,7 +4,7 @@ import sinon from 'sinon'
 import Database from '../../../models/db/index.js'
 import { ConnectionRow, QueryRow } from '../../../models/db/types.js'
 import { UUID } from '../../../models/strings.js'
-import VeritableCloudagent from '../../../models/veritableCloudagent.js'
+import VeritableCloudagent from '../../../models/veritableCloudagent/index.js'
 import QueriesTemplates from '../../../views/queries/queries.js'
 import QueryListTemplates from '../../../views/queries/queriesList.js'
 import Scope3CarbonConsumptionTemplates from '../../../views/queries/requestCo2scope3.js'
@@ -62,23 +62,53 @@ const defaultOptions: QueryMockOptions = {
         status: 'pending_their_input',
         type: 'total_carbon_embodiment',
         connection_id: mockIds.companyId,
-        details: { quantity: 2, subjectId: mockIds.queryId },
+        details: {
+          subjectId: {
+            idType: 'product_and_quantity',
+            content: {
+              productId: mockIds.queryId,
+              quantity: 2,
+            },
+          },
+        },
         response_id: '5390af91-c551-4d74-b394-d8ae0805059e',
+        expires_at: new Date(1000),
+        created_at: new Date(1000),
       },
       {
         id: '5390af91-c551-4d74-b394-d8ae0805059a',
         status: 'pending_your_input',
         type: 'total_carbon_embodiment',
         connection_id: mockIds.connectionId,
-        details: { quantity: 2, subjectId: mockIds.queryId },
+        details: {
+          subjectId: {
+            idType: 'product_and_quantity',
+            content: {
+              productId: mockIds.queryId,
+              quantity: 2,
+            },
+          },
+        },
         response_id: '5390af91-c551-4d74-b394-d8ae0805059e',
+        expires_at: new Date(1000),
+        created_at: new Date(1000),
       },
       {
         status: 'pending_your_input',
         type: 'total_carbon_embodiment',
         connection_id: mockIds.connectionId,
-        details: { quantity: 2, subjectId: mockIds.queryId },
+        details: {
+          subjectId: {
+            idType: 'product_and_quantity',
+            content: {
+              productId: mockIds.queryId,
+              quantity: 2,
+            },
+          },
+        },
         response_id: '5390af91-c551-4d74-b394-d8ae0805059e',
+        expires_at: new Date(1000),
+        created_at: new Date(1000),
       },
     ],
     queryInsert: [
@@ -88,12 +118,19 @@ const defaultOptions: QueryMockOptions = {
         type: 'total_carbon_embodiment',
         status: 'pending_their_input',
         details: {
-          subjectId: 'test-1',
-          quantity: 10,
+          subjectId: {
+            idType: 'product_and_quantity',
+            content: {
+              productId: 'test-1',
+              quantity: 10,
+            },
+          },
         },
         response_id: null,
         response: null,
         role: 'requester',
+        expires_at: new Date(1000),
+        created_at: new Date(1000),
       },
     ],
   },
@@ -126,7 +163,9 @@ export const withQueriesMocks = (testOptions: Partial<QueryMockOptions> = {}) =>
   } as QueriesTemplates
   const cloudagentMock = {
     submitDrpcRequest: sinon.stub().resolves({
-      result: 'result',
+      result: {
+        type: 'https://github.com/digicatapult/veritable-documentation/tree/main/schemas/veritable_messaging/query_ack/0.1',
+      },
       id: 'request-id',
     }),
   }

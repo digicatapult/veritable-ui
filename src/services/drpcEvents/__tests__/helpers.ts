@@ -5,7 +5,7 @@ import sinon from 'sinon'
 import { ILogger } from '../../../logger.js'
 import Database from '../../../models/db/index.js'
 import { ConnectionRow, QueryRow } from '../../../models/db/types.js'
-import VeritableCloudagent from '../../../models/veritableCloudagent.js'
+import VeritableCloudagent from '../../../models/veritableCloudagent/index.js'
 import VeritableCloudagentEvents from '../../veritableCloudagentEvents.js'
 type QueryMockOptions = {
   getRows: {
@@ -30,7 +30,9 @@ export const withDrpcEventMocks = (testOptions: Partial<QueryMockOptions> = {}) 
     submitDrpcResponse: sinon.stub().resolves(),
     submitDrpcRequest: sinon.stub().resolves({
       id: 'drpc-id',
-      result: {},
+      result: {
+        type: 'https://github.com/digicatapult/veritable-documentation/tree/main/schemas/veritable_messaging/query_ack/0.1',
+      },
     }),
   }
   const dbMock = {

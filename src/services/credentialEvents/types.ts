@@ -1,4 +1,4 @@
-import { Credential, CredentialFormatData } from '../../models/veritableCloudagentInt.js'
+import { Credential, CredentialFormatData } from '../../models/veritableCloudagent/internal.js'
 
 export interface CredentialEventHandlerBase {
   handleProposalReceived(credential: Credential, formatData: CredentialFormatData): Promise<void>

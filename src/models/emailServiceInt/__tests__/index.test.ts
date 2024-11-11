@@ -30,7 +30,12 @@ describe('EmailService', () => {
       const logger = mkMockLogger()
       const emailService = new EmailService(mockEnvStream, mockTemplates, logger as unknown as ILogger)
 
-      await emailService.sendMail('connection_invite', { to: 'user@example.com', invite: '1234567890987654321' })
+      await emailService.sendMail('connection_invite', {
+        to: 'user@example.com',
+        invite: '1234567890987654321',
+        toCompanyName: 'example-to',
+        fromCompanyName: 'example-from',
+      })
 
       expect(logger.info.callCount).to.equal(1)
       expect(logger.debug.callCount).to.equal(3)
@@ -58,7 +63,12 @@ describe('EmailService', () => {
       const logger = mkMockLogger()
       const emailService = new EmailService(mockEnvSmtpEmail, mockTemplates, logger as unknown as ILogger)
 
-      await emailService.sendMail('connection_invite', { to: 'user@example.com', invite: '1234567890987654321' })
+      await emailService.sendMail('connection_invite', {
+        to: 'user@example.com',
+        invite: '1234567890987654321',
+        toCompanyName: 'example-to',
+        fromCompanyName: 'example-from',
+      })
 
       expect(logger.info.callCount).to.equal(1)
       expect(logger.debug.callCount).to.equal(3)

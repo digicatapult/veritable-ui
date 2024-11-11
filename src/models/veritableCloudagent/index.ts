@@ -2,7 +2,7 @@ import { inject, injectable, singleton } from 'tsyringe'
 import { type PartialEnv } from '../../env/common.js'
 import { Env } from '../../env/index.js'
 import { type ILogger, Logger } from '../../logger.js'
-import VeritableCloudagentInt from '../veritableCloudagentInt.js'
+import VeritableCloudagentInt, { CloudagentConfig, DefaultConfig } from './internal.js'
 
 /*
   This has been moved to separate file due to e2e testing. 
@@ -12,7 +12,9 @@ import VeritableCloudagentInt from '../veritableCloudagentInt.js'
 
 @singleton()
 @injectable()
-export default class VeritableCloudagent extends VeritableCloudagentInt {
+export default class VeritableCloudagent<
+  Config extends CloudagentConfig = DefaultConfig,
+> extends VeritableCloudagentInt<Config> {
   constructor(@inject(Env) env: PartialEnv<'CLOUDAGENT_ADMIN_ORIGIN'>, @inject(Logger) logger: ILogger) {
     super(env, logger)
   }

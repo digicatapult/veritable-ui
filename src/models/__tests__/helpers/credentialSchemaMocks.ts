@@ -3,7 +3,7 @@ import sinon from 'sinon'
 
 import { Env } from '../../../env/index.js'
 import { ILogger } from '../../../logger.js'
-import VeritableCloudagent from '../../veritableCloudagent.js'
+import VeritableCloudagent from '../../veritableCloudagent/index.js'
 import {
   createCredentialDefinitionResponse,
   createDidResponse,
