@@ -94,17 +94,22 @@ jobs:
         uses: docker/setup-buildx-action@v3
         with:
           buildkitd-flags: '--debug'
-      - uses: actions/checkout@v4
-      - name: Build e2e containers
-        uses: docker/bake-action@v5
-        with:
-          builder: ${{ steps.buildx.outputs.name }}
-          files: ./docker-compose.e2e.yml
+      # - uses: actions/checkout@v4
+      # - name: Build e2e containers
+      #   uses: docker/bake-action@v5
+      #   with:
+      #     builder: ${{ steps.buildx.outputs.name }}
+      #     files: ./docker-compose.e2e.yml
       - name: Run e2e tests
         env:
           VERITABLE_COMPANY_PROFILE_API_KEY: ${{ secrets.COMPANIES_HOUSE_API }}
           VERITABLE_E2E_OUT_DIR: ${{ runner.temp }}
-        run: docker compose -f docker-compose.e2e.yml up --exit-code-from e2e-tests --abort-on-container-exit --quiet-pull
+          VERITABLE_ALICE_PUBLIC_URL: http://veritable-ui-alice:3000
+          VERITABLE_BOB_PUBLIC_URL: http://veritable-ui-bob:3000
+          VERITABLE_CHARLIE_PUBLIC_URL: http://veritable-ui-charlie:3000
+          VERITABLE_IDP_PUBLIC_URL_PREFIX: http://keycloak:8080/realms/veritable/protocol/openid-connect
+        run: npm run test:playwright
+        # run: docker compose -f docker-compose.e2e.yml up --exit-code-from e2e-tests --abort-on-container-exit --quiet-pull
       - uses: actions/upload-artifact@v4
         if: always()
         with:
