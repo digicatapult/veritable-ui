@@ -73,27 +73,27 @@ jobs:
         run: npm run tsoa:build
       - name: touch env
         run: touch .env
-      - name: Setup dependencies
-        run: docker compose -f docker-compose.yml up -d
-      - name: Sleep
-        uses: kibertoad/wait-action@1.0.1
-        with:
-          time: '30s'
-      - name: Run database migrations
-        run: npm run db:migrate
-        env:
-          NODE_ENV: test
+      # - name: Setup dependencies
+      #   run: docker compose -f docker-compose.yml up -d
+      # - name: Sleep
+      #   uses: kibertoad/wait-action@1.0.1
+      #   with:
+      #     time: '30s'
+      # - name: Run database migrations
+      #   run: npm run db:migrate
+      #   env:
+      #     NODE_ENV: test
       - name: Run tests
         run: npm run ${{ matrix.command }}
   e2e-tests:
     timeout-minutes: 60
     runs-on: ubuntu-latest
     steps:
-      - name: Setup Docker Buildx
-        id: buildx
-        uses: docker/setup-buildx-action@v3
-        with:
-          buildkitd-flags: '--debug'
+      # - name: Setup Docker Buildx
+      #   id: buildx
+      #   uses: docker/setup-buildx-action@v3
+      #   with:
+      #     buildkitd-flags: '--debug'
       # - uses: actions/checkout@v4
       # - name: Build e2e containers
       #   uses: docker/bake-action@v5
@@ -108,7 +108,7 @@ jobs:
           VERITABLE_BOB_PUBLIC_URL: http://veritable-ui-bob:3000
           VERITABLE_CHARLIE_PUBLIC_URL: http://veritable-ui-charlie:3000
           VERITABLE_IDP_PUBLIC_URL_PREFIX: http://keycloak:8080/realms/veritable/protocol/openid-connect
-        run: npm run test:playwright
+        run: npm run tests:playwright
         # run: docker compose -f docker-compose.e2e.yml up --exit-code-from e2e-tests --abort-on-container-exit --quiet-pull
       - uses: actions/upload-artifact@v4
         if: always()
