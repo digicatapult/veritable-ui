@@ -32,6 +32,8 @@ interface VeritableCloudAgentEnvConfig extends PostgresPasswordAndUser {
 interface VeritableUIConfig extends PostgresValuesInterface {
   containerName: string
   dbHost: string
+  hostPort: number
+  containerPort: number
   postgresPort: string
   idpPublicUrlPrefix: string
   cloudagentAdminOrigin: string
@@ -81,6 +83,8 @@ export async function bringUpAliceUIContainer() {
   const aliceVeritableUIConfig: VeritableUIConfig = {
     containerName: 'veritable-ui-alice',
     dbHost: 'postgres-veritable-ui-alice',
+    hostPort: 3000,
+    containerPort: 3000,
     postgresPort: '5432',
     idpPublicUrlPrefix:
       process.env.VERITABLE_IDP_PUBLIC_URL_PREFIX || 'http://localhost:3080/realms/veritable/protocol/openid-connect',
@@ -168,6 +172,8 @@ export async function bringUpBobContainers() {
   )
   const bobVeritableUIConfig: VeritableUIConfig = {
     containerName: 'veritable-ui-bob',
+    hostPort: 3001,
+    containerPort: 3000,
     dbHost: 'postgres-veritable-ui-bob',
     postgresPort: '5432',
     idpPublicUrlPrefix:
@@ -219,6 +225,8 @@ export async function bringUpCharlieContainers() {
   )
   const charlieVeritableUIConfig: VeritableUIConfig = {
     containerName: 'veritable-ui-charlie',
+    hostPort: 3002,
+    containerPort: 3000,
     dbHost: 'postgres-veritable-ui-charlie',
     postgresPort: '5432',
     idpPublicUrlPrefix:
@@ -390,6 +398,8 @@ export async function veritableUIContainer(network: StartedNetwork, env: Veritab
   const {
     containerName,
     dbHost,
+    containerPort,
+    hostPort,
     postgresPort,
     publicUrl,
     idpPublicUrlPrefix,
@@ -429,8 +439,8 @@ export async function veritableUIContainer(network: StartedNetwork, env: Veritab
       stream.on('end', () => console.log('Stream closed'))
     })
     .withExposedPorts({
-      container: 3000,
-      host: 3000,
+      container: containerPort,
+      host: hostPort,
     })
     .withEnvironment({
       NODE_ENV: nodeEnv,

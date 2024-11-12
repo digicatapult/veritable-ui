@@ -4,7 +4,7 @@ import { afterEach, beforeEach, describe } from 'mocha'
 
 import { container } from 'tsyringe'
 import Database from '../../src/models/db/index.js'
-import VeritableCloudagent from '../../src/models/veritableCloudagent.js'
+import VeritableCloudagent from '../../src/models/veritableCloudagent/index.js'
 import createHttpServer from '../../src/server.js'
 import VeritableCloudagentEvents from '../../src/services/veritableCloudagentEvents.js'
 import { cleanupCloudagent } from '../helpers/cloudagent.js'

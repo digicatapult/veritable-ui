@@ -27,26 +27,26 @@ before(async function () {
 })
 
 after(async function () {
-  await Promise.all(
-    aliceDepsContainers.map(async function (container) {
-      await container.stop({})
-    })
-  )
-  await Promise.all(
-    bobContainers.map(async function (container) {
-      await container.stop({})
-    })
-  )
-  await Promise.all(
-    charlieContainers.map(async function (container) {
-      await container.stop({})
-    })
-  )
-  await Promise.all(
-    sharedContainers.map(async function (container) {
-      await container.stop({})
-    })
-  )
+  // await Promise.all(
+  //   aliceDepsContainers.map(async function (container) {
+  //     await container.stop({ remove: false })
+  //   })
+  // )
+  // await Promise.all(
+  //   bobContainers.map(async function (container) {
+  //     await container.stop({ remove: false })
+  //   })
+  // )
+  // await Promise.all(
+  //   charlieContainers.map(async function (container) {
+  //     await container.stop({ remove: false })
+  //   })
+  // )
+  // await Promise.all(
+  //   sharedContainers.map(async function (container) {
+  //     await container.stop({ remove: false })
+  //   })
+  // )
 })
 
 beforeEach(function () {
