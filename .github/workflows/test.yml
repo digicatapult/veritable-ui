@@ -102,6 +102,8 @@ jobs:
       #     files: ./docker-compose.e2e.yml
       - name: Install Dependencies
         run: npm ci
+      - name: Install Playwright Browsers
+        run: npx playwright install
       - name: Run e2e tests
         env:
           VERITABLE_COMPANY_PROFILE_API_KEY: ${{ secrets.COMPANIES_HOUSE_API }}
