@@ -117,7 +117,7 @@ jobs:
         if: always()
         with:
           name: playwright-report
-          path: ${{ runner.temp }}/playwright-report/
+          path: ./playwright-report
           retention-days: 90
       - name: Publish CTRF Test Summary Results
         run: npx github-actions-ctrf ${{ runner.temp }}/playwright-report/ctrf-report.json
