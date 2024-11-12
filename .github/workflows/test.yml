@@ -111,7 +111,7 @@ jobs:
           VERITABLE_CHARLIE_PUBLIC_URL: http://veritable-ui-charlie:3000
           VERITABLE_IDP_PUBLIC_URL_PREFIX: http://keycloak:8080/realms/veritable/protocol/openid-connect
         run: |
-          DEBUG=testcontainers* npm run test:playwright || exit 0
+          npm run test:playwright || exit 0
         # run: docker compose -f docker-compose.e2e.yml up --exit-code-from e2e-tests --abort-on-container-exit --quiet-pull
       - uses: actions/upload-artifact@v4
         if: always()
