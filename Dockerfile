@@ -1,5 +1,5 @@
 # syntax=docker/dockerfile:1.11
-FROM node:current-alpine AS builder
+FROM node:lts-alpine AS builder
 
 WORKDIR /veritable-ui
 
@@ -14,7 +14,7 @@ COPY . .
 RUN npm run build
 
 # Test stage
-FROM node:current-bookworm-slim AS test
+FROM node:lts-bookworm-slim AS test
 
 WORKDIR /veritable-ui
 
@@ -37,7 +37,7 @@ CMD ["npm", "run", "test:playwright"]
 
 
 # service
-FROM node:current-alpine AS service
+FROM node:lts-alpine AS service
 
 WORKDIR /veritable-ui
 
