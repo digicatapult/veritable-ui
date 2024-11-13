@@ -1,14 +1,9 @@
 import { expect, Page, test } from '@playwright/test'
 import { withQueryRequest } from './helpers/query.js'
-import {
-  CustomBrowserContext,
-  cleanup,
-  withLoggedInUser,
-  withRegisteredAccount,
-} from './helpers/registerLogIn.js'
+import { cleanup, CustomBrowserContext, withLoggedInUser, withRegisteredAccount } from './helpers/registerLogIn.js'
 import { withConnection } from './helpers/setupConnection.js'
 
-test.describe.only('New query response', () => {
+test.describe('New query response', () => {
   const AliceHost = process.env.VERITABLE_ALICE_PUBLIC_URL || 'http://localhost:3000'
   const BobHost = process.env.VERITABLE_BOB_PUBLIC_URL || 'http://localhost:3001'
 
@@ -47,11 +42,32 @@ test.describe.only('New query response', () => {
       await page.fill('#co2-emissions-input', '200')
       await expect(page.getByRole('button', { name: 'Submit Response' })).toBeVisible()
       await expect(page.getByRole('button', { name: 'Submit Response' })).not.toBeDisabled()
+      await page.getByRole('button', { name: 'Submit Response' }).click()
     })
 
-    await test.step('updates query status to be resolved', async () => {})
+    await test.step('updates query status to be resolved', async () => {
+      const button = page.getByText('Back to Home')
       await expect(page.getByRole('heading', { name: 'Thank you for your response' })).toBeVisible()
-      await expect(page.getByRole('button', { name: 'Back to Home' })).toBeVisible()
-      await expect(page.getByRole('button', { name: 'Back to Home' })).not.toBeDisabled()
+      await expect(button).toBeVisible()
+      await expect(button).not.toBeDisabled()
+      await expect(page.getByText('Once all supplier responses are received')).toBeVisible()
+      await expect(page.getByText('You can check the status')).toBeVisible()
+      await button.click({ delay: 500 })
+    })
+
+    await test.step('returns to home page', async () => {
+      expect(page.url()).toBe('http://localhost:3001/')
+      await expect(page.getByRole('heading', { name: 'Onboard/Refer' })).toBeVisible()
+      await expect(page.getByRole('heading', { name: 'Onboard/Refer' })).not.toBeDisabled()
+
+      await expect(page.getByRole('heading', { name: 'Queries' })).toBeVisible()
+      await expect(page.getByRole('heading', { name: 'Queries' })).not.toBeDisabled()
+
+      await expect(page.getByRole('heading', { name: 'Settings' })).toBeVisible()
+      await expect(page.getByRole('heading', { name: 'Settings' })).not.toBeDisabled()
+
+      await expect(page.getByRole('heading', { name: 'Credentials' })).toBeVisible()
+      await expect(page.getByRole('heading', { name: 'Credentials' })).not.toBeDisabled()
+    })
   })
 })

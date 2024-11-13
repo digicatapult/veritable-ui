@@ -3,8 +3,8 @@ import 'reflect-metadata'
 import { fetchGet, fetchPost } from '../../helpers/routeHelper.js'
 
 export const co2QueryContent = {
-    productId: 'E2E-DC001',
-    quantity: '100',
+  productId: 'E2E-DC001',
+  quantity: '100',
 }
 
 export async function withQueryRequest(requesterUrl: string) {
