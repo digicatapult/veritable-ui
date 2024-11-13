@@ -25,7 +25,7 @@ test.describe('New query response', () => {
     await page.close()
   })
 
-  test('responds to total carbon embodiment query (Bob)', async () => {
+  test('responds to a total carbon embodiment (CO2) query (Bob)', async () => {
     await test.step('visits queries page and clicks on "respond to query" (Bob)', async () => {
       await page.goto(`${BobHost}/queries`)
       await page.getByText('Respond to query').click()

@@ -27,7 +27,7 @@ test.describe('New query request', () => {
     await cleanup([AliceHost, BobHost])
   })
 
-  test('creates total carbon embodiment query (Alice)', async () => {
+  test('creates a total carbon embodiment (CO2) query (Alice)', async () => {
     await test.step('creates a new query request for total co2 emissions', async () => {
       await page.goto(`${AliceHost}/queries`)
       await page.click('text=Query Request')
