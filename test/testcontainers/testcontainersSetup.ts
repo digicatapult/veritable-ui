@@ -89,7 +89,7 @@ export async function bringUpAliceUIContainer() {
     publicUrl: process.env.VERITABLE_ALICE_PUBLIC_URL || 'http://localhost:3000',
     apiSwaggerBgColor: '#ff3131',
     apiSwaggerTitle: 'Alice',
-    companyProfileApiKey: 'https://api.company-information.service.gov.uk',
+    companyProfileApiKey: process.env.VERITABLE_COMPANY_PROFILE_API_KEY || 'API_KEY',
     postgresDb: 'veritable-ui',
   }
   const aliceVeritableUIContainer = await veritableUIContainer(network, aliceVeritableUIConfig)
@@ -170,7 +170,7 @@ export async function bringUpBobContainers() {
     publicUrl: process.env.VERITABLE_BOB_PUBLIC_URL || 'http://localhost:3001',
     apiSwaggerBgColor: '#ff3131',
     apiSwaggerTitle: 'Bob',
-    companyProfileApiKey: 'https://api.company-information.service.gov.uk',
+    companyProfileApiKey: process.env.VERITABLE_COMPANY_PROFILE_API_KEY || 'API_KEY',
     postgresDb: 'veritable-ui',
   }
   const bobVeritableUIContainer = await veritableUIContainer(network, bobVeritableUIConfig)
@@ -218,7 +218,7 @@ export async function bringUpCharlieContainers() {
     publicUrl: process.env.VERITABLE_CHARLIE_PUBLIC_URL || 'http://localhost:3002',
     apiSwaggerBgColor: '#ffbd59',
     apiSwaggerTitle: 'Charlie',
-    companyProfileApiKey: 'https://api.company-information.service.gov.uk',
+    companyProfileApiKey: process.env.VERITABLE_COMPANY_PROFILE_API_KEY || 'API_KEY',
     postgresDb: 'veritable-ui',
   }
   const charlieVeritableUIContainer = await veritableUIContainer(network, charlieVeritableUIConfig)
