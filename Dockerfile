@@ -41,11 +41,11 @@ FROM node:current-alpine AS service
 
 WORKDIR /veritable-ui
 
-RUN apk add --update coreutils curl 
+RUN apk add --no-cache coreutils curl 
 RUN npm -g install npm@10.x.x
 
 COPY package*.json ./
-RUN npm ci --omit-dev
+RUN npm install --only=production
 
 COPY public ./public
 COPY knexfile.js ./
