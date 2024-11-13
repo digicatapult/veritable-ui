@@ -64,22 +64,17 @@ interface VeritableUIConfig extends PostgresValuesInterface {
 const network = await new Network().start()
 
 export async function bringUpSharedContainers() {
-  let ipfsContainer: StartedTestContainer
-  let keycloakContainer: StartedTestContainer
-  let smtp4dev: StartedTestContainer
   const __filename = fileURLToPath(import.meta.url)
   const __dirname = path.dirname(__filename)
 
   const keycloakDataPath = path.resolve(__dirname, '../../docker/keycloak')
 
-  keycloakContainer = await composeKeycloakContainer(network, keycloakDataPath)
-  ipfsContainer = await composeIpfsContainer(network)
-  smtp4dev = await composeSmtp4dev(network)
+  const keycloakContainer = await composeKeycloakContainer(network, keycloakDataPath)
+  const ipfsContainer = await composeIpfsContainer(network)
+  const smtp4dev = await composeSmtp4dev(network)
   return [keycloakContainer, ipfsContainer, smtp4dev]
 }
 export async function bringUpAliceUIContainer() {
-  let aliceVeritableUIContainer: StartedTestContainer
-
   const aliceVeritableUIConfig: VeritableUIConfig = {
     containerName: 'veritable-ui-alice',
     dbHost: 'postgres-veritable-ui-alice',
@@ -97,23 +92,19 @@ export async function bringUpAliceUIContainer() {
     companyProfileApiKey: 'https://api.company-information.service.gov.uk',
     postgresDb: 'veritable-ui',
   }
-  aliceVeritableUIContainer = await veritableUIContainer(network, aliceVeritableUIConfig)
+  const aliceVeritableUIContainer = await veritableUIContainer(network, aliceVeritableUIConfig)
   return [aliceVeritableUIContainer]
 }
 
+// Dependencies for Alice, but not her UI container
 export async function bringUpAliceDependenciesContainers() {
-  let aliceVeritableUIPostgres: StartedTestContainer
-  let aliceVeritableCloudagentPostgres: StartedTestContainer
-  let aliceCloudAgentContainer: StartedTestContainer
-
-  // Alice containers
-  aliceVeritableUIPostgres = await veritableUIPostgresDbContainer(
+  const aliceVeritableUIPostgres = await veritableUIPostgresDbContainer(
     network,
     'postgres-veritable-ui-alice',
     { containerPort: 5432, hostPort: 5432 },
     { postgresDb: 'veritable-ui' }
   )
-  aliceVeritableCloudagentPostgres = await veritableCloudagentPostgresContainer(
+  const aliceVeritableCloudagentPostgres = await veritableCloudagentPostgresContainer(
     network,
     'postgres-veritable-cloudagent-alice',
     { postgresDb: 'postgres-veritable-cloudagent' }
@@ -125,7 +116,7 @@ export async function bringUpAliceDependenciesContainers() {
     walletKey: 'alice-key',
     postgresHost: 'postgres-veritable-cloudagent-alice',
   }
-  aliceCloudAgentContainer = await cloudagentContainer(
+  const aliceCloudAgentContainer = await cloudagentContainer(
     network,
     'veritable-cloudagent-alice',
     {
@@ -139,18 +130,13 @@ export async function bringUpAliceDependenciesContainers() {
 }
 
 export async function bringUpBobContainers() {
-  let bobVeritableUIPostgres: StartedTestContainer
-  let bobVeritableCloudagentPostgres: StartedTestContainer
-  let bobCloudAgentContainer: StartedTestContainer
-  let bobVeritableUIContainer: StartedTestContainer
-
-  bobVeritableUIPostgres = await veritableUIPostgresDbContainer(
+  const bobVeritableUIPostgres = await veritableUIPostgresDbContainer(
     network,
     'postgres-veritable-ui-bob',
     { containerPort: 5432, hostPort: 5433 },
     { postgresDb: 'veritable-ui' }
   )
-  bobVeritableCloudagentPostgres = await veritableCloudagentPostgresContainer(
+  const bobVeritableCloudagentPostgres = await veritableCloudagentPostgresContainer(
     network,
     'postgres-veritable-cloudagent-bob',
     { postgresDb: 'postgres-veritable-cloudagent' }
@@ -161,7 +147,7 @@ export async function bringUpBobContainers() {
     walletKey: 'bob-key',
     postgresHost: 'postgres-veritable-cloudagent-bob',
   }
-  bobCloudAgentContainer = await cloudagentContainer(
+  const bobCloudAgentContainer = await cloudagentContainer(
     network,
     'veritable-cloudagent-bob',
     {
@@ -187,23 +173,18 @@ export async function bringUpBobContainers() {
     companyProfileApiKey: 'https://api.company-information.service.gov.uk',
     postgresDb: 'veritable-ui',
   }
-  bobVeritableUIContainer = await veritableUIContainer(network, bobVeritableUIConfig)
+  const bobVeritableUIContainer = await veritableUIContainer(network, bobVeritableUIConfig)
   return [bobVeritableUIPostgres, bobVeritableCloudagentPostgres, bobCloudAgentContainer, bobVeritableUIContainer]
 }
 
 export async function bringUpCharlieContainers() {
-  let charlieVeritableUIPostgres: StartedTestContainer
-  let charlieVeritableCloudagentPostgres: StartedTestContainer
-  let charlieCloudAgentContainer: StartedTestContainer
-  let charlieVeritableUIContainer: StartedTestContainer
-
-  charlieVeritableUIPostgres = await veritableUIPostgresDbContainer(
+  const charlieVeritableUIPostgres = await veritableUIPostgresDbContainer(
     network,
     'postgres-veritable-ui-charlie',
     { containerPort: 5432, hostPort: 5434 },
     { postgresDb: 'veritable-ui' }
   )
-  charlieVeritableCloudagentPostgres = await veritableCloudagentPostgresContainer(
+  const charlieVeritableCloudagentPostgres = await veritableCloudagentPostgresContainer(
     network,
     'postgres-veritable-cloudagent-charlie',
     { postgresDb: 'postgres-veritable-cloudagent' }
@@ -214,7 +195,7 @@ export async function bringUpCharlieContainers() {
     walletKey: 'charlie-key',
     postgresHost: 'postgres-veritable-cloudagent-charlie',
   }
-  charlieCloudAgentContainer = await cloudagentContainer(
+  const charlieCloudAgentContainer = await cloudagentContainer(
     network,
     'veritable-cloudagent-charlie',
     {
@@ -240,7 +221,7 @@ export async function bringUpCharlieContainers() {
     companyProfileApiKey: 'https://api.company-information.service.gov.uk',
     postgresDb: 'veritable-ui',
   }
-  charlieVeritableUIContainer = await veritableUIContainer(network, charlieVeritableUIConfig)
+  const charlieVeritableUIContainer = await veritableUIContainer(network, charlieVeritableUIConfig)
   return [
     charlieVeritableUIPostgres,
     charlieVeritableCloudagentPostgres,
@@ -431,13 +412,15 @@ export async function veritableUIContainer(network: StartedNetwork, env: Veritab
     smtpSecure = 'false',
   } = env
   const base = await GenericContainer.fromDockerfile('./').withTarget('test').build()
+
+  // Commented out is for logs from containers
   const veritableUIContainer = await base
     .withName(containerName)
-    .withLogConsumer((stream) => {
-      stream.on('data', (line) => console.log(line))
-      stream.on('err', (line) => console.error(line))
-      stream.on('end', () => console.log('Stream closed'))
-    })
+    // .withLogConsumer((stream) => {
+    //   stream.on('data', (line) => console.log(line))
+    //   stream.on('err', (line) => console.error(line))
+    //   stream.on('end', () => console.log('Stream closed'))
+    // })
     .withExposedPorts({
       container: containerPort,
       host: hostPort,

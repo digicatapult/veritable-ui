@@ -55,7 +55,6 @@ describe('integration tests for settings page', function () {
   describe('happy path', function () {
     it('returns success', async function () {
       const response = await get(context.app, '/settings', {})
-      console.log(response)
       expect(response.status).to.equal(200)
       expect(response.text.length).to.be.greaterThan(0)
     })

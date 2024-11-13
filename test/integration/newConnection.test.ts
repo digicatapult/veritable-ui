@@ -36,7 +36,6 @@ describe('NewConnectionController', () => {
         email: 'alice@example.com',
         action: 'submit',
       })
-      console.log(response)
     })
 
     afterEach(async () => {
@@ -67,7 +66,6 @@ describe('NewConnectionController', () => {
     const context: { invite: string } = { invite: '' }
 
     withBobCloudAgentInvite(context)
-    console.log(context.invite)
 
     beforeEach(async () => {
       await cleanup()

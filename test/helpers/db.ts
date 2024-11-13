@@ -36,8 +36,7 @@ const database = knex({
 export async function migrateDatabase() {
   try {
     await database.migrate.latest()
-    console.log('Database migrations completed.')
   } catch (error) {
-    console.error('Error running migrations:', error)
+    throw new Error(`Unknown error in db migratiion ${error}`)
   }
 }

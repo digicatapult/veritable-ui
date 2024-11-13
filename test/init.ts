@@ -2,7 +2,6 @@ import { use } from 'chai'
 import 'reflect-metadata'
 
 import chaiJestSnapshot from 'chai-jest-snapshot'
-import { StartedTestContainer } from 'testcontainers'
 import { migrateDatabase } from './helpers/db.js'
 import {
   bringUpAliceDependenciesContainers,
@@ -10,22 +9,19 @@ import {
   bringUpCharlieContainers,
   bringUpSharedContainers,
 } from './testcontainers/testcontainersSetup.js'
-let sharedContainers: StartedTestContainer[]
-let aliceDepsContainers: StartedTestContainer[]
-let bobContainers: StartedTestContainer[]
-let charlieContainers: StartedTestContainer[]
 
 before(async function () {
-  sharedContainers = await bringUpSharedContainers()
-  aliceDepsContainers = await bringUpAliceDependenciesContainers()
-  bobContainers = await bringUpBobContainers()
-  charlieContainers = await bringUpCharlieContainers()
+  await bringUpSharedContainers()
+  await bringUpAliceDependenciesContainers()
+  await bringUpBobContainers()
+  await bringUpCharlieContainers()
 
   await migrateDatabase()
   use(chaiJestSnapshot)
   chaiJestSnapshot.resetSnapshotRegistry()
 })
 
+// do we want to keep this for debugging?
 after(async function () {
   // await Promise.all(
   //   aliceDepsContainers.map(async function (container) {
