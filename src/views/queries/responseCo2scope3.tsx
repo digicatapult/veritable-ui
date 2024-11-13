@@ -32,7 +32,7 @@ export default class Scope3CarbonConsumptionResponseTemplates {
         headerLinks={[
           { name: 'Query Management', url: '/queries' },
           {
-            name: `Query Request ${query.details.subjectId}`,
+            name: `Query Request ${query.details.subjectId.content.productId}`,
             url: `/queries/scope-3-carbon-consumption/${query.id}/response`,
           },
         ]}
@@ -95,9 +95,9 @@ export default class Scope3CarbonConsumptionResponseTemplates {
               hx-swap="innerHTML"
             >
               <p>
-                Product ID: {Html.escapeHtml(query.details.subjectId)}
+                Product ID: {Html.escapeHtml(query.details.subjectId.content.productId)}
                 <br />
-                Quantity: {Html.escapeHtml(query.details.quantity)}
+                Quantity: {Html.escapeHtml(query.details.subjectId.content.quantity)}
               </p>
               <input type="hidden" name="companyId" value={Html.escapeHtml(props.company.id)} />
               <div class="input-container">
@@ -172,9 +172,24 @@ export default class Scope3CarbonConsumptionResponseTemplates {
     )
   }
 
+  private multFactor = (unit: 'ug' | 'mg' | 'g' | 'kg' | 'tonne'): number => {
+    switch (unit) {
+      case 'ug':
+        return 1e-9
+      case 'mg':
+        return 1e-6
+      case 'g':
+        return 1e-3
+      case 'kg':
+        return 1
+      case 'tonne':
+        return 1e3
+    }
+  }
+
   private reduceResponse = (query: CarbonEmbodimentRes['data']): number => {
     return (
-      query.mass +
+      query.mass * this.multFactor(query.unit) +
       query.partialResponses.reduce((acc, response) => {
         return acc + this.reduceResponse(response.data)
       }, 0)
@@ -224,7 +239,9 @@ export default class Scope3CarbonConsumptionResponseTemplates {
                 </tr>
                 <tr>
                   <td>Quantity:</td>
-                  <td class="query-results-left-padding-table">{Html.escapeHtml(query.details.quantity)}</td>
+                  <td class="query-results-left-padding-table">
+                    {Html.escapeHtml(query.details.subjectId.content.quantity)}
+                  </td>
                 </tr>
                 <tr>
                   <td>Query:</td>

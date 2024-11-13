@@ -7,10 +7,11 @@ import { InvalidInputError, NotFoundError } from '../../errors.js'
 import { PartialQueryPayload } from '../../models/arrays.js'
 import Database from '../../models/db/index.js'
 import { ConnectionRow, QueryRow, Where } from '../../models/db/types.js'
-import { DrpcQueryRequest, SubmitQueryRequest } from '../../models/drpc.js'
+import { drpcQueryAck, DrpcQueryRequest, DrpcQueryResponse, SubmitQueryRequest } from '../../models/drpc.js'
 import { UInt } from '../../models/numbers.js'
 import { type UUID } from '../../models/strings.js'
 import VeritableCloudagent from '../../models/veritableCloudagent/index.js'
+import { JsonRpcError } from '../../models/veritableCloudagent/internal.js'
 import QueriesTemplates from '../../views/queries/queries.js'
 import QueryListTemplates from '../../views/queries/queriesList.js'
 import Scope3CarbonConsumptionTemplates from '../../views/queries/requestCo2scope3.js'
@@ -107,7 +108,7 @@ export class QueriesController extends HTMLController {
   }
 
   /**
-   * Retrieves the stage page
+   * Submits a new total carbon embodiment query
    */
   @SuccessResponse(200)
   @Post('/new/scope-3-carbon-consumption')
@@ -136,13 +137,26 @@ export class QueriesController extends HTMLController {
       throw new InvalidInputError(`Cannot query unverified connection`)
     }
 
-    return await this.handleQueryRequest(req.log, connection.id, null, {
-      type: 'https://github.com/digicatapult/veritable-documentation/tree/main/schemas/veritable_messaging/query_types/total_carbon_embodiment/request/0.1',
-      data: {
-        subjectId: body.productId,
-        quantity: body.quantity,
+    const expiresTime = new Date(new Date().getTime() + 7 * 24 * 60 * 60 * 1000) // add a week to now
+
+    return await this.handleQueryRequest(
+      req.log,
+      connection.id,
+      null,
+      {
+        type: 'https://github.com/digicatapult/veritable-documentation/tree/main/schemas/veritable_messaging/query_types/total_carbon_embodiment/request/0.1',
+        data: {
+          subjectId: {
+            idType: 'product_and_quantity',
+            content: {
+              productId: body.productId,
+              quantity: body.quantity,
+            },
+          },
+        },
       },
-    })
+      expiresTime
+    )
   }
 
   /**
@@ -309,13 +323,24 @@ export class QueriesController extends HTMLController {
         new Array(size).fill({}).map((_, i) => {
           req.log.debug('submitting DRPC request to %s connection', connectionIds[i])
           // TODO: handle errors
-          return this.handleQueryRequest(req.log, connectionIds[i], queryRow.id, {
-            type: 'https://github.com/digicatapult/veritable-documentation/tree/main/schemas/veritable_messaging/query_types/total_carbon_embodiment/request/0.1',
-            data: {
-              subjectId: productIds[i],
-              quantity: quantities[i],
+          return this.handleQueryRequest(
+            req.log,
+            connectionIds[i],
+            queryRow.id,
+            {
+              type: 'https://github.com/digicatapult/veritable-documentation/tree/main/schemas/veritable_messaging/query_types/total_carbon_embodiment/request/0.1',
+              data: {
+                subjectId: {
+                  idType: 'product_and_quantity',
+                  content: {
+                    productId: productIds[i],
+                    quantity: quantities[i],
+                  },
+                },
+              },
             },
-          })
+            queryRow.expires_at
+          )
         })
       )
     }
@@ -325,7 +350,7 @@ export class QueriesController extends HTMLController {
       { id: queryId },
       {
         status: 'forwarded',
-        response: { mass: emissions, partialResponses: [], subjectId: queryRow.details.subjectId },
+        response: { mass: emissions, unit: 'kg', partialResponses: [], subjectId: queryRow.details.subjectId },
       }
     )
 
@@ -377,7 +402,8 @@ export class QueriesController extends HTMLController {
     log: Logger,
     connectionId: UUID,
     parentId: UUID | null,
-    params: Omit<SubmitQueryRequest['params'], 'id'>
+    params: Omit<SubmitQueryRequest['params'], 'id' | 'createdTime' | 'expiresTime'>,
+    expiresAt: Date
   ) {
     const [connection]: ConnectionRow[] = await this.db.get(
       'connection',
@@ -395,6 +421,7 @@ export class QueriesController extends HTMLController {
       response: null,
       role: 'requester',
       parent_id: parentId,
+      expires_at: expiresAt,
     })
 
     try {
@@ -402,10 +429,18 @@ export class QueriesController extends HTMLController {
         method: 'submit_query_request',
         params: {
           id: query.id,
+          createdTime: Math.floor(query.created_at.getTime() / 1000),
+          expiresTime: Math.floor(query.expires_at.getTime() / 1000),
           ...params,
         },
       })
     } catch (err) {
+      if (err instanceof Error) {
+        log.error('Error submitting Drpc query %s', err.message)
+      } else {
+        log.error('Error submitting Drpc query %j', { error: err })
+      }
+
       await this.db.update('query', { id: query?.id }, { status: 'errored' })
 
       return this.html(
@@ -452,10 +487,13 @@ export class QueriesController extends HTMLController {
         method: 'submit_query_response',
         params: {
           id: query.response_id,
+          createdTime: Math.floor(query.created_at.getTime() / 1000),
+          expiresTime: Math.floor(query.expires_at.getTime() / 1000),
           type: 'https://github.com/digicatapult/veritable-documentation/tree/main/schemas/veritable_messaging/query_types/total_carbon_embodiment/response/0.1',
           data: {
             subjectId: query.details.subjectId,
             mass: emissions,
+            unit: 'kg',
             partialResponses: [],
           },
         },
@@ -466,10 +504,16 @@ export class QueriesController extends HTMLController {
         { id: query.id },
         {
           status: 'resolved',
-          response: { mass: emissions, partialResponses: [], subjectId: query.details.subjectId },
+          response: { mass: emissions, unit: 'kg', partialResponses: [], subjectId: query.details.subjectId },
         }
       )
     } catch (err) {
+      if (err instanceof Error) {
+        log.error('Error submitting Drpc query %s', err.message)
+      } else {
+        log.error('Error submitting Drpc query %j', { error: err })
+      }
+
       await this.db.update('query', { id: query.id }, { status: 'errored' })
 
       return this.html(
@@ -502,16 +546,25 @@ export class QueriesController extends HTMLController {
     log.debug('DRPC response %j', { rpcResponse, rpcRequest })
     log.info('persisting query_rpc response', rpcResponse)
 
+    const { id: agent_rpc_id, jsonrpc: _, ...resultOrError } = rpcResponse
+
     await this.db.insert('query_rpc', {
-      agent_rpc_id: rpcResponse.id,
+      agent_rpc_id,
       query_id: query.id,
       role: 'client',
-      method: 'submit_query_response',
-      result: rpcResponse.result,
-      error: rpcResponse.error,
+      method: rpcRequest.method,
+      ...resultOrError,
     })
 
-    if (!rpcResponse.result || rpcResponse.error) {
+    let result: DrpcQueryResponse | null = null
+    let error: JsonRpcError | null = null
+    if ('result' in rpcResponse) {
+      result = drpcQueryAck.parse(rpcResponse.result)
+    } else {
+      error = rpcResponse.error
+    }
+
+    if (!result || error) {
       log.warn('error happened with query rpc %j', { rpcResponse })
       throw new Error(`Error occurred submitting response to query ${query.response_id}`)
     }

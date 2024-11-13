@@ -1,7 +1,7 @@
 import { container } from 'tsyringe'
 import { Dispatcher, MockAgent, getGlobalDispatcher, setGlobalDispatcher } from 'undici'
 
-import { Env } from '../../../env/index.js'
+import { Env } from '../../../../env/index.js'
 
 const env = container.resolve(Env)
 

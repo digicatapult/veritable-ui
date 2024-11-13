@@ -1,5 +1,5 @@
 import { expect, Page, test } from '@playwright/test'
-import { CustomBrowserContext, withCleanAlice, withLoggedInUser, withRegisteredAccount } from './helpers/registerLogIn'
+import { cleanup, CustomBrowserContext, withLoggedInUser, withRegisteredAccount } from './helpers/registerLogIn'
 
 test.describe('Updating Settings - email', () => {
   let context: CustomBrowserContext
@@ -7,19 +7,18 @@ test.describe('Updating Settings - email', () => {
 
   const baseUrlAlice = process.env.VERITABLE_ALICE_PUBLIC_URL || 'http://localhost:3000'
 
-  test.beforeAll(async ({ browser }) => {
+  test.beforeAll(async () => {
+    await cleanup([baseUrlAlice])
+  })
+  test.beforeEach(async ({ browser }) => {
     context = await browser.newContext()
     page = await context.newPage()
     await withRegisteredAccount(page, context, baseUrlAlice)
-  })
-  test.beforeEach(async () => {
-    await withCleanAlice(baseUrlAlice)
-    page = await context.newPage()
     await withLoggedInUser(page, context, baseUrlAlice)
   })
 
   test.afterEach(async () => {
-    await withCleanAlice(baseUrlAlice)
+    await cleanup([baseUrlAlice])
     await page.close()
   })
 

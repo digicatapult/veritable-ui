@@ -1,6 +1,6 @@
 import { describe, it } from 'mocha'
 
-import { Env } from '../../env/index.js'
+import { Env } from '../../../env/index.js'
 import {
   createCredentialDefinitionResponse,
   createDidResponse,
@@ -14,8 +14,8 @@ import {
 } from './fixtures/cloudagentFixtures.js'
 import { withCloudagentMock } from './helpers/mockCloudagent.js'
 
-import { InternalError } from '../../errors.js'
-import VeritableCloudagent from '../veritableCloudagent/index.js'
+import { InternalError } from '../../../errors.js'
+import VeritableCloudagent from '../index.js'
 
 describe('veritableCloudagent', () => {
   let expect: Chai.ExpectStatic
@@ -529,12 +529,22 @@ describe('veritableCloudagent', () => {
   })
 
   describe('submitDrpcRequest', () => {
+    type CloudagentConfig = {
+      drpcRequest: {
+        method: 'method-name'
+        params: {
+          someKey: string
+        }
+      }
+      drpcResponseResult: unknown
+    }
+
     describe('success with response', function () {
       withCloudagentMock('POST', `/v1/drpc/connection-id/request`, 200, drpcRequestResponse)
 
       it('should give back drpc response', async () => {
         const environment = new Env()
-        const cloudagent = new VeritableCloudagent(environment, mockLogger)
+        const cloudagent = new VeritableCloudagent<CloudagentConfig>(environment, mockLogger)
         const response = await cloudagent.submitDrpcRequest('connection-id', 'method-name', { someKey: 'some-value' })
         expect(response).deep.equal(drpcRequestResponse)
       })
@@ -545,7 +555,7 @@ describe('veritableCloudagent', () => {
 
       it('should give back undefined', async () => {
         const environment = new Env()
-        const cloudagent = new VeritableCloudagent(environment, mockLogger)
+        const cloudagent = new VeritableCloudagent<CloudagentConfig>(environment, mockLogger)
         const response = await cloudagent.submitDrpcRequest('connection-id', 'method-name', { someKey: 'some-value' })
         expect(response).deep.equal(undefined)
       })
@@ -556,7 +566,7 @@ describe('veritableCloudagent', () => {
 
       it('should throw internal error', async () => {
         const environment = new Env()
-        const cloudagent = new VeritableCloudagent(environment, mockLogger)
+        const cloudagent = new VeritableCloudagent<CloudagentConfig>(environment, mockLogger)
 
         let error: unknown = null
         try {
@@ -573,7 +583,7 @@ describe('veritableCloudagent', () => {
 
       it('should throw internal error', async () => {
         const environment = new Env()
-        const cloudagent = new VeritableCloudagent(environment, mockLogger)
+        const cloudagent = new VeritableCloudagent<CloudagentConfig>(environment, mockLogger)
 
         let error: unknown = null
         try {
@@ -593,7 +603,11 @@ describe('veritableCloudagent', () => {
       it('should give back undefined', async () => {
         const environment = new Env()
         const cloudagent = new VeritableCloudagent(environment, mockLogger)
-        const response = await cloudagent.submitDrpcResponse('request-id', { result: 'result' })
+        const response = await cloudagent.submitDrpcResponse('request-id', {
+          result: {
+            type: 'https://github.com/digicatapult/veritable-documentation/tree/main/schemas/veritable_messaging/query_ack/0.1',
+          },
+        })
         expect(response).deep.equal(undefined)
       })
     })
@@ -607,7 +621,11 @@ describe('veritableCloudagent', () => {
 
         let error: unknown = null
         try {
-          await cloudagent.submitDrpcResponse('request-id', { result: 'result' })
+          await cloudagent.submitDrpcResponse('request-id', {
+            result: {
+              type: 'https://github.com/digicatapult/veritable-documentation/tree/main/schemas/veritable_messaging/query_ack/0.1',
+            },
+          })
         } catch (err) {
           error = err
         }

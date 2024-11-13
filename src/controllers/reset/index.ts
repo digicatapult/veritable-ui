@@ -8,7 +8,7 @@ import { BadRequestError, InternalError } from '../../errors.js'
 import Database from '../../models/db/index.js'
 import type { TABLE } from '../../models/db/types.js'
 import VeritableCloudagent from '../../models/veritableCloudagent/index.js'
-import { Connection, Credential } from '../../models/veritableCloudagentInt.js'
+import { Connection, Credential } from '../../models/veritableCloudagent/internal.js'
 
 @injectable()
 @Security('oauth2')

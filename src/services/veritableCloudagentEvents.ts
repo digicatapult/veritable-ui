@@ -5,7 +5,7 @@ import { z } from 'zod'
 import { Env } from '../env/index.js'
 import { Logger, type ILogger } from '../logger.js'
 import VeritableCloudagent from '../models/veritableCloudagent/index.js'
-import { connectionParser, credentialParser } from '../models/veritableCloudagentInt.js'
+import { connectionParser, credentialParser } from '../models/veritableCloudagent/internal.js'
 
 import IndexedAsyncEventEmitter from '../utils/indexedAsyncEventEmitter.js'
 import { MapDiscriminatedUnion } from '../utils/types.js'

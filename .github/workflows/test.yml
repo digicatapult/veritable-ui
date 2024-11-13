@@ -1,5 +1,4 @@
-name: Lint and Test
-
+name: Test (NPM)
 on:
   push:
     branches-ignore: ['main']
@@ -136,24 +135,7 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
 
   build-docker:
-    name: 'Build docker image'
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Setup QEMU
-        uses: docker/setup-qemu-action@v3
-        with:
-          platforms: all
-      - name: Setup Docker Buildx
-        id: buildx
-        uses: docker/setup-buildx-action@v3
-        with:
-          buildkitd-flags: '--debug'
-      - name: Build image
-        uses: docker/build-push-action@v6
-        with:
-          builder: ${{ steps.buildx.outputs.name }}
-          context: .
-          file: ./Dockerfile
-          platforms: linux/amd64, linux/arm64
-          push: false
+    uses: digicatapult/shared-workflows/.github/workflows/build-docker.yml@main
+    permissions:
+      packages: write
+      contents: write
