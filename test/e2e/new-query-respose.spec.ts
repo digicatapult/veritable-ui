@@ -56,7 +56,7 @@ test.describe('New query response', () => {
     })
 
     await test.step('returns to home page', async () => {
-      expect(page.url()).toBe('http://localhost:3001/')
+      expect(page.url()).toContain(BobHost)
       await expect(page.getByRole('heading', { name: 'Onboard/Refer' })).toBeVisible()
       await expect(page.getByRole('heading', { name: 'Onboard/Refer' })).not.toBeDisabled()
 
