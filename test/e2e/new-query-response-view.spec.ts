@@ -47,7 +47,7 @@ test.describe('Query response view', () => {
       await button.click({ delay: 500 })
     })
 
-    await test.step('returns to home page', async () => {
+    await test.step('returns to queries page', async () => {
       expect(page.url()).toContain(`${AliceHost}/queries`)
       expect(page.getByText('Total Carbon Embodiment')).toBeVisible()
       expect(page.getByText('View Response')).not.toBeDisabled()
