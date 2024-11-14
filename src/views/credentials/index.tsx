@@ -70,6 +70,7 @@ export default class CredentialListTemplates {
               hx-target="#search-results"
               hx-select="#search-results"
               hx-swap="outerHTML"
+              onkeypress="this.style.width = ((this.value.length + 1) * 8) + 'px';"
             ></input>
           </div>
           <table class="list-page">
