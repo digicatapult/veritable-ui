@@ -4,7 +4,7 @@ import { credentialStatusToClass, LinkButton, Page } from '../common.js'
 
 import type { Credential } from '../../models/veritableCloudagent/internal.js'
 
-export type ExtendedCredential = Credential & { companyName: string; type: 'Supplier credentials' }
+export type ExtendedCredential = Credential & { companyName: string; type: 'Supplier credential' }
 
 @singleton()
 export default class CredentialListTemplates {
@@ -13,9 +13,9 @@ export default class CredentialListTemplates {
   private roleToDirection = (role: Credential['role']): JSX.Element => {
     switch (role) {
       case 'holder':
-        return <p>Received</p>
+        return <p>Recipient</p>
       case 'issuer':
-        return <p>Given</p>
+        return <p>Sender</p>
       default:
         return <p>unknown</p>
     }
@@ -83,7 +83,7 @@ export default class CredentialListTemplates {
           </div>
           <table class="list-page">
             <thead>
-              {['Company Name', 'Credential Type', 'Direction', 'Crendetial status', 'Actions'].map((name: string) => (
+              {['Company Name', 'Credential Type', 'Relationship', 'Status', 'Actions'].map((name: string) => (
                 <th>
                   <span>{Html.escapeHtml(name || 'unknown')}</span>
                   <a class="list-filter-icon icon disabled" />

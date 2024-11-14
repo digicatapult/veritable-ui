@@ -6,14 +6,14 @@ export const AliceCredentials = [
     state: 'done',
     role: 'issuer',
     companyName: 'DIGITAL CATAPULT',
-    type: 'Supplier credentials',
+    type: 'Supplier credential',
   },
   {
     id: 'dabfcec3-9232-4eaa-abf2-ce64193772ed',
     state: 'done',
     role: 'holder',
     companyName: 'CARE ONUS LTD',
-    type: 'Supplier credentials',
+    type: 'Supplier credential',
   },
 ] as ExtendedCredential[]
 
@@ -23,13 +23,13 @@ export const BobCredentials = [
     state: 'done',
     role: 'issuer',
     companyName: 'CARE ONUS LTD',
-    type: 'Supplier credentials',
+    type: 'Supplier credential',
   },
   {
     id: 'f70d675a-1915-42b5-b279-ce79a3aceb60',
     state: 'done',
     role: 'holder',
     companyName: 'DIGITAL CATAPULT',
-    type: 'Supplier credentials',
+    type: 'Supplier credential',
   },
 ] as ExtendedCredential[]

@@ -55,7 +55,7 @@ export default class ConnectionTemplates {
         title="Veritable - Connections"
         heading="Connections"
         activePage="connections"
-        headerLinks={[{ name: 'Connections', url: '#' }]}
+        headerLinks={[{ name: 'Connection Management', url: '#' }]}
         // htmx props
         hx-get="/connection"
         hx-trigger="every 10s"
@@ -65,7 +65,7 @@ export default class ConnectionTemplates {
         hx-include="#connection-search-input"
       >
         <div class="list-page-header">
-          <span>Connections Summary</span>
+          <span>Connection Management</span>
           <LinkButton
             disabled={false}
             text="Invite New Connection"
@@ -96,6 +96,7 @@ export default class ConnectionTemplates {
               hx-target="#search-results"
               hx-select="#search-results"
               hx-swap="outerHTML"
+              oninput="this.style.width = (Math.max(210, (this.value.length + 9) * 6.5)) + 'px';"
             ></input>
           </div>
           <table class="list-page">
