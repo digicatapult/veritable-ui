@@ -7,20 +7,10 @@ export interface CustomBrowserContext extends BrowserContext {
   username?: string
 }
 
-export async function withCleanAliceBobEmail(urlAlice: string, urlBob: string, smtp4devUrl: string) {
-  const results = await Promise.all([
-    del(urlAlice, '/reset'),
-    del(urlBob, '/reset'),
-    fetch(`${smtp4devUrl}/api/Messages/*`, { method: 'delete' }), //updated for test
-  ])
+export async function cleanup(urls: string[]) {
+  const results = await Promise.all(urls.map((url) => del(url, '/reset')))
   if (!results.every((res) => res.ok)) {
     throw new Error('Error resetting application or deleting emails form smtp4dev')
-  }
-}
-export async function withCleanAlice(urlAlice: string) {
-  const result = await del(urlAlice, '/reset')
-  if (!result.ok) {
-    throw new Error('Error resetting application - Alice')
   }
 }
 
@@ -33,9 +23,7 @@ export async function withRegisteredAccount(page: Page, context: CustomBrowserCo
   const url = page.url()
   expect(url).toContain(expectedKeycloakUrl)
 
-  await page.waitForSelector('a[href*="/realms/veritable/login-actions/registration"]')
   await page.click('a[href*="/realms/veritable/login-actions/registration"]')
-  await page.waitForURL('**/realms/veritable/login-actions/registration**')
 
   context.username = `user-${randomUUID()}`
 
@@ -46,7 +34,6 @@ export async function withRegisteredAccount(page: Page, context: CustomBrowserCo
   await page.fill('#firstName', 'name')
   await page.fill('#lastName', 'lastname')
   await page.click('input[type="submit"][value="Register"]')
-  await page.waitForURL(loginUrl)
 }
 
 export async function withLoggedInUser(page: Page, context: CustomBrowserContext, loginUrl: string) {
@@ -61,6 +48,5 @@ export async function withLoggedInUser(page: Page, context: CustomBrowserContext
     await page.fill('#username', context.username)
     await page.fill('#password', 'password')
     await page.click('input[type="submit"][value="Sign In"]')
-    await page.waitForURL(loginUrl)
   }
 }

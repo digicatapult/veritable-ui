@@ -1,5 +1,5 @@
 import { expect, Page, test } from '@playwright/test'
-import { CustomBrowserContext, withCleanAlice, withLoggedInUser, withRegisteredAccount } from './helpers/registerLogIn'
+import { cleanup, CustomBrowserContext, withLoggedInUser, withRegisteredAccount } from './helpers/registerLogIn'
 
 test.describe('Redirect to about page', () => {
   let context: CustomBrowserContext
@@ -13,13 +13,13 @@ test.describe('Redirect to about page', () => {
     await withRegisteredAccount(page, context, baseUrlAlice)
   })
   test.beforeEach(async () => {
-    await withCleanAlice(baseUrlAlice)
+    await cleanup([baseUrlAlice])
     page = await context.newPage()
     await withLoggedInUser(page, context, baseUrlAlice)
   })
 
   test.afterEach(async () => {
-    await withCleanAlice(baseUrlAlice)
+    await cleanup([baseUrlAlice])
     await page.close()
   })
 
