@@ -31,6 +31,14 @@ export default class CredentialListTemplates {
   }
 
   public listPage = (credentials: ExtendedCredential[], search: string = '') => {
+    // function adjustInputWidth(input: any) {
+    //   const span = document.getElementById('width-span')
+
+    //   // span.textContent = input.value || input.placeholder
+
+    //   return '200px'
+    // }
+
     return (
       <Page
         title="Veritable - Credentials"
@@ -70,7 +78,10 @@ export default class CredentialListTemplates {
               hx-target="#search-results"
               hx-select="#search-results"
               hx-swap="outerHTML"
-              onkeypress="this.style.width = ((this.value.length + 1) * 8) + 'px';"
+              // onkeypress="this.style.width = ((this.value.length + 7) * 8) + 'px';"
+              oninput="this.style.width = (Math.max(200, (this.value.length + 9) * 6.5)) + 'px';"
+
+              // oninput={adjustInputWidth(this)}
             ></input>
           </div>
           <table class="list-page">
