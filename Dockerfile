@@ -1,5 +1,5 @@
 # syntax=docker/dockerfile:1.11
-FROM node:current-alpine AS builder
+FROM node:lts-alpine AS builder
 
 WORKDIR /veritable-ui
 
@@ -35,7 +35,7 @@ RUN npx playwright install --with-deps
 CMD ["npm", "run", "test:playwright"]
 
 # Service
-FROM node:current-alpine AS service
+FROM node:lts-alpine AS service
 
 WORKDIR /veritable-ui
 
