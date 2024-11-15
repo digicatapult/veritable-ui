@@ -1,5 +1,5 @@
 # syntax=docker/dockerfile:1.11
-FROM node:current-alpine AS builder
+FROM node:lts-alpine AS builder
 
 WORKDIR /veritable-ui
 
@@ -32,20 +32,18 @@ ENV NODE_ENV=${NODE_ENV}
 
 RUN npx playwright install --with-deps
 
-
 CMD ["npm", "run", "test:playwright"]
 
-
-# service
-FROM node:current-alpine AS service
+# Service
+FROM node:lts-alpine AS service
 
 WORKDIR /veritable-ui
 
-RUN apk add --update coreutils curl 
+RUN apk add --no-cache coreutils curl
 RUN npm -g install npm@10.x.x
 
 COPY package*.json ./
-RUN npm ci --omit-dev
+RUN npm ci --omit=dev
 
 COPY public ./public
 COPY knexfile.js ./
