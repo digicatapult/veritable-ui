@@ -3,9 +3,6 @@ FROM node:current-alpine AS builder
 
 WORKDIR /veritable-ui
 
-# Install base dependencies
-RUN npm install -g npm@10.x.x
-
 COPY package*.json ./
 COPY tsconfig.json ./
 
@@ -30,11 +27,9 @@ ENV NODE_ENV=${NODE_ENV}
 
 RUN npx playwright install --with-deps
 
-
 CMD ["npm", "run", "test:playwright"]
 
-
-# service
+# Service
 FROM node:current-alpine AS service
 
 WORKDIR /veritable-ui
