@@ -10,7 +10,7 @@ export default class HomepageTemplates {
         title="Veritable - Homepage"
         heading="Homepage"
         activePage="categories"
-        headerLinks={[{ name: '', url: '/' }]}
+        headerLinks={[]}
         stylesheets={['homepage.css']}
       >
         <div id="homepage-container">
