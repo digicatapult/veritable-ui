@@ -37,7 +37,7 @@ WORKDIR /veritable-ui
 RUN apk add --no-cache coreutils curl
 
 COPY package*.json ./
-RUN npm install --omit=dev
+RUN npm ci --omit=dev
 
 COPY public ./public
 COPY knexfile.js ./
