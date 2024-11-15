@@ -94,7 +94,6 @@ export default class QueryListTemplates {
               hx-target="#search-results"
               hx-select="#search-results"
               hx-swap="outerHTML"
-              oninput="this.style.width = (Math.max(200, (this.value.length + 9) * 6.5)) + 'px';"
             ></input>
           </div>
           <table class="list-page">

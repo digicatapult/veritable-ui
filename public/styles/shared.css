@@ -154,7 +154,9 @@
   background-repeat: no-repeat;
   background-position: center;
 }
-
+#connection-search-input {
+  min-width: 210px;
+}
 .search-window {
   border-color: var(--text-color-sub);
   border-radius: 5px;
@@ -165,7 +167,7 @@
   background-position: 10px;
   padding-left: 40px;
   font-size: 12px;
-  min-width: 200px;
+  min-width: 100px;
 }
 
 .accented-container {
