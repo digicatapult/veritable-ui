@@ -54,6 +54,7 @@ describe('SMTP email', () => {
       await cleanupCloudagent()
       server.cloudagentEvents.stop()
     })
+
     it('should send an email via SMTP', async () => {
       const options = {
         hostname: 'localhost',
@@ -75,7 +76,8 @@ describe('SMTP email', () => {
               const parsedMessages = EmailResponseSchema.parse(messages)
               const results = parsedMessages['results']
               expect(results).to.be.an('array')
-              expect(results).length(2)
+              expect(results[0]).to.have.property('deliveredTo').that.is.equal('admin@veritable.com')
+              expect(results[1]).to.have.property('deliveredTo').that.is.equal('alice@example.com')
 
               // Invite email assertions
               const inviteEmail = results.find(
@@ -83,18 +85,36 @@ describe('SMTP email', () => {
               )
               if (inviteEmail) {
                 expect(inviteEmail.to).to.have.lengthOf(1)
-                expect(inviteEmail.to[0]).to.contain('alice@example.com')
+                expect(inviteEmail).to.deep.contain({
+                  isRelayed: false,
+                  deliveredTo: 'alice@example.com',
+                  from: 'hello@veritable.com',
+                  to: ['alice@example.com'],
+                  subject: 'DIGITAL CATAPULT invites you to a secure, verified connection on Veritable',
+                  attachmentCount: 0,
+                  isUnread: true,
+                })
               } else {
                 throw new Error('No email found with the correct subject.')
               }
 
               // Admin email assertions
-              const adminEmail = results.find((msg) => msg.subject === 'Action required: process veritable invitation')
+              const adminEmail = results.find(
+                (msg) => msg.subject === 'Postal Code for Verification: Invitation from DIGITAL CATAPULT on Veritable'
+              )
               if (adminEmail) {
                 expect(adminEmail.to).to.have.lengthOf(1)
-                expect(adminEmail.to[0]).to.contain('admin@veritable.com')
+                expect(adminEmail).to.deep.contain({
+                  isRelayed: false,
+                  deliveredTo: 'admin@veritable.com',
+                  from: 'hello@veritable.com',
+                  to: ['admin@veritable.com'],
+                  subject: 'Postal Code for Verification: Invitation from DIGITAL CATAPULT on Veritable',
+                  attachmentCount: 0,
+                  isUnread: true,
+                })
               } else {
-                throw new Error('No email found with the subject "Action required: process veritable invitation".')
+                throw new Error('No email found with the subject "Postal Code for Verification".')
               }
 
               resolve(true)
