@@ -3,6 +3,9 @@ FROM node:current-alpine AS builder
 
 WORKDIR /veritable-ui
 
+# Install base dependencies
+RUN npm install -g npm@10.x.x
+
 COPY package*.json ./
 COPY tsconfig.json ./
 
@@ -14,6 +17,8 @@ RUN npm run build
 FROM node:current-bookworm-slim AS test
 
 WORKDIR /veritable-ui
+
+RUN npm install -g npm@10.x.x
 
 COPY package*.json ./
 COPY tsconfig.json ./
@@ -35,6 +40,7 @@ FROM node:current-alpine AS service
 WORKDIR /veritable-ui
 
 RUN apk add --no-cache coreutils curl
+RUN npm -g install npm@10.x.x
 
 COPY package*.json ./
 RUN npm ci --omit=dev
