@@ -18,8 +18,6 @@ FROM node:current-bookworm-slim AS test
 
 WORKDIR /veritable-ui
 
-RUN npm install -g npm@10.x.x
-
 COPY package*.json ./
 COPY tsconfig.json ./
 
@@ -41,11 +39,10 @@ FROM node:current-alpine AS service
 
 WORKDIR /veritable-ui
 
-RUN apk add --no-cache coreutils curl 
-RUN npm -g install npm@10.x.x
+RUN apk add --no-cache coreutils curl
 
 COPY package*.json ./
-RUN npm install --only=production
+RUN npm install --omit=dev
 
 COPY public ./public
 COPY knexfile.js ./
