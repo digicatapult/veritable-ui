@@ -54,6 +54,7 @@ RUN npm -g install npm@10.x.x
 
 COPY public ./public
 COPY knexfile.js ./
+COPY package*.json /veritable-ui/
 COPY --from=builder /veritable-ui/build ./build
 COPY --from=modules /veritable-ui/node_modules ./node_modules
 
