@@ -12,13 +12,11 @@ jobs:
     with:
       docker_compose_file: ''
       npm_build_command: 'npm run tsoa:build'
-      # pre_test_command: 'npm run db:migrate'
   e2e-tests-npm:
     uses: digicatapult/shared-workflows/.github/workflows/tests-e2e-npm.yml@main
     with:
       docker_compose_file: ''
       pre_test_command: 'npm ci && npx playwright install-deps && npx playwright install'
-      test_command: 'npm run test:e2e'
     permissions:
       contents: write
     secrets: inherit
