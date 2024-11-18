@@ -17,7 +17,7 @@ const requiredProdEnvs = {
   IDP_CLIENT_ID: 'veritable',
   IDP_INTERNAL_URL_PREFIX: 'http://localhost:3080/realms/veritable/protocol/openid-connect',
   IDP_PUBLIC_URL_PREFIX: 'http://localhost:3080/realms/veritable/protocol/openid-connect',
-  INVITATION_FROM_COMPANY_NUMBER: '123456789',
+  INVITATION_FROM_COMPANY_NUMBER: '04659351',
   INVITATION_PIN_SECRET: 'secret',
   ISSUANCE_CRED_DEF_POLICY: 'CREATE_NEW',
   ISSUANCE_DID_POLICY: 'CREATE_NEW',
