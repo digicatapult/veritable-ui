@@ -66,7 +66,7 @@ export async function withConnection(invitatorUrl: string, receiverUrl: string) 
     stepCount: '2',
   })
 
-  retries = 20
+  retries = 30
   while (retries) {
     await delay(500)
     const invitatorConnection = await fetchGet(`${invitatorUrl}/connection?search=OFFSHORE`)

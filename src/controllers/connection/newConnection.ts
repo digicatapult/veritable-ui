@@ -407,6 +407,7 @@ export class NewConnectionController extends HTMLController {
   private async sendAdminEmail(company: CompanyProfile, pin: string) {
     await neverFail(
       this.email.sendMail('connection_invite_admin', {
+        receiver: company.company_name,
         address: [
           company.company_name,
           company.registered_office_address.address_line_1,

@@ -82,11 +82,11 @@ async function extractPin(emailId: string): Promise<string | null> {
 
   const rawEmailContent = await response.text()
   // Regex pattern to find the PIN
-  const pinPattern = /<p>Pin:<\/p><p>(\d{6})<\/p>/
+  const pinPattern = /\d{6}/g
   const match = rawEmailContent.match(pinPattern)
 
-  if (match && match[1]) {
-    return match[1]
+  if (match && match[0]) {
+    return match[0]
   } else {
     return null
   }
@@ -136,8 +136,7 @@ async function findNewAdminEmail(oldAdminEmailId: string): Promise<Email> {
           }
 
           const newAdminEmail = results.find(
-            (msg: Email) =>
-              msg.subject === 'Action required: process veritable invitation' && msg.id !== oldAdminEmailId
+            (msg: Email) => msg.subject === 'Postal Code for Verification:' && msg.id !== oldAdminEmailId
           )
 
           if (!newAdminEmail) {

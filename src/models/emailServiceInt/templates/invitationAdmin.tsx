@@ -1,23 +1,41 @@
 import Html from '@kitajs/html'
 import { SendMailOptions } from 'nodemailer'
+
 import { Env } from '../../../env/index.js'
+import CompanyHouseEntity from '../../companyHouseEntity.js'
 
 export default {
   name: 'connection_invite_admin' as const,
-  template: async function (env: Env, params: { pin: string; address: string }): Promise<SendMailOptions> {
+  template: async function (
+    env: Env,
+    params: { pin: string; receiver: string; address: string }
+  ): Promise<SendMailOptions> {
+    const companyHouse = new CompanyHouseEntity(env)
+    const localCompany = await companyHouse.localCompanyHouseProfile()
     return {
       to: env.get('EMAIL_ADMIN_ADDRESS'),
       from: env.get('EMAIL_FROM_ADDRESS'),
-      subject: 'Action required: process veritable invitation',
+      subject: `Postal Code for Verification: Invitation from ${localCompany.company_name} on Veritable`,
       text: `
-        Action required: process veritable invitation    
-        PIN: ${params.pin},
-        Address: ${params.address},
+        Hi ${localCompany.company_name} Admin,
+        Please post this verification code to ${params.receiver}, to complete the verification process.
+
+        Address: ${params.address}
+
+        Verification Code: ${params.pin},
       `,
       html: await (
         <>
-          <h1>Action required: process veritable invitation</h1>
-          <p>Pin:</p>
+          <h1>{Html.escapeHtml(`Hi ${localCompany.company_name}`)}</h1>
+          <br />
+          <p>
+            {Html.escapeHtml(
+              `Please post this verification code to ${params.receiver}, to complete the verification process.`
+            )}
+          </p>
+
+          <br />
+          <p>Verification Code:</p>
           <p>{Html.escapeHtml(params.pin)}</p>
           <p>Address:</p>
           <p>{Html.escapeHtml(params.address)}</p>
