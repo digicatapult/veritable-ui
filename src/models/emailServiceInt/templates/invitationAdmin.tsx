@@ -15,7 +15,7 @@ export default {
     return {
       to: env.get('EMAIL_ADMIN_ADDRESS'),
       from: env.get('EMAIL_FROM_ADDRESS'),
-      subject: `Postal Code for Verification: Invitation from ${params.receiver} on Veritable`,
+      subject: `Postal Code for Verification: Invitation from ${localCompany.company_name} on Veritable`,
       text: `
         Hi ${localCompany.company_name} Admin,
         Please post this verification code to ${params.receiver}, to complete the verification process.
