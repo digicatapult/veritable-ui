@@ -360,11 +360,19 @@ describe('NewConnectionController', () => {
       })
 
       it('should send second email to admin', () => {
+        expect(emailSpy.firstCall.args[0]).equal('connection_invite')
         expect(emailSpy.secondCall.args[0]).equal('connection_invite_admin')
-        expect(emailSpy.secondCall.args[1]?.address).equal(
-          'NAME, ADDRESS_LINE_1, ADDRESS_LINE_2, CARE_OF, LOCALITY, PO_BOX, POSTAL_CODE, COUNTRY, PREMISES, REGION'
-        )
+        expect(emailSpy.firstCall.args[1]).to.deep.contain({
+          to: 'alice@example.com',
+          toCompanyName: 'NAME',
+          fromCompanyName: 'COMPANY_NAME',
+        })
         expect(emailSpy.secondCall.args[1]?.pin).match(/[0-9]{6}/)
+        expect(emailSpy.secondCall.args[1]).to.deep.contain({
+          receiver: 'NAME',
+          address:
+            'NAME, ADDRESS_LINE_1, ADDRESS_LINE_2, CARE_OF, LOCALITY, PO_BOX, POSTAL_CODE, COUNTRY, PREMISES, REGION',
+        })
       })
     })
   })
@@ -545,10 +553,12 @@ describe('NewConnectionController', () => {
 
       it('should send email to admin', () => {
         expect(emailSpy.firstCall.args[0]).equal('connection_invite_admin')
-        expect(emailSpy.firstCall.args[1]?.address).equal(
-          'NAME, ADDRESS_LINE_1, ADDRESS_LINE_2, CARE_OF, LOCALITY, PO_BOX, POSTAL_CODE, COUNTRY, PREMISES, REGION'
-        )
         expect(emailSpy.firstCall.args[1]?.pin).match(/[0-9]{6}/)
+        expect(emailSpy.firstCall.args[1]).to.deep.contain({
+          receiver: 'NAME',
+          address:
+            'NAME, ADDRESS_LINE_1, ADDRESS_LINE_2, CARE_OF, LOCALITY, PO_BOX, POSTAL_CODE, COUNTRY, PREMISES, REGION',
+        })
       })
     })
   })

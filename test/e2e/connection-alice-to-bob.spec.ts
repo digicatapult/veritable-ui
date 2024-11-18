@@ -1,11 +1,10 @@
 import { expect, Page, test } from '@playwright/test'
 import { cleanup, CustomBrowserContext, withLoggedInUser, withRegisteredAccount } from './helpers/registerLogIn.js'
-import { checkEmails, extractInvite, extractPin, findNewAdminEmail } from './helpers/smtpEmails.js'
+import { checkEmails, extractInvite, extractPin } from './helpers/smtpEmails.js'
 
 test.describe('Connection from Alice to Bob', () => {
   let context: CustomBrowserContext
   let page: Page
-  let adminEmailId: string
   let invite: string | null
   let pinForBob: string
   let pinForAlice: string
@@ -73,7 +72,6 @@ test.describe('Connection from Alice to Bob', () => {
     await test.step('Retrieve invite and pin for Bob', async () => {
       const adminEmail = await checkEmails('admin@veritable.com')
       const inviteEmail = await checkEmails('alice@testmail.com')
-      adminEmailId = adminEmail.id
 
       const extractedPin = await extractPin(adminEmail.id)
       expect(extractedPin).toHaveLength(6)
@@ -123,7 +121,7 @@ test.describe('Connection from Alice to Bob', () => {
     })
 
     await test.step('Retrieve pin for Alice', async () => {
-      const newAdminEmail = await findNewAdminEmail(adminEmailId)
+      const newAdminEmail = await checkEmails('admin@veritable.com')
       const extractedPin = await extractPin(newAdminEmail.id)
       expect(extractedPin).toHaveLength(6)
       if (!extractedPin) throw new Error('PIN from admin email was not found.')
