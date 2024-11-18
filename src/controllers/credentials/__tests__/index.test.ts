@@ -23,7 +23,7 @@ describe('CredentialsController', () => {
       const result = await controller.listCredentials(req).then(toHTMLString)
 
       expect(result).to.equal(
-        'listCredentials_issuer-done-DIGITAL CATAPULT-Supplier credentials-holder-done-DIGITAL CATAPULT-Supplier credentials-issuer-done-CARE ONUS LTD-Supplier credentials-holder-done-CARE ONUS LTD-Supplier credentials_listCredentials'
+        'listCredentials_issuer-done-DIGITAL CATAPULT-Supplier credential-holder-done-DIGITAL CATAPULT-Supplier credential-issuer-done-CARE ONUS LTD-Supplier credential-holder-done-CARE ONUS LTD-Supplier credential_listCredentials'
       )
     })
 
@@ -103,7 +103,7 @@ describe('CredentialsController', () => {
       const res = await controller.listCredentials(req, '').then(toHTMLString)
 
       expect(res).to.equal(
-        'listCredentials_issuer-done-CARE ONUS LTD-Supplier credentials-holder-done-CARE ONUS LTD-Supplier credentials_listCredentials'
+        'listCredentials_issuer-done-CARE ONUS LTD-Supplier credential-holder-done-CARE ONUS LTD-Supplier credential_listCredentials'
       )
     })
 
@@ -114,7 +114,7 @@ describe('CredentialsController', () => {
       const res = await controller.listCredentials(req, '').then(toHTMLString)
 
       expect(res).to.equal(
-        'listCredentials_issuer-done-DIGITAL CATAPULT-Supplier credentials-holder-done-DIGITAL CATAPULT-Supplier credentials_listCredentials'
+        'listCredentials_issuer-done-DIGITAL CATAPULT-Supplier credential-holder-done-DIGITAL CATAPULT-Supplier credential_listCredentials'
       )
     })
   })
