@@ -1,161 +1,28 @@
-name: Lint and Test
-
+name: Test (NPM)
 on:
   push:
     branches-ignore: ['main']
 jobs:
-  repo_ids:
-    runs-on: ubuntu-latest
-    outputs:
-      repo_name: ${{ steps.repo_ids.outputs.REPO_NAME }}
-      org_name: ${{ steps.repo_ids.outputs.ORG_NAME }}
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-      - name: Get repository identifiers
-        id: repo_ids
-        run: |
-          REPO_NAME=$(echo "${{ github.event.repository.name }}" | tr '[:upper:]' '[:lower:]')
-          ORG_NAME=$(echo "${{ github.event.repository.owner.name }}" | tr '[:upper:]' '[:lower:]')
-          echo "REPO_NAME=$REPO_NAME" >> $GITHUB_OUTPUT
-          echo "ORG_NAME=$ORG_NAME" >> $GITHUB_OUTPUT
-
-  static-checks:
-    name: Run Static Analysis Checks
-    strategy:
-      fail-fast: false
-      matrix:
-        command: [lint, depcheck, xss-scan, check]
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 22.x
-      - name: Cache Node.js modules
-        uses: actions/cache@v4
-        with:
-          path: ~/.npm # npm cache files are stored in `~/.npm` on Linux/macOS
-          key: ${{ runner.OS }}-node-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.OS }}-node-
-            ${{ runner.OS }}-
-      - name: Install Packages
-        run: npm ci
-      - name: Lint
-        run: npm run ${{ matrix.command }}
-
-  tests:
-    name: Run tests
-    strategy:
-      fail-fast: false
-      matrix:
-        command: ['test:unit', 'test:integration']
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 22.x
-      - name: Cache Node.js modules
-        uses: actions/cache@v4
-        with:
-          path: ~/.npm # npm cache files are stored in `~/.npm` on Linux/macOS
-          key: ${{ runner.OS }}-node-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.OS }}-node-
-            ${{ runner.OS }}-
-      - name: Install Packages
-        run: npm ci
-      - name: Build tsoa
-        run: npm run tsoa:build
-      - name: touch env
-        run: touch .env
-      # - name: Setup dependencies
-      #   run: docker compose -f docker-compose.yml up -d
-      # - name: Sleep
-      #   uses: kibertoad/wait-action@1.0.1
-      #   with:
-      #     time: '30s'
-      # - name: Run database migrations
-      #   run: npm run db:migrate
-      #   env:
-      #     NODE_ENV: test
-      - name: Run tests
-        run: npm run ${{ matrix.command }}
-  e2e-tests:
-    timeout-minutes: 60
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 22.x
-      # - name: Setup Docker Buildx
-      #   id: buildx
-      #   uses: docker/setup-buildx-action@v3
-      #   with:
-      #     buildkitd-flags: '--debug'
-      - uses: actions/checkout@v4
-      # - name: Build e2e containers
-      #   uses: docker/bake-action@v5
-      #   with:
-      #     builder: ${{ steps.buildx.outputs.name }}
-      #     files: ./docker-compose.e2e.yml
-      - name: Install Dependencies
-        run: npm ci
-      - name: Install Playwright dependencies
-        run: npx playwright install-deps
-      - name: Install Playwright Browsers
-        run: npx playwright install
-      - name: Run e2e tests
-        env:
-          VERITABLE_COMPANY_PROFILE_API_KEY: ${{ secrets.COMPANIES_HOUSE_API }}
-          VERITABLE_E2E_OUT_DIR: ${{ runner.temp }}
-        run: |
-          DEBUG=testcontainers* npm run test:playwright || exit 1
-        # run: docker compose -f docker-compose.e2e.yml up --exit-code-from e2e-tests --abort-on-container-exit --quiet-pull
-      - uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: playwright-report
-          path: ./playwright-report
-          retention-days: 90
-      - name: Publish CTRF Test Summary Results
-        run: npx github-actions-ctrf ${{ runner.temp }}/playwright-report/ctrf-report.json
-        if: always()
-
-  check-version:
-    name: 'Check version'
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Check version
-        id: get_version
-        uses: digicatapult/check-version@v1
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-
+  static-checks-npm:
+    uses: digicatapult/shared-workflows/.github/workflows/static-checks-npm.yml@main
+    with:
+      matrix_commands: '["lint", "depcheck", "check", "xss-scan"]'
+  tests-npm:
+    uses: digicatapult/shared-workflows/.github/workflows/tests-npm.yml@main
+    with:
+      docker_compose_file: ''
+      npm_build_command: 'npm run tsoa:build'
+      # pre_test_command: 'npm run db:migrate'
+  e2e-tests-npm:
+    uses: digicatapult/shared-workflows/.github/workflows/tests-e2e-npm.yml@main
+    with:
+      docker_compose_file: ''
+      test_command: 'npm run test:e2e'
+    permissions:
+      contents: write
+    secrets: inherit
   build-docker:
-    name: 'Build docker image'
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Setup QEMU
-        uses: docker/setup-qemu-action@v3
-        with:
-          platforms: all
-      - name: Setup Docker Buildx
-        id: buildx
-        uses: docker/setup-buildx-action@v3
-        with:
-          buildkitd-flags: '--debug'
-      - name: Build image
-        uses: docker/build-push-action@v6
-        with:
-          builder: ${{ steps.buildx.outputs.name }}
-          context: .
-          file: ./Dockerfile
-          platforms: linux/amd64, linux/arm64
-          push: false
+    uses: digicatapult/shared-workflows/.github/workflows/build-docker.yml@main
+    permissions:
+      packages: write
+      contents: write
