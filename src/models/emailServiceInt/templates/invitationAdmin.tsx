@@ -18,7 +18,7 @@ export default {
       subject: `Postal Code for Verification: Invitation from ${params.invitator} on Veritable`,
       text: `
         Hi ${localCompany.company_name},
-        ${params.invitator} has sent you a request to connect securely on Veritable. To complete the verification process, please enter the following 6-digit postal code within your Veritable instance.
+        ${params.invitator} as sent you a request to connect securely on Veritable. To complete the verification process, please enter the following 6-digit postal code within your Veritable instance.
 
         Verification Code: ${params.pin},
         Address: ${params.address}
@@ -29,7 +29,7 @@ export default {
           <br />
           <p>
             {Html.escapeHtml(
-              `${params.invitator} has sent you a request to connect securely on Veritable. To complete the verification process, please enter the following 6-digit postal code within your Veritable instance.`
+              `${params.invitator} as sent you a request to connect securely on Veritable. To complete the verification process, please enter the following 6-digit postal code within your Veritable instance.`
             )}
           </p>
 
