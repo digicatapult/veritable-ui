@@ -8,20 +8,21 @@ export default {
   name: 'connection_invite_admin' as const,
   template: async function (
     env: Env,
-    params: { pin: string; invitator: string; address: string }
+    params: { pin: string; receiver: string; address: string }
   ): Promise<SendMailOptions> {
     const companyHouse = new CompanyHouseEntity(env)
     const localCompany = await companyHouse.localCompanyHouseProfile()
     return {
       to: env.get('EMAIL_ADMIN_ADDRESS'),
       from: env.get('EMAIL_FROM_ADDRESS'),
-      subject: `Postal Code for Verification: Invitation from ${params.invitator} on Veritable`,
+      subject: `Postal Code for Verification: Invitation from ${params.receiver} on Veritable`,
       text: `
-        Hi ${localCompany.company_name},
-        ${params.invitator} as sent you a request to connect securely on Veritable. To complete the verification process, please enter the following 6-digit postal code within your Veritable instance.
+        Hi ${localCompany.company_name} Admin,
+        Please post this verification code to ${params.receiver}, to complete the verification process.
+
+        Address: ${params.address}
 
         Verification Code: ${params.pin},
-        Address: ${params.address}
       `,
       html: await (
         <>
@@ -29,7 +30,7 @@ export default {
           <br />
           <p>
             {Html.escapeHtml(
-              `${params.invitator} as sent you a request to connect securely on Veritable. To complete the verification process, please enter the following 6-digit postal code within your Veritable instance.`
+              `Please post this verification code to ${params.receiver}, to complete the verification process.`
             )}
           </p>
 
