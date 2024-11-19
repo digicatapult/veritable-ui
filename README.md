@@ -168,7 +168,7 @@ npm run test:unit
 
 Integration tests are placed at the root level of a repository and can be found at the root level `test/` folder along with mock services and helpers and a test environment variables that will be in `test/test.env`.
 
-Integration tests can be run locally by executing the below command
+Integration tests can be run locally by executing the below command (it is recommended to add debugging so you can follow the logs in the console, refer to [testcontainers section](#testcontainers))
 
 ```sh
 npm run test:integration
@@ -196,6 +196,7 @@ Then run:
 npm run test:e2e
 ```
 
+(it is recommended to add debugging so you can follow the logs in the console, refer to [testcontainers section](#testcontainers))
 A browser window will pop up where you can run tests and follow their progress. Alternatively you can run:
 
 ```sh
