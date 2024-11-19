@@ -227,7 +227,13 @@ so see logs from a container e.g. if it is dying on startup add:
 and run with
 
 ```
-DEBUG=testcontainers* npm run test:testcontainers
+DEBUG=testcontainers* npm run test:integration
+```
+
+or
+
+```
+DEBUG=testcontainers* npm run test:e2e
 ```
 
 Normally the containers are removed after a run, however you can keep them for further inspection by adding this:
