@@ -413,14 +413,8 @@ export async function veritableUIContainer(network: StartedNetwork, env: Veritab
   } = env
   const base = await GenericContainer.fromDockerfile('./').withTarget('test').build()
 
-  // Commented out is for logs from containers
   const veritableUIContainer = await base
     .withName(containerName)
-    // .withLogConsumer((stream) => {
-    //   stream.on('data', (line) => console.log(line))
-    //   stream.on('err', (line) => console.error(line))
-    //   stream.on('end', () => console.log('Stream closed'))
-    // })
     .withExposedPorts({
       container: containerPort,
       host: hostPort,
