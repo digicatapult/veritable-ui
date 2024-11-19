@@ -230,6 +230,12 @@ and run with
 DEBUG=testcontainers* npm run test:testcontainers
 ```
 
+Normally the containers are removed after a run, however you can keep them for further inspection by adding this:
+
+```
+await container.stop({ remove: false })
+```
+
 ## Database
 
 This service is dependant on postgreSQL which will sync up across all nodes and will update cloudagent when needed. We use `knex` wrapper for wrapping [create, read, write, update] database quries. We also have different models for inserting and returning data which gives us a control of sensitive data or data we do not want to get along the record. We also use **zod** for enchanted validation. It's currently used in `src/models/db/types.ts` file.

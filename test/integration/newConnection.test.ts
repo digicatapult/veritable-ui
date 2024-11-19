@@ -39,7 +39,7 @@ describe('NewConnectionController', () => {
     })
 
     afterEach(async () => {
-      await cleanupCloudagent() //errors here
+      await cleanupCloudagent()
       server.cloudagentEvents.stop()
     })
 
