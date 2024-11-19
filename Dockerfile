@@ -14,7 +14,7 @@ COPY . .
 RUN npm run build
 
 # Test stage
-FROM node:current-bookworm-slim AS test
+FROM node:lts-bookworm-slim AS test
 
 WORKDIR /veritable-ui
 

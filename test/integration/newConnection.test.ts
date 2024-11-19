@@ -27,7 +27,6 @@ describe('NewConnectionController', () => {
 
   describe('create invitation (happy path)', function () {
     let response: Awaited<ReturnType<typeof post>>
-
     beforeEach(async () => {
       await cleanup()
       await cleanupCloudagent()

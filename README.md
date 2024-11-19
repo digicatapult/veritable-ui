@@ -168,7 +168,7 @@ npm run test:unit
 
 Integration tests are placed at the root level of a repository and can be found at the root level `test/` folder along with mock services and helpers and a test environment variables that will be in `test/test.env`.
 
-Integration tests can be run locally by executing the below command
+Integration tests can be run locally by executing the below command (it is recommended to add debugging so you can follow the logs in the console, refer to [testcontainers section](#testcontainers))
 
 ```sh
 npm run test:integration
@@ -196,6 +196,7 @@ Then run:
 npm run test:e2e
 ```
 
+(it is recommended to add debugging so you can follow the logs in the console, refer to [testcontainers section](#testcontainers))
 A browser window will pop up where you can run tests and follow their progress. Alternatively you can run:
 
 ```sh
@@ -211,6 +212,36 @@ docker compose -f docker-compose.e2e.yml up
 ```
 
 Then you'll find the test results in directory `playwright-report` at root level.
+
+### Testcontainers
+
+so see logs from a container e.g. if it is dying on startup add:
+
+```
+.withLogConsumer((stream) => {
+    stream.on('data', (line) => console.log(line))
+    stream.on('err', (line) => console.error(line))
+    stream.on('end', () => console.log('Stream closed'))
+})
+```
+
+and run with
+
+```
+DEBUG=testcontainers* npm run test:integration
+```
+
+or
+
+```
+DEBUG=testcontainers* npm run test:e2e
+```
+
+Normally the containers are removed after a run, however you can keep them for further inspection by adding this:
+
+```
+await container.stop({ remove: false })
+```
 
 ## Database
 
