@@ -76,8 +76,7 @@ describe('SMTP email', () => {
               const parsedMessages = EmailResponseSchema.parse(messages)
               const results = parsedMessages['results']
               expect(results).to.be.an('array')
-              expect(results[0]).to.have.property('deliveredTo').that.is.equal('admin@veritable.com')
-              expect(results[1]).to.have.property('deliveredTo').that.is.equal('alice@example.com')
+              expect(results).length(2)
 
               // Invite email assertions
               const inviteEmail = results.find(
