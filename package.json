@@ -1,6 +1,6 @@
 {
   "name": "veritable-ui",
-  "version": "0.15.10",
+  "version": "0.15.11",
   "description": "UI for Veritable",
   "main": "src/index.ts",
   "type": "module",
@@ -99,6 +99,6 @@
     "supertest": "^7.0.0",
     "testcontainers": "^10.15.0",
     "typescript": "^5.7.2",
-    "undici": "^6.21.0"
+    "undici": "^7.1.0"
   }
 }
