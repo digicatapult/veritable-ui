@@ -4,8 +4,8 @@ import { ILogger, Logger } from './logger.js'
 import Database from './models/db/index.js'
 
 export const iocContainer: IocContainer = {
-  get: <T>(controller: { prototype: T }): T => {
-    return container.resolve<T>(controller as never)
+  get: (controller) => {
+    return container.resolve(controller as never)
   },
 }
 
