@@ -51,7 +51,7 @@ export class ConnectionController extends HTMLController {
    * render pin code submission form
    * @param companyNumber - for retrieving a connection from a db
    * @param pin - a pin code
-   * @returns
+   * @returns HTML Html of the updated render pin form
    */
   @SuccessResponse(200)
   @Get('/{connectionId}/pin-submission')
@@ -75,7 +75,7 @@ export class ConnectionController extends HTMLController {
   /**
    * handles PIN code submission form submit action
    * @param body - contains forms inputs
-   * @returns
+   * @returns HTML Html of the pin submission form or an error
    */
   @SuccessResponse(200)
   @Post('/{connectionId}/pin-submission')

@@ -62,7 +62,7 @@ export class SettingsController extends HTMLController {
   /**
    * handles PIN code submission form submit action
    * @param body - contains forms inputs
-   * @returns
+   * @returns HTML Html of the update settings form,
    */
   @SuccessResponse(200)
   @Post('/:edit?')
