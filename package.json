@@ -1,6 +1,6 @@
 {
   "name": "veritable-ui",
-  "version": "0.15.17",
+  "version": "0.15.18",
   "description": "UI for Veritable",
   "main": "src/index.ts",
   "type": "module",
@@ -57,12 +57,12 @@
     "tsoa": "^6.6.0",
     "tsyringe": "^4.8.0",
     "ws": "^8.18.0",
-    "zod": "^3.23.8"
+    "zod": "^3.24.0"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.2.0",
     "@eslint/js": "^9.16.0",
-    "@playwright/test": "^1.49.0",
+    "@playwright/test": "^1.49.1",
     "@swc-node/register": "^1.10.9",
     "@swc/cli": "^0.5.2",
     "@swc/core": "^1.10.1",
@@ -79,8 +79,8 @@
     "@types/supertest": "^6.0.2",
     "@types/swagger-ui-express": "^4.1.7",
     "@types/ws": "^8.5.13",
-    "@typescript-eslint/eslint-plugin": "^8.17.0",
-    "@typescript-eslint/parser": "^8.17.0",
+    "@typescript-eslint/eslint-plugin": "^8.18.0",
+    "@typescript-eslint/parser": "^8.18.0",
     "chai": "^5.1.2",
     "chai-jest-snapshot": "^2.0.0",
     "concurrently": "^9.1.0",
@@ -91,7 +91,7 @@
     "globals": "^15.13.0",
     "mocha": "^11.0.1",
     "pino-colada": "^2.2.2",
-    "playwright": "^1.49.0",
+    "playwright": "^1.49.1",
     "playwright-ctrf-json-reporter": "^0.0.18",
     "prettier": "^3.4.2",
     "prettier-plugin-organize-imports": "^4.1.0",
