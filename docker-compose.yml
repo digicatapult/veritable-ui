@@ -1,7 +1,7 @@
 services:
   # -------------------- shared -------------------------------#
   keycloak:
-    image: quay.io/keycloak/keycloak:26.1.0
+    image: quay.io/keycloak/keycloak:26.1.1
     container_name: keycloak
     environment:
       - KEYCLOAK_ADMIN=admin
