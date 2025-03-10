@@ -63,7 +63,7 @@ const withMocks = (DEMO_MODE: boolean = true) => {
   }
 }
 
-type ResetControllerPublic = ResetController & { isReset: ResetController['isReset'] }
+type ResetControllerPublic = { isReset: ResetController['isReset'] }
 const stubIsReset = (controller: ResetController, val: boolean) => {
   sinon.stub(controller as unknown as ResetControllerPublic, 'isReset').callsFake(() => Promise.resolve(val))
 }
