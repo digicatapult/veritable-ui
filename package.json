@@ -1,6 +1,6 @@
 {
   "name": "veritable-ui",
-  "version": "0.15.79",
+  "version": "0.15.80",
   "description": "UI for Veritable",
   "main": "src/index.ts",
   "type": "module",
@@ -95,7 +95,7 @@
     "playwright-ctrf-json-reporter": "^0.0.18",
     "prettier": "^3.5.3",
     "prettier-plugin-organize-imports": "^4.1.0",
-    "sinon": "^19.0.4",
+    "sinon": "^20.0.0",
     "supertest": "^7.1.0",
     "testcontainers": "^10.21.0",
     "typescript": "^5.8.2",
