@@ -41,7 +41,7 @@ const tokenStore: AuthOptions = {
       const { access_token, refresh_token } = await idp.getTokenFromRefresh(refreshToken)
       res.cookie('VERITABLE_ACCESS_TOKEN', access_token, tokenCookieOpts)
       res.cookie('VERITABLE_REFRESH_TOKEN', refresh_token, tokenCookieOpts)
-      return true
+      return access_token
     } catch (err) {
       logger.debug('Error refreshing token o%', err)
       return false
