@@ -1,7 +1,7 @@
 services:
   # -------------------- shared -------------------------------#
   keycloak:
-    image: quay.io/keycloak/keycloak:26.2.3
+    image: quay.io/keycloak/keycloak:26.2.4
     container_name: keycloak
     environment:
       - KEYCLOAK_ADMIN=admin
@@ -71,7 +71,7 @@ services:
       - SMTP_SECURE=false
       - COMPANY_PROFILE_API_KEY=${VERITABLE_COMPANY_PROFILE_API_KEY:-API_KEY}
   postgres-veritable-ui-alice:
-    image: postgres:17.4-alpine
+    image: postgres:17.5-alpine
     container_name: postgres-veritable-ui-alice
     ports:
       - 5432:5432
@@ -83,7 +83,7 @@ services:
       - POSTGRES_DB=veritable-ui
   postgres-veritable-cloudagent-alice:
     container_name: postgres-veritable-cloudagent-alice
-    image: postgres:17.4-alpine
+    image: postgres:17.5-alpine
     restart: on-failure
     volumes:
       - postgres-veritable-cloudagent-alice:/var/lib/postgresql/data
@@ -161,7 +161,7 @@ services:
       - COMPANY_PROFILE_API_KEY=${VERITABLE_COMPANY_PROFILE_API_KEY:-API_KEY}
 
   postgres-veritable-ui-bob:
-    image: postgres:17.4-alpine
+    image: postgres:17.5-alpine
     container_name: postgres-veritable-ui-bob
     ports:
       - 5433:5432
@@ -173,7 +173,7 @@ services:
       - POSTGRES_DB=veritable-ui
   postgres-veritable-cloudagent-bob:
     container_name: postgres-veritable-cloudagent-bob
-    image: postgres:17.4-alpine
+    image: postgres:17.5-alpine
     restart: on-failure
     volumes:
       - postgres-veritable-cloudagent-bob:/var/lib/postgresql/data
@@ -249,7 +249,7 @@ services:
       - COMPANY_PROFILE_API_KEY=${VERITABLE_COMPANY_PROFILE_API_KEY:-API_KEY}
 
   postgres-veritable-ui-charlie:
-    image: postgres:17.4-alpine
+    image: postgres:17.5-alpine
     container_name: postgres-veritable-ui-charlie
     ports:
       - 5434:5432
@@ -261,7 +261,7 @@ services:
       - POSTGRES_DB=veritable-ui
   postgres-veritable-cloudagent-charlie:
     container_name: postgres-veritable-cloudagent-charlie
-    image: postgres:17.4-alpine
+    image: postgres:17.5-alpine
     restart: on-failure
     volumes:
       - postgres-veritable-cloudagent-charlie:/var/lib/postgresql/data
