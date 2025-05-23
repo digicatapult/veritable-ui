@@ -1,6 +1,6 @@
 {
   "name": "veritable-ui",
-  "version": "0.15.119",
+  "version": "0.15.120",
   "description": "UI for Veritable",
   "main": "src/index.ts",
   "type": "module",
@@ -34,7 +34,7 @@
     "xss-scan": "xss-scan"
   },
   "dependencies": {
-    "@digicatapult/tsoa-oauth-express": "^1.0.24",
+    "@digicatapult/tsoa-oauth-express": "^1.0.25",
     "@kitajs/html": "^4.2.9",
     "@kitajs/ts-html-plugin": "^4.1.1",
     "@tsoa/runtime": "^6.6.0",
@@ -51,13 +51,13 @@
     "knex": "^3.1.0",
     "nodemailer": "^7.0.3",
     "pg": "^8.16.0",
-    "pino": "^9.6.0",
+    "pino": "^9.7.0",
     "pino-http": "^10.4.0",
     "swagger-ui-express": "^5.0.1",
     "tsoa": "^6.6.0",
     "tsyringe": "^4.10.0",
     "ws": "^8.18.2",
-    "zod": "^3.24.4"
+    "zod": "^3.25.7"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.3.1",
@@ -72,7 +72,7 @@
     "@types/cookie-parser": "^1.4.8",
     "@types/express": "^4.17.22",
     "@types/mocha": "^10.0.10",
-    "@types/node": "^20.17.47",
+    "@types/node": "^20.17.49",
     "@types/nodemailer": "^6.4.17",
     "@types/pino-http": "^5.8.4",
     "@types/sinon": "^17.0.4",
@@ -89,7 +89,7 @@
     "eslint-config-prettier": "^10.1.5",
     "eslint-plugin-prettier": "^5.4.0",
     "globals": "^16.1.0",
-    "mocha": "^11.3.0",
+    "mocha": "^11.4.0",
     "pino-colada": "^2.2.2",
     "playwright": "^1.52.0",
     "playwright-ctrf-json-reporter": "^0.0.20",
@@ -97,8 +97,8 @@
     "prettier-plugin-organize-imports": "^4.1.0",
     "sinon": "^20.0.0",
     "supertest": "^7.1.1",
-    "testcontainers": "^10.26.0",
+    "testcontainers": "^10.27.0",
     "typescript": "^5.8.3",
-    "undici": "^7.9.0"
+    "undici": "^7.10.0"
   }
 }
