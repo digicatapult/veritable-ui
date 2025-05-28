@@ -1,6 +1,6 @@
 {
   "name": "veritable-ui",
-  "version": "0.15.125",
+  "version": "0.15.126",
   "description": "UI for Veritable",
   "main": "src/index.ts",
   "type": "module",
@@ -97,7 +97,7 @@
     "prettier-plugin-organize-imports": "^4.1.0",
     "sinon": "^20.0.0",
     "supertest": "^7.1.1",
-    "testcontainers": "^10.28.0",
+    "testcontainers": "^11.0.0",
     "typescript": "^5.8.3",
     "undici": "^7.10.0"
   }
