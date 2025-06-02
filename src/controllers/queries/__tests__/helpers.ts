@@ -8,7 +8,9 @@ import VeritableCloudagent from '../../../models/veritableCloudagent/index.js'
 import QueriesTemplates from '../../../views/queries/queries.js'
 import QueryListTemplates from '../../../views/queries/queriesList.js'
 import CarbonEmbodimentTemplates from '../../../views/queries/requestCo2embodiment.js'
-import CarbonEmbodimentResponseTemplates, { CarbonEmbodimentFormProps } from '../../../views/queries/responseCo2embodiment.js'
+import CarbonEmbodimentResponseTemplates, {
+  CarbonEmbodimentFormProps,
+} from '../../../views/queries/responseCo2embodiment.js'
 
 type QueryStatus = 'resolved' | 'pending_your_input' | 'pending_their_input' | 'forwarded'
 
