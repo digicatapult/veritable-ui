@@ -7,8 +7,8 @@ import { UUID } from '../../../models/strings.js'
 import VeritableCloudagent from '../../../models/veritableCloudagent/index.js'
 import QueriesTemplates from '../../../views/queries/queries.js'
 import QueryListTemplates from '../../../views/queries/queriesList.js'
-import Scope3CarbonConsumptionTemplates from '../../../views/queries/requestCo2scope3.js'
-import Scope3CarbonConsumptionResponseTemplates, { Scope3FormProps } from '../../../views/queries/responseCo2scope3.js'
+import CarbonEmbodimentTemplates from '../../../views/queries/requestCo2embodiment.js'
+import CarbonEmbodimentResponseTemplates, { CarbonEmbodimentFormProps } from '../../../views/queries/responseCo2embodiment.js'
 
 type QueryStatus = 'resolved' | 'pending_your_input' | 'pending_their_input' | 'forwarded'
 
@@ -136,7 +136,7 @@ const defaultOptions: QueryMockOptions = {
   },
 }
 
-function templateFake(templateName: string, props?: Scope3FormProps) {
+function templateFake(templateName: string, props?: CarbonEmbodimentFormProps) {
   if (props?.partial) return Promise.resolve(`${templateName}_template-${JSON.stringify(props)}`)
   if (props?.formStage) return Promise.resolve(`${templateName}_${props.formStage}_template`)
   return Promise.resolve(`${templateName}_template`)
@@ -150,14 +150,15 @@ export const withQueriesMocks = (testOptions: Partial<QueryMockOptions> = {}) =>
     ...testOptions,
   }
 
-  const scope3CarbonConsumptionTemplateMock = {
-    newScope3CarbonConsumptionFormPage: (props: { formStage: string }) => templateListFake('scope3', props.formStage),
-  } as unknown as Scope3CarbonConsumptionTemplates
+  const CarbonEmbodimentTemplateMock = {
+    newCarbonEmbodimentFormPage: (props: { formStage: string }) =>
+      templateListFake('carbonEmbodiment', props.formStage),
+  } as unknown as CarbonEmbodimentTemplates
 
-  const scope3CarbonConsumptionResponseTemplateMock = {
-    newScope3CarbonConsumptionResponseFormPage: (props: Scope3FormProps) => templateFake('queriesResponse', props),
-    view: () => templateListFake('scope3Response'),
-  } as unknown as Scope3CarbonConsumptionResponseTemplates
+  const CarbonEmbodimentResponseTemplateMock = {
+    newCarbonEmbodimentResponseFormPage: (props: CarbonEmbodimentFormProps) => templateFake('queriesResponse', props),
+    view: () => templateListFake('carbonEmbodimentResponse'),
+  } as unknown as CarbonEmbodimentResponseTemplates
   const queryTemplateMock = {
     chooseQueryPage: () => templateFake('queries'),
   } as QueriesTemplates
@@ -182,15 +183,15 @@ export const withQueriesMocks = (testOptions: Partial<QueryMockOptions> = {}) =>
   }
 
   return {
-    scope3CarbonConsumptionTemplateMock,
-    scope3CarbonConsumptionResponseTemplateMock,
+    CarbonEmbodimentTemplateMock,
+    CarbonEmbodimentResponseTemplateMock,
     queryListTemplateMock,
     queryTemplateMock,
     dbMock,
     cloudagentMock,
     args: [
-      scope3CarbonConsumptionTemplateMock,
-      scope3CarbonConsumptionResponseTemplateMock,
+      CarbonEmbodimentTemplateMock,
+      CarbonEmbodimentResponseTemplateMock,
       queryTemplateMock,
       queryListTemplateMock,
       cloudagentMock as unknown as VeritableCloudagent,
