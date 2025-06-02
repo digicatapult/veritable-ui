@@ -295,6 +295,7 @@ export default class CarbonEmbodimentResponseTemplates {
             checked={checked}
             hx-get={`/queries/partial-select/${props.id}`}
             hx-target={`#tr-${props.id}`}
+            aria-label="select partial query"
           />
         </td>
         <td>{Html.escapeHtml(props.company_name)}</td>
