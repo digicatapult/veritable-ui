@@ -121,6 +121,7 @@ export default class SettingsTemplates {
               class="edit-button"
               name="action"
               value="updateSettings"
+              aria-label="edit button"
             ></input>
           ) : null}
           {edit == true && (
