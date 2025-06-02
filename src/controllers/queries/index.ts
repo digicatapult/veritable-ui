@@ -90,12 +90,10 @@ export class QueriesController extends HTMLController {
     }
 
     const connections = await this.db.get('connection', query, [['updated_at', 'desc']])
-    req.log.info('scope-3-carbon-consumption requested')
+    req.log.info('carbon-embodiment requested')
     this.setHeader(
       'HX-Replace-Url',
-      search
-        ? `/queries/new/scope-3-carbon-consumption?search=${encodeURIComponent(search)}`
-        : `/queries/new/scope-3-carbon-consumption`
+      search ? `/queries/new/carbon-embodiment?search=${encodeURIComponent(search)}` : `/queries/new/carbon-embodiment`
     )
 
     return this.html(
@@ -267,7 +265,7 @@ export class QueriesController extends HTMLController {
    * devided into chunks of size 3
    */
   @SuccessResponse(200)
-  @Post('/scope-3-carbon-consumption/{queryId}/response')
+  @Post('/carbon-embodiment/{queryId}/response')
   public async CarbonEmbodimentResponseSubmit(
     @Request() req: express.Request,
     @Path() queryId: UUID,

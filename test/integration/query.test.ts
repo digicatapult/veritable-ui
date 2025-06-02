@@ -24,7 +24,7 @@ describe('query submission', function () {
   })
   withCompanyHouseMock()
 
-  describe('Scope 3 query success', function () {
+  describe('Carbon embodiment query success', function () {
     type Context = {
       app: express.Express
       cloudagentEvents: VeritableCloudagentEvents
@@ -53,7 +53,7 @@ describe('query submission', function () {
     withVerifiedConnection(context)
 
     beforeEach(async function () {
-      context.response = await post(context.app, `/queries/new/scope-3-carbon-consumption`, {
+      context.response = await post(context.app, `/queries/new/carbon-embodiment`, {
         connectionId: context.localConnectionId,
         productId: 'Test',
         quantity: 1,

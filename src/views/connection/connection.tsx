@@ -39,7 +39,7 @@ const statusToAction = (
     case 'verified_both':
       return {
         disabled: false,
-        href: `/queries/new/scope-3-carbon-consumption?connectionId=${connectionId}`,
+        href: `/queries/new/carbon-embodiment?connectionId=${connectionId}`,
         text: 'Send Query',
       }
   }

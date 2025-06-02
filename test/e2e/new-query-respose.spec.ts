@@ -34,7 +34,7 @@ test.describe('New query response', () => {
       const formHeading = page.getByRole('heading', { name: 'Total' })
       await expect(topHeading).toContainText('Select Company To Send Your Query To')
       await expect(formHeading).toContainText('Total Carbon Embodiment')
-      expect(page.url()).toContain(`${BobHost}/queries/scope-3-carbon-consumption`)
+      expect(page.url()).toContain(`${BobHost}/queries/carbon-embodiment`)
     })
 
     await test.step('enters emissions and submits a query response', async () => {
