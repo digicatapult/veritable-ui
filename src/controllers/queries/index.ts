@@ -69,7 +69,7 @@ export class QueriesController extends HTMLController {
    */
   @SuccessResponse(200)
   @Get('/new/carbon-embodiment')
-  public async CarbonConsumption(
+  public async CarbonEmbodiment(
     @Request() req: express.Request,
     @Query() search?: string,
     @Query() connectionId?: UUID
