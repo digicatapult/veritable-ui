@@ -14,8 +14,8 @@ import VeritableCloudagent from '../../models/veritableCloudagent/index.js'
 import { JsonRpcError } from '../../models/veritableCloudagent/internal.js'
 import QueriesTemplates from '../../views/queries/queries.js'
 import QueryListTemplates from '../../views/queries/queriesList.js'
-import Scope3CarbonConsumptionTemplates from '../../views/queries/requestCo2scope3.js'
-import Scope3CarbonConsumptionResponseTemplates from '../../views/queries/responseCo2scope3.js'
+import CarbonEmbodimentTemplates from '../../views/queries/requestCo2embodiment.js'
+import CarbonEmbodimentResponseTemplates from '../../views/queries/responseCo2embodiment.js'
 import { HTML, HTMLController } from '../HTMLController.js'
 
 @injectable()
@@ -24,8 +24,8 @@ import { HTML, HTMLController } from '../HTMLController.js'
 @Produces('text/html')
 export class QueriesController extends HTMLController {
   constructor(
-    private scope3CarbonConsumptionTemplates: Scope3CarbonConsumptionTemplates,
-    private scope3CarbonConsumptionResponseTemplates: Scope3CarbonConsumptionResponseTemplates,
+    private CarbonEmbodimentTemplates: CarbonEmbodimentTemplates,
+    private CarbonEmbodimentResponseTemplates: CarbonEmbodimentResponseTemplates,
     private queriesTemplates: QueriesTemplates,
     private queryManagementTemplates: QueryListTemplates,
     private cloudagent: VeritableCloudagent,
@@ -68,15 +68,15 @@ export class QueriesController extends HTMLController {
    * Retrieves the query page
    */
   @SuccessResponse(200)
-  @Get('/new/scope-3-carbon-consumption')
-  public async scope3CarbonConsumption(
+  @Get('/new/carbon-embodiment')
+  public async CarbonConsumption(
     @Request() req: express.Request,
     @Query() search?: string,
     @Query() connectionId?: UUID
   ): Promise<HTML> {
     if (connectionId) {
       return this.html(
-        this.scope3CarbonConsumptionTemplates.newScope3CarbonConsumptionFormPage({
+        this.CarbonEmbodimentTemplates.newCarbonEmbodimentFormPage({
           formStage: 'form',
           connectionId: connectionId,
         })
@@ -99,7 +99,7 @@ export class QueriesController extends HTMLController {
     )
 
     return this.html(
-      this.scope3CarbonConsumptionTemplates.newScope3CarbonConsumptionFormPage({
+      this.CarbonEmbodimentTemplates.newCarbonEmbodimentFormPage({
         formStage: 'companySelect',
         connections,
         search: search ?? '',
@@ -111,8 +111,8 @@ export class QueriesController extends HTMLController {
    * Submits a new total carbon embodiment query
    */
   @SuccessResponse(200)
-  @Post('/new/scope-3-carbon-consumption')
-  public async scope3CarbonConsumptionSubmit(
+  @Post('/new/carbon-embodiment')
+  public async CarbonEmbodimentSubmit(
     @Request() req: express.Request,
     @Body()
     body: {
@@ -163,8 +163,8 @@ export class QueriesController extends HTMLController {
    * Retrieves the query response page
    */
   @SuccessResponse(200)
-  @Get('/scope-3-carbon-consumption/{queryId}/response')
-  public async scope3CarbonConsumptionResponse(@Request() req: express.Request, @Path() queryId: UUID): Promise<HTML> {
+  @Get('/carbon-embodiment/{queryId}/response')
+  public async CarbonEmbodimentResponse(@Request() req: express.Request, @Path() queryId: UUID): Promise<HTML> {
     req.log.info('query response page requested %j', { queryId })
     const [query] = await this.db.get('query', { id: queryId })
 
@@ -179,10 +179,10 @@ export class QueriesController extends HTMLController {
       throw new InvalidInputError(`There has been an issue retrieving the connection.`)
     }
 
-    req.log.info('rendering co2 scope3 form %j', connection)
+    req.log.info('rendering co2 embodiment form %j', connection)
 
     return this.html(
-      this.scope3CarbonConsumptionResponseTemplates.newScope3CarbonConsumptionResponseFormPage({
+      this.CarbonEmbodimentResponseTemplates.newCarbonEmbodimentResponseFormPage({
         formStage: 'form',
         company: connection,
         query,
@@ -200,7 +200,7 @@ export class QueriesController extends HTMLController {
    */
   @SuccessResponse(200)
   @Get('/{queryId}/partial')
-  public async scope3CO2Partial(
+  public async CO2Partial(
     @Request() req: express.Request,
     @Path() queryId: UUID,
     @Query() partialQuery?: 'on'
@@ -216,7 +216,7 @@ export class QueriesController extends HTMLController {
     const connections: ConnectionRow[] = await this.db.get('connection', { status: 'verified_both' })
 
     // due to very long names, re-assigning to a shorter variable (render)
-    const render = this.scope3CarbonConsumptionResponseTemplates.newScope3CarbonConsumptionResponseFormPage
+    const render = this.CarbonEmbodimentResponseTemplates.newCarbonEmbodimentResponseFormPage
     req.log.info('rendering partial query %j', query.details)
 
     return this.html(
@@ -252,7 +252,7 @@ export class QueriesController extends HTMLController {
     req.log.info('selected: %s returning an updated table row %j', connectionId, company)
 
     return this.html(
-      this.scope3CarbonConsumptionResponseTemplates.tableRow({
+      this.CarbonEmbodimentResponseTemplates.tableRow({
         id: connectionId,
         checked,
         company_name: company.company_name,
@@ -268,7 +268,7 @@ export class QueriesController extends HTMLController {
    */
   @SuccessResponse(200)
   @Post('/scope-3-carbon-consumption/{queryId}/response')
-  public async scope3CarbonConsumptionResponseSubmit(
+  public async CarbonEmbodimentResponseSubmit(
     @Request() req: express.Request,
     @Path() queryId: UUID,
     @Body()
@@ -355,7 +355,7 @@ export class QueriesController extends HTMLController {
     )
 
     return this.html(
-      this.scope3CarbonConsumptionResponseTemplates.newScope3CarbonConsumptionResponseFormPage({
+      this.CarbonEmbodimentResponseTemplates.newCarbonEmbodimentResponseFormPage({
         formStage: 'success',
         company: connection,
         query: queryRow,
@@ -367,11 +367,8 @@ export class QueriesController extends HTMLController {
    * Retrieves the response to a query asked
    */
   @SuccessResponse(200)
-  @Get('/scope-3-carbon-consumption/{queryId}/view-response')
-  public async scope3CarbonConsumptionViewResponse(
-    @Request() req: express.Request,
-    @Path() queryId: UUID
-  ): Promise<HTML> {
+  @Get('/carbon-embodiment/{queryId}/view-response')
+  public async CarbonEmbodimentViewResponse(@Request() req: express.Request, @Path() queryId: UUID): Promise<HTML> {
     req.log.debug('gathering data for [%s] query response page', queryId)
     const [query]: QueryRow[] = await this.db.get('query', { id: queryId })
 
@@ -386,7 +383,7 @@ export class QueriesController extends HTMLController {
 
     req.log.info('connection and query has been found %j', { query, connection })
 
-    return this.html(this.scope3CarbonConsumptionResponseTemplates.view(connection, query))
+    return this.html(this.CarbonEmbodimentResponseTemplates.view(connection, query))
   }
 
   private validatePartialQuery({ connectionIds: a, productIds: b, quantities: c }: PartialQueryPayload): number {
@@ -444,7 +441,7 @@ export class QueriesController extends HTMLController {
       await this.db.update('query', { id: query?.id }, { status: 'errored' })
 
       return this.html(
-        this.scope3CarbonConsumptionTemplates.newScope3CarbonConsumptionFormPage({
+        this.CarbonEmbodimentTemplates.newCarbonEmbodimentFormPage({
           formStage: 'error',
           company: {
             companyNumber: connection.company_number,
@@ -455,7 +452,7 @@ export class QueriesController extends HTMLController {
     }
 
     return this.html(
-      this.scope3CarbonConsumptionTemplates.newScope3CarbonConsumptionFormPage({
+      this.CarbonEmbodimentTemplates.newCarbonEmbodimentFormPage({
         formStage: 'success',
         company: {
           companyName: connection.company_name,
@@ -517,7 +514,7 @@ export class QueriesController extends HTMLController {
       await this.db.update('query', { id: query.id }, { status: 'errored' })
 
       return this.html(
-        this.scope3CarbonConsumptionResponseTemplates.newScope3CarbonConsumptionResponseFormPage({
+        this.CarbonEmbodimentResponseTemplates.newCarbonEmbodimentResponseFormPage({
           formStage: 'error',
           company: connection,
           query,
@@ -526,7 +523,7 @@ export class QueriesController extends HTMLController {
     }
 
     return this.html(
-      this.scope3CarbonConsumptionResponseTemplates.newScope3CarbonConsumptionResponseFormPage({
+      this.CarbonEmbodimentResponseTemplates.newCarbonEmbodimentResponseFormPage({
         formStage: 'success',
         company: connection,
         query,

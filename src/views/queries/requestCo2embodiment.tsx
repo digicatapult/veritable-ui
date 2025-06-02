@@ -3,34 +3,38 @@ import { singleton } from 'tsyringe'
 import { ConnectionRow } from '../../models/db/types.js'
 import { FormButton, LinkButton, Page } from '../common.js'
 
-export type Scope3FormStage = 'companySelect' | 'form' | 'success' | 'error'
-type Scope3SelectProps = {
+export type CarbonEmbodimentFormStage = 'companySelect' | 'form' | 'success' | 'error'
+type CarbonEmbodimentSelectProps = {
   formStage: 'companySelect'
   connections: ConnectionRow[]
   search: string
 }
-type Scope3FormProps = {
+type CarbonEmbodimentFormProps = {
   formStage: 'form'
   connectionId: string
   productId?: string
   quantity?: number
 }
-type Scope3SuccessProps = {
+type CarbonEmbodimentSuccessProps = {
   formStage: 'success'
   company: { companyName?: string }
 }
-type Scope3ErrorProps = {
+type CarbonEmbodimentErrorProps = {
   formStage: 'error'
   company: { companyNumber: string; companyName?: string }
 }
 
-type Scope3QueryProps = Scope3SelectProps | Scope3FormProps | Scope3SuccessProps | Scope3ErrorProps
+type CarbonEmbodimentQueryProps =
+  | CarbonEmbodimentSelectProps
+  | CarbonEmbodimentFormProps
+  | CarbonEmbodimentSuccessProps
+  | CarbonEmbodimentErrorProps
 
 @singleton()
-export default class Scope3CarbonConsumptionTemplates {
+export default class CarbonEmbodimentTemplates {
   constructor() {}
 
-  public newScope3CarbonConsumptionFormPage = (props: Scope3QueryProps) => {
+  public newCarbonEmbodimentFormPage = (props: CarbonEmbodimentQueryProps) => {
     return (
       <Page
         title="Veritable - New Total Carbon Embodiment Query"
@@ -39,22 +43,22 @@ export default class Scope3CarbonConsumptionTemplates {
         headerLinks={[
           { name: 'Query Management', url: '/queries' },
           { name: 'New', url: '/queries/new' },
-          { name: 'Total Carbon Embodiment', url: '/queries/new/scope-3-carbon-consumption' },
+          { name: 'Total Carbon Embodiment', url: '/queries/new/carbon-embodiment' },
         ]}
       >
         <div class="connections header"></div>
         <div class="card-body">
-          <this.newScope3 {...props} />
+          <this.newCarbonEmbodiment {...props} />
         </div>
       </Page>
     )
   }
-  private newScope3 = (props: Scope3QueryProps): JSX.Element => {
+  private newCarbonEmbodiment = (props: CarbonEmbodimentQueryProps): JSX.Element => {
     switch (props.formStage) {
       case 'companySelect':
         return <this.listPage {...props}></this.listPage>
       case 'form':
-        return <this.scope3CarbonConsumptionFormPage {...props}></this.scope3CarbonConsumptionFormPage>
+        return <this.CarbonEmbodimentFormPage {...props}></this.CarbonEmbodimentFormPage>
       case 'success':
         return <this.newQuerySuccess {...props}></this.newQuerySuccess>
       case 'error':
@@ -62,12 +66,12 @@ export default class Scope3CarbonConsumptionTemplates {
     }
   }
 
-  private listPage = (props: Scope3SelectProps) => {
+  private listPage = (props: CarbonEmbodimentSelectProps) => {
     return (
       <div>
         <div
           class="main-list-page"
-          hx-post="/queries/new/scope-3-carbon-consumption"
+          hx-post="/queries/new/carbon-embodiment"
           hx-trigger="input changed delay:500ms"
           hx-select="#search-results"
           hx-target="#search-results"
@@ -84,7 +88,7 @@ export default class Scope3CarbonConsumptionTemplates {
                 name="search"
                 value={Html.escapeHtml(props.search)}
                 placeholder="Search"
-                hx-get="/queries/new/scope-3-carbon-consumption"
+                hx-get="/queries/new/carbon-embodiment"
                 hx-trigger="input changed delay:50ms, search"
                 hx-target="#search-results"
                 hx-select="#search-results"
@@ -93,7 +97,7 @@ export default class Scope3CarbonConsumptionTemplates {
             </div>
             <form
               id="company-form"
-              hx-get="/queries/new/scope-3-carbon-consumption"
+              hx-get="/queries/new/carbon-embodiment"
               hx-select="main > *"
               hx-target="main"
               hx-swap="innerHTML"
@@ -141,24 +145,24 @@ export default class Scope3CarbonConsumptionTemplates {
     )
   }
 
-  private scope3CarbonConsumptionFormPage = (props: Scope3FormProps) => {
+  private CarbonEmbodimentFormPage = (props: CarbonEmbodimentFormProps) => {
     return (
       <div>
-        <div class="container-scope3-carbon">
-          <div class="scope3-co2-left">
+        <div class="container-carbon-embodiment">
+          <div class="co2-embodiment-left">
             <h1>Total Carbon Embodiment</h1>
             <p class="query-text-carbon3-consumption">
               Creates a query for obtaining the total carbon embodiment for a given product/component.
             </p>
           </div>
-          <div class="scope3-co2-right">
+          <div class="co2-embodiment-right">
             <p>
               Choose the product that you want to apply the query “What is the total carbon embodiment for the
               product/component below?” to.
             </p>
             <form
-              id="scope-3-carbon-consumption"
-              hx-post="/queries/new/scope-3-carbon-consumption"
+              id="carbon-embodiment"
+              hx-post="/queries/new/carbon-embodiment"
               hx-select="main > *"
               hx-target="main"
               hx-swap="innerHTML"
@@ -204,7 +208,7 @@ export default class Scope3CarbonConsumptionTemplates {
     )
   }
 
-  private newQuerySuccess = (props: Scope3SuccessProps): JSX.Element => {
+  private newQuerySuccess = (props: CarbonEmbodimentSuccessProps): JSX.Element => {
     return (
       <div id="new-query-confirmation-text">
         <h1>Your Query has been sent!</h1>
@@ -223,7 +227,7 @@ export default class Scope3CarbonConsumptionTemplates {
     )
   }
 
-  private newQueryError = (props: Scope3ErrorProps): JSX.Element => {
+  private newQueryError = (props: CarbonEmbodimentErrorProps): JSX.Element => {
     return (
       <div id="new-query-confirmation-text">
         <p>An unknown error occurred whilst submitting your query to: {Html.escapeHtml(props.company.companyName)}.</p>
