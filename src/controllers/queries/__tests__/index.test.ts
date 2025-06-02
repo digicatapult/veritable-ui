@@ -74,7 +74,7 @@ describe('QueriesController', () => {
       const controller = new QueriesController(...args)
       const result = await controller.CarbonEmbodiment(req, undefined, 'connection-id').then(toHTMLString)
 
-      expect(result).to.equal('scope3_form_scope3')
+      expect(result).to.equal('carbonEmbodiment_form_carbonEmbodiment')
     })
 
     it('should call page with stage success as expected', async () => {
@@ -110,7 +110,7 @@ describe('QueriesController', () => {
           expires_at: expiresAtExpectation,
         },
       ])
-      expect(result).to.equal('scope3_success_scope3')
+      expect(result).to.equal('carbonEmbodiment_success_carbonEmbodiment')
     })
 
     it('should call page with stage error if rpc fails', async () => {
@@ -126,7 +126,7 @@ describe('QueriesController', () => {
         })
         .then(toHTMLString)
 
-      expect(result).to.equal('scope3_error_scope3')
+      expect(result).to.equal('carbonEmbodiment_error_carbonEmbodiment')
     })
 
     it('should call page with stage error if rpc succeeds without response', async () => {
@@ -146,7 +146,7 @@ describe('QueriesController', () => {
         { id: 'ccaaaaaa-0000-0000-0000-d8ae0805059e' },
         { status: 'errored' },
       ])
-      expect(result).to.equal('scope3_error_scope3')
+      expect(result).to.equal('carbonEmbodiment_error_carbonEmbodiment')
     })
 
     it('should call page with stage error if rpc returns with error', async () => {
@@ -170,7 +170,7 @@ describe('QueriesController', () => {
         { status: 'errored' },
       ])
 
-      expect(result).to.equal('scope3_error_scope3')
+      expect(result).to.equal('carbonEmbodiment_error_carbonEmbodiment')
     })
   })
 
