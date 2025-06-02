@@ -1,7 +1,7 @@
 import 'reflect-metadata'
 
-import { fetchGet, fetchPost } from '../../helpers/routeHelper.js'
-import { delay } from '../../helpers/util.js'
+import { fetchGet, fetchPost } from './routeHelper.js'
+import { delay } from './util.js'
 
 export const co2QueryContent = {
   productId: 'E2E-DC001',
