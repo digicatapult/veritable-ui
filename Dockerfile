@@ -4,7 +4,7 @@ FROM node:lts-alpine AS builder
 WORKDIR /veritable-ui
 
 # Install base dependencies
-RUN npm install -g npm@10.x.x
+RUN npm install -g npm@11.x.x
 
 COPY package*.json ./
 COPY tsconfig.json ./
