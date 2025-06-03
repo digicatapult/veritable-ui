@@ -18,7 +18,7 @@ FROM node:lts-bookworm-slim AS test
 
 WORKDIR /veritable-ui
 
-RUN npm install -g npm@10.x.x
+RUN npm install -g npm@11.x.x
 
 COPY package*.json ./
 COPY tsconfig.json ./
@@ -40,7 +40,7 @@ FROM node:lts-alpine AS service
 WORKDIR /veritable-ui
 
 RUN apk add --no-cache coreutils curl
-RUN npm -g install npm@10.x.x
+RUN npm -g install npm@11.x.x
 
 COPY package*.json ./
 RUN npm ci --omit=dev
