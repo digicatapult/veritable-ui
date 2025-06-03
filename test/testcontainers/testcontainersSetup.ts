@@ -270,7 +270,7 @@ export async function veritableUIPostgresDbContainer(
   postgresValues: PostgresValuesInterface
 ) {
   const { postgresPassword = 'postgres', postgresUser = 'postgres', postgresDb } = postgresValues
-  const veritableUIPostgresContainer = await new GenericContainer('postgres:17.0-alpine')
+  const veritableUIPostgresContainer = await new GenericContainer('postgres:17.5-alpine')
     .withName(name)
     .withExposedPorts({
       container: exposedPorts.containerPort,
@@ -294,7 +294,7 @@ export async function veritableCloudagentPostgresContainer(
   postgresValues: PostgresValuesInterface
 ) {
   const { postgresPassword = 'postgres', postgresUser = 'postgres', postgresDb } = postgresValues
-  const veritableCloudagentPostgres = await new GenericContainer('postgres:17.0-alpine')
+  const veritableCloudagentPostgres = await new GenericContainer('postgres:17.5-alpine')
     .withName(name)
     .withEnvironment({
       POSTGRES_PASSWORD: postgresPassword,
