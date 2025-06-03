@@ -1,5 +1,4 @@
 import { OauthError } from '@digicatapult/tsoa-oauth-express'
-import bodyParser from 'body-parser'
 import compression from 'compression'
 import cookieParser from 'cookie-parser'
 import express, { Express } from 'express'
@@ -113,8 +112,8 @@ export default async (startEvents: boolean = true) => {
     })
   )
 
-  app.use(bodyParser.urlencoded({ extended: true }))
-  app.use(bodyParser.json())
+  app.use(express.urlencoded({ extended: true }))
+  app.use(express.json())
   app.use(compression())
   app.use(cookieParser(env.get('COOKIE_SESSION_KEYS')))
 
@@ -123,7 +122,9 @@ export default async (startEvents: boolean = true) => {
   app.use('/lib/htmx-ext-json-enc/json-enc.js', express.static('node_modules/htmx-ext-json-enc/json-enc.js'))
 
   const apiSpec = await loadApiSpec(env)
-  app.get('/api-docs', (_req, res) => res.json(apiSpec))
+  app.get('/api-docs', (_req, res) => {
+    res.json(apiSpec)
+  })
   app.use('/swagger', serve, setup(undefined, options))
 
   RegisterRoutes(app)
@@ -133,7 +134,7 @@ export default async (startEvents: boolean = true) => {
     req: express.Request,
     res: express.Response,
     next: express.NextFunction
-  ): express.Response | void {
+  ): void {
     if (err instanceof Error) {
       req.log.debug('API error: %s', err.message)
       req.log.trace('API error: stack %j', err.stack)
@@ -143,9 +144,10 @@ export default async (startEvents: boolean = true) => {
 
     if (err instanceof ForbiddenError || err instanceof OauthError) {
       if (req.headers['hx-request']) {
-        return res.status(401).json({
+        res.status(401).json({
           message: 'Unauthorised',
         })
+        return
       }
 
       const redirect = new URL(`${env.get('PUBLIC_URL')}/auth/login`)
@@ -157,22 +159,25 @@ export default async (startEvents: boolean = true) => {
     }
 
     if (err instanceof HttpError) {
-      return res.status(err.code).send({
+      res.status(err.code).send({
         message: err.message,
       })
+      return
     }
 
     if (err instanceof ValidateError) {
       req.log.warn(`Caught Validation Error for ${req.path}:`, err.fields)
-      return res.status(422).json({
+      res.status(422).json({
         message: 'Validation Failed',
         details: err?.fields,
       })
+      return
     }
     if (err instanceof Error) {
-      return res.status(500).json({
+      res.status(500).json({
         message: 'Internal Server Error',
       })
+      return
     }
 
     next()
