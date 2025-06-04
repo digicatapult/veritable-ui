@@ -97,6 +97,7 @@
     "supertest": "^7.1.1",
     "testcontainers": "^11.0.0",
     "typescript": "^5.8.3",
-    "undici": "^7.10.0"
+    "undici": "^7.10.0",
+    "yaml": "^2.8.0"
   }
 }
