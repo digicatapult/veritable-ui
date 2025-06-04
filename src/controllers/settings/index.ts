@@ -65,7 +65,7 @@ export class SettingsController extends HTMLController {
    * @returns HTML Html of the update settings form,
    */
   @SuccessResponse(200)
-  @Post('/:edit?')
+  @Post('/')
   public async updateSettings(
     @Request() req: express.Request,
     @Body()
