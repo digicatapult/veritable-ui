@@ -141,7 +141,7 @@ export async function bringUpBobContainers() {
     'postgres-veritable-cloudagent-bob',
     { postgresDb: 'postgres-veritable-cloudagent' }
   )
-  const aliceCloudagentEnvConfig: VeritableCloudAgentEnvConfig = {
+  const bobCloudagentEnvConfig: VeritableCloudAgentEnvConfig = {
     endpoint: 'ws://veritable-cloudagent-bob:5003',
     walletId: 'bob',
     walletKey: 'bob-key',
@@ -154,7 +154,7 @@ export async function bringUpBobContainers() {
       containerPort: 3000,
       hostPort: 3101,
     },
-    aliceCloudagentEnvConfig
+    bobCloudagentEnvConfig
   )
   const bobVeritableUIConfig: VeritableUIConfig = {
     containerName: 'veritable-ui-bob',
