@@ -1,7 +1,7 @@
 import { expect, Page, test } from '@playwright/test'
-import { withQueryRequest } from './helpers/query.js'
-import { cleanup, CustomBrowserContext, withLoggedInUser, withRegisteredAccount } from './helpers/registerLogIn.js'
-import { withConnection } from './helpers/setupConnection.js'
+import { withQueryRequest } from '../helpers/query.js'
+import { cleanup, CustomBrowserContext, withLoggedInUser, withRegisteredAccount } from '../helpers/registerLogIn.js'
+import { withConnection } from '../helpers/setupConnection.js'
 
 test.describe('New query response', () => {
   const AliceHost = process.env.VERITABLE_ALICE_PUBLIC_URL || 'http://localhost:3000'

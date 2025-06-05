@@ -1,5 +1,5 @@
 import { expect, Page, test } from '@playwright/test'
-import { cleanup, CustomBrowserContext, withLoggedInUser, withRegisteredAccount } from './helpers/registerLogIn'
+import { cleanup, CustomBrowserContext, withLoggedInUser, withRegisteredAccount } from '../helpers/registerLogIn'
 
 test.describe('Updating Settings - email', () => {
   let context: CustomBrowserContext
