@@ -14,8 +14,8 @@ export default class AboutPageTemplates {
         stylesheets={['about.css']}
       >
         <div id="about-container">
-          <img src="/public/images/logo-square.svg" />
-          <h3>About veritable </h3>
+          <img src="/public/images/logo-square.svg" alt="" />
+          <h3>About Veritable </h3>
           <p>
             Veritable is a platform that enhances trust and transparency in supply chains through secure,
             privacy-preserving data sharing and process automation. With verified digital identities, automated queries,

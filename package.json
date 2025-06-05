@@ -56,7 +56,7 @@
     "tsoa": "^6.6.0",
     "tsyringe": "^4.10.0",
     "ws": "^8.18.2",
-    "zod": "^3.25.42"
+    "zod": "^3.25.46"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.3.1",
