@@ -1,13 +1,13 @@
 import { expect } from 'chai'
 import { describe, test } from 'mocha'
 import { ConnectionRow } from '../../../models/db/types.js'
-import Scope3CarbonConsumptionTemplates from '../requestCo2scope3.js'
+import CarbonEmbodimentTemplates from '../requestCo2embodiment.js'
 
-describe('Scope3CarbonConsumptionTemplates', () => {
-  describe('newScope3CarbonConsumptionFormPage', () => {
+describe('CarbonEmbodimentTemplates', () => {
+  describe('newCarbonEmbodimentFormPage', () => {
     test('companySelect with companies', async () => {
-      const templates = new Scope3CarbonConsumptionTemplates()
-      const rendered = await templates.newScope3CarbonConsumptionFormPage({
+      const templates = new CarbonEmbodimentTemplates()
+      const rendered = await templates.newCarbonEmbodimentFormPage({
         formStage: 'companySelect',
         connections: [
           {
@@ -27,8 +27,8 @@ describe('Scope3CarbonConsumptionTemplates', () => {
     })
 
     test('companySelect with no companies', async () => {
-      const templates = new Scope3CarbonConsumptionTemplates()
-      const rendered = await templates.newScope3CarbonConsumptionFormPage({
+      const templates = new CarbonEmbodimentTemplates()
+      const rendered = await templates.newCarbonEmbodimentFormPage({
         formStage: 'companySelect',
         connections: [],
         search: 'search-text',
@@ -37,8 +37,8 @@ describe('Scope3CarbonConsumptionTemplates', () => {
     })
 
     test('form without product and quantity inputs', async () => {
-      const templates = new Scope3CarbonConsumptionTemplates()
-      const rendered = await templates.newScope3CarbonConsumptionFormPage({
+      const templates = new CarbonEmbodimentTemplates()
+      const rendered = await templates.newCarbonEmbodimentFormPage({
         formStage: 'form',
         connectionId: 'connection-id',
       })
@@ -46,8 +46,8 @@ describe('Scope3CarbonConsumptionTemplates', () => {
     })
 
     test('form with product and quantity inputs', async () => {
-      const templates = new Scope3CarbonConsumptionTemplates()
-      const rendered = await templates.newScope3CarbonConsumptionFormPage({
+      const templates = new CarbonEmbodimentTemplates()
+      const rendered = await templates.newCarbonEmbodimentFormPage({
         formStage: 'form',
         connectionId: 'connection-id',
         productId: 'product-id',
@@ -57,8 +57,8 @@ describe('Scope3CarbonConsumptionTemplates', () => {
     })
 
     test('success', async () => {
-      const templates = new Scope3CarbonConsumptionTemplates()
-      const rendered = await templates.newScope3CarbonConsumptionFormPage({
+      const templates = new CarbonEmbodimentTemplates()
+      const rendered = await templates.newCarbonEmbodimentFormPage({
         formStage: 'success',
         company: {
           companyName: 'company1',
@@ -68,8 +68,8 @@ describe('Scope3CarbonConsumptionTemplates', () => {
     })
 
     test('error', async () => {
-      const templates = new Scope3CarbonConsumptionTemplates()
-      const rendered = await templates.newScope3CarbonConsumptionFormPage({
+      const templates = new CarbonEmbodimentTemplates()
+      const rendered = await templates.newCarbonEmbodimentFormPage({
         formStage: 'error',
         company: {
           companyName: 'company1',
