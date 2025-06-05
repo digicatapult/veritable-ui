@@ -39,7 +39,7 @@ test.describe('New query response', () => {
 
     await test.step('enters emissions and submits a query response', async () => {
       await expect(page.getByRole('heading', { name: 'Carbon' })).toContainText('Total Carbon Embodiment')
-      await page.fill('#co2-emissions-input', '200')
+      await page.fill('#co2-embodiment-input', '200')
       await expect(page.getByRole('button', { name: 'Submit Response' })).toBeVisible()
       await expect(page.getByRole('button', { name: 'Submit Response' })).not.toBeDisabled()
       await page.getByRole('button', { name: 'Submit Response' }).click()
