@@ -1,8 +1,8 @@
+import * as fs from 'node:fs'
 import path from 'path'
 import { GenericContainer, Network, StartedNetwork, StartedTestContainer, Wait } from 'testcontainers'
 import { fileURLToPath } from 'url'
 import { parse } from 'yaml'
-import * as fs from 'fs'
 
 interface PostgresPasswordAndUser {
   postgresPassword?: string
