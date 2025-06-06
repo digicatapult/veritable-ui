@@ -2,6 +2,5 @@
   "timeout": 1000000,
   "exit": true,
   "extension": "ts",
-  "file": ["test/init.ts"],
   "node-option": ["import=@swc-node/register/esm-register"]
 }
