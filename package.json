@@ -50,12 +50,12 @@
     "nodemailer": "^7.0.3",
     "pg": "^8.16.0",
     "pino": "^9.7.0",
-    "pino-http": "^10.4.0",
+    "pino-http": "^10.5.0",
     "swagger-ui-express": "^5.0.1",
     "tsoa": "^6.6.0",
     "tsyringe": "^4.10.0",
     "ws": "^8.18.2",
-    "zod": "^3.25.46"
+    "zod": "^3.25.51"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.3.1",
@@ -76,8 +76,8 @@
     "@types/supertest": "^6.0.3",
     "@types/swagger-ui-express": "^4.1.8",
     "@types/ws": "^8.18.1",
-    "@typescript-eslint/eslint-plugin": "^8.33.0",
-    "@typescript-eslint/parser": "^8.33.0",
+    "@typescript-eslint/eslint-plugin": "^8.33.1",
+    "@typescript-eslint/parser": "^8.33.1",
     "chai": "^5.2.0",
     "chai-jest-snapshot": "^2.0.0",
     "concurrently": "^9.1.2",
