@@ -249,8 +249,8 @@ export async function composeKeycloakContainer(
       host: 3080,
     })
     .withEnvironment({
-      KEYCLOAK_ADMIN: 'admin',
-      KEYCLOAK_ADMIN_PASSWORD: 'admin',
+      KC_BOOTSTRAP_ADMIN_USERNAME: 'admin',
+      KC_BOOTSTRAP_ADMIN_PASSWORD: 'admin',
     })
     .withBindMounts([{ source: keycloakDataPath, target: '/opt/keycloak/data/import' }]) //this seems necessary
     .withCommand(['start-dev', '--import-realm'])
