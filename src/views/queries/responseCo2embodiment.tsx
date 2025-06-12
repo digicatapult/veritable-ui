@@ -53,7 +53,7 @@ export default class CarbonEmbodimentResponseTemplates {
   public carbonEmbodiment = (props: CarbonEmbodimentFormProps): JSX.Element => {
     switch (props.formStage) {
       case 'form':
-        return <this.CarbonEmbodimentResponseFormPage {...props}></this.CarbonEmbodimentResponseFormPage>
+        return <this.carbonEmbodimentResponseFormPage {...props}></this.carbonEmbodimentResponseFormPage>
       case 'success':
         return <this.queryResponseSuccess {...props}></this.queryResponseSuccess>
       case 'error':
@@ -61,7 +61,7 @@ export default class CarbonEmbodimentResponseTemplates {
     }
   }
 
-  public CarbonEmbodimentResponseFormPage = ({
+  public carbonEmbodimentResponseFormPage = ({
     partial = undefined,
     connections = [],
     query,

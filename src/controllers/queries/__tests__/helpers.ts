@@ -152,12 +152,12 @@ export const withQueriesMocks = (testOptions: Partial<QueryMockOptions> = {}) =>
     ...testOptions,
   }
 
-  const CarbonEmbodimentTemplateMock = {
+  const carbonEmbodimentTemplateMock = {
     newCarbonEmbodimentFormPage: (props: { formStage: string }) =>
       templateListFake('carbonEmbodiment', props.formStage),
   } as unknown as CarbonEmbodimentTemplates
 
-  const CarbonEmbodimentResponseTemplateMock = {
+  const carbonEmbodimentResponseTemplateMock = {
     newCarbonEmbodimentResponseFormPage: (props: CarbonEmbodimentFormProps) => templateFake('queriesResponse', props),
     view: () => templateListFake('carbonEmbodimentResponse'),
   } as unknown as CarbonEmbodimentResponseTemplates
@@ -185,15 +185,15 @@ export const withQueriesMocks = (testOptions: Partial<QueryMockOptions> = {}) =>
   }
 
   return {
-    CarbonEmbodimentTemplateMock,
-    CarbonEmbodimentResponseTemplateMock,
+    carbonEmbodimentTemplateMock,
+    carbonEmbodimentResponseTemplateMock,
     queryListTemplateMock,
     queryTemplateMock,
     dbMock,
     cloudagentMock,
     args: [
-      CarbonEmbodimentTemplateMock,
-      CarbonEmbodimentResponseTemplateMock,
+      carbonEmbodimentTemplateMock,
+      carbonEmbodimentResponseTemplateMock,
       queryTemplateMock,
       queryListTemplateMock,
       cloudagentMock as unknown as VeritableCloudagent,

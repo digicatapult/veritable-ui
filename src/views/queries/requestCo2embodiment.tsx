@@ -58,7 +58,7 @@ export default class CarbonEmbodimentTemplates {
       case 'companySelect':
         return <this.listPage {...props}></this.listPage>
       case 'form':
-        return <this.CarbonEmbodimentFormPage {...props}></this.CarbonEmbodimentFormPage>
+        return <this.carbonEmbodimentFormPage {...props}></this.carbonEmbodimentFormPage>
       case 'success':
         return <this.newQuerySuccess {...props}></this.newQuerySuccess>
       case 'error':
@@ -146,7 +146,7 @@ export default class CarbonEmbodimentTemplates {
     )
   }
 
-  private CarbonEmbodimentFormPage = (props: CarbonEmbodimentFormProps) => {
+  private carbonEmbodimentFormPage = (props: CarbonEmbodimentFormProps) => {
     return (
       <div>
         <div class="container-carbon-embodiment">

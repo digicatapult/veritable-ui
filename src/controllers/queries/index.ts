@@ -24,8 +24,8 @@ import { HTML, HTMLController } from '../HTMLController.js'
 @Produces('text/html')
 export class QueriesController extends HTMLController {
   constructor(
-    private CarbonEmbodimentTemplates: CarbonEmbodimentTemplates,
-    private CarbonEmbodimentResponseTemplates: CarbonEmbodimentResponseTemplates,
+    private carbonEmbodimentTemplates: CarbonEmbodimentTemplates,
+    private carbonEmbodimentResponseTemplates: CarbonEmbodimentResponseTemplates,
     private queriesTemplates: QueriesTemplates,
     private queryManagementTemplates: QueryListTemplates,
     private cloudagent: VeritableCloudagent,
@@ -69,14 +69,14 @@ export class QueriesController extends HTMLController {
    */
   @SuccessResponse(200)
   @Get('/new/carbon-embodiment')
-  public async CarbonEmbodiment(
+  public async carbonEmbodiment(
     @Request() req: express.Request,
     @Query() search?: string,
     @Query() connectionId?: UUID
   ): Promise<HTML> {
     if (connectionId) {
       return this.html(
-        this.CarbonEmbodimentTemplates.newCarbonEmbodimentFormPage({
+        this.carbonEmbodimentTemplates.newCarbonEmbodimentFormPage({
           formStage: 'form',
           connectionId: connectionId,
         })
@@ -97,7 +97,7 @@ export class QueriesController extends HTMLController {
     )
 
     return this.html(
-      this.CarbonEmbodimentTemplates.newCarbonEmbodimentFormPage({
+      this.carbonEmbodimentTemplates.newCarbonEmbodimentFormPage({
         formStage: 'companySelect',
         connections,
         search: search ?? '',
@@ -110,7 +110,7 @@ export class QueriesController extends HTMLController {
    */
   @SuccessResponse(200)
   @Post('/new/carbon-embodiment')
-  public async CarbonEmbodimentSubmit(
+  public async carbonEmbodimentSubmit(
     @Request() req: express.Request,
     @Body()
     body: {
@@ -162,7 +162,7 @@ export class QueriesController extends HTMLController {
    */
   @SuccessResponse(200)
   @Get('/carbon-embodiment/{queryId}/response')
-  public async CarbonEmbodimentResponse(@Request() req: express.Request, @Path() queryId: UUID): Promise<HTML> {
+  public async carbonEmbodimentResponse(@Request() req: express.Request, @Path() queryId: UUID): Promise<HTML> {
     req.log.info('query response page requested %j', { queryId })
     const [query] = await this.db.get('query', { id: queryId })
 
@@ -180,7 +180,7 @@ export class QueriesController extends HTMLController {
     req.log.info('rendering co2 embodiment form %j', connection)
 
     return this.html(
-      this.CarbonEmbodimentResponseTemplates.newCarbonEmbodimentResponseFormPage({
+      this.carbonEmbodimentResponseTemplates.newCarbonEmbodimentResponseFormPage({
         formStage: 'form',
         company: connection,
         query,
@@ -198,7 +198,7 @@ export class QueriesController extends HTMLController {
    */
   @SuccessResponse(200)
   @Get('/{queryId}/partial')
-  public async CO2Partial(
+  public async cO2Partial(
     @Request() req: express.Request,
     @Path() queryId: UUID,
     @Query() partialQuery?: 'on'
@@ -214,7 +214,7 @@ export class QueriesController extends HTMLController {
     const connections: ConnectionRow[] = await this.db.get('connection', { status: 'verified_both' })
 
     // due to very long names, re-assigning to a shorter variable (render)
-    const render = this.CarbonEmbodimentResponseTemplates.newCarbonEmbodimentResponseFormPage
+    const render = this.carbonEmbodimentResponseTemplates.newCarbonEmbodimentResponseFormPage
     req.log.info('rendering partial query %j', query.details)
 
     return this.html(
@@ -250,7 +250,7 @@ export class QueriesController extends HTMLController {
     req.log.info('selected: %s returning an updated table row %j', connectionId, company)
 
     return this.html(
-      this.CarbonEmbodimentResponseTemplates.tableRow({
+      this.carbonEmbodimentResponseTemplates.tableRow({
         id: connectionId,
         checked,
         company_name: company.company_name,
@@ -266,7 +266,7 @@ export class QueriesController extends HTMLController {
    */
   @SuccessResponse(200)
   @Post('/carbon-embodiment/{queryId}/response')
-  public async CarbonEmbodimentResponseSubmit(
+  public async carbonEmbodimentResponseSubmit(
     @Request() req: express.Request,
     @Path() queryId: UUID,
     @Body()
@@ -353,7 +353,7 @@ export class QueriesController extends HTMLController {
     )
 
     return this.html(
-      this.CarbonEmbodimentResponseTemplates.newCarbonEmbodimentResponseFormPage({
+      this.carbonEmbodimentResponseTemplates.newCarbonEmbodimentResponseFormPage({
         formStage: 'success',
         company: connection,
         query: queryRow,
@@ -366,7 +366,7 @@ export class QueriesController extends HTMLController {
    */
   @SuccessResponse(200)
   @Get('/carbon-embodiment/{queryId}/view-response')
-  public async CarbonEmbodimentViewResponse(@Request() req: express.Request, @Path() queryId: UUID): Promise<HTML> {
+  public async carbonEmbodimentViewResponse(@Request() req: express.Request, @Path() queryId: UUID): Promise<HTML> {
     req.log.debug('gathering data for [%s] query response page', queryId)
     const [query]: QueryRow[] = await this.db.get('query', { id: queryId })
 
@@ -381,7 +381,7 @@ export class QueriesController extends HTMLController {
 
     req.log.info('connection and query has been found %j', { query, connection })
 
-    return this.html(this.CarbonEmbodimentResponseTemplates.view(connection, query))
+    return this.html(this.carbonEmbodimentResponseTemplates.view(connection, query))
   }
 
   private validatePartialQuery({ connectionIds: a, productIds: b, quantities: c }: PartialQueryPayload): number {
@@ -439,7 +439,7 @@ export class QueriesController extends HTMLController {
       await this.db.update('query', { id: query?.id }, { status: 'errored' })
 
       return this.html(
-        this.CarbonEmbodimentTemplates.newCarbonEmbodimentFormPage({
+        this.carbonEmbodimentTemplates.newCarbonEmbodimentFormPage({
           formStage: 'error',
           company: {
             companyNumber: connection.company_number,
@@ -450,7 +450,7 @@ export class QueriesController extends HTMLController {
     }
 
     return this.html(
-      this.CarbonEmbodimentTemplates.newCarbonEmbodimentFormPage({
+      this.carbonEmbodimentTemplates.newCarbonEmbodimentFormPage({
         formStage: 'success',
         company: {
           companyName: connection.company_name,
@@ -512,7 +512,7 @@ export class QueriesController extends HTMLController {
       await this.db.update('query', { id: query.id }, { status: 'errored' })
 
       return this.html(
-        this.CarbonEmbodimentResponseTemplates.newCarbonEmbodimentResponseFormPage({
+        this.carbonEmbodimentResponseTemplates.newCarbonEmbodimentResponseFormPage({
           formStage: 'error',
           company: connection,
           query,
@@ -521,7 +521,7 @@ export class QueriesController extends HTMLController {
     }
 
     return this.html(
-      this.CarbonEmbodimentResponseTemplates.newCarbonEmbodimentResponseFormPage({
+      this.carbonEmbodimentResponseTemplates.newCarbonEmbodimentResponseFormPage({
         formStage: 'success',
         company: connection,
         query,

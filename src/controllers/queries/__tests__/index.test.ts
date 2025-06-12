@@ -55,7 +55,7 @@ describe('QueriesController', () => {
       const { dbMock, args } = withQueriesMocks()
       const controller = new QueriesController(...args)
       const spy = dbMock.get
-      await controller.CarbonEmbodiment(req).then(toHTMLString)
+      await controller.carbonEmbodiment(req).then(toHTMLString)
       expect(spy.firstCall.calledWith('connection', [], [['updated_at', 'desc']])).to.equal(true)
     })
 
@@ -63,7 +63,7 @@ describe('QueriesController', () => {
       const { dbMock, args } = withQueriesMocks()
       const controller = new QueriesController(...args)
       const spy = dbMock.get
-      await controller.CarbonEmbodiment(req, 'VER123').then(toHTMLString)
+      await controller.carbonEmbodiment(req, 'VER123').then(toHTMLString)
       const search = 'VER123'
       const query = search ? [['company_name', 'ILIKE', `%${search}%`]] : {}
       expect(spy.firstCall.calledWith('connection', query, [['updated_at', 'desc']])).to.equal(true)
@@ -72,7 +72,7 @@ describe('QueriesController', () => {
     it('should call page with stage FORM as expected', async () => {
       const { args } = withQueriesMocks()
       const controller = new QueriesController(...args)
-      const result = await controller.CarbonEmbodiment(req, undefined, 'connection-id').then(toHTMLString)
+      const result = await controller.carbonEmbodiment(req, undefined, 'connection-id').then(toHTMLString)
 
       expect(result).to.equal('carbonEmbodiment_form_carbonEmbodiment')
     })
@@ -81,7 +81,7 @@ describe('QueriesController', () => {
       const { dbMock, args } = withQueriesMocks()
       const controller = new QueriesController(...args)
       const result = await controller
-        .CarbonEmbodimentSubmit(req, {
+        .carbonEmbodimentSubmit(req, {
           connectionId: 'connection-id',
           productId: 'SomeID',
           quantity: 111,
@@ -119,7 +119,7 @@ describe('QueriesController', () => {
 
       const controller = new QueriesController(...args)
       const result = await controller
-        .CarbonEmbodimentSubmit(req, {
+        .carbonEmbodimentSubmit(req, {
           connectionId: 'connection-id',
           productId: 'SomeID',
           quantity: 111,
@@ -135,7 +135,7 @@ describe('QueriesController', () => {
 
       const controller = new QueriesController(...args)
       const result = await controller
-        .CarbonEmbodimentSubmit(req, {
+        .carbonEmbodimentSubmit(req, {
           connectionId: 'connection-id',
           productId: 'SomeID',
           quantity: 111,
@@ -158,7 +158,7 @@ describe('QueriesController', () => {
 
       const controller = new QueriesController(...args)
       const result = await controller
-        .CarbonEmbodimentSubmit(req, {
+        .carbonEmbodimentSubmit(req, {
           connectionId: 'connection-id',
           productId: 'SomeID',
           quantity: 111,
@@ -181,7 +181,7 @@ describe('QueriesController', () => {
           const { args } = withQueriesMocks()
           const controller = new QueriesController(...args)
           try {
-            await controller.CarbonEmbodimentResponseSubmit(req, 'query-partial-id-test', {
+            await controller.carbonEmbodimentResponseSubmit(req, 'query-partial-id-test', {
               companyId: 'some-company-id',
               action: 'success',
               partialQuery: ['on'],
@@ -203,7 +203,7 @@ describe('QueriesController', () => {
           const { args } = withQueriesMocks()
           const controller = new QueriesController(...args)
           try {
-            await controller.CarbonEmbodimentResponseSubmit(req, 'query-partial-id-test', {
+            await controller.carbonEmbodimentResponseSubmit(req, 'query-partial-id-test', {
               companyId: 'some-company-id',
               action: 'success',
               partialQuery: ['on'],
@@ -224,7 +224,7 @@ describe('QueriesController', () => {
           const { args } = withQueriesMocks()
           const controller = new QueriesController(...args)
           try {
-            await controller.CarbonEmbodimentResponseSubmit(req, 'query-partial-id-test', {
+            await controller.carbonEmbodimentResponseSubmit(req, 'query-partial-id-test', {
               companyId: 'some-company-id',
               action: 'success',
               partialQuery: ['on'],
@@ -244,7 +244,7 @@ describe('QueriesController', () => {
           const { args } = withQueriesMocks()
           const controller = new QueriesController(...args)
           try {
-            await controller.CarbonEmbodimentResponseSubmit(req, 'query-partial-id-test', {
+            await controller.carbonEmbodimentResponseSubmit(req, 'query-partial-id-test', {
               companyId: 'some-company-id',
               action: 'success',
               partialQuery: ['on'],
@@ -267,7 +267,7 @@ describe('QueriesController', () => {
         const { args, dbMock } = withQueriesMocks()
         const controller = new QueriesController(...args)
         const result = await controller
-          .CarbonEmbodimentResponseSubmit(req, 'query-partial-id-test', {
+          .carbonEmbodimentResponseSubmit(req, 'query-partial-id-test', {
             companyId: 'some-company-id',
             action: 'success',
             partialQuery: ['on'],
@@ -335,7 +335,7 @@ describe('QueriesController', () => {
       const { args, dbMock } = withQueriesMocks()
       const controller = new QueriesController(...args)
       const spy = dbMock.get
-      await controller.CarbonEmbodimentResponse(req, 'SomeId').then(toHTMLString)
+      await controller.carbonEmbodimentResponse(req, 'SomeId').then(toHTMLString)
       const search = 'SomeId'
       expect(spy.firstCall.calledWith('query', { id: search })).to.equal(true)
     })
@@ -343,7 +343,7 @@ describe('QueriesController', () => {
     it('should call query response page with stage FORM as expected', async () => {
       const { args } = withQueriesMocks()
       const controller = new QueriesController(...args)
-      const result = await controller.CarbonEmbodimentResponse(req, 'someId123').then(toHTMLString)
+      const result = await controller.carbonEmbodimentResponse(req, 'someId123').then(toHTMLString)
 
       expect(result).to.equal('queriesResponse_form_template')
     })
@@ -352,7 +352,7 @@ describe('QueriesController', () => {
       const { args } = withQueriesMocks()
       const controller = new QueriesController(...args)
       const result = await controller
-        .CarbonEmbodimentResponseSubmit(req, '5390af91-c551-4d74-b394-d8ae0805059e', {
+        .carbonEmbodimentResponseSubmit(req, '5390af91-c551-4d74-b394-d8ae0805059e', {
           companyId: '2345789',
           action: 'success',
           emissions: 25,
@@ -369,7 +369,7 @@ describe('QueriesController', () => {
       const controller = new QueriesController(...args)
 
       const result = await controller
-        .CarbonEmbodimentResponseSubmit(req, '5390af91-c551-4d74-b394-d8ae0805059e', {
+        .carbonEmbodimentResponseSubmit(req, '5390af91-c551-4d74-b394-d8ae0805059e', {
           companyId: '2345789',
           action: 'success',
           emissions: 25,
@@ -390,7 +390,7 @@ describe('QueriesController', () => {
 
       const controller = new QueriesController(...args)
       const result = await controller
-        .CarbonEmbodimentResponseSubmit(req, '5390af91-c551-4d74-b394-d8ae0805059e', {
+        .carbonEmbodimentResponseSubmit(req, '5390af91-c551-4d74-b394-d8ae0805059e', {
           companyId: '2345789',
           action: 'success',
           emissions: 25,
@@ -410,7 +410,7 @@ describe('QueriesController', () => {
 
     const controller = new QueriesController(...args)
     const result = await controller
-      .CarbonEmbodimentResponseSubmit(req, '5390af91-c551-4d74-b394-d8ae0805059e', {
+      .carbonEmbodimentResponseSubmit(req, '5390af91-c551-4d74-b394-d8ae0805059e', {
         companyId: '2345789',
         action: 'success',
         emissions: 25,
@@ -429,7 +429,7 @@ describe('QueriesController', () => {
       const { args, dbMock } = withQueriesMocks()
       const controller = new QueriesController(...args)
       const spy = dbMock.get
-      await controller.CarbonEmbodimentViewResponse(req, mockIds.queryId).then(toHTMLString)
+      await controller.carbonEmbodimentViewResponse(req, mockIds.queryId).then(toHTMLString)
       expect(spy.firstCall.calledWith('query', { id: mockIds.queryId })).to.equal(true)
     })
   })
@@ -443,7 +443,7 @@ describe('QueriesController', () => {
 
       const controller = new QueriesController(...args)
       result = await controller
-        .CO2Partial(
+        .cO2Partial(
           req,
           mockIds.queryId, // url param
           'on' // partialSelect query string param
@@ -457,7 +457,7 @@ describe('QueriesController', () => {
       it('renders a regular form template', async () => {
         const controller = new QueriesController(...args)
         result = await controller
-          .CO2Partial(
+          .cO2Partial(
             req,
             mockIds.queryId // url param
           )
@@ -504,7 +504,7 @@ describe('QueriesController', () => {
       before(async () => {
         const controller = new QueriesController(...args)
         result = await controller
-          .CarbonEmbodimentResponseSubmit(req, mockIds.queryId, {
+          .carbonEmbodimentResponseSubmit(req, mockIds.queryId, {
             companyId: 'cccccccc-0001-0000-0000-d8ae0805059e',
             action: 'success',
             partialQuery: ['on'],
