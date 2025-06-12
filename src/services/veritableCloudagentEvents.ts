@@ -70,6 +70,7 @@ export default class VeritableCloudagentEvents extends IndexedAsyncEventEmitter<
   private internalStatus: 'IDLE' | 'CONNECTED' | 'ERRORED' = 'IDLE'
   private socket?: WebSocket
   private closeTimeoutId?: NodeJS.Timeout
+  private heartbeatTimeout?: NodeJS.Timeout
 
   constructor(
     private env: Env,
@@ -81,6 +82,15 @@ export default class VeritableCloudagentEvents extends IndexedAsyncEventEmitter<
 
   get status() {
     return this.internalStatus
+  }
+
+  private heartbeat = () => {
+    this.logger.debug('WebSocket PING')
+    clearTimeout(this.heartbeatTimeout)
+    this.heartbeatTimeout = setTimeout(() => {
+      this.logger.debug('WebSocket PING timed out')
+      this.socket?.terminate()
+    }, 30000)
   }
 
   public start = (): Promise<void> => {
@@ -95,8 +105,11 @@ export default class VeritableCloudagentEvents extends IndexedAsyncEventEmitter<
 
     const socket = new WebSocket(this.env.get('CLOUDAGENT_ADMIN_WS_ORIGIN'))
     socket.addEventListener('open', async () => {
-      this.logger.info('WebSocket connection to Cloudagent established')
+      this.logger.info('WebSocket connection to CloudAgent established')
       this.internalStatus = 'CONNECTED'
+
+      this.heartbeat()
+
       const connectionSeen = new Set<string>()
       const credentialSeen = new Set<string>()
 
@@ -158,7 +171,7 @@ export default class VeritableCloudagentEvents extends IndexedAsyncEventEmitter<
 
       resolve()
     })
-
+    socket.on('ping', this.heartbeat)
     socket.addEventListener('close', this.closeHandler)
 
     this.socket = socket
@@ -167,6 +180,7 @@ export default class VeritableCloudagentEvents extends IndexedAsyncEventEmitter<
   }
 
   public stop = () => {
+    this.logger.info('WebSocket connection to CloudAgent stopped')
     this.internalStatus = 'IDLE'
 
     if (this.socket) {
@@ -183,8 +197,10 @@ export default class VeritableCloudagentEvents extends IndexedAsyncEventEmitter<
   }
 
   private closeHandler = () => {
+    this.logger.warn('WebSocket connection to CloudAgent closed')
     this.internalStatus = 'ERRORED'
     this.socket = undefined
+    clearTimeout(this.heartbeatTimeout)
     this.closeTimeoutId = setTimeout(this.start, 10000)
   }
 }
