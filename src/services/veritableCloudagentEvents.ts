@@ -90,7 +90,7 @@ export default class VeritableCloudagentEvents extends IndexedAsyncEventEmitter<
     this.heartbeatTimeout = setTimeout(() => {
       this.logger.debug('WebSocket PING timed out')
       this.socket?.terminate()
-    }, 30000)
+    }, this.env.get('CLOUDAGENT_ADMIN_PING_TIMEOUT_MS'))
   }
 
   public start = (): Promise<void> => {
