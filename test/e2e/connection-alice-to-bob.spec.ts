@@ -1,6 +1,6 @@
 import { expect, Page, test } from '@playwright/test'
-import { cleanup, CustomBrowserContext, withLoggedInUser, withRegisteredAccount } from './helpers/registerLogIn.js'
-import { checkEmails, extractInvite, extractPin } from './helpers/smtpEmails.js'
+import { cleanup, CustomBrowserContext, withLoggedInUser, withRegisteredAccount } from '../helpers/registerLogIn.js'
+import { checkEmails, extractInvite, extractPin } from '../helpers/smtpEmails.js'
 
 test.describe('Connection from Alice to Bob', () => {
   let context: CustomBrowserContext
