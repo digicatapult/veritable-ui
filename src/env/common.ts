@@ -45,6 +45,7 @@ export const defaultConfig = {
   EMAIL_ADMIN_ADDRESS: envalid.email({ default: 'admin@veritable.com' }),
   CLOUDAGENT_ADMIN_ORIGIN: envalid.url({ devDefault: 'http://localhost:3100' }),
   CLOUDAGENT_ADMIN_WS_ORIGIN: envalid.url({ devDefault: 'ws://localhost:3100' }),
+  CLOUDAGENT_ADMIN_PING_TIMEOUT_MS: envalid.num({ default: 30000 }),
   INVITATION_PIN_SECRET: pinSecretValidator({ devDefault: Buffer.from('secret', 'utf8') }),
   INVITATION_PIN_ATTEMPT_LIMIT: envalid.num({ default: 5 }),
   INVITATION_FROM_COMPANY_NUMBER: envalid.str({ devDefault: '07964699' }),
