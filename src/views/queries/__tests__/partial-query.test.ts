@@ -2,7 +2,7 @@ import { expect } from 'chai'
 import { describe } from 'mocha'
 import { mockIds } from '../../../controllers/queries/__tests__/helpers.js'
 import { ConnectionRow, QueryRow } from '../../../models/db/types.js'
-import Templates from '../responseCo2scope3.js'
+import Templates from '../responseCo2embodiment.js'
 
 const templates = new Templates()
 const sampleDate = new Date(Date.UTC(2024, 6, 4))
@@ -41,7 +41,7 @@ const queryExample: QueryRow = {
 describe('Partial Query', () => {
   describe('if partial is set to false', () => {
     it('does not render connections list and leaves quantity input enabled', async () => {
-      const rendered = await templates.newScope3CarbonConsumptionResponseFormPage({
+      const rendered = await templates.newCarbonEmbodimentResponseFormPage({
         formStage: 'form',
         company: {
           company_name: 'VER123',
@@ -64,7 +64,7 @@ describe('Partial Query', () => {
   })
 
   it('renders partial query table with connections that are verified', async () => {
-    const rendered = await templates.newScope3CarbonConsumptionResponseFormPage({
+    const rendered = await templates.newCarbonEmbodimentResponseFormPage({
       formStage: 'form',
       company: {
         company_name: 'VER123',
