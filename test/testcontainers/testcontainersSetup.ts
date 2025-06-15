@@ -1,6 +1,8 @@
+import * as fs from 'node:fs'
 import path from 'path'
 import { GenericContainer, Network, StartedNetwork, StartedTestContainer, Wait } from 'testcontainers'
 import { fileURLToPath } from 'url'
+import { parse } from 'yaml'
 
 interface PostgresPasswordAndUser {
   postgresPassword?: string
@@ -63,6 +65,11 @@ interface VeritableUIConfig extends PostgresValuesInterface {
 }
 const network = await new Network().start()
 
+const dockerCompose = fs.readFileSync('./docker-compose.yml', 'utf-8')
+const parsed = parse(dockerCompose)
+const keycloakVersion = parsed.services.keycloak.image
+const postgresVersion = parsed.services['postgres-veritable-ui-alice'].image
+
 export async function bringUpSharedContainers() {
   const __filename = fileURLToPath(import.meta.url)
   const __dirname = path.dirname(__filename)
@@ -74,6 +81,7 @@ export async function bringUpSharedContainers() {
   const smtp4dev = await composeSmtp4dev(network)
   return [keycloakContainer, ipfsContainer, smtp4dev]
 }
+
 export async function bringUpAliceUIContainer() {
   const aliceVeritableUIConfig: VeritableUIConfig = {
     containerName: 'veritable-ui-alice',
@@ -234,7 +242,7 @@ export async function composeKeycloakContainer(
   network: StartedNetwork,
   keycloakDataPath: string
 ): Promise<StartedTestContainer> {
-  const keycloakContainer = await new GenericContainer('quay.io/keycloak/keycloak:26.0.5')
+  const keycloakContainer = await new GenericContainer(keycloakVersion)
     .withName('keycloak')
     .withExposedPorts({
       container: 8080,
@@ -270,7 +278,7 @@ export async function veritableUIPostgresDbContainer(
   postgresValues: PostgresValuesInterface
 ) {
   const { postgresPassword = 'postgres', postgresUser = 'postgres', postgresDb } = postgresValues
-  const veritableUIPostgresContainer = await new GenericContainer('postgres:17.0-alpine')
+  const veritableUIPostgresContainer = await new GenericContainer(postgresVersion)
     .withName(name)
     .withExposedPorts({
       container: exposedPorts.containerPort,
@@ -294,7 +302,7 @@ export async function veritableCloudagentPostgresContainer(
   postgresValues: PostgresValuesInterface
 ) {
   const { postgresPassword = 'postgres', postgresUser = 'postgres', postgresDb } = postgresValues
-  const veritableCloudagentPostgres = await new GenericContainer('postgres:17.0-alpine')
+  const veritableCloudagentPostgres = await new GenericContainer(postgresVersion)
     .withName(name)
     .withEnvironment({
       POSTGRES_PASSWORD: postgresPassword,
