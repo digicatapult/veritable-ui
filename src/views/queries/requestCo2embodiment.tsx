@@ -152,7 +152,7 @@ export default class CarbonEmbodimentTemplates {
         <div class="container-carbon-embodiment">
           <div class="co2-embodiment-left">
             <h1>Total Carbon Embodiment</h1>
-            <p class="query-text-carbon3-consumption">
+            <p class="query-text-carbon-embodiment">
               Creates a query for obtaining the total carbon embodiment for a given product/component.
             </p>
           </div>
