@@ -104,6 +104,28 @@ export async function bringUpAliceUIContainer() {
   return [aliceVeritableUIContainer]
 }
 
+export async function bringUpAlicePlaywrightContainer() {
+  const aliceVeritableUIConfig: VeritableUIConfig = {
+    containerName: 'veritable-ui-alice',
+    dbHost: 'postgres-veritable-ui-alice',
+    hostPort: 3000,
+    containerPort: 3000,
+    postgresPort: '5432',
+    idpPublicUrlPrefix:
+      process.env.VERITABLE_IDP_PUBLIC_URL_PREFIX || 'http://localhost:3080/realms/veritable/protocol/openid-connect',
+    cloudagentAdminOrigin: 'http://veritable-cloudagent-alice:3000',
+    cloudagentAdminWsOrigin: 'ws://veritable-cloudagent-alice:3000',
+    invitationFromCompanyNumber: '07964699',
+    publicUrl: process.env.VERITABLE_ALICE_PUBLIC_URL || 'http://localhost:3000',
+    apiSwaggerBgColor: '#ff3131',
+    apiSwaggerTitle: 'Alice',
+    companyProfileApiKey: process.env.VERITABLE_COMPANY_PROFILE_API_KEY || 'API_KEY',
+    postgresDb: 'veritable-ui',
+  }
+  const aliceVeritableUIContainer = await PlaywrightContainer(network, aliceVeritableUIConfig)
+  return [aliceVeritableUIContainer]
+}
+
 // Dependencies for Alice, but not her UI container
 export async function bringUpAliceDependenciesContainers() {
   const aliceVeritableUIPostgres = await veritableUIPostgresDbContainer(
@@ -510,9 +532,9 @@ export async function PlaywrightContainer(network: StartedNetwork, env: Veritabl
     smtpSecure = 'false',
   } = env
 
-  const base = await GenericContainer.fromDockerfile('./').build()
+  const playwright = await GenericContainer.fromDockerfile('.', 'Playwright.dockerfile').build('playwright')
 
-  const playwrightContainer = await base
+  const playwrightContainer = await playwright
     .withName(containerName)
     .withExposedPorts({
       container: containerPort,
