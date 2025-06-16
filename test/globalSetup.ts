@@ -1,7 +1,7 @@
 import 'reflect-metadata'
 import {
   bringUpAliceDependenciesContainers,
-  bringUpAliceUIContainer,
+  bringUpAlicePlaywrightContainer,
   bringUpBobContainers,
   bringUpCharlieContainers,
   bringUpSharedContainers,
@@ -10,7 +10,7 @@ import {
 async function globalSetup() {
   await bringUpSharedContainers()
   await bringUpAliceDependenciesContainers()
-  await bringUpAliceUIContainer()
+  await bringUpAlicePlaywrightContainer()
   await bringUpBobContainers()
   await bringUpCharlieContainers()
 }
