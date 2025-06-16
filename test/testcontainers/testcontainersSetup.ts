@@ -383,6 +383,7 @@ export async function composeSmtp4dev(network: StartedNetwork) {
     .start()
   return smtp4dev
 }
+
 export async function veritableUIContainer(network: StartedNetwork, env: VeritableUIConfig) {
   const {
     containerName,
@@ -419,7 +420,8 @@ export async function veritableUIContainer(network: StartedNetwork, env: Veritab
     demoMode = 'true',
     smtpSecure = 'false',
   } = env
-  const base = await GenericContainer.fromDockerfile('./').withTarget('test').build()
+
+  const base = await GenericContainer.fromDockerfile('./').build('veritable-ui')
 
   const veritableUIContainer = await base
     .withName(containerName)
@@ -469,4 +471,93 @@ export async function veritableUIContainer(network: StartedNetwork, env: Veritab
     .withReuse()
     .start()
   return veritableUIContainer
+}
+
+export async function PlaywrightContainer(network: StartedNetwork, env: VeritableUIConfig) {
+  const {
+    containerName,
+    dbHost,
+    containerPort,
+    hostPort,
+    postgresPort,
+    publicUrl,
+    idpPublicUrlPrefix,
+    invitationFromCompanyNumber,
+    cloudagentAdminOrigin,
+    cloudagentAdminWsOrigin,
+    apiSwaggerTitle,
+    apiSwaggerBgColor,
+    companyProfileApiKey,
+    postgresDb,
+    nodeEnv = 'production',
+    logLevel = 'trace',
+    postgresUser = 'postgres',
+    postgresPassword = 'postgres',
+    cookieSessionKeys = 'secret',
+    idpClientId = 'veritable-ui',
+    idpInternalUrlPrefix = 'http://keycloak:8080/realms/veritable/protocol/openid-connect',
+    invitationPinSecret = 'secret',
+    issuanceDidPolicy = 'EXISTING_OR_NEW',
+    issuanceSchemaPolicy = 'EXISTING_OR_NEW',
+    issuanceCredDefPolicy = 'EXISTING_OR_NEW',
+    smtpHost = 'smtp4dev',
+    smtpPass = '',
+    smtpPort = '25',
+    smtpUser = '',
+    emailTransport = 'SMTP_EMAIL',
+    companyHouseApiUrl = 'https://api.company-information.service.gov.uk',
+    demoMode = 'true',
+    smtpSecure = 'false',
+  } = env
+
+  const base = await GenericContainer.fromDockerfile('./').build()
+
+  const playwrightContainer = await base
+    .withName(containerName)
+    .withExposedPorts({
+      container: containerPort,
+      host: hostPort,
+    })
+    .withEnvironment({
+      NODE_ENV: nodeEnv,
+      LOG_LEVEL: logLevel,
+      DB_HOST: dbHost,
+      DB_NAME: postgresDb,
+      DB_USERNAME: postgresUser,
+      DB_PASSWORD: postgresPassword,
+      DB_PORT: postgresPort,
+      COOKIE_SESSION_KEYS: cookieSessionKeys,
+      PUBLIC_URL: publicUrl,
+      IDP_CLIENT_ID: idpClientId,
+      IDP_PUBLIC_URL_PREFIX: idpPublicUrlPrefix,
+      IDP_INTERNAL_URL_PREFIX: idpInternalUrlPrefix,
+      CLOUDAGENT_ADMIN_ORIGIN: cloudagentAdminOrigin,
+      CLOUDAGENT_ADMIN_WS_ORIGIN: cloudagentAdminWsOrigin,
+      INVITATION_PIN_SECRET: invitationPinSecret,
+      INVITATION_FROM_COMPANY_NUMBER: invitationFromCompanyNumber,
+      ISSUANCE_DID_POLICY: issuanceDidPolicy,
+      ISSUANCE_SCHEMA_POLICY: issuanceSchemaPolicy,
+      ISSUANCE_CRED_DEF_POLICY: issuanceCredDefPolicy,
+      SMTP_HOST: smtpHost,
+      SMTP_PASS: smtpPass,
+      SMTP_PORT: smtpPort,
+      SMTP_USER: smtpUser,
+      EMAIL_TRANSPORT: emailTransport,
+      API_SWAGGER_TITLE: apiSwaggerTitle,
+      API_SWAGGER_BG_COLOR: apiSwaggerBgColor,
+      COMPANY_HOUSE_API_URL: companyHouseApiUrl,
+      DEMO_MODE: demoMode,
+      SMTP_SECURE: smtpSecure,
+      COMPANY_PROFILE_API_KEY: companyProfileApiKey,
+    })
+    .withCommand([
+      'sh',
+      '-c',
+      'npm i -g pino-colada; node ./node_modules/.bin/knex migrate:latest; npm start | pino-colada',
+    ])
+    .withWaitStrategy(Wait.forListeningPorts())
+    .withNetwork(network)
+    .withReuse()
+    .start()
+  return playwrightContainer
 }
