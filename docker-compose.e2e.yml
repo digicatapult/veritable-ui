@@ -9,7 +9,7 @@ services:
     container_name: e2e-tests
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: Playwright.dockerfile
       target: test
     ports:
       - 9323:9323
