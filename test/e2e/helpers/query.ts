@@ -17,7 +17,7 @@ export async function withQueryRequest(requesterUrl: string) {
     throw new Error(`Connection not found ${connectionId}`)
   }
 
-  await fetchPost(`${requesterUrl}/queries/new/scope-3-carbon-consumption`, {
+  await fetchPost(`${requesterUrl}/queries/new/carbon-embodiment`, {
     connectionId,
     ...co2QueryContent,
   })
@@ -52,7 +52,7 @@ export async function withQueryResponse(requesterUrl: string, responderUrl: stri
     }
   }
 
-  await fetchPost(`${responderUrl}/queries/scope-3-carbon-consumption/${queryId[0]}/response`, {
+  await fetchPost(`${responderUrl}/queries/carbon-embodiment/${queryId[0]}/response`, {
     companyId: connectionId,
     action: 'success',
     emissions: emissions || 999,
