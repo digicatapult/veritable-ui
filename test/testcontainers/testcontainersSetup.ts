@@ -22,7 +22,7 @@ interface VeritableCloudAgentEnvConfig extends PostgresPasswordAndUser {
   walletId: string
   walletKey: string
   postgresHost: string
-  logLevel?: 'trace' | 'debug' | 'info' | 'warn' | 'error'
+  logLevel?: 'debug' | 'info' | 'warn' | 'error'
   inboundTransport?: string
   outboundTransport?: string
   adminPort?: string
