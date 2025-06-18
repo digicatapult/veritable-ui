@@ -163,7 +163,7 @@ npm run test:unit
 
 Integration tests are placed at the root level of a repository and can be found at the root level `test/` folder along with mock services and helpers and a test environment variables that will be in `test/test.env`.
 
-Integration tests can be run locally by executing the below command (it is recommended to add debugging so you can follow the logs in the console, refer to [testcontainers section](#testcontainers))
+Integration tests can be run locally using Testcontainers by executing the below command (it is recommended to add debugging so you can follow the logs in the console, refer to [testcontainers section](#testcontainers))
 
 ```sh
 npm run test:integration
@@ -171,7 +171,7 @@ npm run test:integration
 
 ### e2e Testing
 
-E2e tests are placed at root level in the `test/` directory. They run by default in a Testcontainers environment.
+End-to-end tests are placed at root level in the `test/` directory. They run by default in a Testcontainers environment.
 
 Install dependencies for playwright with:
 
