@@ -63,6 +63,7 @@ interface VeritableUIConfig extends PostgresValuesInterface {
   issuanceSchemaPolicy?: string
   issuanceCredDefPolicy?: string
 }
+
 const network = await new Network().start()
 
 const dockerCompose = fs.readFileSync('./docker-compose.yml', 'utf-8')
@@ -419,7 +420,8 @@ export async function veritableUIContainer(network: StartedNetwork, env: Veritab
     demoMode = 'true',
     smtpSecure = 'false',
   } = env
-  const base = await GenericContainer.fromDockerfile('./').withTarget('test').build()
+
+  const base = await GenericContainer.fromDockerfile('./').build()
 
   const veritableUIContainer = await base
     .withName(containerName)
