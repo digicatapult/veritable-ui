@@ -1,3 +1,4 @@
+import dotenv from 'dotenv'
 import 'reflect-metadata'
 import {
   bringUpAliceDependenciesContainers,
@@ -8,6 +9,7 @@ import {
 } from './testcontainers/testcontainersSetup'
 
 async function globalSetup() {
+  dotenv.config()
   await bringUpSharedContainers()
   await bringUpAliceDependenciesContainers()
   await bringUpAliceUIContainer()
