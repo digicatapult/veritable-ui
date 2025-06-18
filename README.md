@@ -21,12 +21,12 @@ veritable-ui depends on a few external services:
 
 ### Prerequisites
 
-> :warning: last updated: 01/08/2024
+> :warning: last updated: 18/07/2025
 
-- docker v27.0.3+
-- npm 10.0.0+
+- docker v28.1.1+
+- npm 11.0.0+
 - node 22.0.0+
-- postgresql 16.3+
+- postgresql 17.5+
 
 ## Getting started
 
