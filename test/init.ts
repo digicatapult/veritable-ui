@@ -6,21 +6,27 @@ import { StartedTestContainer } from 'testcontainers'
 import { migrateDatabase } from './helpers/db.js'
 import {
   bringUpAliceDependenciesContainers,
-  bringUpBobContainers,
-  bringUpCharlieContainers,
+  bringUpBobDependenciesContainers,
+  bringUpBobUIContainer,
+  bringUpCharlieDependenciesContainers,
+  bringUpCharlieUIContainer,
   bringUpSharedContainers,
 } from './testcontainers/testcontainersSetup.js'
 
 let sharedContainers: StartedTestContainer[]
 let aliceDepsContainers: StartedTestContainer[]
-let bobContainers: StartedTestContainer[]
-let charlieContainers: StartedTestContainer[]
+let bobDepsContainers: StartedTestContainer[]
+let charlieDepsContainers: StartedTestContainer[]
+let bobUIContainer: StartedTestContainer[]
+let charlieUIContainer: StartedTestContainer[]
 
 before(async function () {
   sharedContainers = await bringUpSharedContainers()
   aliceDepsContainers = await bringUpAliceDependenciesContainers()
-  bobContainers = await bringUpBobContainers()
-  charlieContainers = await bringUpCharlieContainers()
+  bobDepsContainers = await bringUpBobDependenciesContainers()
+  charlieDepsContainers = await bringUpCharlieDependenciesContainers()
+  bobUIContainer = await bringUpBobUIContainer()
+  charlieUIContainer = await bringUpCharlieUIContainer()
 
   await migrateDatabase()
   use(chaiJestSnapshot)
@@ -34,12 +40,22 @@ after(async function () {
     })
   )
   await Promise.all(
-    bobContainers.map(async function (container) {
+    bobDepsContainers.map(async function (container) {
       await container.stop()
     })
   )
   await Promise.all(
-    charlieContainers.map(async function (container) {
+    charlieDepsContainers.map(async function (container) {
+      await container.stop()
+    })
+  )
+  await Promise.all(
+    bobUIContainer.map(async function (container) {
+      await container.stop()
+    })
+  )
+  await Promise.all(
+    charlieUIContainer.map(async function (container) {
       await container.stop()
     })
   )

@@ -107,7 +107,48 @@ export async function bringUpAliceUIContainer() {
   return [aliceVeritableUIContainer]
 }
 
-// Dependencies for Alice, but not her UI container
+export async function bringUpBobUIContainer() {
+  const bobVeritableUIConfig: VeritableUIConfig = {
+    containerName: 'veritable-ui-bob',
+    dbHost: 'postgres-veritable-ui-bob',
+    hostPort: 3001,
+    containerPort: 3000,
+    postgresPort: '5432',
+    idpPublicUrlPrefix: 'http://localhost:3080/realms/veritable/protocol/openid-connect',
+    cloudagentAdminOrigin: 'http://veritable-cloudagent-bob:3000',
+    cloudagentAdminWsOrigin: 'ws://veritable-cloudagent-bob:3000',
+    invitationFromCompanyNumber: '04659351',
+    publicUrl: 'http://localhost:3000',
+    apiSwaggerBgColor: '#ff3131',
+    apiSwaggerTitle: 'Bob',
+    companyProfileApiKey: process.env.VERITABLE_COMPANY_PROFILE_API_KEY || 'API_KEY',
+    postgresDb: 'veritable-ui',
+  }
+  const bobVeritableUIContainer = await veritableUIContainer(network, bobVeritableUIConfig)
+  return [bobVeritableUIContainer]
+}
+
+export async function bringUpCharlieUIContainer() {
+  const charlieVeritableUIConfig: VeritableUIConfig = {
+    containerName: 'veritable-ui-charlie',
+    dbHost: 'postgres-veritable-ui-charlie',
+    hostPort: 3002,
+    containerPort: 3000,
+    postgresPort: '5432',
+    idpPublicUrlPrefix: 'http://localhost:3080/realms/veritable/protocol/openid-connect',
+    cloudagentAdminOrigin: 'http://veritable-cloudagent-charlie:3000',
+    cloudagentAdminWsOrigin: 'ws://veritable-cloudagent-charlie:3000',
+    invitationFromCompanyNumber: '10016023',
+    publicUrl: 'http://localhost:3000',
+    apiSwaggerBgColor: '#ffbd59',
+    apiSwaggerTitle: 'Charlie',
+    companyProfileApiKey: process.env.VERITABLE_COMPANY_PROFILE_API_KEY || 'API_KEY',
+    postgresDb: 'veritable-ui',
+  }
+  const charlieVeritableUIContainer = await veritableUIContainer(network, charlieVeritableUIConfig)
+  return [charlieVeritableUIContainer]
+}
+
 export async function bringUpAliceDependenciesContainers() {
   const aliceVeritableUIPostgres = await veritableUIPostgresDbContainer(
     network,
@@ -140,7 +181,7 @@ export async function bringUpAliceDependenciesContainers() {
   return [aliceVeritableUIPostgres, aliceVeritableCloudagentPostgres, aliceCloudAgentContainer]
 }
 
-export async function bringUpBobContainers() {
+export async function bringUpBobDependenciesContainers() {
   const bobVeritableUIPostgres = await veritableUIPostgresDbContainer(
     network,
     'postgres-veritable-ui-bob',
@@ -167,27 +208,10 @@ export async function bringUpBobContainers() {
     },
     aliceCloudagentEnvConfig
   )
-  const bobVeritableUIConfig: VeritableUIConfig = {
-    containerName: 'veritable-ui-bob',
-    hostPort: 3001,
-    containerPort: 3000,
-    dbHost: 'postgres-veritable-ui-bob',
-    postgresPort: '5432',
-    idpPublicUrlPrefix: 'http://localhost:3080/realms/veritable/protocol/openid-connect',
-    cloudagentAdminOrigin: 'http://veritable-cloudagent-bob:3000',
-    cloudagentAdminWsOrigin: 'ws://veritable-cloudagent-bob:3000',
-    invitationFromCompanyNumber: '04659351',
-    publicUrl: 'http://localhost:3001',
-    apiSwaggerBgColor: '#ff3131',
-    apiSwaggerTitle: 'Bob',
-    companyProfileApiKey: process.env.VERITABLE_COMPANY_PROFILE_API_KEY || 'API_KEY',
-    postgresDb: 'veritable-ui',
-  }
-  const bobVeritableUIContainer = await veritableUIContainer(network, bobVeritableUIConfig)
-  return [bobVeritableUIPostgres, bobVeritableCloudagentPostgres, bobCloudAgentContainer, bobVeritableUIContainer]
+  return [bobVeritableUIPostgres, bobVeritableCloudagentPostgres, bobCloudAgentContainer]
 }
 
-export async function bringUpCharlieContainers() {
+export async function bringUpCharlieDependenciesContainers() {
   const charlieVeritableUIPostgres = await veritableUIPostgresDbContainer(
     network,
     'postgres-veritable-ui-charlie',
@@ -214,29 +238,7 @@ export async function bringUpCharlieContainers() {
     },
     charlieCloudagentEnvConfig
   )
-  const charlieVeritableUIConfig: VeritableUIConfig = {
-    containerName: 'veritable-ui-charlie',
-    hostPort: 3002,
-    containerPort: 3000,
-    dbHost: 'postgres-veritable-ui-charlie',
-    postgresPort: '5432',
-    idpPublicUrlPrefix: 'http://localhost:3080/realms/veritable/protocol/openid-connect',
-    cloudagentAdminOrigin: 'http://veritable-cloudagent-charlie:3000',
-    cloudagentAdminWsOrigin: 'ws://veritable-cloudagent-charlie:3000',
-    invitationFromCompanyNumber: '10016023',
-    publicUrl: 'http://localhost:3002',
-    apiSwaggerBgColor: '#ffbd59',
-    apiSwaggerTitle: 'Charlie',
-    companyProfileApiKey: process.env.VERITABLE_COMPANY_PROFILE_API_KEY || 'API_KEY',
-    postgresDb: 'veritable-ui',
-  }
-  const charlieVeritableUIContainer = await veritableUIContainer(network, charlieVeritableUIConfig)
-  return [
-    charlieVeritableUIPostgres,
-    charlieVeritableCloudagentPostgres,
-    charlieCloudAgentContainer,
-    charlieVeritableUIContainer,
-  ]
+  return [charlieVeritableUIPostgres, charlieVeritableCloudagentPostgres, charlieCloudAgentContainer]
 }
 
 export async function composeKeycloakContainer(
