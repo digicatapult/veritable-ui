@@ -69,6 +69,9 @@ const dockerCompose = fs.readFileSync('./docker-compose.yml', 'utf-8')
 const parsed = parse(dockerCompose)
 const keycloakVersion = parsed.services.keycloak.image
 const postgresVersion = parsed.services['postgres-veritable-ui-alice'].image
+const cloudagentVersion = parsed.services['veritable-cloudagent-alice'].image
+const kuboVersion = parsed.services.ipfs.image
+const smtp4devVersion = parsed.services.smtp4dev.image
 
 export async function bringUpSharedContainers() {
   const __filename = fileURLToPath(import.meta.url)
@@ -284,7 +287,7 @@ export async function composeKeycloakContainer(
 }
 
 export async function composeIpfsContainer(network: StartedNetwork): Promise<StartedTestContainer> {
-  const ipfsContainer = await new GenericContainer('ipfs/kubo:release')
+  const ipfsContainer = await new GenericContainer(kuboVersion)
     .withName('ipfs')
     .withWaitStrategy(Wait.forLogMessage('Gateway server listening on'))
     .withNetwork(network)
@@ -359,7 +362,7 @@ export async function cloudagentContainer(
     postgresPort = '5432',
     label = 'veritable-cloudagent',
   } = env
-  const cloudagentContainer = await new GenericContainer('digicatapult/veritable-cloudagent')
+  const cloudagentContainer = await new GenericContainer(cloudagentVersion)
     .withName(name)
     .withExposedPorts({
       container: exposedPorts.containerPort,
@@ -389,7 +392,7 @@ export async function cloudagentContainer(
 
 // would we ever want to change anything about this?
 export async function composeSmtp4dev(network: StartedNetwork) {
-  const smtp4dev = await new GenericContainer('rnwood/smtp4dev')
+  const smtp4dev = await new GenericContainer(smtp4devVersion)
     .withName('smtp4dev')
     .withExposedPorts({
       container: 80,
