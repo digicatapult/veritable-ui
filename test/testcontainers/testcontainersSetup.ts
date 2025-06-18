@@ -43,8 +43,6 @@ interface VeritableUIConfig extends PostgresValuesInterface {
   invitationPinSecret?: string
   invitationFromCompanyNumber: string
   publicUrl: string
-  apiSwaggerTitle: string
-  apiSwaggerBgColor: string
   companyProfileApiKey: string
   companyHouseApiUrl?: string
   idpInternalUrlPrefix?: string
@@ -98,8 +96,6 @@ export async function bringUpAliceUIContainer() {
     cloudagentAdminWsOrigin: 'ws://veritable-cloudagent-alice:3000',
     invitationFromCompanyNumber: '07964699',
     publicUrl: 'http://localhost:3000',
-    apiSwaggerBgColor: '#ff3131',
-    apiSwaggerTitle: 'Alice',
     companyProfileApiKey: process.env.VERITABLE_COMPANY_PROFILE_API_KEY || 'API_KEY',
     postgresDb: 'veritable-ui',
   }
@@ -119,8 +115,6 @@ export async function bringUpBobUIContainer() {
     cloudagentAdminWsOrigin: 'ws://veritable-cloudagent-bob:3000',
     invitationFromCompanyNumber: '04659351',
     publicUrl: 'http://localhost:3000',
-    apiSwaggerBgColor: '#ff3131',
-    apiSwaggerTitle: 'Bob',
     companyProfileApiKey: process.env.VERITABLE_COMPANY_PROFILE_API_KEY || 'API_KEY',
     postgresDb: 'veritable-ui',
   }
@@ -140,8 +134,6 @@ export async function bringUpCharlieUIContainer() {
     cloudagentAdminWsOrigin: 'ws://veritable-cloudagent-charlie:3000',
     invitationFromCompanyNumber: '10016023',
     publicUrl: 'http://localhost:3000',
-    apiSwaggerBgColor: '#ffbd59',
-    apiSwaggerTitle: 'Charlie',
     companyProfileApiKey: process.env.VERITABLE_COMPANY_PROFILE_API_KEY || 'API_KEY',
     postgresDb: 'veritable-ui',
   }
@@ -398,8 +390,6 @@ export async function veritableUIContainer(network: StartedNetwork, env: Veritab
     invitationFromCompanyNumber,
     cloudagentAdminOrigin,
     cloudagentAdminWsOrigin,
-    apiSwaggerTitle,
-    apiSwaggerBgColor,
     companyProfileApiKey,
     postgresDb,
     nodeEnv = 'production',
@@ -456,8 +446,6 @@ export async function veritableUIContainer(network: StartedNetwork, env: Veritab
       SMTP_PORT: smtpPort,
       SMTP_USER: smtpUser,
       EMAIL_TRANSPORT: emailTransport,
-      API_SWAGGER_TITLE: apiSwaggerTitle,
-      API_SWAGGER_BG_COLOR: apiSwaggerBgColor,
       COMPANY_HOUSE_API_URL: companyHouseApiUrl,
       DEMO_MODE: demoMode,
       SMTP_SECURE: smtpSecure,
