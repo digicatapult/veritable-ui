@@ -36,13 +36,7 @@ Ensure you're running the correct version of npm, then install dependencies usin
 npm install
 ```
 
-After all packages have been installed run the below command which will create two files: `src/routes.ts`, `./build/swagger.json`
-
-```sh
-npm run tsoa:build
-```
-
-Once TSOA build has completed, then run a typescript compiler
+After all packages have been installed run the below command which will create two files: `src/routes.ts`, `./build/swagger.json` and run the typescript compiler
 
 ```sh
 npm run build
@@ -177,18 +171,12 @@ npm run test:integration
 
 ### e2e Testing
 
-E2e tests are placed at root level in the `test/` directory. You can run them either directly or in a docker container (how they are run in the CI).
+E2e tests are placed at root level in the `test/` directory. They run by default in a Testcontainers environment.
 
 Install dependencies for playwright with:
 
 ```sh
 npx playwright install
-```
-
-Bring up all the docker containers necessary with:
-
-```sh
-docker compose up -d --build --scale veritable-ui-alice=1
 ```
 
 Then run:
@@ -197,20 +185,15 @@ Then run:
 npm run test:e2e
 ```
 
-(it is recommended to add debugging so you can follow the logs in the console, refer to [testcontainers section](#testcontainers))
-A browser window will pop up where you can run tests and follow their progress. Alternatively you can run:
+This will run the tests without the ui. It is recommended to add debugging so you can follow the logs in the console, refer to [testcontainers section](#testcontainers)
+
+Alternatively you can run:
 
 ```sh
 npm run test:playwright
 ```
 
-This will run the tests without the ui.
-
-To run the e2e tests in a docker container use:
-
-```sh
-docker compose -f docker-compose.e2e.yml up
-```
+A browser window will pop up where you can run tests and follow their progress.
 
 Then you'll find the test results in directory `playwright-report` at root level.
 
