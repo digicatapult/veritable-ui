@@ -19,9 +19,11 @@ let charlieUIContainer: StartedTestContainer[]
 
 before(async function () {
   sharedContainers = await bringUpSharedContainers()
+  // Pass in ('name', host port for UI database, host port for cloudagent)
   aliceDepsContainers = await bringUpDependenciesContainers('alice', 5432, 3100)
   bobDepsContainers = await bringUpDependenciesContainers('bob', 5433, 3101)
   charlieDepsContainers = await bringUpDependenciesContainers('charlie', 5434, 3102)
+  // Pass in ('name', host port for UI, 'company number')
   bobUIContainer = await bringUpVeritableUIContainer('bob', 3001, '04659351')
   charlieUIContainer = await bringUpVeritableUIContainer('charlie', 3002, '10016023')
 
