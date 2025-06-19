@@ -16,11 +16,7 @@ const smtp4devVersion = parsed.services.smtp4dev.image
 
 //============ Veritable UI Container ============
 
-export async function bringUpVeritableUIContainer(
-  name: string,
-  hostPort: number,
-  invitationFromCompanyNumber: string
-): Promise<StartedTestContainer> {
+export async function bringUpVeritableUIContainer(name: string, hostPort: number, invitationFromCompanyNumber: string) {
   const base = await GenericContainer.fromDockerfile('./').build()
 
   const veritableUIContainer = await base
@@ -38,7 +34,7 @@ export async function bringUpVeritableUIContainer(
       DB_PASSWORD: 'postgres',
       DB_PORT: '5432',
       COOKIE_SESSION_KEYS: 'secret',
-      PUBLIC_URL: 'http://localhost:3000',
+      PUBLIC_URL: 'http://localhost:' + hostPort,
       IDP_CLIENT_ID: 'veritable-ui',
       IDP_PUBLIC_URL_PREFIX: 'http://localhost:3080/realms/veritable/protocol/openid-connect',
       IDP_INTERNAL_URL_PREFIX: 'http://keycloak:8080/realms/veritable/protocol/openid-connect',
