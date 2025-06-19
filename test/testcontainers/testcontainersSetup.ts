@@ -4,32 +4,7 @@ import { GenericContainer, Network, StartedTestContainer, Wait } from 'testconta
 import { fileURLToPath } from 'url'
 import { parse } from 'yaml'
 
-interface PostgresPasswordAndUser {
-  postgresPassword?: string
-  postgresUser?: string
-}
 
-interface PostgresValuesInterface extends PostgresPasswordAndUser {
-  postgresDb: string
-}
-interface ExposedPortsInterface {
-  containerPort: number
-  hostPort: number
-}
-
-interface VeritableCloudAgentEnvConfig extends PostgresPasswordAndUser {
-  endpoint: string
-  walletId: string
-  walletKey: string
-  postgresHost: string
-  logLevel?: 'trace' | 'debug' | 'info' | 'warn' | 'error'
-  inboundTransport?: string
-  outboundTransport?: string
-  adminPort?: string
-  ipfsOrigin?: string
-  postgresPort?: string
-  label?: string
-}
 
 const network = await new Network().start()
 
@@ -54,85 +29,30 @@ export async function bringUpSharedContainers() {
 }
 
 export async function bringUpAliceDependenciesContainers() {
-  const aliceVeritableUIPostgres = await veritableUIPostgresDbContainer(
-    'postgres-veritable-ui-alice',
-    { containerPort: 5432, hostPort: 5432 },
-    { postgresDb: 'veritable-ui' }
-  )
-  const aliceVeritableCloudagentPostgres = await veritableCloudagentPostgresContainer(
-    'postgres-veritable-cloudagent-alice',
-    { postgresDb: 'postgres-veritable-cloudagent' }
-  )
-
-  const aliceCloudagentEnvConfig: VeritableCloudAgentEnvConfig = {
-    endpoint: 'ws://veritable-cloudagent-alice:5003',
-    walletId: 'alice',
-    walletKey: 'alice-key',
-    postgresHost: 'postgres-veritable-cloudagent-alice',
-  }
-  const aliceCloudAgentContainer = await cloudagentContainer(
-    'veritable-cloudagent-alice',
-    {
-      containerPort: 3000,
-      hostPort: 3100,
-    },
-    aliceCloudagentEnvConfig
-  )
-
+  const aliceVeritableUIPostgres = await veritableUIPostgresDbContainer('alice', 5432)
+  const aliceVeritableCloudagentPostgres = await veritableCloudagentPostgresContainer('alice')
+  const aliceCloudAgentContainer = await cloudagentContainer('alice', 3100)
   return [aliceVeritableUIPostgres, aliceVeritableCloudagentPostgres, aliceCloudAgentContainer]
 }
 
 export async function bringUpBobDependenciesContainers() {
-  const bobVeritableUIPostgres = await veritableUIPostgresDbContainer(
-    'postgres-veritable-ui-bob',
-    { containerPort: 5432, hostPort: 5433 },
-    { postgresDb: 'veritable-ui' }
-  )
-  const bobVeritableCloudagentPostgres = await veritableCloudagentPostgresContainer(
-    'postgres-veritable-cloudagent-bob',
-    { postgresDb: 'postgres-veritable-cloudagent' }
-  )
-  const aliceCloudagentEnvConfig: VeritableCloudAgentEnvConfig = {
-    endpoint: 'ws://veritable-cloudagent-bob:5003',
-    walletId: 'bob',
-    walletKey: 'bob-key',
-    postgresHost: 'postgres-veritable-cloudagent-bob',
-  }
-  const bobCloudAgentContainer = await cloudagentContainer(
-    'veritable-cloudagent-bob',
-    {
-      containerPort: 3000,
-      hostPort: 3101,
-    },
-    aliceCloudagentEnvConfig
-  )
+  const bobVeritableUIPostgres = await veritableUIPostgresDbContainer('bob', 5433)
+  const bobVeritableCloudagentPostgres = await veritableCloudagentPostgresContainer('bob')
+  const bobCloudAgentContainer = await cloudagentContainer('bob', 3101)
   return [bobVeritableUIPostgres, bobVeritableCloudagentPostgres, bobCloudAgentContainer]
 }
 
 export async function bringUpCharlieDependenciesContainers() {
-  const charlieVeritableUIPostgres = await veritableUIPostgresDbContainer(
-    'postgres-veritable-ui-charlie',
-    { containerPort: 5432, hostPort: 5434 },
-    { postgresDb: 'veritable-ui' }
-  )
-  const charlieVeritableCloudagentPostgres = await veritableCloudagentPostgresContainer(
-    'postgres-veritable-cloudagent-charlie',
-    { postgresDb: 'postgres-veritable-cloudagent' }
-  )
-  const charlieCloudagentEnvConfig: VeritableCloudAgentEnvConfig = {
-    endpoint: 'ws://veritable-cloudagent-charlie:5003',
-    walletId: 'charlie',
-    walletKey: 'charlie-key',
-    postgresHost: 'postgres-veritable-cloudagent-charlie',
-  }
-  const charlieCloudAgentContainer = await cloudagentContainer(
-    'veritable-cloudagent-charlie',
-    {
-      containerPort: 3000,
-      hostPort: 3102,
-    },
-    charlieCloudagentEnvConfig
-  )
+  const charlieVeritableUIPostgres = await veritableUIPostgresDbContainer('charlie', 5434)
+  const charlieVeritableCloudagentPostgres = await veritableCloudagentPostgresContainer('charlie')
+  const charlieCloudAgentContainer = await cloudagentContainer('charlie', 3102)
+  return [charlieVeritableUIPostgres, charlieVeritableCloudagentPostgres, charlieCloudAgentContainer]
+}
+
+export async function bringUpDependenciesContainers(name: string, dbPort: number, cloudagentPort: number) {
+  const charlieVeritableUIPostgres = await veritableUIPostgresDbContainer(name, dbPort)
+  const charlieVeritableCloudagentPostgres = await veritableCloudagentPostgresContainer(name)
+  const charlieCloudAgentContainer = await cloudagentContainer(name, cloudagentPort)
   return [charlieVeritableUIPostgres, charlieVeritableCloudagentPostgres, charlieCloudAgentContainer]
 }
 
@@ -166,22 +86,17 @@ export async function composeIpfsContainer(): Promise<StartedTestContainer> {
   return ipfsContainer
 }
 
-export async function veritableUIPostgresDbContainer(
-  name: string,
-  exposedPorts: ExposedPortsInterface,
-  postgresValues: PostgresValuesInterface
-) {
-  const { postgresPassword = 'postgres', postgresUser = 'postgres', postgresDb } = postgresValues
+export async function veritableUIPostgresDbContainer(name: string, hostPort: number) {
   const veritableUIPostgresContainer = await new GenericContainer(postgresVersion)
-    .withName(name)
+    .withName('postgres-veritable-ui-' + name)
     .withExposedPorts({
-      container: exposedPorts.containerPort,
-      host: exposedPorts.hostPort,
+      container: 5432,
+      host: hostPort,
     })
     .withEnvironment({
-      POSTGRES_PASSWORD: postgresPassword,
-      POSTGRES_USER: postgresUser,
-      POSTGRES_DB: postgresDb,
+      POSTGRES_PASSWORD: 'postgres',
+      POSTGRES_USER: 'postgres',
+      POSTGRES_DB: 'veritable-ui',
     })
     .withNetwork(network)
     .withWaitStrategy(Wait.forLogMessage('database system is ready to accept connections'))
@@ -190,17 +105,13 @@ export async function veritableUIPostgresDbContainer(
   return veritableUIPostgresContainer
 }
 
-export async function veritableCloudagentPostgresContainer(
-  name: string,
-  postgresValues: PostgresValuesInterface
-) {
-  const { postgresPassword = 'postgres', postgresUser = 'postgres', postgresDb } = postgresValues
+export async function veritableCloudagentPostgresContainer(name: string) {
   const veritableCloudagentPostgres = await new GenericContainer(postgresVersion)
-    .withName(name)
+    .withName('postgres-veritable-cloudagent-' + name)
     .withEnvironment({
-      POSTGRES_PASSWORD: postgresPassword,
-      POSTGRES_USER: postgresUser,
-      POSTGRES_DB: postgresDb,
+      POSTGRES_PASSWORD: 'postgres',
+      POSTGRES_USER: 'postgres',
+      POSTGRES_DB: 'postgres-veritable-cloudagent',
     })
     .withNetwork(network)
     .withWaitStrategy(Wait.forLogMessage('database system is ready to accept connections'))
@@ -209,46 +120,27 @@ export async function veritableCloudagentPostgresContainer(
   return veritableCloudagentPostgres
 }
 
-export async function cloudagentContainer(
-  name: string,
-  exposedPorts: ExposedPortsInterface,
-  env: VeritableCloudAgentEnvConfig
-) {
-  const {
-    endpoint,
-    walletId,
-    walletKey,
-    postgresHost,
-    postgresPassword = 'postgres',
-    postgresUser = 'postgres',
-    logLevel = 'trace',
-    inboundTransport = '[{"transport": "http", "port": 5002}, {"transport": "ws", "port": 5003}]',
-    outboundTransport = 'http,ws',
-    adminPort = '3000',
-    ipfsOrigin = 'http://ipfs:5001',
-    postgresPort = '5432',
-    label = 'veritable-cloudagent',
-  } = env
+export async function cloudagentContainer(name: string, hostPort: number) {
   const cloudagentContainer = await new GenericContainer(cloudagentVersion)
-    .withName(name)
+    .withName('veritable-cloudagent-' + name)
     .withExposedPorts({
-      container: exposedPorts.containerPort,
-      host: exposedPorts.hostPort,
+      container: 3000,
+      host: hostPort,
     })
     .withEnvironment({
-      ENDPOINT: endpoint,
-      POSTGRES_HOST: postgresHost,
-      WALLET_ID: walletId,
-      WALLET_KEY: walletKey,
-      LOG_LEVEL: logLevel,
-      INBOUND_TRANSPORT: inboundTransport,
-      OUTBOUND_TRANSPORT: outboundTransport,
-      ADMIN_PORT: adminPort,
-      IPFS_ORIGIN: ipfsOrigin,
-      POSTGRES_PORT: postgresPort,
-      POSTGRES_USERNAME: postgresUser,
-      POSTGRES_PASSWORD: postgresPassword,
-      LABEL: label,
+      ENDPOINT: 'ws://veritable-cloudagent-' + name + ':5003',
+      POSTGRES_HOST: 'postgres-veritable-cloudagent-' + name,
+      WALLET_ID: name,
+      WALLET_KEY: name + '-key',
+      LOG_LEVEL: 'trace',
+      INBOUND_TRANSPORT: '[{"transport": "http", "port": 5002}, {"transport": "ws", "port": 5003}]',
+      OUTBOUND_TRANSPORT: 'http,ws',
+      ADMIN_PORT: '3000',
+      IPFS_ORIGIN: 'http://ipfs:5001',
+      POSTGRES_PORT: '5432',
+      POSTGRES_USERNAME: 'postgres',
+      POSTGRES_PASSWORD: 'postgres',
+      LABEL: 'veritable-cloudagent',
     })
     .withWaitStrategy(Wait.forListeningPorts())
     .withNetwork(network)
