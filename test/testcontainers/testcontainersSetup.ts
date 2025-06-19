@@ -31,16 +31,9 @@ interface VeritableCloudAgentEnvConfig extends PostgresPasswordAndUser {
   label?: string
 }
 
-interface VeritableUIConfig extends PostgresValuesInterface {
-  containerName: string
-  dbHost: string
+interface VeritableUIConfig {
   hostPort: number
-  containerPort: number
-  postgresPort: string
-  cloudagentAdminOrigin: string
-  cloudagentAdminWsOrigin: string
   invitationFromCompanyNumber: string
-  publicUrl: string
   companyProfileApiKey: string
 }
 
@@ -69,17 +62,9 @@ export async function bringUpSharedContainers() {
 export async function bringUpAliceUIContainer() {
   const name = 'alice'
   const aliceVeritableUIConfig: VeritableUIConfig = {
-    containerName: 'veritable-ui-alice',
-    dbHost: 'postgres-veritable-ui-alice',
     hostPort: 3000,
-    containerPort: 3000,
-    postgresPort: '5432',
-    cloudagentAdminOrigin: 'http://veritable-cloudagent-alice:3000',
-    cloudagentAdminWsOrigin: 'ws://veritable-cloudagent-alice:3000',
     invitationFromCompanyNumber: '07964699',
-    publicUrl: 'http://localhost:3000',
     companyProfileApiKey: process.env.VERITABLE_COMPANY_PROFILE_API_KEY || 'API_KEY',
-    postgresDb: 'veritable-ui',
   }
   const aliceVeritableUIContainer = await veritableUIContainer(name, aliceVeritableUIConfig)
   return [aliceVeritableUIContainer]
@@ -88,17 +73,9 @@ export async function bringUpAliceUIContainer() {
 export async function bringUpBobUIContainer() {
   const name = 'bob'
   const bobVeritableUIConfig: VeritableUIConfig = {
-    containerName: 'veritable-ui-bob',
-    dbHost: 'postgres-veritable-ui-bob',
     hostPort: 3001,
-    containerPort: 3000,
-    postgresPort: '5432',
-    cloudagentAdminOrigin: 'http://veritable-cloudagent-bob:3000',
-    cloudagentAdminWsOrigin: 'ws://veritable-cloudagent-bob:3000',
     invitationFromCompanyNumber: '04659351',
-    publicUrl: 'http://localhost:3000',
     companyProfileApiKey: process.env.VERITABLE_COMPANY_PROFILE_API_KEY || 'API_KEY',
-    postgresDb: 'veritable-ui',
   }
   const bobVeritableUIContainer = await veritableUIContainer(name, bobVeritableUIConfig)
   return [bobVeritableUIContainer]
@@ -107,17 +84,9 @@ export async function bringUpBobUIContainer() {
 export async function bringUpCharlieUIContainer() {
   const name = 'charlie'
   const charlieVeritableUIConfig: VeritableUIConfig = {
-    containerName: 'veritable-ui-charlie',
-    dbHost: 'postgres-veritable-ui-charlie',
     hostPort: 3002,
-    containerPort: 3000,
-    postgresPort: '5432',
-    cloudagentAdminOrigin: 'http://veritable-cloudagent-charlie:3000',
-    cloudagentAdminWsOrigin: 'ws://veritable-cloudagent-charlie:3000',
     invitationFromCompanyNumber: '10016023',
-    publicUrl: 'http://localhost:3000',
     companyProfileApiKey: process.env.VERITABLE_COMPANY_PROFILE_API_KEY || 'API_KEY',
-    postgresDb: 'veritable-ui',
   }
   const charlieVeritableUIContainer = await veritableUIContainer(name, charlieVeritableUIConfig)
   return [charlieVeritableUIContainer]
@@ -346,17 +315,7 @@ export async function composeSmtp4dev() {
   return smtp4dev
 }
 export async function veritableUIContainer(name: string, env: VeritableUIConfig) {
-  const {
-    containerName,
-    dbHost,
-    hostPort,
-    postgresPort,
-    publicUrl,
-    invitationFromCompanyNumber,
-    cloudagentAdminOrigin,
-    cloudagentAdminWsOrigin,
-    companyProfileApiKey,
-  } = env
+  const { hostPort, invitationFromCompanyNumber, companyProfileApiKey } = env
 
   const base = await GenericContainer.fromDockerfile('./').build()
 
