@@ -48,9 +48,9 @@ services:
       - DB_PASSWORD=postgres
       - DB_PORT=5432
       - COOKIE_SESSION_KEYS=secret
-      - PUBLIC_URL=${VERITABLE_ALICE_PUBLIC_URL:-http://localhost:3000}
+      - PUBLIC_URL=http://localhost:3000
       - IDP_CLIENT_ID=veritable-ui
-      - IDP_PUBLIC_URL_PREFIX=${VERITABLE_IDP_PUBLIC_URL_PREFIX:-http://localhost:3080/realms/veritable/protocol/openid-connect}
+      - IDP_PUBLIC_URL_PREFIX=http://localhost:3080/realms/veritable/protocol/openid-connect
       - IDP_INTERNAL_URL_PREFIX=http://keycloak:8080/realms/veritable/protocol/openid-connect
       - CLOUDAGENT_ADMIN_ORIGIN=http://veritable-cloudagent-alice:3000
       - CLOUDAGENT_ADMIN_WS_ORIGIN=ws://veritable-cloudagent-alice:3000
@@ -69,7 +69,7 @@ services:
       - COMPANY_HOUSE_API_URL=https://api.company-information.service.gov.uk
       - DEMO_MODE=true
       - SMTP_SECURE=false
-      - COMPANY_PROFILE_API_KEY=${VERITABLE_COMPANY_PROFILE_API_KEY:-API_KEY}
+      - COMPANY_PROFILE_API_KEY=API_KEY
   postgres-veritable-ui-alice:
     image: postgres:17.5-alpine
     container_name: postgres-veritable-ui-alice
@@ -136,7 +136,7 @@ services:
       - DB_NAME=veritable-ui
       - API_SWAGGER_TITLE=Bob
       - API_SWAGGER_BG_COLOR=#ff3131
-      - PUBLIC_URL=${VERITABLE_BOB_PUBLIC_URL:-http://localhost:3001}
+      - PUBLIC_URL=http://localhost:3001
       - CLOUDAGENT_ADMIN_ORIGIN=http://veritable-cloudagent-bob:3000
       - CLOUDAGENT_ADMIN_WS_ORIGIN=ws://veritable-cloudagent-bob:3000
       - COMPANY_HOUSE_API_URL=https://api.company-information.service.gov.uk
@@ -144,7 +144,7 @@ services:
       - DB_PASSWORD=postgres
       - DB_USERNAME=postgres
       - IDP_CLIENT_ID=veritable-ui
-      - IDP_PUBLIC_URL_PREFIX=${VERITABLE_IDP_PUBLIC_URL_PREFIX:-http://localhost:3080/realms/veritable/protocol/openid-connect}
+      - IDP_PUBLIC_URL_PREFIX=http://localhost:3080/realms/veritable/protocol/openid-connect
       - IDP_INTERNAL_URL_PREFIX=http://keycloak:8080/realms/veritable/protocol/openid-connect
       - INVITATION_FROM_COMPANY_NUMBER=04659351
       - INVITATION_PIN_SECRET=secret
@@ -158,7 +158,7 @@ services:
       - SMTP_USER=username
       - EMAIL_TRANSPORT=SMTP_EMAIL
       - SMTP_SECURE=false
-      - COMPANY_PROFILE_API_KEY=${VERITABLE_COMPANY_PROFILE_API_KEY:-API_KEY}
+      - COMPANY_PROFILE_API_KEY=API_KEY
 
   postgres-veritable-ui-bob:
     image: postgres:17.5-alpine
@@ -224,7 +224,7 @@ services:
       - DB_NAME=veritable-ui
       - API_SWAGGER_TITLE=Charlie
       - API_SWAGGER_BG_COLOR=#ffbd59
-      - PUBLIC_URL=${VERITABLE_CHARLIE_PUBLIC_URL:-http://localhost:3002}
+      - PUBLIC_URL=http://localhost:3002
       - CLOUDAGENT_ADMIN_ORIGIN=http://veritable-cloudagent-charlie:3000
       - CLOUDAGENT_ADMIN_WS_ORIGIN=ws://veritable-cloudagent-charlie:3000
       - COMPANY_HOUSE_API_URL=https://api.company-information.service.gov.uk
@@ -232,7 +232,7 @@ services:
       - DB_PASSWORD=postgres
       - DB_USERNAME=postgres
       - IDP_CLIENT_ID=veritable-ui
-      - IDP_PUBLIC_URL_PREFIX=${VERITABLE_IDP_PUBLIC_URL_PREFIX:-http://localhost:3080/realms/veritable/protocol/openid-connect}
+      - IDP_PUBLIC_URL_PREFIX=http://localhost:3080/realms/veritable/protocol/openid-connect
       - IDP_INTERNAL_URL_PREFIX=http://keycloak:8080/realms/veritable/protocol/openid-connect
       - INVITATION_FROM_COMPANY_NUMBER=10016023
       - INVITATION_PIN_SECRET=secret
@@ -246,7 +246,7 @@ services:
       - SMTP_USER=username
       - EMAIL_TRANSPORT=SMTP_EMAIL
       - SMTP_SECURE=false
-      - COMPANY_PROFILE_API_KEY=${VERITABLE_COMPANY_PROFILE_API_KEY:-API_KEY}
+      - COMPANY_PROFILE_API_KEY=API_KEY
 
   postgres-veritable-ui-charlie:
     image: postgres:17.5-alpine
