@@ -31,11 +31,6 @@ interface VeritableCloudAgentEnvConfig extends PostgresPasswordAndUser {
   label?: string
 }
 
-interface VeritableUIConfig {
-  hostPort: number
-  invitationFromCompanyNumber: string
-}
-
 const network = await new Network().start()
 
 const dockerCompose = fs.readFileSync('./docker-compose.yml', 'utf-8')
@@ -59,32 +54,17 @@ export async function bringUpSharedContainers() {
 }
 
 export async function bringUpAliceUIContainer() {
-  const name = 'alice'
-  const aliceVeritableUIConfig: VeritableUIConfig = {
-    hostPort: 3000,
-    invitationFromCompanyNumber: '07964699',
-  }
-  const aliceVeritableUIContainer = await veritableUIContainer(name, aliceVeritableUIConfig)
+  const aliceVeritableUIContainer = await veritableUIContainer('alice', 3000, '07964699')
   return [aliceVeritableUIContainer]
 }
 
 export async function bringUpBobUIContainer() {
-  const name = 'bob'
-  const bobVeritableUIConfig: VeritableUIConfig = {
-    hostPort: 3001,
-    invitationFromCompanyNumber: '04659351',
-  }
-  const bobVeritableUIContainer = await veritableUIContainer(name, bobVeritableUIConfig)
+  const bobVeritableUIContainer = await veritableUIContainer('bob', 3001, '04659351')
   return [bobVeritableUIContainer]
 }
 
 export async function bringUpCharlieUIContainer() {
-  const name = 'charlie'
-  const charlieVeritableUIConfig: VeritableUIConfig = {
-    hostPort: 3002,
-    invitationFromCompanyNumber: '10016023',
-  }
-  const charlieVeritableUIContainer = await veritableUIContainer(name, charlieVeritableUIConfig)
+  const charlieVeritableUIContainer = await veritableUIContainer('charlie', 3002, '10016023')
   return [charlieVeritableUIContainer]
 }
 
@@ -310,9 +290,7 @@ export async function composeSmtp4dev() {
     .start()
   return smtp4dev
 }
-export async function veritableUIContainer(name: string, env: VeritableUIConfig) {
-  const { hostPort, invitationFromCompanyNumber } = env
-
+export async function veritableUIContainer(name: string, hostPort: number, invitationFromCompanyNumber: string) {
   const base = await GenericContainer.fromDockerfile('./').build()
 
   const veritableUIContainer = await base
