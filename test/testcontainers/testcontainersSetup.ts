@@ -4,8 +4,6 @@ import { GenericContainer, Network, StartedTestContainer, Wait } from 'testconta
 import { fileURLToPath } from 'url'
 import { parse } from 'yaml'
 
-
-
 const network = await new Network().start()
 
 const dockerCompose = fs.readFileSync('./docker-compose.yml', 'utf-8')
@@ -15,6 +13,8 @@ const postgresVersion = parsed.services['postgres-veritable-ui-alice'].image
 const cloudagentVersion = parsed.services['veritable-cloudagent-alice'].image
 const kuboVersion = parsed.services.ipfs.image
 const smtp4devVersion = parsed.services.smtp4dev.image
+
+//============ Veritable UI Container ============
 
 export async function bringUpVeritableUIContainer(
   name: string,
@@ -71,11 +71,9 @@ export async function bringUpVeritableUIContainer(
   return [veritableUIContainer]
 }
 
-export async function bringUpDependenciesContainers(
-  name: string,
-  dbPort: number,
-  cloudagentPort: number
-): Promise<StartedTestContainer> {
+//============ Dependency Containers ============
+
+export async function bringUpDependenciesContainers(name: string, dbPort: number, cloudagentPort: number) {
   const charlieVeritableUIPostgres = await veritableUIPostgresDbContainer(name, dbPort)
   const charlieVeritableCloudagentPostgres = await veritableCloudagentPostgresContainer(name)
   const charlieCloudAgentContainer = await cloudagentContainer(name, cloudagentPort)
@@ -145,17 +143,19 @@ export async function cloudagentContainer(name: string, hostPort: number): Promi
   return cloudagentContainer
 }
 
-export async function bringUpSharedContainers(): Promise<StartedTestContainer> {
-  const __filename = fileURLToPath(import.meta.url)
-  const __dirname = path.dirname(__filename)
-  const keycloakDataPath = path.resolve(__dirname, '../../docker/keycloak')
-  const keycloakContainer = await composeKeycloakContainer(keycloakDataPath)
+//============ Shared Containers ============
+
+export async function bringUpSharedContainers() {
+  const keycloakContainer = await composeKeycloakContainer()
   const ipfsContainer = await composeIpfsContainer()
   const smtp4dev = await composeSmtp4dev()
   return [keycloakContainer, ipfsContainer, smtp4dev]
 }
 
-export async function composeKeycloakContainer(keycloakDataPath: string): Promise<StartedTestContainer> {
+export async function composeKeycloakContainer(): Promise<StartedTestContainer> {
+  const __filename = fileURLToPath(import.meta.url)
+  const __dirname = path.dirname(__filename)
+  const keycloakDataPath = path.resolve(__dirname, '../../docker/keycloak')
   const keycloakContainer = await new GenericContainer(keycloakVersion)
     .withName('keycloak')
     .withExposedPorts({
