@@ -20,7 +20,7 @@ export async function bringUpVeritableUIContainer(name: string, hostPort: number
   const base = await GenericContainer.fromDockerfile('./').build()
 
   const veritableUIContainer = await base
-    .withName('veritable-ui-' + name)
+    .withName(`veritable-ui-${name}`)
     .withExposedPorts({
       container: 3000,
       host: hostPort,
@@ -28,18 +28,18 @@ export async function bringUpVeritableUIContainer(name: string, hostPort: number
     .withEnvironment({
       NODE_ENV: 'production',
       LOG_LEVEL: 'trace',
-      DB_HOST: 'postgres-veritable-ui-' + name,
+      DB_HOST: `postgres-veritable-ui-${name}`,
       DB_NAME: 'veritable-ui',
       DB_USERNAME: 'postgres',
       DB_PASSWORD: 'postgres',
       DB_PORT: '5432',
       COOKIE_SESSION_KEYS: 'secret',
-      PUBLIC_URL: 'http://localhost:' + hostPort,
+      PUBLIC_URL: `http://localhost:${hostPort}`,
       IDP_CLIENT_ID: 'veritable-ui',
       IDP_PUBLIC_URL_PREFIX: 'http://localhost:3080/realms/veritable/protocol/openid-connect',
       IDP_INTERNAL_URL_PREFIX: 'http://keycloak:8080/realms/veritable/protocol/openid-connect',
-      CLOUDAGENT_ADMIN_ORIGIN: 'http://veritable-cloudagent-' + name + ':3000',
-      CLOUDAGENT_ADMIN_WS_ORIGIN: 'ws://veritable-cloudagent-' + name + ':3000',
+      CLOUDAGENT_ADMIN_ORIGIN: `http://veritable-cloudagent-${name}:3000`,
+      CLOUDAGENT_ADMIN_WS_ORIGIN: `ws://veritable-cloudagent-${name}:3000`,
       INVITATION_PIN_SECRET: 'secret',
       INVITATION_FROM_COMPANY_NUMBER: invitationFromCompanyNumber,
       ISSUANCE_DID_POLICY: 'EXISTING_OR_NEW',
@@ -78,7 +78,7 @@ export async function bringUpDependenciesContainers(name: string, dbPort: number
 
 export async function veritableUIPostgresDbContainer(name: string, hostPort: number): Promise<StartedTestContainer> {
   const veritableUIPostgresContainer = await new GenericContainer(postgresVersion)
-    .withName('postgres-veritable-ui-' + name)
+    .withName(`postgres-veritable-ui-${name}`)
     .withExposedPorts({
       container: 5432,
       host: hostPort,
@@ -97,7 +97,7 @@ export async function veritableUIPostgresDbContainer(name: string, hostPort: num
 
 export async function veritableCloudagentPostgresContainer(name: string): Promise<StartedTestContainer> {
   const veritableCloudagentPostgres = await new GenericContainer(postgresVersion)
-    .withName('postgres-veritable-cloudagent-' + name)
+    .withName(`postgres-veritable-cloudagent-${name}`)
     .withEnvironment({
       POSTGRES_PASSWORD: 'postgres',
       POSTGRES_USER: 'postgres',
@@ -112,16 +112,16 @@ export async function veritableCloudagentPostgresContainer(name: string): Promis
 
 export async function cloudagentContainer(name: string, hostPort: number): Promise<StartedTestContainer> {
   const cloudagentContainer = await new GenericContainer(cloudagentVersion)
-    .withName('veritable-cloudagent-' + name)
+    .withName(`veritable-cloudagent-${name}`)
     .withExposedPorts({
       container: 3000,
       host: hostPort,
     })
     .withEnvironment({
-      ENDPOINT: 'ws://veritable-cloudagent-' + name + ':5003',
-      POSTGRES_HOST: 'postgres-veritable-cloudagent-' + name,
+      ENDPOINT: `ws://veritable-cloudagent-${name}:5003`,
+      POSTGRES_HOST: `postgres-veritable-cloudagent-${name}`,
       WALLET_ID: name,
-      WALLET_KEY: name + '-key',
+      WALLET_KEY: `${name}-key`,
       LOG_LEVEL: 'trace',
       INBOUND_TRANSPORT: '[{"transport": "http", "port": 5002}, {"transport": "ws", "port": 5003}]',
       OUTBOUND_TRANSPORT: 'http,ws',
