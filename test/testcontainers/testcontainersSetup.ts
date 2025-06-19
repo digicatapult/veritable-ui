@@ -34,7 +34,6 @@ interface VeritableCloudAgentEnvConfig extends PostgresPasswordAndUser {
 interface VeritableUIConfig {
   hostPort: number
   invitationFromCompanyNumber: string
-  companyProfileApiKey: string
 }
 
 const network = await new Network().start()
@@ -64,7 +63,6 @@ export async function bringUpAliceUIContainer() {
   const aliceVeritableUIConfig: VeritableUIConfig = {
     hostPort: 3000,
     invitationFromCompanyNumber: '07964699',
-    companyProfileApiKey: process.env.VERITABLE_COMPANY_PROFILE_API_KEY || 'API_KEY',
   }
   const aliceVeritableUIContainer = await veritableUIContainer(name, aliceVeritableUIConfig)
   return [aliceVeritableUIContainer]
@@ -75,7 +73,6 @@ export async function bringUpBobUIContainer() {
   const bobVeritableUIConfig: VeritableUIConfig = {
     hostPort: 3001,
     invitationFromCompanyNumber: '04659351',
-    companyProfileApiKey: process.env.VERITABLE_COMPANY_PROFILE_API_KEY || 'API_KEY',
   }
   const bobVeritableUIContainer = await veritableUIContainer(name, bobVeritableUIConfig)
   return [bobVeritableUIContainer]
@@ -86,7 +83,6 @@ export async function bringUpCharlieUIContainer() {
   const charlieVeritableUIConfig: VeritableUIConfig = {
     hostPort: 3002,
     invitationFromCompanyNumber: '10016023',
-    companyProfileApiKey: process.env.VERITABLE_COMPANY_PROFILE_API_KEY || 'API_KEY',
   }
   const charlieVeritableUIContainer = await veritableUIContainer(name, charlieVeritableUIConfig)
   return [charlieVeritableUIContainer]
@@ -315,7 +311,7 @@ export async function composeSmtp4dev() {
   return smtp4dev
 }
 export async function veritableUIContainer(name: string, env: VeritableUIConfig) {
-  const { hostPort, invitationFromCompanyNumber, companyProfileApiKey } = env
+  const { hostPort, invitationFromCompanyNumber } = env
 
   const base = await GenericContainer.fromDockerfile('./').build()
 
@@ -353,7 +349,7 @@ export async function veritableUIContainer(name: string, env: VeritableUIConfig)
       COMPANY_HOUSE_API_URL: 'https://api.company-information.service.gov.uk',
       DEMO_MODE: 'true',
       SMTP_SECURE: 'false',
-      COMPANY_PROFILE_API_KEY: companyProfileApiKey,
+      COMPANY_PROFILE_API_KEY: process.env.VERITABLE_COMPANY_PROFILE_API_KEY || 'API_KEY',
     })
     .withCommand([
       'sh',
