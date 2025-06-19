@@ -7,10 +7,9 @@ import { migrateDatabase } from './helpers/db.js'
 import {
   bringUpAliceDependenciesContainers,
   bringUpBobDependenciesContainers,
-  bringUpBobUIContainer,
   bringUpCharlieDependenciesContainers,
-  bringUpCharlieUIContainer,
   bringUpSharedContainers,
+  bringUpVeritableUIContainer,
 } from './testcontainers/testcontainersSetup.js'
 
 let sharedContainers: StartedTestContainer[]
@@ -25,8 +24,8 @@ before(async function () {
   aliceDepsContainers = await bringUpAliceDependenciesContainers()
   bobDepsContainers = await bringUpBobDependenciesContainers()
   charlieDepsContainers = await bringUpCharlieDependenciesContainers()
-  bobUIContainer = await bringUpBobUIContainer()
-  charlieUIContainer = await bringUpCharlieUIContainer()
+  bobUIContainer = await bringUpVeritableUIContainer('bob', 3001, '04659351')
+  charlieUIContainer = await bringUpVeritableUIContainer('charlie', 3002, '10016023')
 
   await migrateDatabase()
   use(chaiJestSnapshot)

@@ -53,21 +53,6 @@ export async function bringUpSharedContainers() {
   return [keycloakContainer, ipfsContainer, smtp4dev]
 }
 
-export async function bringUpAliceUIContainer() {
-  const aliceVeritableUIContainer = await veritableUIContainer('alice', 3000, '07964699')
-  return [aliceVeritableUIContainer]
-}
-
-export async function bringUpBobUIContainer() {
-  const bobVeritableUIContainer = await veritableUIContainer('bob', 3001, '04659351')
-  return [bobVeritableUIContainer]
-}
-
-export async function bringUpCharlieUIContainer() {
-  const charlieVeritableUIContainer = await veritableUIContainer('charlie', 3002, '10016023')
-  return [charlieVeritableUIContainer]
-}
-
 export async function bringUpAliceDependenciesContainers() {
   const aliceVeritableUIPostgres = await veritableUIPostgresDbContainer(
     'postgres-veritable-ui-alice',
@@ -290,7 +275,8 @@ export async function composeSmtp4dev() {
     .start()
   return smtp4dev
 }
-export async function veritableUIContainer(name: string, hostPort: number, invitationFromCompanyNumber: string) {
+
+export async function bringUpVeritableUIContainer(name: string, hostPort: number, invitationFromCompanyNumber: string) {
   const base = await GenericContainer.fromDockerfile('./').build()
 
   const veritableUIContainer = await base
@@ -338,5 +324,5 @@ export async function veritableUIContainer(name: string, hostPort: number, invit
     .withNetwork(network)
     .withReuse()
     .start()
-  return veritableUIContainer
+  return [veritableUIContainer]
 }

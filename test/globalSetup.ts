@@ -2,12 +2,10 @@ import dotenv from 'dotenv'
 import 'reflect-metadata'
 import {
   bringUpAliceDependenciesContainers,
-  bringUpAliceUIContainer,
   bringUpBobDependenciesContainers,
-  bringUpBobUIContainer,
   bringUpCharlieDependenciesContainers,
-  bringUpCharlieUIContainer,
   bringUpSharedContainers,
+  bringUpVeritableUIContainer,
 } from './testcontainers/testcontainersSetup'
 
 async function globalSetup() {
@@ -16,9 +14,9 @@ async function globalSetup() {
   await bringUpAliceDependenciesContainers()
   await bringUpBobDependenciesContainers()
   await bringUpCharlieDependenciesContainers()
-  await bringUpAliceUIContainer()
-  await bringUpBobUIContainer()
-  await bringUpCharlieUIContainer()
+  await bringUpVeritableUIContainer('alice', 3000, '07964699')
+  await bringUpVeritableUIContainer('bob', 3001, '04659351')
+  await bringUpVeritableUIContainer('charlie', 3002, '10016023')
 }
 
 export default globalSetup
