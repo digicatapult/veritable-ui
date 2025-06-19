@@ -5,9 +5,7 @@ import chaiJestSnapshot from 'chai-jest-snapshot'
 import { StartedTestContainer } from 'testcontainers'
 import { migrateDatabase } from './helpers/db.js'
 import {
-  bringUpAliceDependenciesContainers,
-  bringUpBobDependenciesContainers,
-  bringUpCharlieDependenciesContainers,
+  bringUpDependenciesContainers,
   bringUpSharedContainers,
   bringUpVeritableUIContainer,
 } from './testcontainers/testcontainersSetup.js'
@@ -21,9 +19,9 @@ let charlieUIContainer: StartedTestContainer[]
 
 before(async function () {
   sharedContainers = await bringUpSharedContainers()
-  aliceDepsContainers = await bringUpAliceDependenciesContainers()
-  bobDepsContainers = await bringUpBobDependenciesContainers()
-  charlieDepsContainers = await bringUpCharlieDependenciesContainers()
+  aliceDepsContainers = await bringUpDependenciesContainers('alice', 5432, 3100)
+  bobDepsContainers = await bringUpDependenciesContainers('bob', 5433, 3101)
+  charlieDepsContainers = await bringUpDependenciesContainers('charlie', 5434, 3102)
   bobUIContainer = await bringUpVeritableUIContainer('bob', 3001, '04659351')
   charlieUIContainer = await bringUpVeritableUIContainer('charlie', 3002, '10016023')
 

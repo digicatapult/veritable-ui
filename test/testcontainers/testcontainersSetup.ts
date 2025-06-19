@@ -28,27 +28,6 @@ export async function bringUpSharedContainers() {
   return [keycloakContainer, ipfsContainer, smtp4dev]
 }
 
-export async function bringUpAliceDependenciesContainers() {
-  const aliceVeritableUIPostgres = await veritableUIPostgresDbContainer('alice', 5432)
-  const aliceVeritableCloudagentPostgres = await veritableCloudagentPostgresContainer('alice')
-  const aliceCloudAgentContainer = await cloudagentContainer('alice', 3100)
-  return [aliceVeritableUIPostgres, aliceVeritableCloudagentPostgres, aliceCloudAgentContainer]
-}
-
-export async function bringUpBobDependenciesContainers() {
-  const bobVeritableUIPostgres = await veritableUIPostgresDbContainer('bob', 5433)
-  const bobVeritableCloudagentPostgres = await veritableCloudagentPostgresContainer('bob')
-  const bobCloudAgentContainer = await cloudagentContainer('bob', 3101)
-  return [bobVeritableUIPostgres, bobVeritableCloudagentPostgres, bobCloudAgentContainer]
-}
-
-export async function bringUpCharlieDependenciesContainers() {
-  const charlieVeritableUIPostgres = await veritableUIPostgresDbContainer('charlie', 5434)
-  const charlieVeritableCloudagentPostgres = await veritableCloudagentPostgresContainer('charlie')
-  const charlieCloudAgentContainer = await cloudagentContainer('charlie', 3102)
-  return [charlieVeritableUIPostgres, charlieVeritableCloudagentPostgres, charlieCloudAgentContainer]
-}
-
 export async function bringUpDependenciesContainers(name: string, dbPort: number, cloudagentPort: number) {
   const charlieVeritableUIPostgres = await veritableUIPostgresDbContainer(name, dbPort)
   const charlieVeritableCloudagentPostgres = await veritableCloudagentPostgresContainer(name)
