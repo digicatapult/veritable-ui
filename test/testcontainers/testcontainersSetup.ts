@@ -16,138 +16,11 @@ const cloudagentVersion = parsed.services['veritable-cloudagent-alice'].image
 const kuboVersion = parsed.services.ipfs.image
 const smtp4devVersion = parsed.services.smtp4dev.image
 
-export async function bringUpSharedContainers() {
-  const __filename = fileURLToPath(import.meta.url)
-  const __dirname = path.dirname(__filename)
-
-  const keycloakDataPath = path.resolve(__dirname, '../../docker/keycloak')
-
-  const keycloakContainer = await composeKeycloakContainer(keycloakDataPath)
-  const ipfsContainer = await composeIpfsContainer()
-  const smtp4dev = await composeSmtp4dev()
-  return [keycloakContainer, ipfsContainer, smtp4dev]
-}
-
-export async function bringUpDependenciesContainers(name: string, dbPort: number, cloudagentPort: number) {
-  const charlieVeritableUIPostgres = await veritableUIPostgresDbContainer(name, dbPort)
-  const charlieVeritableCloudagentPostgres = await veritableCloudagentPostgresContainer(name)
-  const charlieCloudAgentContainer = await cloudagentContainer(name, cloudagentPort)
-  return [charlieVeritableUIPostgres, charlieVeritableCloudagentPostgres, charlieCloudAgentContainer]
-}
-
-export async function composeKeycloakContainer(keycloakDataPath: string): Promise<StartedTestContainer> {
-  const keycloakContainer = await new GenericContainer(keycloakVersion)
-    .withName('keycloak')
-    .withExposedPorts({
-      container: 8080,
-      host: 3080,
-    })
-    .withEnvironment({
-      KC_BOOTSTRAP_ADMIN_USERNAME: 'admin',
-      KC_BOOTSTRAP_ADMIN_PASSWORD: 'admin',
-    })
-    .withBindMounts([{ source: keycloakDataPath, target: '/opt/keycloak/data/import' }]) //this seems necessary
-    .withCommand(['start-dev', '--import-realm'])
-    .withWaitStrategy(Wait.forLogMessage('Running the server in development mode'))
-    .withNetwork(network)
-    .withReuse()
-    .start()
-  return keycloakContainer
-}
-
-export async function composeIpfsContainer(): Promise<StartedTestContainer> {
-  const ipfsContainer = await new GenericContainer(kuboVersion)
-    .withName('ipfs')
-    .withWaitStrategy(Wait.forLogMessage('Gateway server listening on'))
-    .withNetwork(network)
-    .withReuse()
-    .start()
-  return ipfsContainer
-}
-
-export async function veritableUIPostgresDbContainer(name: string, hostPort: number) {
-  const veritableUIPostgresContainer = await new GenericContainer(postgresVersion)
-    .withName('postgres-veritable-ui-' + name)
-    .withExposedPorts({
-      container: 5432,
-      host: hostPort,
-    })
-    .withEnvironment({
-      POSTGRES_PASSWORD: 'postgres',
-      POSTGRES_USER: 'postgres',
-      POSTGRES_DB: 'veritable-ui',
-    })
-    .withNetwork(network)
-    .withWaitStrategy(Wait.forLogMessage('database system is ready to accept connections'))
-    .withReuse()
-    .start()
-  return veritableUIPostgresContainer
-}
-
-export async function veritableCloudagentPostgresContainer(name: string) {
-  const veritableCloudagentPostgres = await new GenericContainer(postgresVersion)
-    .withName('postgres-veritable-cloudagent-' + name)
-    .withEnvironment({
-      POSTGRES_PASSWORD: 'postgres',
-      POSTGRES_USER: 'postgres',
-      POSTGRES_DB: 'postgres-veritable-cloudagent',
-    })
-    .withNetwork(network)
-    .withWaitStrategy(Wait.forLogMessage('database system is ready to accept connections'))
-    .withReuse()
-    .start()
-  return veritableCloudagentPostgres
-}
-
-export async function cloudagentContainer(name: string, hostPort: number) {
-  const cloudagentContainer = await new GenericContainer(cloudagentVersion)
-    .withName('veritable-cloudagent-' + name)
-    .withExposedPorts({
-      container: 3000,
-      host: hostPort,
-    })
-    .withEnvironment({
-      ENDPOINT: 'ws://veritable-cloudagent-' + name + ':5003',
-      POSTGRES_HOST: 'postgres-veritable-cloudagent-' + name,
-      WALLET_ID: name,
-      WALLET_KEY: name + '-key',
-      LOG_LEVEL: 'trace',
-      INBOUND_TRANSPORT: '[{"transport": "http", "port": 5002}, {"transport": "ws", "port": 5003}]',
-      OUTBOUND_TRANSPORT: 'http,ws',
-      ADMIN_PORT: '3000',
-      IPFS_ORIGIN: 'http://ipfs:5001',
-      POSTGRES_PORT: '5432',
-      POSTGRES_USERNAME: 'postgres',
-      POSTGRES_PASSWORD: 'postgres',
-      LABEL: 'veritable-cloudagent',
-    })
-    .withWaitStrategy(Wait.forListeningPorts())
-    .withNetwork(network)
-    .withReuse()
-    .start()
-  return cloudagentContainer
-}
-
-// would we ever want to change anything about this?
-export async function composeSmtp4dev() {
-  const smtp4dev = await new GenericContainer(smtp4devVersion)
-    .withName('smtp4dev')
-    .withExposedPorts({
-      container: 80,
-      host: 5001,
-    })
-    .withExposedPorts({
-      container: 25,
-      host: 2525,
-    })
-    .withNetwork(network)
-    .withWaitStrategy(Wait.forListeningPorts())
-    .withReuse()
-    .start()
-  return smtp4dev
-}
-
-export async function bringUpVeritableUIContainer(name: string, hostPort: number, invitationFromCompanyNumber: string) {
+export async function bringUpVeritableUIContainer(
+  name: string,
+  hostPort: number,
+  invitationFromCompanyNumber: string
+): Promise<StartedTestContainer> {
   const base = await GenericContainer.fromDockerfile('./').build()
 
   const veritableUIContainer = await base
@@ -196,4 +69,136 @@ export async function bringUpVeritableUIContainer(name: string, hostPort: number
     .withReuse()
     .start()
   return [veritableUIContainer]
+}
+
+export async function bringUpDependenciesContainers(
+  name: string,
+  dbPort: number,
+  cloudagentPort: number
+): Promise<StartedTestContainer> {
+  const charlieVeritableUIPostgres = await veritableUIPostgresDbContainer(name, dbPort)
+  const charlieVeritableCloudagentPostgres = await veritableCloudagentPostgresContainer(name)
+  const charlieCloudAgentContainer = await cloudagentContainer(name, cloudagentPort)
+  return [charlieVeritableUIPostgres, charlieVeritableCloudagentPostgres, charlieCloudAgentContainer]
+}
+
+export async function veritableUIPostgresDbContainer(name: string, hostPort: number): Promise<StartedTestContainer> {
+  const veritableUIPostgresContainer = await new GenericContainer(postgresVersion)
+    .withName('postgres-veritable-ui-' + name)
+    .withExposedPorts({
+      container: 5432,
+      host: hostPort,
+    })
+    .withEnvironment({
+      POSTGRES_PASSWORD: 'postgres',
+      POSTGRES_USER: 'postgres',
+      POSTGRES_DB: 'veritable-ui',
+    })
+    .withNetwork(network)
+    .withWaitStrategy(Wait.forLogMessage('database system is ready to accept connections'))
+    .withReuse()
+    .start()
+  return veritableUIPostgresContainer
+}
+
+export async function veritableCloudagentPostgresContainer(name: string): Promise<StartedTestContainer> {
+  const veritableCloudagentPostgres = await new GenericContainer(postgresVersion)
+    .withName('postgres-veritable-cloudagent-' + name)
+    .withEnvironment({
+      POSTGRES_PASSWORD: 'postgres',
+      POSTGRES_USER: 'postgres',
+      POSTGRES_DB: 'postgres-veritable-cloudagent',
+    })
+    .withNetwork(network)
+    .withWaitStrategy(Wait.forLogMessage('database system is ready to accept connections'))
+    .withReuse()
+    .start()
+  return veritableCloudagentPostgres
+}
+
+export async function cloudagentContainer(name: string, hostPort: number): Promise<StartedTestContainer> {
+  const cloudagentContainer = await new GenericContainer(cloudagentVersion)
+    .withName('veritable-cloudagent-' + name)
+    .withExposedPorts({
+      container: 3000,
+      host: hostPort,
+    })
+    .withEnvironment({
+      ENDPOINT: 'ws://veritable-cloudagent-' + name + ':5003',
+      POSTGRES_HOST: 'postgres-veritable-cloudagent-' + name,
+      WALLET_ID: name,
+      WALLET_KEY: name + '-key',
+      LOG_LEVEL: 'trace',
+      INBOUND_TRANSPORT: '[{"transport": "http", "port": 5002}, {"transport": "ws", "port": 5003}]',
+      OUTBOUND_TRANSPORT: 'http,ws',
+      ADMIN_PORT: '3000',
+      IPFS_ORIGIN: 'http://ipfs:5001',
+      POSTGRES_PORT: '5432',
+      POSTGRES_USERNAME: 'postgres',
+      POSTGRES_PASSWORD: 'postgres',
+      LABEL: 'veritable-cloudagent',
+    })
+    .withWaitStrategy(Wait.forListeningPorts())
+    .withNetwork(network)
+    .withReuse()
+    .start()
+  return cloudagentContainer
+}
+
+export async function bringUpSharedContainers(): Promise<StartedTestContainer> {
+  const __filename = fileURLToPath(import.meta.url)
+  const __dirname = path.dirname(__filename)
+  const keycloakDataPath = path.resolve(__dirname, '../../docker/keycloak')
+  const keycloakContainer = await composeKeycloakContainer(keycloakDataPath)
+  const ipfsContainer = await composeIpfsContainer()
+  const smtp4dev = await composeSmtp4dev()
+  return [keycloakContainer, ipfsContainer, smtp4dev]
+}
+
+export async function composeKeycloakContainer(keycloakDataPath: string): Promise<StartedTestContainer> {
+  const keycloakContainer = await new GenericContainer(keycloakVersion)
+    .withName('keycloak')
+    .withExposedPorts({
+      container: 8080,
+      host: 3080,
+    })
+    .withEnvironment({
+      KC_BOOTSTRAP_ADMIN_USERNAME: 'admin',
+      KC_BOOTSTRAP_ADMIN_PASSWORD: 'admin',
+    })
+    .withBindMounts([{ source: keycloakDataPath, target: '/opt/keycloak/data/import' }]) //this seems necessary
+    .withCommand(['start-dev', '--import-realm'])
+    .withWaitStrategy(Wait.forLogMessage('Running the server in development mode'))
+    .withNetwork(network)
+    .withReuse()
+    .start()
+  return keycloakContainer
+}
+
+export async function composeIpfsContainer(): Promise<StartedTestContainer> {
+  const ipfsContainer = await new GenericContainer(kuboVersion)
+    .withName('ipfs')
+    .withWaitStrategy(Wait.forLogMessage('Gateway server listening on'))
+    .withNetwork(network)
+    .withReuse()
+    .start()
+  return ipfsContainer
+}
+
+export async function composeSmtp4dev(): Promise<StartedTestContainer> {
+  const smtp4dev = await new GenericContainer(smtp4devVersion)
+    .withName('smtp4dev')
+    .withExposedPorts({
+      container: 80,
+      host: 5001,
+    })
+    .withExposedPorts({
+      container: 25,
+      host: 2525,
+    })
+    .withNetwork(network)
+    .withWaitStrategy(Wait.forListeningPorts())
+    .withReuse()
+    .start()
+  return smtp4dev
 }
