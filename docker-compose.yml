@@ -305,7 +305,7 @@ services:
       - '8443:8443' # Port for accessing wiremock
     restart: always
     volumes:
-      - ./test/wiremock:./mappings
+      - ./test/wiremock/:/home/wiremock/mappings/
 
 
 volumes:
