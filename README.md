@@ -17,9 +17,14 @@ A user interface for `Veritable` that allows to manage connections across supply
 veritable-ui depends on a few external services:
 
 - [veritable-cloudagent](https://github.com/digicatapult/veritable-cloudagent) - APIs for managing connections, credentials and messages.
-- `keycloak` - runs as a docker image for each node that handles authentication and users.
-- `smtp4dev` - runs as a docker image for onboarding workflows
-- `wiremock` - runs as a docker image for `integration` and `e2e` tests to mock an official national company register
+- [IPFS](https://ipfs.tech) - a distributed file server for storing credential schemas
+- [Keycloak](https://www.keycloak.org) - runs as a docker image for each node that handles authentication and users.
+
+
+### Development & Testing
+
+- [smtp4dev](https://github.com/rnwood/smtp4dev) - runs as a docker image for exchanging emails during onboarding workflows
+- [WireMock](https://wiremock.org) - runs as a docker image for `integration` and `e2e` tests to mock an official national company register
 
 ### Prerequisites
 
