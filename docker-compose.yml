@@ -300,7 +300,7 @@ services:
   wiremock:
     image: wiremock/wiremock:3.13.1
     container_name: wiremock
-    scale: 1
+    scale: 0
     ports:
       - '8443:8080' # Port for accessing wiremock
     restart: always
