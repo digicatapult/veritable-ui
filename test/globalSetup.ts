@@ -1,4 +1,3 @@
-import dotenv from 'dotenv'
 import 'reflect-metadata'
 import {
   bringUpDependenciesContainers,
@@ -7,7 +6,6 @@ import {
 } from './testcontainers/testcontainersSetup'
 
 async function globalSetup() {
-  dotenv.config()
   await bringUpSharedContainers()
   // Pass in ('name', host port for UI database, host port for cloudagent)
   await bringUpDependenciesContainers('alice', 5432, 3100)

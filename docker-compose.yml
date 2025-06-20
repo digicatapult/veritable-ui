@@ -295,6 +295,19 @@ services:
       - '2525:25' # Port for SMTP connections
     restart: always
 
+  # -------------------- wiremock ----------------------------#
+
+  wiremock:
+    image: wiremock/wiremock:3.13.1
+    container_name: wiremock
+    scale: 0
+    ports:
+      - '8443:8080' # Port for accessing wiremock
+    restart: always
+    volumes:
+      - ./test/wiremock/:/home/wiremock/mappings/
+
+
 volumes:
   ipfs:
   postgres-veritable-ui-alice:
