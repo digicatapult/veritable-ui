@@ -55,10 +55,10 @@ export async function bringUpVeritableUIContainer(name: string, hostPort: number
       SMTP_PORT: '25',
       SMTP_USER: '',
       EMAIL_TRANSPORT: 'SMTP_EMAIL',
-      COMPANY_HOUSE_API_URL: 'http://company-house-mock:8443',
+      COMPANY_HOUSE_API_URL: 'http://wiremock:8080',
       DEMO_MODE: 'true',
       SMTP_SECURE: 'false',
-      COMPANY_PROFILE_API_KEY: process.env.VERITABLE_COMPANY_PROFILE_API_KEY || 'API_KEY',
+      COMPANY_PROFILE_API_KEY: 'API_KEY',
     })
     .withCommand([
       'sh',
@@ -78,8 +78,7 @@ export async function bringUpDependenciesContainers(name: string, dbPort: number
   const veritableUIPostgres = await veritableUIPostgresDbContainer(name, dbPort)
   const veritableCloudagentPostgres = await veritableCloudagentPostgresContainer(name)
   const cloudAgentContainer = await cloudagentContainer(name, cloudagentPort)
-  const wiremockContainer = await wireMockContainer()
-  return [veritableUIPostgres, veritableCloudagentPostgres, cloudAgentContainer, wiremockContainer]
+  return [veritableUIPostgres, veritableCloudagentPostgres, cloudAgentContainer]
 }
 
 export async function veritableUIPostgresDbContainer(name: string, hostPort: number): Promise<StartedTestContainer> {
@@ -151,7 +150,8 @@ export async function bringUpSharedContainers() {
   const keycloakContainer = await composeKeycloakContainer()
   const ipfsContainer = await composeIpfsContainer()
   const smtp4dev = await composeSmtp4dev()
-  return [keycloakContainer, ipfsContainer, smtp4dev]
+  const wiremockContainer = await wireMockContainer()
+  return [keycloakContainer, ipfsContainer, smtp4dev, wiremockContainer]
 }
 
 export async function composeKeycloakContainer(): Promise<StartedTestContainer> {
@@ -206,16 +206,17 @@ export async function composeSmtp4dev(): Promise<StartedTestContainer> {
 }
 
 export async function wireMockContainer(): Promise<StartedTestContainer> {
+  const mappings = fs.readFileSync('./test/wiremock/mappings.json', 'utf-8')
   const container = await new GenericContainer(wireMockVersion)
-    .withName('company-house-mock')
+    .withName('wiremock')
     .withExposedPorts({
       container: 8080,
       host: 8443,
     })
-    .withCopyFilesToContainer([
+    .withCopyContentToContainer([
       {
-        source: '../wiremock/mappings.json',
-        target: './mappings/mappings.json',
+        content: mappings,
+        target: '/home/wiremock/mappings/mappings.json',
       },
     ])
     .withWaitStrategy(Wait.forLogMessage('response-template,webhook'))
