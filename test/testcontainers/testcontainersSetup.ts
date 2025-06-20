@@ -55,7 +55,7 @@ export async function bringUpVeritableUIContainer(name: string, hostPort: number
       SMTP_PORT: '25',
       SMTP_USER: '',
       EMAIL_TRANSPORT: 'SMTP_EMAIL',
-      COMPANY_HOUSE_API_URL: 'https://api.company-information.service.gov.uk',
+      COMPANY_HOUSE_API_URL: 'http://company-house-mock:8443',
       DEMO_MODE: 'true',
       SMTP_SECURE: 'false',
       COMPANY_PROFILE_API_KEY: process.env.VERITABLE_COMPANY_PROFILE_API_KEY || 'API_KEY',
