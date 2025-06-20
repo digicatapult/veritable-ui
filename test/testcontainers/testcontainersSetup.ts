@@ -4,7 +4,11 @@ import { GenericContainer, Network, StartedTestContainer, Wait } from 'testconta
 import { fileURLToPath } from 'url'
 import { parse } from 'yaml'
 
+//============ Start Network ============
+
 const network = await new Network().start()
+
+//============ Image Version Control ============
 
 const dockerCompose = fs.readFileSync('./docker-compose.yml', 'utf-8')
 const parsed = parse(dockerCompose)
@@ -13,6 +17,7 @@ const postgresVersion = parsed.services['postgres-veritable-ui-alice'].image
 const cloudagentVersion = parsed.services['veritable-cloudagent-alice'].image
 const kuboVersion = parsed.services.ipfs.image
 const smtp4devVersion = parsed.services.smtp4dev.image
+const wireMockVersion = parsed.services.wiremock.image
 
 //============ Veritable UI Container ============
 
@@ -197,4 +202,23 @@ export async function composeSmtp4dev(): Promise<StartedTestContainer> {
     .withReuse()
     .start()
   return smtp4dev
+}
+
+export async function wireMockContainer(): Promise<StartedTestContainer> {
+  const container = await new GenericContainer(wireMockVersion)
+    .withName('company-house-mock')
+    .withExposedPorts({
+      container: 8443,
+      host: 8443,
+    })
+    .withCopyFilesToContainer([
+      {
+        source: '../wiremock/mappings.json',
+        target: './mappings/mappings.json',
+      },
+    ])
+    .withWaitStrategy(Wait.forLogMessage('response-template,webhook'))
+    .withNetwork(network)
+    .start()
+  return container
 }
