@@ -75,10 +75,11 @@ export async function bringUpVeritableUIContainer(name: string, hostPort: number
 //============ Dependency Containers ============
 
 export async function bringUpDependenciesContainers(name: string, dbPort: number, cloudagentPort: number) {
-  const charlieVeritableUIPostgres = await veritableUIPostgresDbContainer(name, dbPort)
-  const charlieVeritableCloudagentPostgres = await veritableCloudagentPostgresContainer(name)
-  const charlieCloudAgentContainer = await cloudagentContainer(name, cloudagentPort)
-  return [charlieVeritableUIPostgres, charlieVeritableCloudagentPostgres, charlieCloudAgentContainer]
+  const veritableUIPostgres = await veritableUIPostgresDbContainer(name, dbPort)
+  const veritableCloudagentPostgres = await veritableCloudagentPostgresContainer(name)
+  const cloudAgentContainer = await cloudagentContainer(name, cloudagentPort)
+  const wiremockContainer = await wireMockContainer()
+  return [veritableUIPostgres, veritableCloudagentPostgres, cloudAgentContainer, wiremockContainer]
 }
 
 export async function veritableUIPostgresDbContainer(name: string, hostPort: number): Promise<StartedTestContainer> {
