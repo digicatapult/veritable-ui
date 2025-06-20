@@ -302,7 +302,7 @@ services:
     container_name: wiremock
     scale: 1
     ports:
-      - '8443:8443' # Port for accessing wiremock
+      - '8443:8080' # Port for accessing wiremock
     restart: always
     volumes:
       - ./test/wiremock/:/home/wiremock/mappings/

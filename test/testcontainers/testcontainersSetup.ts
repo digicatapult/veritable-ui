@@ -209,7 +209,7 @@ export async function wireMockContainer(): Promise<StartedTestContainer> {
   const container = await new GenericContainer(wireMockVersion)
     .withName('company-house-mock')
     .withExposedPorts({
-      container: 8443,
+      container: 8080,
       host: 8443,
     })
     .withCopyFilesToContainer([
