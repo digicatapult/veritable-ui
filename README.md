@@ -18,6 +18,8 @@ veritable-ui depends on a few external services:
 
 - [veritable-cloudagent](https://github.com/digicatapult/veritable-cloudagent) - APIs for managing connections, credentials and messages.
 - `keycloak` - runs as a docker image for each node that handles authentication and users.
+- `smtp4dev` - runs as a docker image for onboarding workflows
+- `wiremock` - runs as a docker image for `integration` and `e2e` tests to mock an official national company register
 
 ### Prerequisites
 
