@@ -43,7 +43,7 @@ describe('organisationRegistryEntity with company house as registry', () => {
     })
   })
 
-  describe('localCompanyHouseProfile', () => {
+  describe('localOrganisationProfile', () => {
     it('should return company found', async () => {
       const environment = new Env()
       const organisationRegistryObject = new OrganisationRegistryEntity(environment)
