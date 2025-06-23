@@ -3,10 +3,10 @@ import { z } from 'zod'
 
 import { Env } from '../env/index.js'
 import { InternalError } from '../errors.js'
-import { companyNumberRegex } from './strings.js'
+import { organisationNumberRegex } from './strings.js'
 
 const companyProfileSchema = z.object({
-  company_number: z.string().regex(new RegExp(companyNumberRegex)).min(8).max(8),
+  company_number: z.string().regex(new RegExp(organisationNumberRegex)).min(8).max(8),
   company_name: z.string(),
   registered_office_address: z.object({
     address_line_1: z.string().optional(),
@@ -35,12 +35,12 @@ const companyProfileSchema = z.object({
     z.literal('removed'),
   ]),
 })
-export type CompanyProfile = z.infer<typeof companyProfileSchema>
+export type OrganisationProfile = z.infer<typeof companyProfileSchema>
 
-export type CompanyProfileResult =
+export type OrganisationProfileResult =
   | {
       type: 'found'
-      company: CompanyProfile
+      company: OrganisationProfile
     }
   | {
       type: 'notFound'
@@ -49,7 +49,7 @@ export type CompanyProfileResult =
 @singleton()
 @injectable()
 export default class CompanyHouseEntity {
-  private localCompanyHouseProfilePromise: Promise<CompanyProfile>
+  private localCompanyHouseProfilePromise: Promise<OrganisationProfile>
 
   constructor(private env: Env) {
     this.localCompanyHouseProfilePromise = this.getCompanyProfileByCompanyNumber(
@@ -87,7 +87,7 @@ export default class CompanyHouseEntity {
   /*
     This function will return a companyProfile object
   */
-  async getCompanyProfileByCompanyNumber(companyNumber: string): Promise<CompanyProfileResult> {
+  async getCompanyProfileByCompanyNumber(companyNumber: string): Promise<OrganisationProfileResult> {
     const endpoint = `${this.env.get('COMPANY_HOUSE_API_URL')}/company/${encodeURIComponent(companyNumber)}`
     const companyProfile = await this.makeCompanyProfileRequest(endpoint)
     return companyProfile === null
@@ -95,7 +95,7 @@ export default class CompanyHouseEntity {
       : { type: 'found', company: companyProfileSchema.parse(companyProfile) }
   }
 
-  async localCompanyHouseProfile(): Promise<CompanyProfile> {
+  async localCompanyHouseProfile(): Promise<OrganisationProfile> {
     return await this.localCompanyHouseProfilePromise
   }
 }

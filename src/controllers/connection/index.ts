@@ -8,9 +8,9 @@ import ConnectionTemplates from '../../views/connection/connection.js'
 
 import { DatabaseTimeoutError, InternalError, InvalidInputError, NotFoundError } from '../../errors.js'
 import { ILogger } from '../../logger.js'
-import CompanyHouseEntity, { CompanyProfile } from '../../models/companyHouseEntity.js'
 import Database from '../../models/db/index.js'
 import { ConnectionRow } from '../../models/db/types.js'
+import CompanyHouseEntity, { OrganisationProfile } from '../../models/organisationRegistry.js'
 import VeritableCloudagent from '../../models/veritableCloudagent/index.js'
 import { PinSubmissionTemplates } from '../../views/newConnection/pinSubmission.js'
 import { HTML, HTMLController } from '../HTMLController.js'
@@ -143,7 +143,7 @@ export class ConnectionController extends HTMLController {
   private async verifyReceiveConnection(
     logger: pino.Logger,
     agentConnectionId: string,
-    profile: CompanyProfile,
+    profile: OrganisationProfile,
     pin: string
   ) {
     logger.debug('verifyReceiveConnection(): called for credential proposal', { agentConnectionId, profile, pin })

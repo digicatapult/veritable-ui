@@ -2,7 +2,7 @@ import Html from '@kitajs/html'
 import { SendMailOptions } from 'nodemailer'
 
 import { Env } from '../../../env/index.js'
-import CompanyHouseEntity from '../../companyHouseEntity.js'
+import CompanyHouseEntity from '../../organisationRegistry.js'
 
 export default {
   name: 'connection_invite_admin' as const,

@@ -7,12 +7,12 @@ import { injectable } from 'tsyringe'
 import { z } from 'zod'
 
 import { Env } from '../../env/index.js'
-import CompanyHouseEntity, { CompanyProfile } from '../../models/companyHouseEntity.js'
 import Database from '../../models/db/index.js'
 import EmailService from '../../models/emailService/index.js'
+import CompanyHouseEntity, { OrganisationProfile } from '../../models/organisationRegistry.js'
 import {
   base64UrlRegex,
-  companyNumberRegex,
+  organisationNumberRegex,
   type BASE_64_URL,
   type COMPANY_NUMBER,
   type EMAIL,
@@ -91,8 +91,8 @@ export class NewConnectionController extends HTMLController {
   ): Promise<HTML> {
     req.log.debug('verifying %s company number', companyNumber)
 
-    if (!companyNumber.match(companyNumberRegex)) {
-      req.log.info('company %s number did not match %s regex', companyNumber, companyNumberRegex)
+    if (!companyNumber.match(organisationNumberRegex)) {
+      req.log.info('company %s number did not match %s regex', companyNumber, organisationNumberRegex)
       return this.newConnectionForm(req)
     }
 
@@ -273,7 +273,9 @@ export class NewConnectionController extends HTMLController {
   private async decodeInvite(
     logger: pino.Logger,
     invite: BASE_64_URL
-  ): Promise<{ type: 'success'; inviteUrl: string; company: CompanyProfile } | { type: 'error'; message: string }> {
+  ): Promise<
+    { type: 'success'; inviteUrl: string; company: OrganisationProfile } | { type: 'error'; message: string }
+  > {
     let wrappedInvite: Invite
     try {
       wrappedInvite = inviteParser.parse(JSON.parse(Buffer.from(invite, 'base64url').toString('utf8')))
@@ -285,8 +287,8 @@ export class NewConnectionController extends HTMLController {
       }
     }
 
-    if (!wrappedInvite.companyNumber.match(companyNumberRegex)) {
-      logger.info('company number did not match a %s regex', companyNumberRegex)
+    if (!wrappedInvite.companyNumber.match(organisationNumberRegex)) {
+      logger.info('company number did not match a %s regex', organisationNumberRegex)
       return { type: 'error', message: 'Invitation is not valid' }
     }
 
@@ -300,7 +302,7 @@ export class NewConnectionController extends HTMLController {
   private async lookupCompany(
     logger: pino.Logger,
     companyNumber: COMPANY_NUMBER
-  ): Promise<{ type: 'success'; company: CompanyProfile } | { type: 'error'; message: string }> {
+  ): Promise<{ type: 'success'; company: OrganisationProfile } | { type: 'error'; message: string }> {
     const companySearch = await this.companyHouseEntity.getCompanyProfileByCompanyNumber(companyNumber)
     if (companySearch.type === 'notFound') {
       logger.info('%s company not found', companySearch)
@@ -344,7 +346,7 @@ export class NewConnectionController extends HTMLController {
   }
 
   private async insertNewConnection(
-    company: CompanyProfile,
+    company: OrganisationProfile,
     pinHash: string,
     invitationId: string,
     agentConnectionId: string | null
@@ -404,7 +406,7 @@ export class NewConnectionController extends HTMLController {
     )
   }
 
-  private async sendAdminEmail(company: CompanyProfile, pin: string) {
+  private async sendAdminEmail(company: OrganisationProfile, pin: string) {
     await neverFail(
       this.email.sendMail('connection_invite_admin', {
         receiver: company.company_name,
@@ -427,7 +429,7 @@ export class NewConnectionController extends HTMLController {
     )
   }
 
-  private newInviteSuccessHtml(formStage: NewInviteFormStage, company: CompanyProfile, email: string) {
+  private newInviteSuccessHtml(formStage: NewInviteFormStage, company: OrganisationProfile, email: string) {
     return this.html(
       this.newInvite.newInviteForm({
         feedback: {

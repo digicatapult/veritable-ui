@@ -1,7 +1,7 @@
-import { CompanyProfile } from '../../../models/companyHouseEntity.js'
+import { OrganisationProfile } from '../../../models/organisationRegistry.js'
 import { FormFeedback } from '../base.js'
 
-export const successResponse: CompanyProfile = {
+export const successResponse: OrganisationProfile = {
   registered_office_address: {
     address_line_1: 'Level 9, 101 Euston Road',
     postal_code: 'NW1 2RA',
