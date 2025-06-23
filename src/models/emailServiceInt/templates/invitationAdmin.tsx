@@ -2,7 +2,7 @@ import Html from '@kitajs/html'
 import { SendMailOptions } from 'nodemailer'
 
 import { Env } from '../../../env/index.js'
-import CompanyHouseEntity from '../../organisationRegistry.js'
+import OrganisationRegistryEntity from '../../organisationRegistry.js'
 
 export default {
   name: 'connection_invite_admin' as const,
@@ -10,8 +10,8 @@ export default {
     env: Env,
     params: { pin: string; receiver: string; address: string }
   ): Promise<SendMailOptions> {
-    const companyHouse = new CompanyHouseEntity(env)
-    const localCompany = await companyHouse.localCompanyHouseProfile()
+    const organisationRegistryEntity = new OrganisationRegistryEntity(env)
+    const localCompany = await organisationRegistryEntity.localOrganisationProfile()
     return {
       to: env.get('EMAIL_ADMIN_ADDRESS'),
       from: env.get('EMAIL_FROM_ADDRESS'),

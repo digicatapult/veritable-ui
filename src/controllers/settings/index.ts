@@ -6,7 +6,7 @@ import { Env } from '../../env/index.js'
 import { InternalError } from '../../errors.js'
 import Database from '../../models/db/index.js'
 import { SettingsRow } from '../../models/db/types.js'
-import CompanyHouseEntity from '../../models/organisationRegistry.js'
+import OrganisationRegistryEntity from '../../models/organisationRegistry.js'
 import SettingsTemplates from '../../views/settings/settings.js'
 import { HTML, HTMLController } from './../HTMLController.js'
 type SettingsDict = {
@@ -29,7 +29,7 @@ export type SettingsType = {
 export class SettingsController extends HTMLController {
   constructor(
     private settingsTemplates: SettingsTemplates,
-    private companyHouse: CompanyHouseEntity,
+    private organisationRegistryEntity: OrganisationRegistryEntity,
     private db: Database,
     private env: Env
   ) {
@@ -46,7 +46,7 @@ export class SettingsController extends HTMLController {
     const settings = await this.db.get('settings', {}, [['updated_at', 'desc']])
     const settingsDict = await this.transformSettingsToDict(settings)
     const resetEnabled = this.env.get('DEMO_MODE')
-    const profile = await this.companyHouse.localCompanyHouseProfile()
+    const profile = await this.organisationRegistryEntity.localOrganisationProfile()
     const set = {
       company_name: profile.company_name,
       companies_house_number: this.env.get('INVITATION_FROM_COMPANY_NUMBER'),
@@ -96,7 +96,7 @@ export class SettingsController extends HTMLController {
     const settings = await this.db.get('settings', {}, [['updated_at', 'desc']])
     const settingsDict = await this.transformSettingsToDict(settings)
     const resetEnabled = this.env.get('DEMO_MODE')
-    const profile = await this.companyHouse.localCompanyHouseProfile()
+    const profile = await this.organisationRegistryEntity.localOrganisationProfile()
     const set = {
       company_name: profile.company_name,
       companies_house_number: this.env.get('INVITATION_FROM_COMPANY_NUMBER'),

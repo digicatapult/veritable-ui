@@ -23,7 +23,7 @@ describe('NewConnectionController', () => {
   afterEach(async () => {
     await cleanup()
   })
-  withCompanyHouseMock()
+  withCompanyHouseMock() // TODO: tests using other registries
 
   describe('create invitation (happy path)', function () {
     let response: Awaited<ReturnType<typeof post>>
