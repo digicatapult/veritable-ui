@@ -49,7 +49,7 @@ export type OrganisationProfileResult =
 
 @singleton()
 @injectable()
-export default class OrganisationRegistryEntity {
+export default class OrganisationRegistry {
   private localOrganisationProfilePromise: Promise<OrganisationProfile>
 
   constructor(private env: Env) {

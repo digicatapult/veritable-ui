@@ -7,7 +7,7 @@ import { ILogger } from '../../../logger.js'
 import Database from '../../../models/db/index.js'
 import { ConnectionRow } from '../../../models/db/types.js'
 import EmailService from '../../../models/emailService/index.js'
-import OrganisationRegistryEntity from '../../../models/organisationRegistry.js'
+import OrganisationRegistry from '../../../models/organisationRegistry.js'
 import VeritableCloudagent from '../../../models/veritableCloudagent/index.js'
 import ConnectionTemplates from '../../../views/connection/connection.js'
 import { FormFeedback } from '../../../views/newConnection/base.js'
@@ -61,7 +61,7 @@ export const withConnectionMocks = (
   const cloudagentMock = {
     proposeCredential: sinon.stub().resolves(),
   }
-  const organisationRegistryEntity = {
+  const organisationRegistry = {
     localCompanyHouseProfile: () =>
       Promise.resolve({
         company_number: 'COMPANY_NUMBER',
@@ -95,7 +95,7 @@ export const withConnectionMocks = (
     args: [
       dbMock as unknown as Database,
       cloudagentMock as unknown as VeritableCloudagent,
-      organisationRegistryEntity as unknown as OrganisationRegistryEntity,
+      organisationRegistry as unknown as OrganisationRegistry,
       templateMock as ConnectionTemplates,
       pinSubmission as unknown as PinSubmissionTemplates,
     ] as const,
@@ -139,7 +139,7 @@ export const withNewConnectionMocks = () => {
       company_number: 'COMPANY_NUMBER',
       company_name: 'COMPANY_NAME',
     }),
-  } as unknown as OrganisationRegistryEntity
+  } as unknown as OrganisationRegistry
 
   const mockCloudagent = {
     createOutOfBandInvite: ({ companyName }: { companyName: string }) => {

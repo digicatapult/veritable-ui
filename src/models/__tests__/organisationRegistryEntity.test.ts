@@ -1,7 +1,7 @@
 import { expect } from 'chai'
 import { describe, it } from 'mocha'
 import { Env } from '../../env/index.js'
-import OrganisationRegistryEntity from '../organisationRegistry.js'
+import OrganisationRegistry from '../organisationRegistry.js'
 import {
   invalidCompanyNumber,
   noCompanyNumber,
@@ -10,27 +10,27 @@ import {
 } from './fixtures/companyHouseFixtures.js'
 import { withCompanyHouseMock } from './helpers/mockCompanyHouse.js'
 
-describe('organisationRegistryEntity with company house as registry', () => {
+describe('organisationRegistry with company house as registry', () => {
   withCompanyHouseMock()
 
   describe('getOrganisationProfileByOrganisationNumber', () => {
     it('should return company found if valid company', async () => {
       const environment = new Env()
-      const organisationRegistryObject = new OrganisationRegistryEntity(environment)
+      const organisationRegistryObject = new OrganisationRegistry(environment)
       const response = await organisationRegistryObject.getOrganisationProfileByOrganisationNumber(validCompanyNumber)
       expect(response).deep.equal({ type: 'found', company: successResponse })
     })
 
     it('should return notFound for 404', async () => {
       const environment = new Env()
-      const organisationRegistryObject = new OrganisationRegistryEntity(environment)
+      const organisationRegistryObject = new OrganisationRegistry(environment)
       const response = await organisationRegistryObject.getOrganisationProfileByOrganisationNumber(noCompanyNumber)
       expect(response).deep.equal({ type: 'notFound' })
     })
 
     it('should propagate other errors', async () => {
       const environment = new Env()
-      const organisationRegistryObject = new OrganisationRegistryEntity(environment)
+      const organisationRegistryObject = new OrganisationRegistry(environment)
       let errorMessage: unknown
       try {
         await organisationRegistryObject.getOrganisationProfileByOrganisationNumber(invalidCompanyNumber)
@@ -46,7 +46,7 @@ describe('organisationRegistryEntity with company house as registry', () => {
   describe('localOrganisationProfile', () => {
     it('should return company found', async () => {
       const environment = new Env()
-      const organisationRegistryObject = new OrganisationRegistryEntity(environment)
+      const organisationRegistryObject = new OrganisationRegistry(environment)
       const response = await organisationRegistryObject.localOrganisationProfile()
 
       expect(response).deep.equal(successResponse)

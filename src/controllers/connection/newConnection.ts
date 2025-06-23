@@ -9,7 +9,7 @@ import { z } from 'zod'
 import { Env } from '../../env/index.js'
 import Database from '../../models/db/index.js'
 import EmailService from '../../models/emailService/index.js'
-import OrganisationRegistryEntity, { OrganisationProfile } from '../../models/organisationRegistry.js'
+import OrganisationRegistry, { OrganisationProfile } from '../../models/organisationRegistry.js'
 import {
   base64UrlRegex,
   organisationNumberRegex,
@@ -43,7 +43,7 @@ type Invite = z.infer<typeof inviteParser>
 export class NewConnectionController extends HTMLController {
   constructor(
     private db: Database,
-    private organisationRegistryEntity: OrganisationRegistryEntity,
+    private organisationRegistry: OrganisationRegistry,
     private cloudagent: VeritableCloudagent,
     private email: EmailService,
     private newInvite: NewInviteTemplates,
@@ -303,8 +303,7 @@ export class NewConnectionController extends HTMLController {
     logger: pino.Logger,
     companyNumber: COMPANY_NUMBER
   ): Promise<{ type: 'success'; company: OrganisationProfile } | { type: 'error'; message: string }> {
-    const companySearch =
-      await this.organisationRegistryEntity.getOrganisationProfileByOrganisationNumber(companyNumber)
+    const companySearch = await this.organisationRegistry.getOrganisationProfileByOrganisationNumber(companyNumber)
     if (companySearch.type === 'notFound') {
       logger.info('%s company not found', companySearch)
       return {
@@ -394,7 +393,7 @@ export class NewConnectionController extends HTMLController {
     toCompanyName: string,
     invite: { companyNumber: string; inviteUrl: string }
   ) {
-    const fromCompany = await this.organisationRegistryEntity.localOrganisationProfile()
+    const fromCompany = await this.organisationRegistry.localOrganisationProfile()
     const inviteBase64 = Buffer.from(JSON.stringify(invite), 'utf8').toString('base64url')
 
     await neverFail(
