@@ -5,7 +5,8 @@ import { Env } from '../env/index.js'
 import { InternalError } from '../errors.js'
 import { organisationNumberRegex } from './strings.js'
 
-const companyProfileSchema = z.object({
+// TODO: will need other schemas for other registries
+const companyHouseProfileSchema = z.object({
   company_number: z.string().regex(new RegExp(organisationNumberRegex)).min(8).max(8),
   company_name: z.string(),
   registered_office_address: z.object({
@@ -35,7 +36,7 @@ const companyProfileSchema = z.object({
     z.literal('removed'),
   ]),
 })
-export type OrganisationProfile = z.infer<typeof companyProfileSchema>
+export type OrganisationProfile = z.infer<typeof companyHouseProfileSchema> // TODO: Organisation profile likely different for different types of registries
 
 export type OrganisationProfileResult =
   | {
@@ -48,11 +49,11 @@ export type OrganisationProfileResult =
 
 @singleton()
 @injectable()
-export default class CompanyHouseEntity {
-  private localCompanyHouseProfilePromise: Promise<OrganisationProfile>
+export default class OrganisationRegistryEntity {
+  private localOrganisationProfilePromise: Promise<OrganisationProfile>
 
   constructor(private env: Env) {
-    this.localCompanyHouseProfilePromise = this.getCompanyProfileByCompanyNumber(
+    this.localOrganisationProfilePromise = this.getCompanyHouseProfileByCompanyNumber(
       env.get('INVITATION_FROM_COMPANY_NUMBER')
     ).then((result) => {
       if (result.type === 'notFound') {
@@ -87,15 +88,20 @@ export default class CompanyHouseEntity {
   /*
     This function will return a companyProfile object
   */
-  async getCompanyProfileByCompanyNumber(companyNumber: string): Promise<OrganisationProfileResult> {
+  private async getCompanyHouseProfileByCompanyNumber(companyNumber: string): Promise<OrganisationProfileResult> {
     const endpoint = `${this.env.get('COMPANY_HOUSE_API_URL')}/company/${encodeURIComponent(companyNumber)}`
     const companyProfile = await this.makeCompanyProfileRequest(endpoint)
     return companyProfile === null
       ? { type: 'notFound' }
-      : { type: 'found', company: companyProfileSchema.parse(companyProfile) }
+      : { type: 'found', company: companyHouseProfileSchema.parse(companyProfile) }
   }
 
-  async localCompanyHouseProfile(): Promise<OrganisationProfile> {
-    return await this.localCompanyHouseProfilePromise
+  async getOrganisationProfileByOrganisationNumber(companyNumber: string): Promise<OrganisationProfileResult> {
+    // TODO: add other registries here
+    return this.getCompanyHouseProfileByCompanyNumber(companyNumber)
+  }
+
+  async localOrganisationProfile(): Promise<OrganisationProfile> {
+    return await this.localOrganisationProfilePromise
   }
 }
