@@ -4,7 +4,11 @@ import { GenericContainer, Network, StartedTestContainer, Wait } from 'testconta
 import { fileURLToPath } from 'url'
 import { parse } from 'yaml'
 
+//============ Start Network ============
+
 const network = await new Network().start()
+
+//============ Image Version Control ============
 
 const dockerCompose = fs.readFileSync('./docker-compose.yml', 'utf-8')
 const parsed = parse(dockerCompose)
@@ -13,6 +17,7 @@ const postgresVersion = parsed.services['postgres-veritable-ui-alice'].image
 const cloudagentVersion = parsed.services['veritable-cloudagent-alice'].image
 const kuboVersion = parsed.services.ipfs.image
 const smtp4devVersion = parsed.services.smtp4dev.image
+const wireMockVersion = parsed.services.wiremock.image
 
 //============ Veritable UI Container ============
 
@@ -50,10 +55,10 @@ export async function bringUpVeritableUIContainer(name: string, hostPort: number
       SMTP_PORT: '25',
       SMTP_USER: '',
       EMAIL_TRANSPORT: 'SMTP_EMAIL',
-      COMPANY_HOUSE_API_URL: 'https://api.company-information.service.gov.uk',
+      COMPANY_HOUSE_API_URL: 'http://wiremock:8080',
       DEMO_MODE: 'true',
       SMTP_SECURE: 'false',
-      COMPANY_PROFILE_API_KEY: process.env.VERITABLE_COMPANY_PROFILE_API_KEY || 'API_KEY',
+      COMPANY_PROFILE_API_KEY: 'API_KEY',
     })
     .withCommand([
       'sh',
@@ -70,10 +75,10 @@ export async function bringUpVeritableUIContainer(name: string, hostPort: number
 //============ Dependency Containers ============
 
 export async function bringUpDependenciesContainers(name: string, dbPort: number, cloudagentPort: number) {
-  const charlieVeritableUIPostgres = await veritableUIPostgresDbContainer(name, dbPort)
-  const charlieVeritableCloudagentPostgres = await veritableCloudagentPostgresContainer(name)
-  const charlieCloudAgentContainer = await cloudagentContainer(name, cloudagentPort)
-  return [charlieVeritableUIPostgres, charlieVeritableCloudagentPostgres, charlieCloudAgentContainer]
+  const veritableUIPostgres = await veritableUIPostgresDbContainer(name, dbPort)
+  const veritableCloudagentPostgres = await veritableCloudagentPostgresContainer(name)
+  const cloudAgentContainer = await cloudagentContainer(name, cloudagentPort)
+  return [veritableUIPostgres, veritableCloudagentPostgres, cloudAgentContainer]
 }
 
 export async function veritableUIPostgresDbContainer(name: string, hostPort: number): Promise<StartedTestContainer> {
@@ -145,7 +150,8 @@ export async function bringUpSharedContainers() {
   const keycloakContainer = await composeKeycloakContainer()
   const ipfsContainer = await composeIpfsContainer()
   const smtp4dev = await composeSmtp4dev()
-  return [keycloakContainer, ipfsContainer, smtp4dev]
+  const wiremockContainer = await wireMockContainer()
+  return [keycloakContainer, ipfsContainer, smtp4dev, wiremockContainer]
 }
 
 export async function composeKeycloakContainer(): Promise<StartedTestContainer> {
@@ -197,4 +203,24 @@ export async function composeSmtp4dev(): Promise<StartedTestContainer> {
     .withReuse()
     .start()
   return smtp4dev
+}
+
+export async function wireMockContainer(): Promise<StartedTestContainer> {
+  const mappings = fs.readFileSync('./test/wiremock/mappings.json', 'utf-8')
+  const container = await new GenericContainer(wireMockVersion)
+    .withName('wiremock')
+    .withExposedPorts({
+      container: 8080,
+      host: 8443,
+    })
+    .withCopyContentToContainer([
+      {
+        content: mappings,
+        target: '/home/wiremock/mappings/mappings.json',
+      },
+    ])
+    .withWaitStrategy(Wait.forLogMessage('response-template,webhook'))
+    .withNetwork(network)
+    .start()
+  return container
 }
