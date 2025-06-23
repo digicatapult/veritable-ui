@@ -62,7 +62,7 @@ export const withConnectionMocks = (
     proposeCredential: sinon.stub().resolves(),
   }
   const organisationRegistry = {
-    localCompanyHouseProfile: () =>
+    localOrganisationProfile: () =>
       Promise.resolve({
         company_number: 'COMPANY_NUMBER',
         company_name: 'COMPANY_NAME',
@@ -121,7 +121,7 @@ export const withNewConnectionMocks = () => {
     },
   } as unknown as Database
   const mockCompanyHouseEntity = {
-    getCompanyProfileByCompanyNumber: async (companyNumber: string) => {
+    getOrganisationProfileByOrganisationNumber: async (companyNumber: string) => {
       if (companyNumber === notFoundCompanyNumber) {
         return {
           type: 'notFound',
@@ -135,7 +135,7 @@ export const withNewConnectionMocks = () => {
       }
       throw new Error('Invalid number')
     },
-    localCompanyHouseProfile: sinon.stub().resolves({
+    localOrganisationProfile: sinon.stub().resolves({
       company_number: 'COMPANY_NUMBER',
       company_name: 'COMPANY_NAME',
     }),
