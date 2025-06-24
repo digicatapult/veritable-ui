@@ -7,9 +7,9 @@ import { injectable } from 'tsyringe'
 import { z } from 'zod'
 
 import { Env } from '../../env/index.js'
-import CompanyHouseEntity, { CompanyProfile } from '../../models/companyHouseEntity.js'
 import Database from '../../models/db/index.js'
 import EmailService from '../../models/emailService/index.js'
+import OrganisationRegistry, { OrganisationProfile } from '../../models/organisationRegistry.js'
 import {
   base64UrlRegex,
   companyNumberRegex,
@@ -43,7 +43,7 @@ type Invite = z.infer<typeof inviteParser>
 export class NewConnectionController extends HTMLController {
   constructor(
     private db: Database,
-    private companyHouseEntity: CompanyHouseEntity,
+    private organisationRegistry: OrganisationRegistry,
     private cloudagent: VeritableCloudagent,
     private email: EmailService,
     private newInvite: NewInviteTemplates,
@@ -273,7 +273,9 @@ export class NewConnectionController extends HTMLController {
   private async decodeInvite(
     logger: pino.Logger,
     invite: BASE_64_URL
-  ): Promise<{ type: 'success'; inviteUrl: string; company: CompanyProfile } | { type: 'error'; message: string }> {
+  ): Promise<
+    { type: 'success'; inviteUrl: string; company: OrganisationProfile } | { type: 'error'; message: string }
+  > {
     let wrappedInvite: Invite
     try {
       wrappedInvite = inviteParser.parse(JSON.parse(Buffer.from(invite, 'base64url').toString('utf8')))
@@ -300,8 +302,8 @@ export class NewConnectionController extends HTMLController {
   private async lookupCompany(
     logger: pino.Logger,
     companyNumber: COMPANY_NUMBER
-  ): Promise<{ type: 'success'; company: CompanyProfile } | { type: 'error'; message: string }> {
-    const companySearch = await this.companyHouseEntity.getCompanyProfileByCompanyNumber(companyNumber)
+  ): Promise<{ type: 'success'; company: OrganisationProfile } | { type: 'error'; message: string }> {
+    const companySearch = await this.organisationRegistry.getOrganisationProfileByOrganisationNumber(companyNumber)
     if (companySearch.type === 'notFound') {
       logger.info('%s company not found', companySearch)
       return {
@@ -344,7 +346,7 @@ export class NewConnectionController extends HTMLController {
   }
 
   private async insertNewConnection(
-    company: CompanyProfile,
+    company: OrganisationProfile,
     pinHash: string,
     invitationId: string,
     agentConnectionId: string | null
@@ -391,7 +393,7 @@ export class NewConnectionController extends HTMLController {
     toCompanyName: string,
     invite: { companyNumber: string; inviteUrl: string }
   ) {
-    const fromCompany = await this.companyHouseEntity.localCompanyHouseProfile()
+    const fromCompany = await this.organisationRegistry.localOrganisationProfile()
     const inviteBase64 = Buffer.from(JSON.stringify(invite), 'utf8').toString('base64url')
 
     await neverFail(
@@ -404,7 +406,7 @@ export class NewConnectionController extends HTMLController {
     )
   }
 
-  private async sendAdminEmail(company: CompanyProfile, pin: string) {
+  private async sendAdminEmail(company: OrganisationProfile, pin: string) {
     await neverFail(
       this.email.sendMail('connection_invite_admin', {
         receiver: company.company_name,
@@ -427,7 +429,7 @@ export class NewConnectionController extends HTMLController {
     )
   }
 
-  private newInviteSuccessHtml(formStage: NewInviteFormStage, company: CompanyProfile, email: string) {
+  private newInviteSuccessHtml(formStage: NewInviteFormStage, company: OrganisationProfile, email: string) {
     return this.html(
       this.newInvite.newInviteForm({
         feedback: {

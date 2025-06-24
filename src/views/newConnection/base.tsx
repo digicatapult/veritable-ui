@@ -1,11 +1,11 @@
 import Html from '@kitajs/html'
-import { CompanyProfile } from '../../models/companyHouseEntity.js'
+import { OrganisationProfile } from '../../models/organisationRegistry.js'
 import { FormButton, LinkButton } from '../common.js'
 
 export type FormFeedback =
   | {
       type: 'companyFound'
-      company: CompanyProfile
+      company: OrganisationProfile
     }
   | {
       type: 'message'
@@ -78,7 +78,7 @@ export abstract class NewConnectionTemplates {
     }
   }
 
-  protected feedbackCompanyInfo = ({ company }: { company: CompanyProfile }): JSX.Element => {
+  protected feedbackCompanyInfo = ({ company }: { company: OrganisationProfile }): JSX.Element => {
     const addressLines = [
       company.company_name,
       company.registered_office_address.address_line_1,

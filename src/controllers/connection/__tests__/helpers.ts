@@ -4,10 +4,10 @@ import { pino } from 'pino'
 import sinon from 'sinon'
 import { Env } from '../../../env/index.js'
 import { ILogger } from '../../../logger.js'
-import CompanyHouseEntity from '../../../models/companyHouseEntity.js'
 import Database from '../../../models/db/index.js'
 import { ConnectionRow } from '../../../models/db/types.js'
 import EmailService from '../../../models/emailService/index.js'
+import OrganisationRegistry from '../../../models/organisationRegistry.js'
 import VeritableCloudagent from '../../../models/veritableCloudagent/index.js'
 import ConnectionTemplates from '../../../views/connection/connection.js'
 import { FormFeedback } from '../../../views/newConnection/base.js'
@@ -61,8 +61,8 @@ export const withConnectionMocks = (
   const cloudagentMock = {
     proposeCredential: sinon.stub().resolves(),
   }
-  const companyHouseMock = {
-    localCompanyHouseProfile: () =>
+  const organisationRegistry = {
+    localOrganisationProfile: () =>
       Promise.resolve({
         company_number: 'COMPANY_NUMBER',
         company_name: 'COMPANY_NAME',
@@ -95,7 +95,7 @@ export const withConnectionMocks = (
     args: [
       dbMock as unknown as Database,
       cloudagentMock as unknown as VeritableCloudagent,
-      companyHouseMock as unknown as CompanyHouseEntity,
+      organisationRegistry as unknown as OrganisationRegistry,
       templateMock as ConnectionTemplates,
       pinSubmission as unknown as PinSubmissionTemplates,
     ] as const,
@@ -121,7 +121,7 @@ export const withNewConnectionMocks = () => {
     },
   } as unknown as Database
   const mockCompanyHouseEntity = {
-    getCompanyProfileByCompanyNumber: async (companyNumber: string) => {
+    getOrganisationProfileByOrganisationNumber: async (companyNumber: string) => {
       if (companyNumber === notFoundCompanyNumber) {
         return {
           type: 'notFound',
@@ -135,11 +135,11 @@ export const withNewConnectionMocks = () => {
       }
       throw new Error('Invalid number')
     },
-    localCompanyHouseProfile: sinon.stub().resolves({
+    localOrganisationProfile: sinon.stub().resolves({
       company_number: 'COMPANY_NUMBER',
       company_name: 'COMPANY_NAME',
     }),
-  } as unknown as CompanyHouseEntity
+  } as unknown as OrganisationRegistry
 
   const mockCloudagent = {
     createOutOfBandInvite: ({ companyName }: { companyName: string }) => {

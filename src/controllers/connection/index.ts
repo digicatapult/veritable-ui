@@ -8,9 +8,9 @@ import ConnectionTemplates from '../../views/connection/connection.js'
 
 import { DatabaseTimeoutError, InternalError, InvalidInputError, NotFoundError } from '../../errors.js'
 import { ILogger } from '../../logger.js'
-import CompanyHouseEntity, { CompanyProfile } from '../../models/companyHouseEntity.js'
 import Database from '../../models/db/index.js'
 import { ConnectionRow } from '../../models/db/types.js'
+import OrganisationRegistry, { OrganisationProfile } from '../../models/organisationRegistry.js'
 import VeritableCloudagent from '../../models/veritableCloudagent/index.js'
 import { PinSubmissionTemplates } from '../../views/newConnection/pinSubmission.js'
 import { HTML, HTMLController } from '../HTMLController.js'
@@ -24,7 +24,7 @@ export class ConnectionController extends HTMLController {
   constructor(
     private db: Database,
     private cloudagent: VeritableCloudagent,
-    private companyHouse: CompanyHouseEntity,
+    private organisationRegistry: OrganisationRegistry,
     private connectionTemplates: ConnectionTemplates,
     private pinSubmission: PinSubmissionTemplates
   ) {
@@ -92,7 +92,7 @@ export class ConnectionController extends HTMLController {
       return this.html(this.pinSubmission.renderPinForm({ connectionId, pin, continuationFromInvite: false }))
     }
 
-    const profile = await this.companyHouse.localCompanyHouseProfile()
+    const profile = await this.organisationRegistry.localOrganisationProfile()
     const [connection]: ConnectionRow[] = await this.db.get('connection', { id: connectionId })
 
     if (!connection) throw new NotFoundError(`[connection]: ${connectionId}`)
@@ -143,7 +143,7 @@ export class ConnectionController extends HTMLController {
   private async verifyReceiveConnection(
     logger: pino.Logger,
     agentConnectionId: string,
-    profile: CompanyProfile,
+    profile: OrganisationProfile,
     pin: string
   ) {
     logger.debug('verifyReceiveConnection(): called for credential proposal', { agentConnectionId, profile, pin })
