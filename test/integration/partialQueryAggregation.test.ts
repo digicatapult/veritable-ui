@@ -5,7 +5,6 @@ import { afterEach, beforeEach, describe } from 'mocha'
 import Database from '../../src/models/db/index.js'
 import VeritableCloudagent from '../../src/models/veritableCloudagent/index.js'
 import { cleanupCloudagent } from '../helpers/cloudagent.js'
-import { withCompanyHouseMock } from '../helpers/companyHouse.js'
 import { cleanup } from '../helpers/db.js'
 
 import { container } from 'tsyringe'
@@ -44,8 +43,6 @@ describe('partial query aggregation', function () {
   afterEach(async () => {
     await cleanup()
   })
-
-  withCompanyHouseMock()
 
   describe('with established connections: Alice -> Bob -> Charlie', function () {
     const context: Context = {

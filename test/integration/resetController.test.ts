@@ -12,7 +12,6 @@ import VeritableCloudagent from '../../src/models/veritableCloudagent/index.js'
 import { Connection } from '../../src/models/veritableCloudagent/internal.js'
 import createHttpServer from '../../src/server.js'
 import VeritableCloudagentEvents from '../../src/services/veritableCloudagentEvents.js'
-import { withCompanyHouseMock } from '../helpers/companyHouse.js'
 import { withVerifiedConnection } from '../helpers/connection.js'
 import { del } from '../helpers/routeHelper.js'
 
@@ -23,8 +22,6 @@ describe('integration test for /reset endpoint', function () {
   afterEach(async () => {
     await cleanup()
   })
-
-  withCompanyHouseMock()
 
   describe('if DEMO_MODE=true', function () {
     type Context = {

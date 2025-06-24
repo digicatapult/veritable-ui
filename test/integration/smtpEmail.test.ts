@@ -7,7 +7,6 @@ import { z } from 'zod'
 import createHttpServer from '../../src/server.js'
 import VeritableCloudagentEvents from '../../src/services/veritableCloudagentEvents.js'
 import { cleanupCloudagent } from '../helpers/cloudagent.js'
-import { withCompanyHouseMock } from '../helpers/companyHouse.js'
 import { cleanup } from '../helpers/db.js'
 import { validCompanyName, validCompanyNumber } from '../helpers/fixtures.js'
 import { post } from '../helpers/routeHelper.js'
@@ -32,8 +31,6 @@ const EmailResponseSchema = z.object({
 
 describe('SMTP email', () => {
   let server: { app: express.Express; cloudagentEvents: VeritableCloudagentEvents }
-
-  withCompanyHouseMock()
 
   describe('create invitation and check it has been registered in the email server (happy path)', function () {
     setupSmtpTestEnvironment()
