@@ -8,7 +8,6 @@ import VeritableCloudagent from '../../src/models/veritableCloudagent/index.js'
 import createHttpServer from '../../src/server.js'
 import VeritableCloudagentEvents from '../../src/services/veritableCloudagentEvents.js'
 import { cleanupCloudagent } from '../helpers/cloudagent.js'
-import { withCompanyHouseMock } from '../helpers/companyHouse.js'
 import { withEstablishedConnectionFromThem, withEstablishedConnectionFromUs } from '../helpers/connection.js'
 import { cleanup } from '../helpers/db.js'
 import { post } from '../helpers/routeHelper.js'
@@ -20,7 +19,6 @@ describe('pin-submission', function () {
   afterEach(async () => {
     await cleanup()
   })
-  withCompanyHouseMock()
 
   describe('pin verification of sender', function () {
     type Context = {

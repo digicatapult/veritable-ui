@@ -6,7 +6,6 @@ import { container } from 'tsyringe'
 import Database from '../../src/models/db/index.js'
 import VeritableCloudagent from '../../src/models/veritableCloudagent/index.js'
 import { cleanupCloudagent } from '../helpers/cloudagent.js'
-import { withCompanyHouseMock } from '../helpers/companyHouse.js'
 import { cleanup } from '../helpers/db.js'
 
 import { QueryRow } from '../../src/models/db/types.js'
@@ -22,7 +21,6 @@ describe('query submission', function () {
   afterEach(async () => {
     await cleanup()
   })
-  withCompanyHouseMock()
 
   describe('Carbon embodiment query success', function () {
     type Context = {

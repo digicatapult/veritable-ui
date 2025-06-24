@@ -5,7 +5,6 @@ import Database from '../../src/models/db/index.js'
 import VeritableCloudagent from '../../src/models/veritableCloudagent/index.js'
 import createHttpServer from '../../src/server.js'
 import VeritableCloudagentEvents from '../../src/services/veritableCloudagentEvents.js'
-import { withCompanyHouseMock } from '../helpers/companyHouse.js'
 import { cleanup } from '../helpers/db.js'
 import { get, post } from '../helpers/routeHelper.js'
 import { withAdminEmail } from '../helpers/settings.js'
@@ -37,7 +36,7 @@ describe('integration tests for settings page', function () {
     admin_email: 'madmin@testmail.com',
     action: 'updateSettings',
   }
-  withCompanyHouseMock()
+
   beforeEach(async () => {
     await cleanup()
     await withAdminEmail(db)

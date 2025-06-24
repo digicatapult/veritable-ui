@@ -9,7 +9,6 @@ import EmailService from '../../src/models/emailService/index.js'
 import createHttpServer from '../../src/server.js'
 import VeritableCloudagentEvents from '../../src/services/veritableCloudagentEvents.js'
 import { cleanupCloudagent, withBobCloudAgentInvite, withBobCloudagentAcceptInvite } from '../helpers/cloudagent.js'
-import { withCompanyHouseMock } from '../helpers/companyHouse.js'
 import { cleanup } from '../helpers/db.js'
 import { validCompanyNumber } from '../helpers/fixtures.js'
 import { post } from '../helpers/routeHelper.js'
@@ -23,7 +22,6 @@ describe('NewConnectionController', () => {
   afterEach(async () => {
     await cleanup()
   })
-  withCompanyHouseMock() // TODO: tests using other registries
 
   describe('create invitation (happy path)', function () {
     let response: Awaited<ReturnType<typeof post>>
