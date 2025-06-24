@@ -38,8 +38,9 @@ export const defaultConfig = {
   IDP_JWKS_PATH: envalid.str({
     default: '/certs',
   }),
-  COMPANY_HOUSE_API_URL: envalid.str({ default: 'https://api.company-information.service.gov.uk' }),
-  COMPANY_PROFILE_API_KEY: envalid.str(),
+  COMPANY_HOUSE_API_URL: envalid.str({ default: 'https://api.company-information.service.gov.uk' }), // TODO: all registries will need this
+  COMPANY_PROFILE_API_KEY: envalid.str(), // TODO: keep this as we may have more registries configured at the same time
+  // TODO: add other registries here will need some sort of validator if we have all the envs for the configured registries
   EMAIL_TRANSPORT: emailTransportValidator({ default: { type: 'STREAM' } }),
   EMAIL_FROM_ADDRESS: envalid.email({ default: 'hello@veritable.com' }),
   EMAIL_ADMIN_ADDRESS: envalid.email({ default: 'admin@veritable.com' }),
