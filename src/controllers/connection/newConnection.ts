@@ -12,7 +12,7 @@ import EmailService from '../../models/emailService/index.js'
 import OrganisationRegistry, { OrganisationProfile } from '../../models/organisationRegistry.js'
 import {
   base64UrlRegex,
-  organisationNumberRegex,
+  companyNumberRegex,
   type BASE_64_URL,
   type COMPANY_NUMBER,
   type EMAIL,
@@ -91,8 +91,8 @@ export class NewConnectionController extends HTMLController {
   ): Promise<HTML> {
     req.log.debug('verifying %s company number', companyNumber)
 
-    if (!companyNumber.match(organisationNumberRegex)) {
-      req.log.info('company %s number did not match %s regex', companyNumber, organisationNumberRegex)
+    if (!companyNumber.match(companyNumberRegex)) {
+      req.log.info('company %s number did not match %s regex', companyNumber, companyNumberRegex)
       return this.newConnectionForm(req)
     }
 
@@ -287,8 +287,8 @@ export class NewConnectionController extends HTMLController {
       }
     }
 
-    if (!wrappedInvite.companyNumber.match(organisationNumberRegex)) {
-      logger.info('company number did not match a %s regex', organisationNumberRegex)
+    if (!wrappedInvite.companyNumber.match(companyNumberRegex)) {
+      logger.info('company number did not match a %s regex', companyNumberRegex)
       return { type: 'error', message: 'Invitation is not valid' }
     }
 
