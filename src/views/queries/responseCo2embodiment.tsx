@@ -4,9 +4,9 @@ import { ConnectionRow, QueryRow } from '../../models/db/types.js'
 import { CarbonEmbodimentRes } from '../../models/drpc.js'
 import { FormButton, LinkButton, Page } from '../common.js'
 
-export type Scope3FormStage = 'form' | 'success' | 'error'
-export interface Scope3FormProps {
-  formStage: Scope3FormStage
+export type CarbonEmbodimentFormStage = 'form' | 'success' | 'error'
+export interface CarbonEmbodimentFormProps {
+  formStage: CarbonEmbodimentFormStage
   company: ConnectionRow
   connections?: ConnectionRow[]
   partial?: boolean
@@ -14,16 +14,16 @@ export interface Scope3FormProps {
 }
 
 @singleton()
-export default class Scope3CarbonConsumptionResponseTemplates {
+export default class CarbonEmbodimentResponseTemplates {
   constructor() {}
 
-  public newScope3CarbonConsumptionResponseFormPage = ({
+  public newCarbonEmbodimentResponseFormPage = ({
     formStage,
     company,
     query,
     partial,
     connections,
-  }: Scope3FormProps) => {
+  }: CarbonEmbodimentFormProps) => {
     return (
       <Page
         title="Veritable - Select Company"
@@ -33,13 +33,13 @@ export default class Scope3CarbonConsumptionResponseTemplates {
           { name: 'Query Management', url: '/queries' },
           {
             name: `Query Request ${query.details.subjectId.content.productId}`,
-            url: `/queries/scope-3-carbon-consumption/${query.id}/response`,
+            url: `/queries/carbon-embodiment/${query.id}/response`,
           },
         ]}
       >
         <div class="connections header"></div>
         <div class="card-body">
-          <this.scope3
+          <this.carbonEmbodiment
             formStage={formStage}
             company={company}
             query={query}
@@ -50,10 +50,10 @@ export default class Scope3CarbonConsumptionResponseTemplates {
       </Page>
     )
   }
-  public scope3 = (props: Scope3FormProps): JSX.Element => {
+  public carbonEmbodiment = (props: CarbonEmbodimentFormProps): JSX.Element => {
     switch (props.formStage) {
       case 'form':
-        return <this.scope3CarbonConsumptionResponseFormPage {...props}></this.scope3CarbonConsumptionResponseFormPage>
+        return <this.carbonEmbodimentResponseFormPage {...props}></this.carbonEmbodimentResponseFormPage>
       case 'success':
         return <this.queryResponseSuccess {...props}></this.queryResponseSuccess>
       case 'error':
@@ -61,34 +61,34 @@ export default class Scope3CarbonConsumptionResponseTemplates {
     }
   }
 
-  public scope3CarbonConsumptionResponseFormPage = ({
+  public carbonEmbodimentResponseFormPage = ({
     partial = undefined,
     connections = [],
     query,
     ...props
-  }: Scope3FormProps) => {
+  }: CarbonEmbodimentFormProps) => {
     return (
-      <div class="container-scope3-carbon">
-        <div class="scope3-co2-left">
-          <h1 id="scope3-co2-heading">Total Carbon Embodiment</h1>
+      <div class="container-carbon-embodiment">
+        <div class="co2-embodiment-left">
+          <h1 id="co2-embodiment-heading">Total Carbon Embodiment</h1>
           <span>
-            <p class="query-text-carbon3-consumption">
+            <p class="query-text-carbon-embodiment">
               Provide the total carbon embodiment for the specified product/component.
             </p>
-            <p class="query-text-carbon3-consumption">
+            <p class="query-text-carbon-embodiment">
               If you do not have all the required information, please forward this query to your suppliers to gather
               their responses. Once you have all the necessary information, you can submit the final total.{''}
             </p>
           </span>
         </div>
-        <div class="scope3-co2-right">
-          <p class="query-text-carbon3-consumption">
+        <div class="co2-embodiment-right">
+          <p class="query-text-carbon-embodiment">
             What is the total carbon embodiment for the product/component below?
           </p>
           <div hx-swap-oob="true" hx-swap="ignoreTitle:true" id="partial-query">
             <form
-              id="scope-3-carbon-consumption"
-              hx-post={`/queries/scope-3-carbon-consumption/${query.id}/response`}
+              id="carbon-embodiment"
+              hx-post={`/queries/carbon-embodiment/${query.id}/response`}
               hx-select="main > *"
               hx-include={"[name='quantity'], [name='companyId'], [name='productId']"}
               hx-target="main"
@@ -101,11 +101,11 @@ export default class Scope3CarbonConsumptionResponseTemplates {
               </p>
               <input type="hidden" name="companyId" value={Html.escapeHtml(props.company.id)} />
               <div class="input-container">
-                <label for="co2-emissions-input" class="input-label">
+                <label for="co2-embodiment-input" class="input-label">
                   Total carbon from my operations only (Scope 1 & 2)
                 </label>
                 <input
-                  id="co2-emissions-input"
+                  id="co2-embodiment-input"
                   name="emissions"
                   placeholder="Value in kg CO2e (to be aggregated)"
                   class="input-with-label"
@@ -208,19 +208,19 @@ export default class Scope3CarbonConsumptionResponseTemplates {
         heading="View response to your query"
         headerLinks={[
           { name: 'Queries', url: '/queries' },
-          { name: connection.company_name, url: `/queries/scope-3-carbon-consumption/${query.id}/view-response` },
+          { name: connection.company_name, url: `/queries/carbon-embodiment/${query.id}/view-response` },
         ]}
       >
         <div class="connections header"></div>
         <div class="card-body">
-          <div class="container-scope3-carbon">
-            <div class="scope3-co2-left">
+          <div class="container-carbon-embodiment">
+            <div class="co2-embodiment-left">
               <h1>Total Carbon Embodiment</h1>
-              <p class="query-text-carbon3-consumption">
+              <p class="query-text-carbon-embodiment">
                 A query for calculating the total carbon embodiment for a given product or component.
               </p>
             </div>
-            <div class="scope3-co2-right">
+            <div class="co2-embodiment-right">
               <div class="row">
                 <h2>Query Information</h2>
                 <div style={{ maxHeight: '25px' }} class="list-item-status" data-status="success">
@@ -295,6 +295,7 @@ export default class Scope3CarbonConsumptionResponseTemplates {
             checked={checked}
             hx-get={`/queries/partial-select/${props.id}`}
             hx-target={`#tr-${props.id}`}
+            aria-label="select partial query"
           />
         </td>
         <td>{Html.escapeHtml(props.company_name)}</td>
@@ -322,7 +323,7 @@ export default class Scope3CarbonConsumptionResponseTemplates {
     )
   }
 
-  private queryResponseSuccess = (props: Scope3FormProps): JSX.Element => {
+  private queryResponseSuccess = (props: CarbonEmbodimentFormProps): JSX.Element => {
     return (
       <div id="new-query-confirmation-text">
         <h2>Thank you for your response!</h2>
@@ -345,7 +346,7 @@ export default class Scope3CarbonConsumptionResponseTemplates {
     )
   }
 
-  private queryResponseError = (props: Scope3FormProps): JSX.Element => {
+  private queryResponseError = (props: CarbonEmbodimentFormProps): JSX.Element => {
     return (
       <div id="new-query-confirmation-text">
         <p>

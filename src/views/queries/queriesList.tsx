@@ -131,8 +131,8 @@ export default class QueryListTemplates {
                         text={this.buttonText(query.status, query.role)}
                         href={
                           query.status === 'resolved' && query.role === 'requester'
-                            ? `/queries/scope-3-carbon-consumption/${query.id}/view-response`
-                            : `/queries/scope-3-carbon-consumption/${query.id}/response`
+                            ? `/queries/carbon-embodiment/${query.id}/view-response`
+                            : `/queries/carbon-embodiment/${query.id}/response`
                         }
                       />
                     </td>

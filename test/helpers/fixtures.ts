@@ -1,4 +1,4 @@
-import { CompanyProfile } from '../../src/models/companyHouseEntity.js'
+import { OrganisationProfile } from '../../src/models/organisationRegistry.js'
 
 export const bob = {
   registered_office_address: {
@@ -33,7 +33,7 @@ export const bobCompanyNumber = '04659351'
 export const charlieCompanyNumber = '10016023'
 export const validCompanyName = 'DIGITAL CATAPULT'
 
-export const successResponse: CompanyProfile = {
+export const successResponse: OrganisationProfile = {
   registered_office_address: {
     address_line_1: 'Level 9, 101 Euston Road',
     postal_code: 'NW1 2RA',

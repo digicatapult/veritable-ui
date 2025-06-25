@@ -57,7 +57,7 @@ export class PinSubmissionTemplates extends NewConnectionTemplates {
               maxlength={6}
             />
             <p class="warn-pin-attempts">{Html.escapeHtml(remainingTriesString)}</p>
-            <img class="htmx-indicator" src="/public/images/send.svg" />
+            <img class="htmx-indicator" src="/public/images/send.svg" alt="send" />
           </div>
         </this.newConnectionForm>
       </Page>

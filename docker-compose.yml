@@ -48,9 +48,9 @@ services:
       - DB_PASSWORD=postgres
       - DB_PORT=5432
       - COOKIE_SESSION_KEYS=secret
-      - PUBLIC_URL=${VERITABLE_ALICE_PUBLIC_URL:-http://localhost:3000}
+      - PUBLIC_URL=http://localhost:3000
       - IDP_CLIENT_ID=veritable-ui
-      - IDP_PUBLIC_URL_PREFIX=${VERITABLE_IDP_PUBLIC_URL_PREFIX:-http://localhost:3080/realms/veritable/protocol/openid-connect}
+      - IDP_PUBLIC_URL_PREFIX=http://localhost:3080/realms/veritable/protocol/openid-connect
       - IDP_INTERNAL_URL_PREFIX=http://keycloak:8080/realms/veritable/protocol/openid-connect
       - CLOUDAGENT_ADMIN_ORIGIN=http://veritable-cloudagent-alice:3000
       - CLOUDAGENT_ADMIN_WS_ORIGIN=ws://veritable-cloudagent-alice:3000
@@ -69,7 +69,7 @@ services:
       - COMPANY_HOUSE_API_URL=https://api.company-information.service.gov.uk
       - DEMO_MODE=true
       - SMTP_SECURE=false
-      - COMPANY_PROFILE_API_KEY=${VERITABLE_COMPANY_PROFILE_API_KEY:-API_KEY}
+      - COMPANY_PROFILE_API_KEY=API_KEY
   postgres-veritable-ui-alice:
     image: postgres:17.5-alpine
     container_name: postgres-veritable-ui-alice
@@ -92,7 +92,7 @@ services:
       - POSTGRES_PASSWORD=postgres
       - POSTGRES_DB=postgres-veritable-cloudagent
   veritable-cloudagent-alice:
-    image: digicatapult/veritable-cloudagent:0.13.0
+    image: digicatapult/veritable-cloudagent:v0.13.6
     container_name: veritable-cloudagent-alice
     restart: always
     depends_on:
@@ -136,7 +136,7 @@ services:
       - DB_NAME=veritable-ui
       - API_SWAGGER_TITLE=Bob
       - API_SWAGGER_BG_COLOR=#ff3131
-      - PUBLIC_URL=${VERITABLE_BOB_PUBLIC_URL:-http://localhost:3001}
+      - PUBLIC_URL=http://localhost:3001
       - CLOUDAGENT_ADMIN_ORIGIN=http://veritable-cloudagent-bob:3000
       - CLOUDAGENT_ADMIN_WS_ORIGIN=ws://veritable-cloudagent-bob:3000
       - COMPANY_HOUSE_API_URL=https://api.company-information.service.gov.uk
@@ -144,7 +144,7 @@ services:
       - DB_PASSWORD=postgres
       - DB_USERNAME=postgres
       - IDP_CLIENT_ID=veritable-ui
-      - IDP_PUBLIC_URL_PREFIX=${VERITABLE_IDP_PUBLIC_URL_PREFIX:-http://localhost:3080/realms/veritable/protocol/openid-connect}
+      - IDP_PUBLIC_URL_PREFIX=http://localhost:3080/realms/veritable/protocol/openid-connect
       - IDP_INTERNAL_URL_PREFIX=http://keycloak:8080/realms/veritable/protocol/openid-connect
       - INVITATION_FROM_COMPANY_NUMBER=04659351
       - INVITATION_PIN_SECRET=secret
@@ -158,7 +158,7 @@ services:
       - SMTP_USER=username
       - EMAIL_TRANSPORT=SMTP_EMAIL
       - SMTP_SECURE=false
-      - COMPANY_PROFILE_API_KEY=${VERITABLE_COMPANY_PROFILE_API_KEY:-API_KEY}
+      - COMPANY_PROFILE_API_KEY=API_KEY
 
   postgres-veritable-ui-bob:
     image: postgres:17.5-alpine
@@ -182,7 +182,7 @@ services:
       - POSTGRES_PASSWORD=postgres
       - POSTGRES_DB=postgres-veritable-cloudagent
   veritable-cloudagent-bob:
-    image: digicatapult/veritable-cloudagent:0.13.0
+    image: digicatapult/veritable-cloudagent:v0.13.6
     container_name: veritable-cloudagent-bob
     restart: always
     depends_on:
@@ -224,7 +224,7 @@ services:
       - DB_NAME=veritable-ui
       - API_SWAGGER_TITLE=Charlie
       - API_SWAGGER_BG_COLOR=#ffbd59
-      - PUBLIC_URL=${VERITABLE_CHARLIE_PUBLIC_URL:-http://localhost:3002}
+      - PUBLIC_URL=http://localhost:3002
       - CLOUDAGENT_ADMIN_ORIGIN=http://veritable-cloudagent-charlie:3000
       - CLOUDAGENT_ADMIN_WS_ORIGIN=ws://veritable-cloudagent-charlie:3000
       - COMPANY_HOUSE_API_URL=https://api.company-information.service.gov.uk
@@ -232,7 +232,7 @@ services:
       - DB_PASSWORD=postgres
       - DB_USERNAME=postgres
       - IDP_CLIENT_ID=veritable-ui
-      - IDP_PUBLIC_URL_PREFIX=${VERITABLE_IDP_PUBLIC_URL_PREFIX:-http://localhost:3080/realms/veritable/protocol/openid-connect}
+      - IDP_PUBLIC_URL_PREFIX=http://localhost:3080/realms/veritable/protocol/openid-connect
       - IDP_INTERNAL_URL_PREFIX=http://keycloak:8080/realms/veritable/protocol/openid-connect
       - INVITATION_FROM_COMPANY_NUMBER=10016023
       - INVITATION_PIN_SECRET=secret
@@ -246,7 +246,7 @@ services:
       - SMTP_USER=username
       - EMAIL_TRANSPORT=SMTP_EMAIL
       - SMTP_SECURE=false
-      - COMPANY_PROFILE_API_KEY=${VERITABLE_COMPANY_PROFILE_API_KEY:-API_KEY}
+      - COMPANY_PROFILE_API_KEY=API_KEY
 
   postgres-veritable-ui-charlie:
     image: postgres:17.5-alpine
@@ -270,7 +270,7 @@ services:
       - POSTGRES_PASSWORD=postgres
       - POSTGRES_DB=postgres-veritable-cloudagent
   veritable-cloudagent-charlie:
-    image: digicatapult/veritable-cloudagent:0.13.0
+    image: digicatapult/veritable-cloudagent:v0.13.6
     container_name: veritable-cloudagent-charlie
     restart: always
     depends_on:
@@ -294,6 +294,19 @@ services:
       - '5001:80' # Port for accessing smtp4dev's web interface
       - '2525:25' # Port for SMTP connections
     restart: always
+
+  # -------------------- wiremock ----------------------------#
+
+  wiremock:
+    image: wiremock/wiremock:3.13.1
+    container_name: wiremock
+    scale: 0
+    ports:
+      - '8443:8080' # Port for accessing wiremock
+    restart: always
+    volumes:
+      - ./test/wiremock/:/home/wiremock/mappings/
+
 
 volumes:
   ipfs:

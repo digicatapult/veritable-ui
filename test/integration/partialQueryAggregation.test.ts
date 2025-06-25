@@ -5,7 +5,6 @@ import { afterEach, beforeEach, describe } from 'mocha'
 import Database from '../../src/models/db/index.js'
 import VeritableCloudagent from '../../src/models/veritableCloudagent/index.js'
 import { cleanupCloudagent } from '../helpers/cloudagent.js'
-import { withCompanyHouseMock } from '../helpers/companyHouse.js'
 import { cleanup } from '../helpers/db.js'
 
 import { container } from 'tsyringe'
@@ -45,8 +44,6 @@ describe('partial query aggregation', function () {
     await cleanup()
   })
 
-  withCompanyHouseMock()
-
   describe('with established connections: Alice -> Bob -> Charlie', function () {
     const context: Context = {
       db: {
@@ -74,7 +71,7 @@ describe('partial query aggregation', function () {
     withBobAndCharlie(context)
 
     beforeEach(async function () {
-      context.response = await post(context.app, `/queries/new/scope-3-carbon-consumption`, {
+      context.response = await post(context.app, `/queries/new/carbon-embodiment`, {
         connectionId: context.aliceConnectionId,
         productId: 'toaster-001(AliceReq)',
         quantity: 1,
@@ -83,7 +80,7 @@ describe('partial query aggregation', function () {
       const queryId = await context.db.bob.get('query').then((res) => res[0].id)
       const { withAlice, withCharlie } = context.bobsConnections
 
-      await fetchPost(`http://localhost:3001/queries/scope-3-carbon-consumption/${queryId}/response`, {
+      await fetchPost(`http://localhost:3001/queries/carbon-embodiment/${queryId}/response`, {
         companyId: withAlice.id,
         action: 'success',
         emissions: '200',
@@ -202,7 +199,7 @@ describe('partial query aggregation', function () {
       beforeEach(async () => {
         const queryId = await context.db.charlie.get('query').then((res) => res[0].id)
 
-        await fetchPost(`http://localhost:3002/queries/scope-3-carbon-consumption/${queryId}/response`, {
+        await fetchPost(`http://localhost:3002/queries/carbon-embodiment/${queryId}/response`, {
           companyId: context.charliesConnections.withBob.id,
           action: 'success',
           emissions: '500',

@@ -5,22 +5,27 @@ import chaiJestSnapshot from 'chai-jest-snapshot'
 import { StartedTestContainer } from 'testcontainers'
 import { migrateDatabase } from './helpers/db.js'
 import {
-  bringUpAliceDependenciesContainers,
-  bringUpBobContainers,
-  bringUpCharlieContainers,
+  bringUpDependenciesContainers,
   bringUpSharedContainers,
+  bringUpVeritableUIContainer,
 } from './testcontainers/testcontainersSetup.js'
 
 let sharedContainers: StartedTestContainer[]
 let aliceDepsContainers: StartedTestContainer[]
-let bobContainers: StartedTestContainer[]
-let charlieContainers: StartedTestContainer[]
+let bobDepsContainers: StartedTestContainer[]
+let charlieDepsContainers: StartedTestContainer[]
+let bobUIContainer: StartedTestContainer[]
+let charlieUIContainer: StartedTestContainer[]
 
 before(async function () {
   sharedContainers = await bringUpSharedContainers()
-  aliceDepsContainers = await bringUpAliceDependenciesContainers()
-  bobContainers = await bringUpBobContainers()
-  charlieContainers = await bringUpCharlieContainers()
+  // Pass in ('name', host port for UI database, host port for cloudagent)
+  aliceDepsContainers = await bringUpDependenciesContainers('alice', 5432, 3100)
+  bobDepsContainers = await bringUpDependenciesContainers('bob', 5433, 3101)
+  charlieDepsContainers = await bringUpDependenciesContainers('charlie', 5434, 3102)
+  // Pass in ('name', host port for UI, 'company number')
+  bobUIContainer = await bringUpVeritableUIContainer('bob', 3001, '04659351')
+  charlieUIContainer = await bringUpVeritableUIContainer('charlie', 3002, '10016023')
 
   await migrateDatabase()
   use(chaiJestSnapshot)
@@ -34,12 +39,22 @@ after(async function () {
     })
   )
   await Promise.all(
-    bobContainers.map(async function (container) {
+    bobDepsContainers.map(async function (container) {
       await container.stop()
     })
   )
   await Promise.all(
-    charlieContainers.map(async function (container) {
+    charlieDepsContainers.map(async function (container) {
+      await container.stop()
+    })
+  )
+  await Promise.all(
+    bobUIContainer.map(async function (container) {
+      await container.stop()
+    })
+  )
+  await Promise.all(
+    charlieUIContainer.map(async function (container) {
       await container.stop()
     })
   )

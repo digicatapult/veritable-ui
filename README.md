@@ -17,16 +17,23 @@ A user interface for `Veritable` that allows to manage connections across supply
 veritable-ui depends on a few external services:
 
 - [veritable-cloudagent](https://github.com/digicatapult/veritable-cloudagent) - APIs for managing connections, credentials and messages.
-- `keycloak` - runs as a docker image for each node that handles authentication and users.
+- [IPFS](https://ipfs.tech) - a distributed file server for storing credential schemas
+- [Keycloak](https://www.keycloak.org) - runs as a docker image for each node that handles authentication and users.
+
+
+### Development & Testing
+
+- [smtp4dev](https://github.com/rnwood/smtp4dev) - runs as a docker image for exchanging emails during onboarding workflows
+- [WireMock](https://wiremock.org) - runs as a docker image for `integration` and `e2e` tests to mock an official national company register
 
 ### Prerequisites
 
-> :warning: last updated: 01/08/2024
+> :warning: last updated: 18/07/2025
 
-- docker v27.0.3+
-- npm 10.0.0+
+- docker v28.1.1+
+- npm 11.0.0+
 - node 22.0.0+
-- postgresql 16.3+
+- postgresql 17.5+
 
 ## Getting started
 
@@ -36,13 +43,7 @@ Ensure you're running the correct version of npm, then install dependencies usin
 npm install
 ```
 
-After all packages have been installed run the below command which will create two files: `src/routes.ts`, `./build/swagger.json`
-
-```sh
-npm run tsoa:build
-```
-
-Once TSOA build has completed, then run a typescript compiler
+After all packages have been installed run the below command which will create two files: `src/routes.ts`, `./build/swagger.json` and run the typescript compiler
 
 ```sh
 npm run build
@@ -169,7 +170,7 @@ npm run test:unit
 
 Integration tests are placed at the root level of a repository and can be found at the root level `test/` folder along with mock services and helpers and a test environment variables that will be in `test/test.env`.
 
-Integration tests can be run locally by executing the below command (it is recommended to add debugging so you can follow the logs in the console, refer to [testcontainers section](#testcontainers))
+Integration tests can be run locally using Testcontainers by executing the below command (it is recommended to add debugging so you can follow the logs in the console, refer to [testcontainers section](#testcontainers))
 
 ```sh
 npm run test:integration
@@ -177,18 +178,12 @@ npm run test:integration
 
 ### e2e Testing
 
-E2e tests are placed at root level in the `test/` directory. You can run them either directly or in a docker container (how they are run in the CI).
+End-to-end tests are placed at root level in the `test/` directory. They run by default in a Testcontainers environment.
 
 Install dependencies for playwright with:
 
 ```sh
 npx playwright install
-```
-
-Bring up all the docker containers necessary with:
-
-```sh
-docker compose up -d --build --scale veritable-ui-alice=1
 ```
 
 Then run:
@@ -197,20 +192,15 @@ Then run:
 npm run test:e2e
 ```
 
-(it is recommended to add debugging so you can follow the logs in the console, refer to [testcontainers section](#testcontainers))
-A browser window will pop up where you can run tests and follow their progress. Alternatively you can run:
+This will run the tests without the ui. It is recommended to add debugging so you can follow the logs in the console, refer to [testcontainers section](#testcontainers)
+
+Alternatively you can run:
 
 ```sh
 npm run test:playwright
 ```
 
-This will run the tests without the ui.
-
-To run the e2e tests in a docker container use:
-
-```sh
-docker compose -f docker-compose.e2e.yml up
-```
+A browser window will pop up where you can run tests and follow their progress.
 
 Then you'll find the test results in directory `playwright-report` at root level.
 

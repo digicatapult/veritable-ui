@@ -1,0 +1,68 @@
+{
+  "mappings": [
+    {
+      "request": {
+        "method": "GET",
+        "url": "/company/07964699"
+      },
+      "response": {
+        "status": 200,
+        "jsonBody": {
+          "registered_office_address": {
+            "address_line_1": "Level 9, 101 Euston Road",
+            "locality": "London",
+            "postal_code": "NW1 2RA"
+          },
+          "company_name": "DIGITAL CATAPULT",
+          "company_number": "07964699",
+          "company_status": "active",
+          "registered_office_is_in_dispute": false
+        }
+      }
+    },
+    {
+      "request": {
+        "method": "GET",
+        "url": "/company/04659351"
+      },
+      "response": {
+        "status": 200,
+        "jsonBody": {
+          "registered_office_address": {
+            "address_line_1": "Offshore House",
+            "address_line_2": "Albert Street",
+            "locality": "Blyth",
+            "postal_code": "NE24 1LZ",
+            "region": "Northumberland"
+          },
+          "company_name": "OFFSHORE RENEWABLE ENERGY CATAPULT",
+          "company_number": "04659351",
+          "company_status": "active",
+          "registered_office_is_in_dispute": false
+        }
+      }
+    },
+    {
+      "request": {
+        "method": "GET",
+        "url": "/company/10016023"
+      },
+      "response": {
+        "status": 200,
+        "jsonBody": {
+          "registered_office_address": {
+            "address_line_1": "12th Floor Tower Wing Guy's Hospital",
+            "address_line_2": "Great Maze Pond",
+            "country": "United Kingdom",
+            "locality": "London",
+            "postal_code": "SE1 9RT"
+          },
+          "company_name": "CELL AND GENE THERAPY CATAPULT",
+          "company_number": "10016023",
+          "company_status": "active",
+          "registered_office_is_in_dispute": false
+        }
+      }
+    }
+  ]
+}
