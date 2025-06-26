@@ -4,13 +4,13 @@ import { describe, it } from 'mocha'
 
 import http from 'http'
 import { z } from 'zod'
+import { resetContainer } from '../../src/ioc.js'
 import createHttpServer from '../../src/server.js'
 import VeritableCloudagentEvents from '../../src/services/veritableCloudagentEvents.js'
 import { cleanupCloudagent } from '../helpers/cloudagent.js'
 import { cleanup } from '../helpers/db.js'
 import { validCompanyName, validCompanyNumber } from '../helpers/fixtures.js'
 import { post } from '../helpers/routeHelper.js'
-import { clearSmtp4devMessages, setupSmtpTestEnvironment } from '../helpers/smtp.js'
 
 const ToSchema = z.array(z.string())
 
@@ -25,6 +25,7 @@ const EmailItemSchema = z.object({
   attachmentCount: z.number().int(),
   isUnread: z.boolean(),
 })
+
 const EmailResponseSchema = z.object({
   results: z.array(EmailItemSchema),
 })
@@ -127,3 +128,49 @@ describe('SMTP email', () => {
     })
   })
 })
+
+function setupSmtpTestEnvironment() {
+  let username: string | undefined
+  let password: string | undefined
+
+  beforeEach(async () => {
+    username = process.env.SMTP_USER
+    password = process.env.SMTP_PASS
+
+    process.env.EMAIL_TRANSPORT = 'SMTP_EMAIL'
+    process.env.SMTP_USER = 'username'
+    process.env.SMTP_PASS = 'password'
+    resetContainer()
+  })
+
+  afterEach(async () => {
+    process.env.EMAIL_TRANSPORT = 'STREAM'
+    process.env.SMTP_USER = username
+    process.env.SMTP_PASS = password
+    resetContainer()
+  })
+}
+
+async function clearSmtp4devMessages() {
+  return new Promise((resolve, reject) => {
+    const options = {
+      hostname: 'localhost',
+      port: 5001,
+      path: '/api/messages/*', // Delete all messages
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    }
+
+    const req = http.request(options, (res) => {
+      if (res.statusCode === 200) {
+        resolve(true)
+      } else {
+        reject(new Error(`Failed to clear messages, status code: ${res.statusCode}`))
+      }
+    })
+    req.on('error', (error) => reject(error))
+    req.end()
+  })
+}

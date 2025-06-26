@@ -1,8 +1,8 @@
 import 'reflect-metadata'
 
-import { fetchGet, fetchPost } from '../../helpers/routeHelper.js'
-import { delay } from '../../helpers/util.js'
+import { fetchGet, fetchPost } from './routeHelper.js'
 import { checkEmails, extractInvite, extractPin } from './smtpEmails.js'
+import { delay } from './util.js'
 
 export async function withConnection(invitatorUrl: string, receiverUrl: string) {
   const uuidRegex = /[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-4[0-9a-fA-F]{3}-[89ab][0-9a-fA-F]{3}-[0-9a-fA-F]{12}/g
