@@ -1,4 +1,4 @@
-import { OrganisationProfile } from '../../../models/organisationRegistry.js'
+import { OrganisationProfile } from '../../../models/orgRegistry/organisationRegistry.js'
 import { FormFeedback } from '../base.js'
 
 export const successResponse: OrganisationProfile = {

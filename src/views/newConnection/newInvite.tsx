@@ -1,6 +1,6 @@
 import Html from '@kitajs/html'
 import { singleton } from 'tsyringe'
-import { COMPANY_NUMBER, EMAIL, companyNumberRegex } from '../../models/strings.js'
+import { COMPANY_NUMBER, companyNumberRegex, EMAIL, socrataRegex } from '../../models/strings.js'
 import { Page } from '../common.js'
 import { FormFeedback, NewConnectionTemplates } from './base.js'
 
@@ -38,6 +38,7 @@ export class NewInviteTemplates extends NewConnectionTemplates {
     formStage: NewInviteFormStage
     companyNumber?: COMPANY_NUMBER
     email?: EMAIL
+    countryCode?: string
     feedback: FormFeedback
   }): JSX.Element => {
     switch (props.formStage) {
@@ -53,6 +54,7 @@ export class NewInviteTemplates extends NewConnectionTemplates {
   private newInviteInput = (props: {
     companyNumber?: COMPANY_NUMBER
     email?: EMAIL
+    countryCode?: string
     feedback: FormFeedback
   }): JSX.Element => {
     return (
@@ -76,13 +78,18 @@ export class NewInviteTemplates extends NewConnectionTemplates {
           hx-target="#new-connection-feedback"
           hx-select="#new-connection-feedback"
           hx-swap="outerHTML"
-          pattern={companyNumberRegex.source}
-          minlength={8}
-          maxlength={8}
+          hx-include="#new-invite-country-select"
+          pattern={props.countryCode === 'UK' ? companyNumberRegex.source : socrataRegex.source}
+          minlength={props.countryCode === 'UK' ? 8 : 7}
+          maxlength={props.countryCode === 'UK' ? 8 : 7}
           oninput="this.reportValidity()"
           value={props.companyNumber}
           type="text"
         ></input>
+        <select id="new-invite-country-select" name="countryCode" required value={props.countryCode}>
+          <option value="UK">United Kingdom</option>
+          <option value="NY">New York</option>
+        </select>
         <input
           required
           id="new-invite-email-input"
@@ -122,7 +129,7 @@ export class NewInviteTemplates extends NewConnectionTemplates {
           <p>Please confirm the details of the connection before sending</p>
           <p>
             {Html.escapeHtml(
-              `Company House Number: ${props.feedback.type === 'companyFound' && props.feedback.company.company_number}`
+              `Company House Number: ${props.feedback.type === 'companyFound' && props.feedback.company.number}`
             )}
           </p>
           <p>{Html.escapeHtml(`Email Address: ${props.feedback.type === 'companyFound' && props.email}`)}</p>

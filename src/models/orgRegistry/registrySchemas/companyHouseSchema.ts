@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { companyNumberRegex } from '../strings.js'
+import { companyNumberRegex } from '../../strings'
 
 export const companyHouseProfileSchema = z.object({
   company_number: z.string().regex(new RegExp(companyNumberRegex)).min(8).max(8),

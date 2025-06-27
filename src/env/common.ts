@@ -40,7 +40,7 @@ export const defaultConfig = {
   }),
   COMPANY_HOUSE_API_URL: envalid.str({ default: 'https://api.company-information.service.gov.uk' }), // TODO: all registries will need this
   COMPANY_PROFILE_API_KEY: envalid.str(), // TODO: keep this as we may have more registries configured at the same time
-  // TODO: add other registries here will need some sort of validator if we have all the envs for the configured registries
+  // TODO: add other registries here will need some sort of validator if we have all the envs for the configured registries or will these be in db?
   EMAIL_TRANSPORT: emailTransportValidator({ default: { type: 'STREAM' } }),
   EMAIL_FROM_ADDRESS: envalid.email({ default: 'hello@veritable.com' }),
   EMAIL_ADMIN_ADDRESS: envalid.email({ default: 'admin@veritable.com' }),
@@ -49,11 +49,13 @@ export const defaultConfig = {
   CLOUDAGENT_ADMIN_PING_TIMEOUT_MS: envalid.num({ default: 30000 }),
   INVITATION_PIN_SECRET: pinSecretValidator({ devDefault: Buffer.from('secret', 'utf8') }),
   INVITATION_PIN_ATTEMPT_LIMIT: envalid.num({ default: 5 }),
-  INVITATION_FROM_COMPANY_NUMBER: envalid.str({ devDefault: '07964699' }),
+  INVITATION_FROM_COMPANY_NUMBER: envalid.str({ devDefault: '07964699' }), // TODO: change to LOCAL_COMPANY_NUMBER ??
   ISSUANCE_DID_POLICY: issuanceRecordValidator({ devDefault: 'EXISTING_OR_NEW' }),
   ISSUANCE_SCHEMA_POLICY: issuanceRecordValidator({ devDefault: 'EXISTING_OR_NEW' }),
   ISSUANCE_CRED_DEF_POLICY: issuanceRecordValidator({ devDefault: 'EXISTING_OR_NEW' }),
   DEMO_MODE: envalid.bool({ devDefault: true, default: false }),
+  SOCRATA_API_URL: envalid.str({ default: 'https://data.ny.gov/resource/p66s-i79p.json' }),
+  LOCAL_REGISTRY_TO_USE: envalid.str({ default: 'UK' }),
 }
 
 // we mainly separate out the raw environment loading so we can override it safely in tests

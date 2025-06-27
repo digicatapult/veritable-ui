@@ -6,7 +6,7 @@ import { Env } from '../../env/index.js'
 import { InternalError } from '../../errors.js'
 import Database from '../../models/db/index.js'
 import { SettingsRow } from '../../models/db/types.js'
-import OrganisationRegistry from '../../models/organisationRegistry.js'
+import OrganisationRegistry from '../../models/orgRegistry/organisationRegistry.js'
 import SettingsTemplates from '../../views/settings/settings.js'
 import { HTML, HTMLController } from './../HTMLController.js'
 type SettingsDict = {
@@ -47,11 +47,12 @@ export class SettingsController extends HTMLController {
     const settingsDict = await this.transformSettingsToDict(settings)
     const resetEnabled = this.env.get('DEMO_MODE')
     const profile = await this.organisationRegistry.localOrganisationProfile()
+    console.log('profile', profile)
     const set = {
-      company_name: profile.company_name,
+      company_name: profile.name,
       companies_house_number: this.env.get('INVITATION_FROM_COMPANY_NUMBER'),
       from_email: this.env.get('EMAIL_FROM_ADDRESS'),
-      postal_address: await this.formatAddress(profile.registered_office_address),
+      postal_address: profile.address,
       admin_email: settingsDict.admin_email.setting_value,
       reset_enabled: resetEnabled,
     }
@@ -98,10 +99,10 @@ export class SettingsController extends HTMLController {
     const resetEnabled = this.env.get('DEMO_MODE')
     const profile = await this.organisationRegistry.localOrganisationProfile()
     const set = {
-      company_name: profile.company_name,
+      company_name: profile.name,
       companies_house_number: this.env.get('INVITATION_FROM_COMPANY_NUMBER'),
       from_email: this.env.get('EMAIL_FROM_ADDRESS'),
-      postal_address: await this.formatAddress(profile.registered_office_address),
+      postal_address: profile.address,
       admin_email: settingsDict.admin_email.setting_value,
       reset_enabled: resetEnabled,
     }

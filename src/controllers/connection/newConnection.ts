@@ -3,16 +3,18 @@ import express from 'express'
 import { randomInt } from 'node:crypto'
 import { pino } from 'pino'
 import { Body, Get, Post, Produces, Query, Request, Route, Security, SuccessResponse } from 'tsoa'
-import { injectable } from 'tsyringe'
+import { inject, injectable } from 'tsyringe'
 import { z } from 'zod'
 
 import { Env } from '../../env/index.js'
+import { Logger, type ILogger } from '../../logger.js'
 import Database from '../../models/db/index.js'
 import EmailService from '../../models/emailService/index.js'
-import OrganisationRegistry, { OrganisationProfile } from '../../models/organisationRegistry.js'
+import OrganisationRegistry, { SharedOrganisationInfo } from '../../models/orgRegistry/organisationRegistry.js'
 import {
   base64UrlRegex,
   companyNumberRegex,
+  socrataRegex,
   type BASE_64_URL,
   type COMPANY_NUMBER,
   type EMAIL,
@@ -32,6 +34,7 @@ const submitToFormStage = {
 
 const inviteParser = z.object({
   companyNumber: z.string(),
+  countryCode: z.string(),
   inviteUrl: z.string(),
 })
 type Invite = z.infer<typeof inviteParser>
@@ -49,7 +52,8 @@ export class NewConnectionController extends HTMLController {
     private newInvite: NewInviteTemplates,
     private fromInvite: FromInviteTemplates,
     private pinSubmission: PinSubmissionTemplates,
-    private env: Env
+    private env: Env,
+    @inject(Logger) private logger: ILogger
   ) {
     super()
   }
@@ -87,18 +91,19 @@ export class NewConnectionController extends HTMLController {
   @Get('/verify-company')
   public async verifyCompanyForm(
     @Request() req: express.Request,
-    @Query() companyNumber: COMPANY_NUMBER | string
+    @Query() companyNumber: COMPANY_NUMBER | string,
+    @Query() countryCode: string
   ): Promise<HTML> {
-    req.log.debug('verifying %s company number', companyNumber)
+    req.log.debug('verifying %s company number for country %s', companyNumber, countryCode)
 
-    if (!companyNumber.match(companyNumberRegex)) {
+    if (countryCode === 'UK' && !companyNumber.match(companyNumberRegex)) {
       req.log.info('company %s number did not match %s regex', companyNumber, companyNumberRegex)
       return this.newConnectionForm(req)
     }
 
-    const companyOrError = await this.lookupCompany(req.log, companyNumber)
+    const companyOrError = await this.lookupCompany(req.log, companyNumber, countryCode)
     if (companyOrError.type === 'error') {
-      req.log.warn('Error occured while looking up the company %j', { companyNumber, err: companyOrError })
+      req.log.warn('Error occured while looking up the company %j', { companyNumber, countryCode, err: companyOrError })
       return this.newInviteErrorHtml(companyOrError.message, undefined, companyNumber)
     }
     req.log.debug('comapny found, rendering next stage %j', companyOrError)
@@ -111,6 +116,7 @@ export class NewConnectionController extends HTMLController {
         },
         formStage: 'form',
         companyNumber,
+        countryCode,
       })
     )
   }
@@ -161,10 +167,12 @@ export class NewConnectionController extends HTMLController {
       companyNumber: COMPANY_NUMBER
       email: EMAIL
       action: 'back' | 'continue' | 'submit'
+      countryCode: 'UK' | 'NY'
     }
   ): Promise<HTML> {
+    console.log('submitNewInvite', body)
     // lookup company by number
-    const companyOrError = await this.lookupCompany(req.log, body.companyNumber)
+    const companyOrError = await this.lookupCompany(req.log, body.companyNumber, body.countryCode)
     if (companyOrError.type === 'error') {
       req.log.warn('unable to retrieve company details %j', body)
       return this.newInviteErrorHtml(companyOrError.message, body.email, body.companyNumber)
@@ -178,13 +186,13 @@ export class NewConnectionController extends HTMLController {
       return this.newInviteSuccessHtml(formStage, company, body.email)
     }
 
-    req.log.info('new connection details %s (%s)', company.company_name, company.company_number)
+    req.log.info('new connection details %s (%s)', company.name, company.number)
 
     // otherwise we're doing final submit. Generate pin and oob invitation
     const pin = randomInt(1e6).toString(10).padStart(6, '0')
     const [pinHash, invite] = await Promise.all([
       argon2.hash(pin, { secret: this.env.get('INVITATION_PIN_SECRET') }),
-      this.cloudagent.createOutOfBandInvite({ companyName: company.company_name }),
+      this.cloudagent.createOutOfBandInvite({ companyName: company.name }),
     ])
 
     req.log.info('invite created, inserting new connection %j', { company, pinHash, invite })
@@ -192,16 +200,17 @@ export class NewConnectionController extends HTMLController {
     const dbResult = await this.insertNewConnection(company, pinHash, invite.outOfBandRecord.id, null)
     if (dbResult.type === 'error') {
       req.log.warn('unable to insert a new connection %j', dbResult)
-      return this.newInviteErrorHtml(dbResult.error, body.email, company.company_number)
+      return this.newInviteErrorHtml(dbResult.error, body.email, company.name)
     }
 
     const wrappedInvitation: Invite = {
       companyNumber: this.env.get('INVITATION_FROM_COMPANY_NUMBER'),
+      countryCode: this.env.get('LOCAL_REGISTRY_TO_USE'),
       inviteUrl: invite.invitationUrl,
     }
 
-    req.log.info('sending connection_invite email to %s (%s) %j', body.email, company.company_name, wrappedInvitation)
-    await this.sendNewConnectionEmail(body.email, company.company_name, wrappedInvitation)
+    req.log.info('sending connection_invite email to %s (%s) %j', body.email, company.name, wrappedInvitation)
+    await this.sendNewConnectionEmail(body.email, company.name, wrappedInvitation)
     req.log.info('sending connection_invite_admin email %j', { company, pin })
     await this.sendAdminEmail(company, pin)
 
@@ -235,18 +244,14 @@ export class NewConnectionController extends HTMLController {
       return this.receiveInviteErrorHtml(inviteOrError.message)
     }
 
-    req.log.info(
-      'new connection: details %s (%s)',
-      inviteOrError.company.company_name,
-      inviteOrError.company.company_number
-    )
+    req.log.info('new connection: details %s (%s)', inviteOrError.company.name, inviteOrError.company.number)
 
     // otherwise we're doing final submit. Generate pin and oob invitation
     const pin = randomInt(1e6).toString(10).padStart(6, '0')
     const [pinHash, invite] = await Promise.all([
       argon2.hash(pin, { secret: this.env.get('INVITATION_PIN_SECRET') }),
       this.cloudagent.receiveOutOfBandInvite({
-        companyName: inviteOrError.company.company_name,
+        companyName: inviteOrError.company.name,
         invitationUrl: inviteOrError.inviteUrl,
       }),
     ])
@@ -274,7 +279,7 @@ export class NewConnectionController extends HTMLController {
     logger: pino.Logger,
     invite: BASE_64_URL
   ): Promise<
-    { type: 'success'; inviteUrl: string; company: OrganisationProfile } | { type: 'error'; message: string }
+    { type: 'success'; inviteUrl: string; company: SharedOrganisationInfo } | { type: 'error'; message: string }
   > {
     let wrappedInvite: Invite
     try {
@@ -287,12 +292,12 @@ export class NewConnectionController extends HTMLController {
       }
     }
 
-    if (!wrappedInvite.companyNumber.match(companyNumberRegex)) {
+    if (!wrappedInvite.companyNumber.match(wrappedInvite.countryCode === 'UK' ? companyNumberRegex : socrataRegex)) {
       logger.info('company number did not match a %s regex', companyNumberRegex)
       return { type: 'error', message: 'Invitation is not valid' }
     }
 
-    const companyOrError = await this.lookupCompany(logger, wrappedInvite.companyNumber)
+    const companyOrError = await this.lookupCompany(logger, wrappedInvite.companyNumber, wrappedInvite.countryCode)
     if (companyOrError.type === 'error') {
       return companyOrError
     }
@@ -301,9 +306,13 @@ export class NewConnectionController extends HTMLController {
 
   private async lookupCompany(
     logger: pino.Logger,
-    companyNumber: COMPANY_NUMBER
-  ): Promise<{ type: 'success'; company: OrganisationProfile } | { type: 'error'; message: string }> {
-    const companySearch = await this.organisationRegistry.getOrganisationProfileByOrganisationNumber(companyNumber)
+    companyNumber: COMPANY_NUMBER,
+    countryCode: string
+  ): Promise<{ type: 'success'; company: SharedOrganisationInfo } | { type: 'error'; message: string }> {
+    const companySearch = await this.organisationRegistry.getOrganisationProfileByOrganisationNumber(
+      companyNumber,
+      countryCode
+    )
     if (companySearch.type === 'notFound') {
       logger.info('%s company not found', companySearch)
       return {
@@ -319,23 +328,25 @@ export class NewConnectionController extends HTMLController {
       logger.info('connection already exists %j', existingConnections)
       return {
         type: 'error',
-        message: `Connection already exists with ${company.company_name}`,
+        message: `Connection already exists with ${company.name}`,
       }
     }
 
-    if (company.registered_office_is_in_dispute) {
-      logger.info("company's is in dispute %o", company)
-      return {
-        type: 'error',
-        message: `Cannot validate company ${company.company_name} as address is currently in dispute`,
-      }
-    }
+    // TODO: check if company is in dispute
 
-    if (company.company_status !== 'active') {
+    // if (company.registered_office_is_in_dispute) {
+    //   logger.info("company's is in dispute %o", company)
+    //   return {
+    //     type: 'error',
+    //     message: `Cannot validate company ${company.company_name} as address is currently in dispute`,
+    //   }
+    // }
+
+    if (company.status !== 'active') {
       logger.info('company is not active %j', company)
       return {
         type: 'error',
-        message: `Company ${company.company_name} is not active`,
+        message: `Company ${company.name} is not active`,
       }
     }
 
@@ -346,7 +357,7 @@ export class NewConnectionController extends HTMLController {
   }
 
   private async insertNewConnection(
-    company: OrganisationProfile,
+    company: SharedOrganisationInfo,
     pinHash: string,
     invitationId: string,
     agentConnectionId: string | null
@@ -355,8 +366,8 @@ export class NewConnectionController extends HTMLController {
       let connectionId: string = ''
       await this.db.withTransaction(async (db) => {
         const [record] = await db.insert('connection', {
-          company_name: company.company_name,
-          company_number: company.company_number,
+          company_name: company.name,
+          company_number: company.number,
           agent_connection_id: agentConnectionId,
           status: 'pending',
           pin_attempt_count: 0,
@@ -381,7 +392,7 @@ export class NewConnectionController extends HTMLController {
       ) {
         return {
           type: 'error',
-          error: `Connection already exists with ${company.company_name}`,
+          error: `Connection already exists with ${company.name}`,
         }
       }
       throw err
@@ -401,35 +412,22 @@ export class NewConnectionController extends HTMLController {
         to: email,
         invite: inviteBase64,
         toCompanyName,
-        fromCompanyName: fromCompany.company_name,
+        fromCompanyName: fromCompany.name,
       })
     )
   }
 
-  private async sendAdminEmail(company: OrganisationProfile, pin: string) {
+  private async sendAdminEmail(company: SharedOrganisationInfo, pin: string) {
     await neverFail(
-      this.email.sendMail('connection_invite_admin', {
-        receiver: company.company_name,
-        address: [
-          company.company_name,
-          company.registered_office_address.address_line_1,
-          company.registered_office_address.address_line_2,
-          company.registered_office_address.care_of,
-          company.registered_office_address.locality,
-          company.registered_office_address.po_box,
-          company.registered_office_address.postal_code,
-          company.registered_office_address.country,
-          company.registered_office_address.premises,
-          company.registered_office_address.region,
-        ]
-          .filter((x) => !!x)
-          .join(', '),
+      this.email.sendMail('connection_invite_admin', this.db, this.logger, {
+        receiver: company.name,
+        address: company.address,
         pin,
       })
     )
   }
 
-  private newInviteSuccessHtml(formStage: NewInviteFormStage, company: OrganisationProfile, email: string) {
+  private newInviteSuccessHtml(formStage: NewInviteFormStage, company: SharedOrganisationInfo, email: string) {
     return this.html(
       this.newInvite.newInviteForm({
         feedback: {
@@ -438,7 +436,7 @@ export class NewConnectionController extends HTMLController {
         },
         formStage: formStage,
         email: email,
-        companyNumber: company.company_number,
+        companyNumber: company.number,
       })
     )
   }

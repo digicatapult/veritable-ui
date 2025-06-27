@@ -1,7 +1,7 @@
 import { expect } from 'chai'
 import { describe, it } from 'mocha'
 import { Env } from '../../env/index.js'
-import OrganisationRegistry from '../organisationRegistry.js'
+import OrganisationRegistry from '../orgRegistry/organisationRegistry.js'
 import {
   invalidCompanyNumber,
   noCompanyNumber,

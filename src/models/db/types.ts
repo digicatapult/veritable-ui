@@ -2,7 +2,14 @@ import { Knex } from 'knex'
 import { z } from 'zod'
 import { carbonEmbodimentRequestData, carbonEmbodimentResponseData } from '../drpc.js'
 
-export const tablesList = ['connection', 'connection_invite', 'query', 'query_rpc', 'settings'] as const
+export const tablesList = [
+  'connection',
+  'connection_invite',
+  'query',
+  'query_rpc',
+  'settings',
+  'organisation_registries',
+] as const
 
 const insertConnection = z.object({
   company_name: z.string(),
@@ -20,6 +27,13 @@ const insertConnection = z.object({
   pin_tries_remaining_count: z.number().int().gte(0).lte(255).nullable(),
 })
 
+const insertOrganisationRegistries = z.object({
+  country_code: z.string(),
+  registry_name: z.string(),
+  registry_key: z.string(),
+  url: z.string(),
+  api_key: z.string(),
+})
 const insertConnectionInvite = z.object({
   connection_id: z.string(),
   oob_invite_id: z.string(),
@@ -88,13 +102,19 @@ const Zod = {
       updated_at: z.date(),
     }),
   },
+  organisation_registries: {
+    insert: insertOrganisationRegistries,
+    get: insertOrganisationRegistries.extend({
+      id: z.string(),
+    }),
+  },
 }
 
 export type InsertConnection = z.infer<typeof Zod.connection.insert>
 export type ConnectionRow = z.infer<typeof Zod.connection.get>
 export type QueryRow = z.infer<typeof Zod.query.get>
 export type SettingsRow = z.infer<typeof Zod.settings.get>
-
+export type OrganisationRegistriesRow = z.infer<typeof Zod.organisation_registries.get>
 export type TABLES_TUPLE = typeof tablesList
 export type TABLE = TABLES_TUPLE[number]
 export type Models = {

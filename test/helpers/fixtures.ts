@@ -1,4 +1,4 @@
-import { OrganisationProfile } from '../../src/models/organisationRegistry.js'
+import { OrganisationProfile } from '../../src/models/orgRegistry/organisationRegistry.js'
 
 export const bob = {
   registered_office_address: {

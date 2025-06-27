@@ -1,4 +1,4 @@
-import { OrganisationProfile } from '../../organisationRegistry.js'
+import { OrganisationProfile } from '../../orgRegistry/organisationRegistry.js'
 
 export const validCompanyNumber = '07964699'
 export const secondaryCompanyNumber = '11111111'
