@@ -1,6 +1,6 @@
 import Html from '@kitajs/html'
 import { singleton } from 'tsyringe'
-import { COMPANY_NUMBER, companyNumberRegex, EMAIL, socrataRegex } from '../../models/strings.js'
+import { COMPANY_NUMBER, companyNumberRegex, EMAIL } from '../../models/strings.js'
 import { Page } from '../common.js'
 import { FormFeedback, NewConnectionTemplates } from './base.js'
 
@@ -79,9 +79,9 @@ export class NewInviteTemplates extends NewConnectionTemplates {
           hx-select="#new-connection-feedback"
           hx-swap="outerHTML"
           hx-include="#new-invite-country-select"
-          pattern={props.countryCode === 'UK' ? companyNumberRegex.source : socrataRegex.source}
-          minlength={props.countryCode === 'UK' ? 8 : 7}
-          maxlength={props.countryCode === 'UK' ? 8 : 7}
+          pattern={companyNumberRegex.source}
+          minlength={6}
+          maxlength={10}
           oninput="this.reportValidity()"
           value={props.companyNumber}
           type="text"
