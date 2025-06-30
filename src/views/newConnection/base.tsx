@@ -10,6 +10,9 @@ export type FormFeedback =
   | {
       type: 'message'
       message: string
+      regex?: string
+      minlength?: number
+      maxlength?: number
     }
   | {
       type: 'error'

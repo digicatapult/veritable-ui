@@ -14,6 +14,7 @@ import OrganisationRegistry, { SharedOrganisationInfo } from '../../models/orgRe
 import {
   base64UrlRegex,
   companyNumberRegex,
+  SOCRATA_NUMBER,
   socrataRegex,
   type BASE_64_URL,
   type COMPANY_NUMBER,
@@ -122,6 +123,31 @@ export class NewConnectionController extends HTMLController {
   }
 
   /**
+   * Updates the company number input pattern based on selected country
+   */
+  @SuccessResponse(200)
+  @Get('/update-pattern')
+  public async updatePattern(
+    @Request() req: express.Request,
+    @Query() countryCode: string,
+    @Query() companyNumber: string = ''
+  ): Promise<HTML> {
+    const pattern = countryCode === 'UK' ? companyNumberRegex.source : socrataRegex.source
+    const minLength = countryCode === 'UK' ? 8 : 7
+    const maxLength = countryCode === 'UK' ? 8 : 7
+
+    return this.html(
+      this.newInvite.newInviteFormPage({
+        type: 'message',
+        message: 'Please type in a valid company number to populate information',
+        regex: pattern,
+        minlength: minLength,
+        maxlength: maxLength,
+      })
+    )
+  }
+
+  /**
    * @returns a invite from a validated connection invitation
    */
   @SuccessResponse(200)
@@ -164,10 +190,10 @@ export class NewConnectionController extends HTMLController {
     @Request() req: express.Request,
     @Body()
     body: {
-      companyNumber: COMPANY_NUMBER
+      companyNumber: COMPANY_NUMBER | SOCRATA_NUMBER
       email: EMAIL
       action: 'back' | 'continue' | 'submit'
-      countryCode: 'UK' | 'NY'
+      countryCode: 'UK' | 'NY' // TODO: generify this somewhere
     }
   ): Promise<HTML> {
     console.log('submitNewInvite', body)
@@ -372,6 +398,7 @@ export class NewConnectionController extends HTMLController {
           status: 'pending',
           pin_attempt_count: 0,
           pin_tries_remaining_count: null,
+          country_code: company.countryCode,
         })
 
         await db.insert('connection_invite', {

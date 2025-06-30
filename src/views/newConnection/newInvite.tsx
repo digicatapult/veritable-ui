@@ -79,14 +79,27 @@ export class NewInviteTemplates extends NewConnectionTemplates {
           hx-select="#new-connection-feedback"
           hx-swap="outerHTML"
           hx-include="#new-invite-country-select"
-          pattern={companyNumberRegex.source}
-          minlength={6}
-          maxlength={10}
+          pattern={
+            props.feedback.type === 'message' && props.feedback.regex ? props.feedback.regex : companyNumberRegex.source
+          }
+          minlength={props.feedback.type === 'message' && props.feedback.minlength ? props.feedback.minlength : 6}
+          maxlength={props.feedback.type === 'message' && props.feedback.maxlength ? props.feedback.maxlength : 10}
           oninput="this.reportValidity()"
           value={props.companyNumber}
           type="text"
         ></input>
-        <select id="new-invite-country-select" name="countryCode" required value={props.countryCode}>
+        <select
+          id="new-invite-country-select"
+          name="countryCode"
+          required
+          value={props.countryCode}
+          hx-get="/connection/new/update-pattern"
+          hx-trigger="change"
+          hx-target="#new-invite-company-number-input"
+          hx-select="#new-invite-company-number-input"
+          hx-swap="outerHTML"
+          hx-include="this"
+        >
           <option value="UK">United Kingdom</option>
           <option value="NY">New York</option>
         </select>
@@ -125,8 +138,15 @@ export class NewInviteTemplates extends NewConnectionTemplates {
           type="hidden"
         ></input>
         <input id="new-invite-email-input" name="email" value={props.email} type="hidden"></input>
+        <input
+          id="new-invite-country-code-input"
+          name="countryCode"
+          value={props.feedback.type === 'companyFound' ? props.feedback.company.countryCode : ''}
+          type="hidden"
+        ></input>
         <div id="new-connection-confirmation-text">
           <p>Please confirm the details of the connection before sending</p>
+          <p> {Html.escapeHtml(props.feedback.type === 'companyFound' && props.feedback.company.countryCode)}</p>
           <p>
             {Html.escapeHtml(
               `Company House Number: ${props.feedback.type === 'companyFound' && props.feedback.company.number}`

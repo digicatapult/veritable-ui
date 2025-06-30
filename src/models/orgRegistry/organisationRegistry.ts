@@ -15,6 +15,7 @@ export type SharedOrganisationInfo = {
   address: string
   status: string
   number: string
+  countryCode: string
 }
 export type OrganisationProfile =
   | {
@@ -161,6 +162,7 @@ export default class OrganisationRegistry {
           .join(', '),
         number: socrataResults.company[0].dos_id,
         status: 'active', // presume active if org is found
+        countryCode: 'NY', // TODO: generify this somewhere
       },
       type: 'found',
     }
@@ -193,6 +195,7 @@ export default class OrganisationRegistry {
           .join(', '),
         number: companyHouseResults.company.company_number,
         status: companyHouseResults.company.company_status,
+        countryCode: 'UK', // TODO: generify this somewhere
       },
       type: 'found',
     }
