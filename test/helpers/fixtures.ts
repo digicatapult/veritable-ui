@@ -1,3 +1,4 @@
+import { Env } from '../../src/env/index.js'
 import { OrganisationProfile } from '../../src/models/organisationRegistry.js'
 
 export const bob = {
@@ -44,3 +45,75 @@ export const successResponse: OrganisationProfile = {
   company_name: validCompanyName,
   company_number: validCompanyNumber,
 }
+
+export const bobDbConfig = {
+  client: 'pg',
+  connection: {
+    host: 'localhost',
+    database: 'veritable-ui',
+    user: 'postgres',
+    password: 'postgres',
+    port: 5433,
+  },
+  pool: {
+    min: 2,
+    max: 10,
+  },
+  migrations: {
+    tableName: 'migrations',
+  },
+}
+
+export const charlieDbConfig = {
+  client: 'pg',
+  connection: {
+    host: 'localhost',
+    database: 'veritable-ui',
+    user: 'postgres',
+    password: 'postgres',
+    port: 5434,
+  },
+  pool: {
+    min: 2,
+    max: 10,
+  },
+  migrations: {
+    tableName: 'migrations',
+  },
+}
+
+export const mockEnvAlice = {
+  get(name) {
+    if (name === 'PORT') {
+      return 3000
+    }
+    if (name === 'CLOUDAGENT_ADMIN_ORIGIN') {
+      return 'http://localhost:3100'
+    }
+    throw new Error('Unexpected env variable request')
+  },
+} as Env
+
+export const mockEnvBob = {
+  get(name) {
+    if (name === 'PORT') {
+      return 3001
+    }
+    if (name === 'CLOUDAGENT_ADMIN_ORIGIN') {
+      return 'http://localhost:3101'
+    }
+    throw new Error('Unexpected env variable request')
+  },
+} as Env
+
+export const mockEnvCharlie = {
+  get(name) {
+    if (name === 'PORT') {
+      return 3002
+    }
+    if (name === 'CLOUDAGENT_ADMIN_ORIGIN') {
+      return 'http://localhost:3102'
+    }
+    throw new Error('Unexpected env variable request')
+  },
+} as Env

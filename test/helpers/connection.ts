@@ -4,87 +4,24 @@ import knex from 'knex'
 import { container } from 'tsyringe'
 
 import sinon from 'sinon'
-import { Env } from '../../src/env/index.js'
 import Database from '../../src/models/db/index.js'
 import EmailService from '../../src/models/emailService/index.js'
 import VeritableCloudagent from '../../src/models/veritableCloudagent/index.js'
 import type * as PartialQuery from '../integration/partialQueryAggregation.test.js'
-import { bob, charlie, validCompanyName, validCompanyNumber } from './fixtures.js'
+import {
+  bob,
+  bobDbConfig,
+  charlie,
+  charlieDbConfig,
+  mockEnvAlice,
+  mockEnvBob,
+  mockEnvCharlie,
+  validCompanyName,
+  validCompanyNumber,
+} from './fixtures.js'
 import { mockLogger } from './logger.js'
 import { post } from './routeHelper.js'
 import { delay } from './util.js'
-
-const bobDbConfig = {
-  client: 'pg',
-  connection: {
-    host: 'localhost',
-    database: 'veritable-ui',
-    user: 'postgres',
-    password: 'postgres',
-    port: 5433,
-  },
-  pool: {
-    min: 2,
-    max: 10,
-  },
-  migrations: {
-    tableName: 'migrations',
-  },
-}
-
-const charlieDbConfig = {
-  client: 'pg',
-  connection: {
-    host: 'localhost',
-    database: 'veritable-ui',
-    user: 'postgres',
-    password: 'postgres',
-    port: 5434,
-  },
-  pool: {
-    min: 2,
-    max: 10,
-  },
-  migrations: {
-    tableName: 'migrations',
-  },
-}
-
-const mockEnvAlice = {
-  get(name) {
-    if (name === 'PORT') {
-      return 3000
-    }
-    if (name === 'CLOUDAGENT_ADMIN_ORIGIN') {
-      return 'http://localhost:3100'
-    }
-    throw new Error('Unexpected env variable request')
-  },
-} as Env
-
-const mockEnvBob = {
-  get(name) {
-    if (name === 'PORT') {
-      return 3001
-    }
-    if (name === 'CLOUDAGENT_ADMIN_ORIGIN') {
-      return 'http://localhost:3101'
-    }
-    throw new Error('Unexpected env variable request')
-  },
-} as Env
-
-const mockEnvCharlie = {
-  get(name) {
-    if (name === 'PORT') {
-      return 3002
-    }
-    if (name === 'CLOUDAGENT_ADMIN_ORIGIN') {
-      return 'http://localhost:3102'
-    }
-    throw new Error('Unexpected env variable request')
-  },
-} as Env
 
 const cleanupConnections = async (agent: VeritableCloudagent, db: Database) => {
   for (const { id } of await agent.getConnections()) {
