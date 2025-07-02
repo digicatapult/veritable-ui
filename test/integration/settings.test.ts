@@ -5,7 +5,7 @@ import Database from '../../src/models/db/index.js'
 import VeritableCloudagent from '../../src/models/veritableCloudagent/index.js'
 import createHttpServer from '../../src/server.js'
 import VeritableCloudagentEvents from '../../src/services/veritableCloudagentEvents.js'
-import { cleanup } from '../helpers/db.js'
+import { cleanupDatabase } from '../helpers/db.js'
 import { get, post } from '../helpers/routeHelper.js'
 import { withAdminEmail } from '../helpers/settings.js'
 
@@ -38,7 +38,7 @@ describe('integration tests for settings page', function () {
   }
 
   beforeEach(async () => {
-    await cleanup()
+    await cleanupDatabase()
     await withAdminEmail(db)
     const server = await createHttpServer()
     Object.assign(context, {
@@ -48,7 +48,7 @@ describe('integration tests for settings page', function () {
 
   afterEach(async () => {
     context.cloudagentEvents.stop()
-    await cleanup()
+    await cleanupDatabase()
   })
 
   describe('happy path', function () {

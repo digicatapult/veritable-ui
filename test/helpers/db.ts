@@ -3,13 +3,12 @@ import { container } from 'tsyringe'
 import knex from 'knex'
 import { Env } from '../../src/env/index.js'
 import Database from '../../src/models/db/index.js'
+import { tablesList } from '../../src/models/db/types.js'
 
 const db = container.resolve(Database)
 
-export const cleanup = async () => {
-  await db.delete('query', {})
-  await db.delete('connection', {})
-  await db.delete('settings', {})
+export async function cleanupDatabase() {
+  tablesList.forEach(async (table) => await db.delete(table, {}))
 }
 
 const env = container.resolve(Env)

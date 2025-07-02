@@ -8,7 +8,7 @@ import { resetContainer } from '../../src/ioc.js'
 import createHttpServer from '../../src/server.js'
 import VeritableCloudagentEvents from '../../src/services/veritableCloudagentEvents.js'
 import { cleanupCloudagent } from '../helpers/cloudagent.js'
-import { cleanup } from '../helpers/db.js'
+import { cleanupDatabase } from '../helpers/db.js'
 import { validCompanyName, validCompanyNumber } from '../helpers/fixtures.js'
 import { post } from '../helpers/routeHelper.js'
 
@@ -36,7 +36,7 @@ describe('SMTP email', () => {
   describe('create invitation and check it has been registered in the email server (happy path)', function () {
     setupSmtpTestEnvironment()
     beforeEach(async () => {
-      await cleanup()
+      await cleanupDatabase()
       await cleanupCloudagent()
       server = await createHttpServer()
       await post(server.app, '/connection/new/create-invitation', {
@@ -47,7 +47,7 @@ describe('SMTP email', () => {
     })
 
     afterEach(async () => {
-      await cleanup()
+      await cleanupDatabase()
       await clearSmtp4devMessages()
       await cleanupCloudagent()
       server.cloudagentEvents.stop()

@@ -9,7 +9,7 @@ import EmailService from '../../src/models/emailService/index.js'
 import createHttpServer from '../../src/server.js'
 import VeritableCloudagentEvents from '../../src/services/veritableCloudagentEvents.js'
 import { cleanupCloudagent, withBobCloudAgentInvite, withBobCloudagentAcceptInvite } from '../helpers/cloudagent.js'
-import { cleanup } from '../helpers/db.js'
+import { cleanupDatabase } from '../helpers/db.js'
 import { validCompanyNumber } from '../helpers/fixtures.js'
 import { post } from '../helpers/routeHelper.js'
 import { delay } from '../helpers/util.js'
@@ -20,13 +20,13 @@ describe('NewConnectionController', () => {
   let server: { app: express.Express; cloudagentEvents: VeritableCloudagentEvents }
 
   afterEach(async () => {
-    await cleanup()
+    await cleanupDatabase()
   })
 
   describe('create invitation (happy path)', function () {
     let response: Awaited<ReturnType<typeof post>>
     beforeEach(async () => {
-      await cleanup()
+      await cleanupDatabase()
       await cleanupCloudagent()
       server = await createHttpServer()
       response = await post(server.app, '/connection/new/create-invitation', {
@@ -66,7 +66,7 @@ describe('NewConnectionController', () => {
     withBobCloudAgentInvite(context)
 
     beforeEach(async () => {
-      await cleanup()
+      await cleanupDatabase()
       await cleanupCloudagent()
       server = await createHttpServer(false)
       response = await post(server.app, '/connection/new/receive-invitation', {
@@ -103,7 +103,7 @@ describe('NewConnectionController', () => {
     withBobCloudAgentInvite(context)
 
     beforeEach(async () => {
-      await cleanup()
+      await cleanupDatabase()
       await cleanupCloudagent()
       server = await createHttpServer(true)
       await post(server.app, '/connection/new/receive-invitation', {
@@ -134,7 +134,7 @@ describe('NewConnectionController', () => {
     let emailSendStub: sinon.SinonStub
 
     beforeEach(async () => {
-      await cleanup()
+      await cleanupDatabase()
       await cleanupCloudagent()
       server = await createHttpServer(true)
 

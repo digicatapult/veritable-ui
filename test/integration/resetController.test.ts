@@ -4,7 +4,7 @@ import { afterEach, beforeEach, describe } from 'mocha'
 import { container } from 'tsyringe'
 
 import { cleanupCloudagent } from '../helpers/cloudagent.js'
-import { cleanup } from '../helpers/db.js'
+import { cleanupDatabase } from '../helpers/db.js'
 
 import Database from '../../src/models/db/index.js'
 import { ConnectionRow } from '../../src/models/db/types.js'
@@ -20,7 +20,7 @@ describe('integration test for /reset endpoint', function () {
   const cloudagent = container.resolve(VeritableCloudagent)
 
   afterEach(async () => {
-    await cleanup()
+    await cleanupDatabase()
   })
 
   describe('if DEMO_MODE=true', function () {
@@ -36,7 +36,7 @@ describe('integration test for /reset endpoint', function () {
     const context: Context = {} as Context
 
     beforeEach(async function () {
-      await cleanup()
+      await cleanupDatabase()
       await cleanupCloudagent()
       const server = await createHttpServer(false)
       Object.assign(context, {

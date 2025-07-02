@@ -5,7 +5,7 @@ import { afterEach, beforeEach, describe } from 'mocha'
 import Database from '../../src/models/db/index.js'
 import VeritableCloudagent from '../../src/models/veritableCloudagent/index.js'
 import { cleanupCloudagent } from '../helpers/cloudagent.js'
-import { cleanup } from '../helpers/db.js'
+import { cleanupDatabase } from '../helpers/db.js'
 
 import { container } from 'tsyringe'
 import { ConnectionRow } from '../../src/models/db/types.js'
@@ -41,7 +41,7 @@ export type Context = {
 describe('partial query aggregation', function () {
   this.timeout(30000)
   afterEach(async () => {
-    await cleanup()
+    await cleanupDatabase()
   })
 
   describe('with established connections: Alice -> Bob -> Charlie', function () {
@@ -55,7 +55,7 @@ describe('partial query aggregation', function () {
     } as unknown as Context
 
     beforeEach(async function () {
-      await cleanup()
+      await cleanupDatabase()
       await cleanupCloudagent()
       const server = await createHttpServer(true)
       Object.assign(context, {
@@ -65,7 +65,7 @@ describe('partial query aggregation', function () {
 
     afterEach(async function () {
       context.cloudagentEvents.stop()
-      await cleanup()
+      await cleanupDatabase()
     })
 
     withBobAndCharlie(context)

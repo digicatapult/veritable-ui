@@ -6,7 +6,7 @@ import { container } from 'tsyringe'
 import Database from '../../src/models/db/index.js'
 import VeritableCloudagent from '../../src/models/veritableCloudagent/index.js'
 import { cleanupCloudagent } from '../helpers/cloudagent.js'
-import { cleanup } from '../helpers/db.js'
+import { cleanupDatabase } from '../helpers/db.js'
 
 import { QueryRow } from '../../src/models/db/types.js'
 import createHttpServer from '../../src/server.js'
@@ -19,7 +19,7 @@ describe('query submission', function () {
   const db = container.resolve(Database)
 
   afterEach(async () => {
-    await cleanup()
+    await cleanupDatabase()
   })
 
   describe('Carbon embodiment query success', function () {
@@ -35,7 +35,7 @@ describe('query submission', function () {
     const context: Context = {} as Context
 
     beforeEach(async function () {
-      await cleanup()
+      await cleanupDatabase()
       await cleanupCloudagent()
       const server = await createHttpServer(true)
       Object.assign(context, {
