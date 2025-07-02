@@ -1,9 +1,9 @@
 import { container } from 'tsyringe'
 
 import knex from 'knex'
-import { Env } from '../../src/env/index.js'
 import Database from '../../src/models/db/index.js'
 import { tablesList } from '../../src/models/db/types.js'
+import { aliceDbConfig } from './fixtures.js'
 
 const db = container.resolve(Database)
 
@@ -11,26 +11,7 @@ export async function cleanupDatabase() {
   tablesList.forEach(async (table) => await db.delete(table, {}))
 }
 
-const env = container.resolve(Env)
-
-const database = knex({
-  client: 'pg',
-  connection: {
-    host: env.get('DB_HOST'),
-    database: env.get('DB_NAME'),
-    user: env.get('DB_USERNAME'),
-    password: env.get('DB_PASSWORD'),
-    port: env.get('DB_PORT'),
-  },
-  pool: {
-    min: 2,
-    max: 10,
-  },
-  migrations: {
-    tableName: 'migrations',
-    directory: 'src/models/db/migrations',
-  },
-})
+const database = knex(aliceDbConfig)
 
 export async function migrateDatabase() {
   try {

@@ -41,6 +41,25 @@ export const charlie = {
   company_number: '10016023',
 }
 
+export const aliceDbConfig = {
+  client: 'pg',
+  connection: {
+    host: 'localhost',
+    database: 'veritable-ui',
+    user: 'postgres',
+    password: 'postgres',
+    port: 5432,
+  },
+  pool: {
+    min: 2,
+    max: 10,
+  },
+  migrations: {
+    tableName: 'migrations',
+    directory: 'src/models/db/migrations',
+  },
+}
+
 export const bobDbConfig = {
   client: 'pg',
   connection: {
