@@ -1,8 +1,7 @@
 import { container } from 'tsyringe'
 
-import { Env } from '../../src/env/index.js'
 import VeritableCloudagent from '../../src/models/veritableCloudagent/index.js'
-import { alice } from './fixtures.js'
+import { alice, mockEnvBob } from './fixtures.js'
 import { mockLogger } from './logger.js'
 
 const cleanupShared = async function (agent: VeritableCloudagent) {
@@ -18,17 +17,7 @@ export async function cleanupCloudagent() {
 }
 
 export function withBobCloudAgentInvite(context: { invite: string }) {
-  const agent = new VeritableCloudagent(
-    {
-      get(name) {
-        if (name === 'CLOUDAGENT_ADMIN_ORIGIN') {
-          return 'http://localhost:3101'
-        }
-        throw new Error('Unexpected env variable request')
-      },
-    } as Env,
-    mockLogger
-  )
+  const agent = new VeritableCloudagent(mockEnvBob, mockLogger)
 
   beforeEach(async function () {
     await cleanupShared(agent)
@@ -46,17 +35,7 @@ export function withBobCloudAgentInvite(context: { invite: string }) {
 }
 
 export function withBobCloudagentAcceptInvite(context: { inviteUrl: string }) {
-  const agent = new VeritableCloudagent(
-    {
-      get(name) {
-        if (name === 'CLOUDAGENT_ADMIN_ORIGIN') {
-          return 'http://localhost:3101'
-        }
-        throw new Error('Unexpected env variable request')
-      },
-    } as Env,
-    mockLogger
-  )
+  const agent = new VeritableCloudagent(mockEnvBob, mockLogger)
 
   beforeEach(async function () {
     await cleanupShared(agent)
