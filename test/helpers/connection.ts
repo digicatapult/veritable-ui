@@ -14,7 +14,7 @@ import { mockLogger } from './logger.js'
 import { post } from './routeHelper.js'
 import { delay } from './util.js'
 
-const remoteDbConfig = {
+const bobDbConfig = {
   client: 'pg',
   connection: {
     host: 'localhost',
@@ -31,8 +31,6 @@ const remoteDbConfig = {
     tableName: 'migrations',
   },
 }
-
-const bobDbConfig = remoteDbConfig
 
 const charlieDbConfig = {
   client: 'pg',
@@ -116,7 +114,7 @@ export const withEstablishedConnectionFromUs = function (context: {
 
   beforeEach(async function () {
     const localDatabase = container.resolve(Database)
-    context.remoteDatabase = new Database(knex(remoteDbConfig))
+    context.remoteDatabase = new Database(knex(bobDbConfig))
     context.remoteCloudagent = new VeritableCloudagent(mockEnvBob, mockLogger)
 
     await cleanupRemote(context)
@@ -191,7 +189,7 @@ export const withEstablishedConnectionFromThem = function (context: {
 
   beforeEach(async function () {
     const localDatabase = container.resolve(Database)
-    context.remoteDatabase = new Database(knex(remoteDbConfig))
+    context.remoteDatabase = new Database(knex(bobDbConfig))
     context.remoteCloudagent = new VeritableCloudagent(mockEnvBob, mockLogger)
 
     await cleanupRemote(context)
@@ -263,7 +261,7 @@ export const withVerifiedConnection = function (context: {
 
   beforeEach(async function () {
     const localDatabase = container.resolve(Database)
-    context.remoteDatabase = new Database(knex(remoteDbConfig))
+    context.remoteDatabase = new Database(knex(bobDbConfig))
     context.remoteCloudagent = new VeritableCloudagent(mockEnvBob, mockLogger)
 
     await cleanupRemote(context)
