@@ -34,9 +34,9 @@ services:
       - 3000:3000
     command: >
       sh -c "
-        npm i -g pino-colada
+        npm i -g pino-pretty
         node ./node_modules/.bin/knex migrate:latest
-        npm start | pino-colada"
+        npm start | pino-pretty -c"
     # env_file:
     #   - .env
     environment:
@@ -124,9 +124,9 @@ services:
       - 3001:3000
     command: >
       sh -c "
-        npm i -g pino-colada
+        npm i -g pino-pretty
         node ./node_modules/.bin/knex migrate:latest
-        npm start | pino-colada"
+        npm start | pino-pretty -c"
     # env_file:
     #   - .env
     environment:
@@ -214,9 +214,9 @@ services:
       - 3002:3000
     command: >
       sh -c "
-        npm i -g pino-colada
+        npm i -g pino-pretty
         node ./node_modules/.bin/knex migrate:latest
-        npm start | pino-colada"
+        npm start | pino-pretty -c"
     environment:
       - NODE_ENV=production
       - LOG_LEVEL=debug

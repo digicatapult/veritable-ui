@@ -63,7 +63,7 @@ export async function bringUpVeritableUIContainer(name: string, hostPort: number
     .withCommand([
       'sh',
       '-c',
-      'npm i -g pino-colada; node ./node_modules/.bin/knex migrate:latest; npm start | pino-colada',
+      'npm i -g pino-pretty; node ./node_modules/.bin/knex migrate:latest; npm start | pino-pretty -c',
     ])
     .withWaitStrategy(Wait.forListeningPorts())
     .withNetwork(network)
