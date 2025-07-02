@@ -2,7 +2,7 @@ import { container } from 'tsyringe'
 
 import { Env } from '../../src/env/index.js'
 import VeritableCloudagent from '../../src/models/veritableCloudagent/index.js'
-import { validCompanyName, validCompanyNumber } from './fixtures.js'
+import { alice } from './fixtures.js'
 import { mockLogger } from './logger.js'
 
 const cleanupShared = async function (agent: VeritableCloudagent) {
@@ -32,10 +32,10 @@ export function withBobCloudAgentInvite(context: { invite: string }) {
 
   beforeEach(async function () {
     await cleanupShared(agent)
-    const invite = await agent.createOutOfBandInvite({ companyName: validCompanyName })
+    const invite = await agent.createOutOfBandInvite({ companyName: alice.company_name })
     context.invite = Buffer.from(
       JSON.stringify({
-        companyNumber: validCompanyNumber,
+        companyNumber: alice.company_number,
         inviteUrl: invite.invitationUrl,
       }),
       'utf8'
@@ -60,7 +60,7 @@ export function withBobCloudagentAcceptInvite(context: { inviteUrl: string }) {
 
   beforeEach(async function () {
     await cleanupShared(agent)
-    await agent.receiveOutOfBandInvite({ companyName: validCompanyName, invitationUrl: context.inviteUrl })
+    await agent.receiveOutOfBandInvite({ companyName: alice.company_name, invitationUrl: context.inviteUrl })
   })
 
   afterEach(async () => await cleanupShared(agent))

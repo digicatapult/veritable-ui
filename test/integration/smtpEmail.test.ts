@@ -9,7 +9,7 @@ import createHttpServer from '../../src/server.js'
 import VeritableCloudagentEvents from '../../src/services/veritableCloudagentEvents.js'
 import { cleanupCloudagent } from '../helpers/cloudagent.js'
 import { cleanupDatabase } from '../helpers/db.js'
-import { validCompanyName, validCompanyNumber } from '../helpers/fixtures.js'
+import { alice } from '../helpers/fixtures.js'
 import { post } from '../helpers/routeHelper.js'
 
 const ToSchema = z.array(z.string())
@@ -40,7 +40,7 @@ describe('SMTP email', () => {
       await cleanupCloudagent()
       server = await createHttpServer()
       await post(server.app, '/connection/new/create-invitation', {
-        companyNumber: validCompanyNumber,
+        companyNumber: alice.company_number,
         email: 'alice@example.com',
         action: 'submit',
       })
@@ -78,7 +78,8 @@ describe('SMTP email', () => {
 
               // Invite email assertions
               const inviteEmail = results.find(
-                (msg) => msg.subject === `${validCompanyName} invites you to a secure, verified connection on Veritable`
+                (msg) =>
+                  msg.subject === `${alice.company_name} invites you to a secure, verified connection on Veritable`
               )
               if (inviteEmail) {
                 expect(inviteEmail.to).to.have.lengthOf(1)

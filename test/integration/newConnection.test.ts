@@ -10,7 +10,7 @@ import createHttpServer from '../../src/server.js'
 import VeritableCloudagentEvents from '../../src/services/veritableCloudagentEvents.js'
 import { cleanupCloudagent, withBobCloudAgentInvite, withBobCloudagentAcceptInvite } from '../helpers/cloudagent.js'
 import { cleanupDatabase } from '../helpers/db.js'
-import { validCompanyNumber } from '../helpers/fixtures.js'
+import { alice } from '../helpers/fixtures.js'
 import { post } from '../helpers/routeHelper.js'
 import { delay } from '../helpers/util.js'
 
@@ -30,7 +30,7 @@ describe('NewConnectionController', () => {
       await cleanupCloudagent()
       server = await createHttpServer()
       response = await post(server.app, '/connection/new/create-invitation', {
-        companyNumber: validCompanyNumber,
+        companyNumber: alice.company_number,
         email: 'alice@example.com',
         action: 'submit',
       })
@@ -141,7 +141,7 @@ describe('NewConnectionController', () => {
       const email = container.resolve(EmailService)
       emailSendStub = sinon.stub(email, 'sendMail')
       await post(server.app, '/connection/new/create-invitation', {
-        companyNumber: validCompanyNumber,
+        companyNumber: alice.company_number,
         email: 'alice@example.com',
         action: 'submit',
       })

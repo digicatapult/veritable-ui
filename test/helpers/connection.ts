@@ -9,6 +9,7 @@ import EmailService from '../../src/models/emailService/index.js'
 import VeritableCloudagent from '../../src/models/veritableCloudagent/index.js'
 import type * as PartialQuery from '../integration/partialQueryAggregation.test.js'
 import {
+  alice,
   bob,
   bobDbConfig,
   charlie,
@@ -16,8 +17,6 @@ import {
   mockEnvAlice,
   mockEnvBob,
   mockEnvCharlie,
-  validCompanyName,
-  validCompanyNumber,
 } from './fixtures.js'
 import { mockLogger } from './logger.js'
 import { post } from './routeHelper.js'
@@ -59,7 +58,7 @@ export const withEstablishedConnectionFromUs = function (context: {
     const email = container.resolve(EmailService)
     emailSendStub = sinon.stub(email, 'sendMail').resolves()
     await post(context.app, '/connection/new/create-invitation', {
-      companyNumber: validCompanyNumber,
+      companyNumber: alice.company_number,
       email: 'alice@example.com',
       action: 'submit',
     })
@@ -72,15 +71,15 @@ export const withEstablishedConnectionFromUs = function (context: {
     context.localVerificationPin = '123456'
     const pinHash = await argon2.hash(context.localVerificationPin, { secret: Buffer.from('secret', 'utf8') })
     const { connectionRecord, outOfBandRecord } = await context.remoteCloudagent.receiveOutOfBandInvite({
-      companyName: validCompanyName,
+      companyName: alice.company_name,
       invitationUrl: context.inviteUrl,
     })
 
     const [{ id: remoteConnectionId }] = await context.remoteDatabase.insert('connection', {
       pin_attempt_count: 0,
       agent_connection_id: connectionRecord.id,
-      company_name: validCompanyName,
-      company_number: validCompanyNumber,
+      company_name: alice.company_name,
+      company_number: alice.company_number,
       status: 'unverified',
       pin_tries_remaining_count: null,
     })
@@ -131,10 +130,10 @@ export const withEstablishedConnectionFromThem = function (context: {
 
     await cleanupRemote(context)
 
-    const invite = await context.remoteCloudagent.createOutOfBandInvite({ companyName: validCompanyName })
+    const invite = await context.remoteCloudagent.createOutOfBandInvite({ companyName: alice.company_name })
     context.invite = Buffer.from(
       JSON.stringify({
-        companyNumber: validCompanyNumber,
+        companyNumber: alice.company_number,
         inviteUrl: invite.invitationUrl,
       }),
       'utf8'
@@ -142,8 +141,8 @@ export const withEstablishedConnectionFromThem = function (context: {
 
     const [{ id: remoteConnectionId }] = await context.remoteDatabase.insert('connection', {
       pin_attempt_count: 0,
-      company_name: validCompanyName,
-      company_number: validCompanyNumber,
+      company_name: alice.company_name,
+      company_number: alice.company_number,
       status: 'pending',
       agent_connection_id: null,
       pin_tries_remaining_count: null,
@@ -206,7 +205,7 @@ export const withVerifiedConnection = function (context: {
     const email = container.resolve(EmailService)
     emailSendStub = sinon.stub(email, 'sendMail')
     await post(context.app, '/connection/new/create-invitation', {
-      companyNumber: validCompanyNumber,
+      companyNumber: alice.company_number,
       email: 'alice@example.com',
       action: 'submit',
     })
@@ -217,15 +216,15 @@ export const withVerifiedConnection = function (context: {
     context.localConnectionId = localConnectionId
 
     const { connectionRecord } = await context.remoteCloudagent.receiveOutOfBandInvite({
-      companyName: validCompanyName,
+      companyName: alice.company_name,
       invitationUrl: inviteUrl,
     })
 
     const [{ id: remoteConnectionId }] = await context.remoteDatabase.insert('connection', {
       pin_attempt_count: 0,
       agent_connection_id: connectionRecord.id,
-      company_name: validCompanyName,
-      company_number: validCompanyNumber,
+      company_name: alice.company_name,
+      company_number: alice.company_number,
       status: 'pending',
       pin_tries_remaining_count: 4,
     })
@@ -291,15 +290,15 @@ export const withBobAndCharlie = function (context: PartialQuery.Context) {
     // alice part on bob
     const pinHash = await argon2.hash('123456', { secret: Buffer.from('secret', 'utf8') })
     const aliceOOB = await context.agent.bob.receiveOutOfBandInvite({
-      companyName: validCompanyName,
+      companyName: alice.company_name,
       invitationUrl: bobsInvite,
     })
 
     const [withAlice] = await context.db.bob.insert('connection', {
       pin_attempt_count: 0,
       agent_connection_id: aliceOOB.connectionRecord.id,
-      company_name: validCompanyName,
-      company_number: validCompanyNumber,
+      company_name: alice.company_name,
+      company_number: alice.company_number,
       status: 'pending',
       pin_tries_remaining_count: null,
     })
