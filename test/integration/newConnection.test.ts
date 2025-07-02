@@ -14,22 +14,37 @@ import { alice } from '../helpers/fixtures.js'
 import { post } from '../helpers/routeHelper.js'
 import { delay } from '../helpers/util.js'
 
-const db = container.resolve(Database)
+type Context = {
+  app: express.Express
+  cloudagentEvents: VeritableCloudagentEvents
+  db: Database
+  invite: string
+  inviteUrl: string
+  response: Awaited<ReturnType<typeof post>>
+}
 
-describe('NewConnectionController', () => {
-  let server: { app: express.Express; cloudagentEvents: VeritableCloudagentEvents }
-
+describe.only('NewConnectionController', () => {
   afterEach(async () => {
     await cleanupDatabase()
   })
 
   describe('create invitation (happy path)', function () {
-    let response: Awaited<ReturnType<typeof post>>
+    const context: Context = {
+      db: container.resolve(Database),
+      invite: '',
+    } as unknown as Context
+
+    // let response: Awaited<ReturnType<typeof post>>
+
     beforeEach(async () => {
       await cleanupDatabase()
       await cleanupCloudagent()
-      server = await createHttpServer()
-      response = await post(server.app, '/connection/new/create-invitation', {
+      const server = await createHttpServer()
+      Object.assign(context, {
+        ...server,
+      })
+
+      context.response = await post(context.app, '/connection/new/create-invitation', {
         companyNumber: alice.company_number,
         email: 'alice@example.com',
         action: 'submit',
@@ -38,15 +53,15 @@ describe('NewConnectionController', () => {
 
     afterEach(async () => {
       await cleanupCloudagent()
-      server.cloudagentEvents.stop()
+      context.cloudagentEvents.stop()
     })
 
     it('should return success', async () => {
-      expect(response.status).to.equal(200)
+      expect(context.response.status).to.equal(200)
     })
 
     it('should insert new connection into db', async () => {
-      const connectionRows = await db.get('connection')
+      const connectionRows = await context.db.get('connection')
       expect(connectionRows.length).to.equal(1)
       expect(connectionRows[0]).to.deep.contain({
         company_name: 'DIGITAL CATAPULT',
@@ -54,37 +69,44 @@ describe('NewConnectionController', () => {
         status: 'pending',
       })
 
-      const invites = await db.get('connection_invite', { connection_id: connectionRows[0].id })
+      const invites = await context.db.get('connection_invite', { connection_id: connectionRows[0].id })
       expect(invites.length).to.equal(1)
     })
   })
 
   describe('receive invitation (happy path)', function () {
-    let response: Awaited<ReturnType<typeof post>>
-    const context: { invite: string } = { invite: '' }
-
-    withBobCloudAgentInvite(context)
+    // let response: Awaited<ReturnType<typeof post>>
+    const context: Context = {
+      db: container.resolve(Database),
+      invite: '',
+    } as unknown as Context
 
     beforeEach(async () => {
       await cleanupDatabase()
       await cleanupCloudagent()
-      server = await createHttpServer(false)
-      response = await post(server.app, '/connection/new/receive-invitation', {
+      const server = await createHttpServer()
+      Object.assign(context, {
+        ...server,
+      })
+      context.response = await post(context.app, '/connection/new/receive-invitation', {
         invite: context.invite,
         action: 'createConnection',
       })
     })
 
+    withBobCloudAgentInvite(context)
+
     afterEach(async () => {
       await cleanupCloudagent()
+      context.cloudagentEvents.stop()
     })
 
     it('should return success', async () => {
-      expect(response.status).to.equal(200)
+      expect(context.response.status).to.equal(200)
     })
 
     it('should insert new connection into db', async () => {
-      const connectionRows = await db.get('connection')
+      const connectionRows = await context.db.get('connection')
       expect(connectionRows.length).to.equal(1)
       expect(connectionRows[0]).to.deep.contain({
         company_name: 'DIGITAL CATAPULT',
@@ -92,21 +114,27 @@ describe('NewConnectionController', () => {
         status: 'pending',
       })
 
-      const invites = await db.get('connection_invite', { connection_id: connectionRows[0].id })
+      const invites = await context.db.get('connection_invite', { connection_id: connectionRows[0].id })
       expect(invites.length).to.equal(1)
     })
   })
 
   describe('connection complete (receive side)', function () {
-    const context: { invite: string } = { invite: '' }
+    const context: Context = {
+      db: container.resolve(Database),
+      invite: '',
+    } as unknown as Context
 
     withBobCloudAgentInvite(context)
 
     beforeEach(async () => {
       await cleanupDatabase()
       await cleanupCloudagent()
-      server = await createHttpServer(true)
-      await post(server.app, '/connection/new/receive-invitation', {
+      const server = await createHttpServer()
+      Object.assign(context, {
+        ...server,
+      })
+      await post(context.app, '/connection/new/receive-invitation', {
         invite: context.invite,
         action: 'createConnection',
       })
@@ -114,12 +142,12 @@ describe('NewConnectionController', () => {
 
     afterEach(async () => {
       await cleanupCloudagent()
-      server.cloudagentEvents.stop()
+      context.cloudagentEvents.stop()
     })
 
     it('should update connection to unverified once connection is established', async () => {
       for (let i = 0; i < 100; i++) {
-        const [connection] = await db.get('connection')
+        const [connection] = await context.db.get('connection')
         if (connection.status === 'unverified') {
           return
         }
@@ -130,13 +158,20 @@ describe('NewConnectionController', () => {
   })
 
   describe('connection complete (send side)', function () {
-    const context: { inviteUrl: string } = { inviteUrl: '' }
+    const context: Context = {
+      db: container.resolve(Database),
+      inviteUrl: '',
+    } as unknown as Context
+
     let emailSendStub: sinon.SinonStub
 
     beforeEach(async () => {
       await cleanupDatabase()
       await cleanupCloudagent()
-      server = await createHttpServer(true)
+      const server = await createHttpServer()
+      Object.assign(context, {
+        ...server,
+      })
 
       const email = container.resolve(EmailService)
       emailSendStub = sinon.stub(email, 'sendMail')
@@ -157,12 +192,12 @@ describe('NewConnectionController', () => {
       }
 
       await cleanupCloudagent()
-      server.cloudagentEvents.stop()
+      context.cloudagentEvents.stop()
     })
 
     it('should update connection to unverified once connection is established', async () => {
       for (let i = 0; i < 100; i++) {
-        const [connection] = await db.get('connection')
+        const [connection] = await context.db.get('connection')
         if (connection.status === 'unverified') {
           return
         }
