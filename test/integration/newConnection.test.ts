@@ -20,6 +20,8 @@ describe('NewConnectionController', () => {
   const context: TwoPartyConnection = {} as TwoPartyConnection
 
   beforeEach(async () => {
+    await cleanupDatabase()
+    await cleanupCloudagent()
     context.localCloudagent = container.resolve(VeritableCloudagent)
     context.localDatabase = container.resolve(Database)
     context.remoteCloudagent = new VeritableCloudagent(mockEnvBob, mockLogger)
@@ -28,8 +30,6 @@ describe('NewConnectionController', () => {
     Object.assign(context, {
       ...server,
     })
-    await cleanupDatabase()
-    await cleanupCloudagent()
   })
 
   afterEach(async () => {
