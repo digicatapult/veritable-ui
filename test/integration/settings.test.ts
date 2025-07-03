@@ -5,7 +5,6 @@ import createHttpServer from '../../src/server.js'
 import type { TwoPartyConnection } from '../helpers/connection.js'
 import { cleanupDatabase } from '../helpers/db.js'
 import { get, post } from '../helpers/routeHelper.js'
-import { withAdminEmail } from '../helpers/settings.js'
 
 describe('integration tests for settings page', function () {
   const context: TwoPartyConnection = {} as TwoPartyConnection
@@ -29,7 +28,10 @@ describe('integration tests for settings page', function () {
   beforeEach(async () => {
     await cleanupDatabase()
     context.localDatabase = container.resolve(Database)
-    await withAdminEmail(context.localDatabase)
+    await context.localDatabase.insert('settings', {
+      setting_key: 'admin_email',
+      setting_value: 'admin@testmail.com',
+    })
     const server = await createHttpServer()
     Object.assign(context, {
       ...server,
