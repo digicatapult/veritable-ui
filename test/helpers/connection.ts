@@ -27,14 +27,16 @@ export type TwoPartyConnection = {
   app: express.Express
   cloudagentEvents: VeritableCloudagentEvents
   smtpServer: EmailService
-  remoteDatabase: Database
-  localDatabase: Database
+
   localCloudagent: VeritableCloudagent
-  remoteCloudagent: VeritableCloudagent
-  remoteVerificationPin: string
+  localDatabase: Database
   localVerificationPin: string
-  remoteConnectionId: string
   localConnectionId: string
+
+  remoteCloudagent: VeritableCloudagent
+  remoteDatabase: Database
+  remoteVerificationPin: string
+  remoteConnectionId: string
 }
 
 const cleanupConnections = async (agent: VeritableCloudagent, db: Database) => {
@@ -51,17 +53,7 @@ const cleanupRemote = async (context: { remoteCloudagent: VeritableCloudagent; r
   await context.remoteDatabase.delete('connection', {})
 }
 
-export const withEstablishedConnectionFromUs = function (context: {
-  app: express.Express
-  smtpServer: EmailService
-  remoteDatabase: Database
-  localDatabase: Database
-  remoteCloudagent: VeritableCloudagent
-  remoteVerificationPin: string
-  localVerificationPin: string
-  remoteConnectionId: string
-  localConnectionId: string
-}) {
+export const withEstablishedConnectionFromUs = function (context: TwoPartyConnection) {
   let emailSendStub: sinon.SinonStub
 
   beforeEach(async function () {

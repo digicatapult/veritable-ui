@@ -1,42 +1,36 @@
 import { expect } from 'chai'
-import type express from 'express'
+import knex from 'knex'
 import { afterEach, beforeEach, describe } from 'mocha'
 import { container } from 'tsyringe'
-
 import Database from '../../src/models/db/index.js'
-import VeritableCloudagent from '../../src/models/veritableCloudagent/index.js'
-import { cleanupCloudagent } from '../helpers/cloudagent.js'
-import { cleanupDatabase } from '../helpers/db.js'
-
 import { QueryRow } from '../../src/models/db/types.js'
+import VeritableCloudagent from '../../src/models/veritableCloudagent/index.js'
 import createHttpServer from '../../src/server.js'
-import VeritableCloudagentEvents from '../../src/services/veritableCloudagentEvents.js'
-import { withVerifiedConnection } from '../helpers/connection.js'
+import { cleanupCloudagent } from '../helpers/cloudagent.js'
+import { TwoPartyConnection, withVerifiedConnection } from '../helpers/connection.js'
+import { cleanupDatabase } from '../helpers/db.js'
+import { bobDbConfig, mockEnvBob } from '../helpers/fixtures.js'
+import { mockLogger } from '../helpers/logger.js'
 import { post } from '../helpers/routeHelper.js'
 import { delay } from '../helpers/util.js'
 
 describe('query submission', function () {
-  const db = container.resolve(Database)
+  const context: TwoPartyConnection = {} as TwoPartyConnection
 
   afterEach(async () => {
     await cleanupDatabase()
   })
 
   describe('Carbon embodiment query success', function () {
-    type Context = {
-      app: express.Express
-      cloudagentEvents: VeritableCloudagentEvents
-      remoteDatabase: Database
-      remoteCloudagent: VeritableCloudagent
-      remoteConnectionId: string
-      localConnectionId: string
-      response: Awaited<ReturnType<typeof post>>
-    }
-    const context: Context = {} as Context
+    let response: Awaited<ReturnType<typeof post>>
 
     beforeEach(async function () {
       await cleanupDatabase()
       await cleanupCloudagent()
+      context.localCloudagent = container.resolve(VeritableCloudagent)
+      context.localDatabase = container.resolve(Database)
+      context.remoteCloudagent = new VeritableCloudagent(mockEnvBob, mockLogger)
+      context.remoteDatabase = new Database(knex(bobDbConfig))
       const server = await createHttpServer(true)
       Object.assign(context, {
         ...server,
@@ -51,7 +45,7 @@ describe('query submission', function () {
     withVerifiedConnection(context)
 
     beforeEach(async function () {
-      context.response = await post(context.app, `/queries/new/carbon-embodiment`, {
+      response = await post(context.app, `/queries/new/carbon-embodiment`, {
         connectionId: context.localConnectionId,
         productId: 'Test',
         quantity: 1,
@@ -59,14 +53,14 @@ describe('query submission', function () {
     })
 
     it('should response 200', async function () {
-      expect(context.response.statusCode).to.equal(200)
+      expect(response.statusCode).to.equal(200)
     })
 
     it('should set local query state to pending_their_input', async function () {
       let queryLocal: QueryRow | null | undefined
       const pollLimit = 100
       for (let i = 1; i <= pollLimit; i++) {
-        queryLocal = (await db.get('query', { connection_id: context.localConnectionId }))[0]
+        queryLocal = (await context.localDatabase.get('query', { connection_id: context.localConnectionId }))[0]
         if (queryLocal?.status === 'pending_their_input') {
           break
         }
