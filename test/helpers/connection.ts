@@ -7,6 +7,7 @@ import sinon from 'sinon'
 import Database from '../../src/models/db/index.js'
 import EmailService from '../../src/models/emailService/index.js'
 import VeritableCloudagent from '../../src/models/veritableCloudagent/index.js'
+import VeritableCloudagentEvents from '../../src/services/veritableCloudagentEvents.js'
 import type * as PartialQuery from '../integration/partialQueryAggregation.test.js'
 import {
   alice,
@@ -21,6 +22,20 @@ import {
 import { mockLogger } from './logger.js'
 import { post } from './routeHelper.js'
 import { delay } from './util.js'
+
+export type TwoPartyConnection = {
+  app: express.Express
+  cloudagentEvents: VeritableCloudagentEvents
+  smtpServer: EmailService
+  remoteDatabase: Database
+  localDatabase: Database
+  localCloudagent: VeritableCloudagent
+  remoteCloudagent: VeritableCloudagent
+  remoteVerificationPin: string
+  localVerificationPin: string
+  remoteConnectionId: string
+  localConnectionId: string
+}
 
 const cleanupConnections = async (agent: VeritableCloudagent, db: Database) => {
   for (const { id } of await agent.getConnections()) {
@@ -107,17 +122,7 @@ export const withEstablishedConnectionFromUs = function (context: {
   })
 }
 
-export const withEstablishedConnectionFromThem = function (context: {
-  app: express.Express
-  smtpServer: EmailService
-  remoteDatabase: Database
-  localDatabase: Database
-  remoteCloudagent: VeritableCloudagent
-  remoteVerificationPin: string
-  localVerificationPin: string
-  remoteConnectionId: string
-  localConnectionId: string
-}) {
+export const withEstablishedConnectionFromThem = function (context: TwoPartyConnection) {
   let emailSendStub: sinon.SinonStub
 
   beforeEach(async function () {
@@ -179,13 +184,7 @@ export const withEstablishedConnectionFromThem = function (context: {
   })
 }
 
-export const withVerifiedConnection = function (context: {
-  app: express.Express
-  remoteDatabase: Database
-  remoteCloudagent: VeritableCloudagent
-  remoteConnectionId: string
-  localConnectionId: string
-}) {
+export const withVerifiedConnection = function (context: TwoPartyConnection) {
   let emailSendStub: sinon.SinonStub
 
   beforeEach(async function () {

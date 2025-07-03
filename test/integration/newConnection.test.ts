@@ -1,5 +1,4 @@
 import { expect } from 'chai'
-import express from 'express'
 import knex from 'knex'
 import { afterEach, beforeEach, describe, it } from 'mocha'
 import { container } from 'tsyringe'
@@ -9,8 +8,8 @@ import Database from '../../src/models/db/index.js'
 import EmailService from '../../src/models/emailService/index.js'
 import VeritableCloudagent from '../../src/models/veritableCloudagent/index.js'
 import createHttpServer from '../../src/server.js'
-import VeritableCloudagentEvents from '../../src/services/veritableCloudagentEvents.js'
 import { cleanupCloudagent, withAliceReceivesBobsInvite } from '../helpers/cloudagent.js'
+import type { TwoPartyConnection } from '../helpers/connection.js'
 import { cleanupDatabase } from '../helpers/db.js'
 import { alice, bobDbConfig, mockEnvBob } from '../helpers/fixtures.js'
 import { mockLogger } from '../helpers/logger.js'
@@ -18,15 +17,7 @@ import { post } from '../helpers/routeHelper.js'
 import { delay } from '../helpers/util.js'
 
 describe('NewConnectionController', () => {
-  type Context = {
-    app: express.Express
-    cloudagentEvents: VeritableCloudagentEvents
-    remoteDatabase: Database
-    localDatabase: Database
-    remoteCloudagent: VeritableCloudagent
-    localCloudagent: VeritableCloudagent
-  }
-  const context: Context = {} as Context
+  const context: TwoPartyConnection = {} as TwoPartyConnection
 
   beforeEach(async () => {
     context.localCloudagent = container.resolve(VeritableCloudagent)

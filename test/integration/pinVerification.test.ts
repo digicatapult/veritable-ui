@@ -1,5 +1,4 @@
 import { expect } from 'chai'
-import type express from 'express'
 import knex from 'knex'
 import { afterEach, beforeEach, describe } from 'mocha'
 
@@ -10,35 +9,25 @@ import VeritableCloudagent from '../../src/models/veritableCloudagent/index.js'
 import createHttpServer from '../../src/server.js'
 import VeritableCloudagentEvents from '../../src/services/veritableCloudagentEvents.js'
 import { cleanupCloudagent } from '../helpers/cloudagent.js'
-import { withEstablishedConnectionFromThem, withEstablishedConnectionFromUs } from '../helpers/connection.js'
+import {
+  TwoPartyConnection,
+  withEstablishedConnectionFromThem,
+  withEstablishedConnectionFromUs,
+} from '../helpers/connection.js'
 import { cleanupDatabase } from '../helpers/db.js'
 import { bobDbConfig, mockEnvBob } from '../helpers/fixtures.js'
 import { mockLogger } from '../helpers/logger.js'
 import { post } from '../helpers/routeHelper.js'
 import { delay, delayAndReject } from '../helpers/util.js'
 
-describe('pin-submission', function () {
-  const db = container.resolve(Database)
+describe.only('pin-submission', function () {
+  const context: TwoPartyConnection = {} as TwoPartyConnection
 
   afterEach(async () => {
     await cleanupDatabase()
   })
 
   describe('pin verification of sender', function () {
-    type Context = {
-      app: express.Express
-      cloudagentEvents: VeritableCloudagentEvents
-      smtpServer: EmailService
-      remoteDatabase: Database
-      localDatabase: Database
-      remoteCloudagent: VeritableCloudagent
-      remoteVerificationPin: string
-      localVerificationPin: string
-      remoteConnectionId: string
-      localConnectionId: string
-    }
-    const context: Context = {} as Context
-
     beforeEach(async function () {
       await cleanupDatabase()
       await cleanupCloudagent()
@@ -94,7 +83,7 @@ describe('pin-submission', function () {
 
     it('should set local verification status to verified_us', async function () {
       for (let i = 0; i < 100; i++) {
-        const [connection] = await db.get('connection', { id: context.localConnectionId })
+        const [connection] = await context.localDatabase.get('connection', { id: context.localConnectionId })
         if (connection.status === 'verified_us') {
           return
         }
@@ -116,20 +105,6 @@ describe('pin-submission', function () {
   })
 
   describe('pin verification of receiver (send side)', function () {
-    type Context = {
-      app: express.Express
-      cloudagentEvents: VeritableCloudagentEvents
-      smtpServer: EmailService
-      remoteDatabase: Database
-      localDatabase: Database
-      remoteCloudagent: VeritableCloudagent
-      remoteVerificationPin: string
-      localVerificationPin: string
-      remoteConnectionId: string
-      localConnectionId: string
-    }
-    const context: Context = {} as Context
-
     beforeEach(async function () {
       await cleanupDatabase()
       await cleanupCloudagent()
@@ -156,9 +131,8 @@ describe('pin-submission', function () {
 
     // method under test
     beforeEach(async function () {
-      const cloudagentEvents = container.resolve(VeritableCloudagentEvents)
       const credentialDonePromise = new Promise<void>((resolve) => {
-        cloudagentEvents.on(
+        context.cloudagentEvents.on(
           'CredentialStateChanged',
           ({
             payload: {
@@ -185,7 +159,7 @@ describe('pin-submission', function () {
 
     it('should set local verification status to verified_us', async function () {
       for (let i = 0; i < 100; i++) {
-        const [connection] = await db.get('connection', { id: context.localConnectionId })
+        const [connection] = await context.localDatabase.get('connection', { id: context.localConnectionId })
         if (connection.status === 'verified_us') {
           return
         }
