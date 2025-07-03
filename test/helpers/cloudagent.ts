@@ -1,8 +1,8 @@
+import express from 'express'
 import { container } from 'tsyringe'
-
 import VeritableCloudagent from '../../src/models/veritableCloudagent/index.js'
-import { alice, mockEnvBob } from './fixtures.js'
-import { mockLogger } from './logger.js'
+import { post } from '../helpers/routeHelper.js'
+import { alice } from './fixtures.js'
 
 const cleanupShared = async function (agent: VeritableCloudagent) {
   const connections = await agent.getConnections()
@@ -16,31 +16,21 @@ export async function cleanupCloudagent() {
   await cleanupShared(agent)
 }
 
-export function withBobCloudAgentInvite(context: { invite: string }) {
-  const agent = new VeritableCloudagent(mockEnvBob, mockLogger)
+export async function withAliceReceivesBobsInvite(context: {
+  app: express.Express
+  remoteCloudagent: VeritableCloudagent
+}) {
+  const invite = await context.remoteCloudagent.createOutOfBandInvite({ companyName: alice.company_name })
+  const inviteContent = Buffer.from(
+    JSON.stringify({
+      companyNumber: alice.company_number,
+      inviteUrl: invite.invitationUrl,
+    }),
+    'utf8'
+  ).toString('base64url')
 
-  beforeEach(async function () {
-    await cleanupShared(agent)
-    const invite = await agent.createOutOfBandInvite({ companyName: alice.company_name })
-    context.invite = Buffer.from(
-      JSON.stringify({
-        companyNumber: alice.company_number,
-        inviteUrl: invite.invitationUrl,
-      }),
-      'utf8'
-    ).toString('base64url')
+  return await post(context.app, '/connection/new/receive-invitation', {
+    invite: inviteContent,
+    action: 'createConnection',
   })
-
-  afterEach(async () => await cleanupShared(agent))
-}
-
-export function withBobCloudagentAcceptInvite(context: { inviteUrl: string }) {
-  const agent = new VeritableCloudagent(mockEnvBob, mockLogger)
-
-  beforeEach(async function () {
-    await cleanupShared(agent)
-    await agent.receiveOutOfBandInvite({ companyName: alice.company_name, invitationUrl: context.inviteUrl })
-  })
-
-  afterEach(async () => await cleanupShared(agent))
 }
