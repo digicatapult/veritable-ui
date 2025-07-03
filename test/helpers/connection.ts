@@ -275,11 +275,11 @@ export async function withBobAndCharlie(context: PartialQueryContext) {
     })
 
     await context.db.bob.insert('connection_invite', {
-      validity: 'valid',
       connection_id: withAlice.id,
-      expires_at: new Date(new Date().getTime() + 60 * 1000),
       oob_invite_id: aliceOOB.outOfBandRecord.id,
       pin_hash: pinHash,
+      expires_at: new Date(new Date().getTime() + 60 * 1000),
+      validity: 'valid',
     })
 
     const charliesInvite = await context.agent.charlie.createOutOfBandInvite({ companyName: charlie.company_name })
@@ -290,9 +290,9 @@ export async function withBobAndCharlie(context: PartialQueryContext) {
 
     const [withCharlie] = await context.db.bob.insert('connection', {
       pin_attempt_count: 0,
+      agent_connection_id: charlieOOB.connectionRecord.id,
       company_name: charlie.company_name,
       company_number: charlie.company_number,
-      agent_connection_id: charlieOOB.connectionRecord.id,
       status: 'pending',
       pin_tries_remaining_count: null,
     })
@@ -315,11 +315,11 @@ export async function withBobAndCharlie(context: PartialQueryContext) {
     })
 
     await context.db.charlie.insert('connection_invite', {
-      validity: 'valid',
       connection_id: withBob.id,
-      expires_at: new Date(new Date().getTime() + 60 * 1000),
       oob_invite_id: charliesInvite.outOfBandRecord.id,
       pin_hash: pinHash,
+      expires_at: new Date(new Date().getTime() + 60 * 1000),
+      validity: 'valid',
     })
 
     context.bobsConnections = { withAlice, withCharlie }
