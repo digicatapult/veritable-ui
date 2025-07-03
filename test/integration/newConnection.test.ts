@@ -22,6 +22,7 @@ describe('NewConnectionController', () => {
   beforeEach(async () => {
     await cleanupDatabase()
     await cleanupCloudagent()
+    context.smtpServer = container.resolve(EmailService)
     context.localCloudagent = container.resolve(VeritableCloudagent)
     context.localDatabase = container.resolve(Database)
     context.remoteCloudagent = new VeritableCloudagent(mockEnvBob, mockLogger)
@@ -108,14 +109,13 @@ describe('NewConnectionController', () => {
 
   describe('connection complete (send side)', function () {
     let emailSendStub: sinon.SinonStub
-    const smtpServer = container.resolve(EmailService)
 
     afterEach(async () => {
       emailSendStub.restore()
     })
 
     it('should update connection to unverified once connection is established', async () => {
-      emailSendStub = sinon.stub(smtpServer, 'sendMail')
+      emailSendStub = sinon.stub(context.smtpServer, 'sendMail')
 
       await post(context.app, '/connection/new/create-invitation', {
         companyNumber: alice.company_number,
