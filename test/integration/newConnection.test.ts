@@ -41,6 +41,7 @@ describe('NewConnectionController', () => {
 
   describe('create invitation (happy path)', function () {
     let response: Awaited<ReturnType<typeof post>>
+
     beforeEach(async () => {
       response = await post(context.app, '/connection/new/create-invitation', {
         companyNumber: alice.company_number,
