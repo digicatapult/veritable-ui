@@ -17,7 +17,7 @@ import { mockLogger } from '../helpers/logger.js'
 import { post } from '../helpers/routeHelper.js'
 import { delay } from '../helpers/util.js'
 
-describe.only('NewConnectionController', () => {
+describe('NewConnectionController', () => {
   type Context = {
     app: express.Express
     cloudagentEvents: VeritableCloudagentEvents
