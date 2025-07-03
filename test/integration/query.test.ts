@@ -16,30 +16,27 @@ import { delay } from '../helpers/util.js'
 describe('query submission', function () {
   const context: TwoPartyConnection = {} as TwoPartyConnection
 
+  beforeEach(async function () {
+    context.localCloudagent = container.resolve(VeritableCloudagent)
+    context.localDatabase = container.resolve(Database)
+    context.remoteCloudagent = new VeritableCloudagent(mockEnvBob, mockLogger)
+    context.remoteDatabase = new Database(knex(bobDbConfig))
+    const server = await createHttpServer(true)
+    Object.assign(context, {
+      ...server,
+    })
+    await cleanupCloudagent([context.localCloudagent, context.remoteCloudagent])
+    await cleanupDatabase([context.localDatabase, context.remoteDatabase])
+  })
+
   afterEach(async () => {
-    await cleanupDatabase()
+    await cleanupCloudagent([context.localCloudagent, context.remoteCloudagent])
+    await cleanupDatabase([context.localDatabase, context.remoteDatabase])
+    context.cloudagentEvents.stop()
   })
 
   describe('Carbon embodiment query success', function () {
     let response: Awaited<ReturnType<typeof post>>
-
-    beforeEach(async function () {
-      await cleanupDatabase()
-      await cleanupCloudagent()
-      context.localCloudagent = container.resolve(VeritableCloudagent)
-      context.localDatabase = container.resolve(Database)
-      context.remoteCloudagent = new VeritableCloudagent(mockEnvBob, mockLogger)
-      context.remoteDatabase = new Database(knex(bobDbConfig))
-      const server = await createHttpServer(true)
-      Object.assign(context, {
-        ...server,
-      })
-    })
-
-    afterEach(async function () {
-      await cleanupCloudagent()
-      context.cloudagentEvents.stop()
-    })
 
     withVerifiedConnection(context)
 

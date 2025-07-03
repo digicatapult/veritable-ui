@@ -13,30 +13,26 @@ import { del } from '../helpers/routeHelper.js'
 
 describe('integration test for /reset endpoint', function () {
   const context: TwoPartyConnection = {} as TwoPartyConnection
+  let response: Awaited<ReturnType<typeof del>>
+
+  beforeEach(async function () {
+    context.localCloudagent = container.resolve(VeritableCloudagent)
+    context.localDatabase = container.resolve(Database)
+    const server = await createHttpServer(true)
+    Object.assign(context, {
+      ...server,
+    })
+    await cleanupCloudagent([context.localCloudagent])
+    await cleanupDatabase([context.localDatabase])
+  })
 
   afterEach(async () => {
-    await cleanupDatabase()
+    await cleanupCloudagent([context.localCloudagent])
+    await cleanupDatabase([context.localDatabase])
+    context.cloudagentEvents.stop()
   })
 
   describe('if DEMO_MODE=true', function () {
-    let response: Awaited<ReturnType<typeof del>>
-
-    beforeEach(async function () {
-      await cleanupDatabase()
-      await cleanupCloudagent()
-      context.localCloudagent = container.resolve(VeritableCloudagent)
-      context.localDatabase = container.resolve(Database)
-      const server = await createHttpServer(true)
-      Object.assign(context, {
-        ...server,
-      })
-    })
-
-    afterEach(async function () {
-      await cleanupCloudagent()
-      context.cloudagentEvents.stop()
-    })
-
     withVerifiedConnection(context)
 
     it('removes all connections and credentials and returns 200', async function () {

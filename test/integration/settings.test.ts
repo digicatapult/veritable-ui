@@ -1,8 +1,9 @@
 import { expect } from 'chai'
 import { container } from 'tsyringe'
 import Database from '../../src/models/db/index.js'
+import VeritableCloudagent from '../../src/models/veritableCloudagent/index.js'
 import createHttpServer from '../../src/server.js'
-import { cleanupDatabase } from '../helpers/cleanup.js'
+import { cleanupCloudagent, cleanupDatabase } from '../helpers/cleanup.js'
 import type { TwoPartyConnection } from '../helpers/connection.js'
 import { get, post } from '../helpers/routeHelper.js'
 
@@ -26,21 +27,24 @@ describe('integration tests for settings page', function () {
   }
 
   beforeEach(async () => {
-    await cleanupDatabase()
+    context.localCloudagent = container.resolve(VeritableCloudagent)
     context.localDatabase = container.resolve(Database)
-    await context.localDatabase.insert('settings', {
-      setting_key: 'admin_email',
-      setting_value: 'admin@testmail.com',
-    })
     const server = await createHttpServer()
     Object.assign(context, {
       ...server,
     })
+    await cleanupCloudagent([context.localCloudagent])
+    await cleanupDatabase([context.localDatabase])
+    await context.localDatabase.insert('settings', {
+      setting_key: 'admin_email',
+      setting_value: 'admin@testmail.com',
+    })
   })
 
   afterEach(async () => {
+    await cleanupCloudagent([context.localCloudagent])
+    await cleanupDatabase([context.localDatabase])
     context.cloudagentEvents.stop()
-    await cleanupDatabase()
   })
 
   describe('happy path', function () {

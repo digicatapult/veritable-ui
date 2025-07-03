@@ -19,8 +19,6 @@ describe('NewConnectionController', () => {
   const context: TwoPartyConnection = {} as TwoPartyConnection
 
   beforeEach(async () => {
-    await cleanupDatabase()
-    await cleanupCloudagent()
     context.smtpServer = container.resolve(EmailService)
     context.localCloudagent = container.resolve(VeritableCloudagent)
     context.localDatabase = container.resolve(Database)
@@ -30,11 +28,13 @@ describe('NewConnectionController', () => {
     Object.assign(context, {
       ...server,
     })
+    await cleanupCloudagent([context.localCloudagent, context.remoteCloudagent])
+    await cleanupDatabase([context.localDatabase, context.remoteDatabase])
   })
 
   afterEach(async () => {
-    await cleanupDatabase()
-    await cleanupCloudagent()
+    await cleanupCloudagent([context.localCloudagent, context.remoteCloudagent])
+    await cleanupDatabase([context.localDatabase, context.remoteDatabase])
     context.cloudagentEvents.stop()
   })
 
