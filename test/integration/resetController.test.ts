@@ -2,14 +2,12 @@ import { expect } from 'chai'
 import { afterEach, beforeEach, describe } from 'mocha'
 import { container } from 'tsyringe'
 
-import { cleanupCloudagent } from '../helpers/cloudagent.js'
-import { cleanupDatabase } from '../helpers/db.js'
-
 import Database from '../../src/models/db/index.js'
 import { ConnectionRow } from '../../src/models/db/types.js'
 import VeritableCloudagent from '../../src/models/veritableCloudagent/index.js'
 import { Connection } from '../../src/models/veritableCloudagent/internal.js'
 import createHttpServer from '../../src/server.js'
+import { cleanupCloudagent, cleanupDatabase } from '../helpers/cleanup.js'
 import { TwoPartyConnection, withVerifiedConnection } from '../helpers/connection.js'
 import { del } from '../helpers/routeHelper.js'
 

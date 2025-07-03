@@ -9,6 +9,7 @@ import EmailService from '../../src/models/emailService/index.js'
 import VeritableCloudagent from '../../src/models/veritableCloudagent/index.js'
 import VeritableCloudagentEvents from '../../src/services/veritableCloudagentEvents.js'
 import type * as PartialQuery from '../integration/partialQueryAggregation.test.js'
+import { cleanupConnections, cleanupRemote } from './cleanup.js'
 import {
   alice,
   bob,
@@ -37,20 +38,6 @@ export type TwoPartyConnection = {
   remoteDatabase: Database
   remoteVerificationPin: string
   remoteConnectionId: string
-}
-
-const cleanupConnections = async (agent: VeritableCloudagent, db: Database) => {
-  for (const { id } of await agent.getConnections()) {
-    await agent.deleteConnection(id)
-  }
-  await db.delete('connection', {})
-}
-
-const cleanupRemote = async (context: { remoteCloudagent: VeritableCloudagent; remoteDatabase: Database }) => {
-  for (const { id } of await context.remoteCloudagent.getConnections()) {
-    await context.remoteCloudagent.deleteConnection(id)
-  }
-  await context.remoteDatabase.delete('connection', {})
 }
 
 export const withEstablishedConnectionFromUs = function (context: TwoPartyConnection) {

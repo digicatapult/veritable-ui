@@ -2,15 +2,13 @@ import { expect } from 'chai'
 import type express from 'express'
 import { afterEach, beforeEach, describe } from 'mocha'
 
-import Database from '../../src/models/db/index.js'
-import VeritableCloudagent from '../../src/models/veritableCloudagent/index.js'
-import { cleanupCloudagent } from '../helpers/cloudagent.js'
-import { cleanupDatabase } from '../helpers/db.js'
-
 import { container } from 'tsyringe'
+import Database from '../../src/models/db/index.js'
 import { ConnectionRow } from '../../src/models/db/types.js'
+import VeritableCloudagent from '../../src/models/veritableCloudagent/index.js'
 import createHttpServer from '../../src/server.js'
 import VeritableCloudagentEvents from '../../src/services/veritableCloudagentEvents.js'
+import { cleanupCloudagent, cleanupDatabase } from '../helpers/cleanup.js'
 import { withBobAndCharlie } from '../helpers/connection.js'
 import { fetchPost, post } from '../helpers/routeHelper.js'
 

@@ -8,13 +8,12 @@ import EmailService from '../../src/models/emailService/index.js'
 import VeritableCloudagent from '../../src/models/veritableCloudagent/index.js'
 import createHttpServer from '../../src/server.js'
 import VeritableCloudagentEvents from '../../src/services/veritableCloudagentEvents.js'
-import { cleanupCloudagent } from '../helpers/cloudagent.js'
+import { cleanupCloudagent, cleanupDatabase } from '../helpers/cleanup.js'
 import {
   TwoPartyConnection,
   withEstablishedConnectionFromThem,
   withEstablishedConnectionFromUs,
 } from '../helpers/connection.js'
-import { cleanupDatabase } from '../helpers/db.js'
 import { bobDbConfig, mockEnvBob } from '../helpers/fixtures.js'
 import { mockLogger } from '../helpers/logger.js'
 import { post } from '../helpers/routeHelper.js'

@@ -2,8 +2,8 @@ import { expect } from 'chai'
 import { container } from 'tsyringe'
 import Database from '../../src/models/db/index.js'
 import createHttpServer from '../../src/server.js'
+import { cleanupDatabase } from '../helpers/cleanup.js'
 import type { TwoPartyConnection } from '../helpers/connection.js'
-import { cleanupDatabase } from '../helpers/db.js'
 import { get, post } from '../helpers/routeHelper.js'
 
 describe('integration tests for settings page', function () {
