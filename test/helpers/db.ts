@@ -6,12 +6,11 @@ import { tablesList } from '../../src/models/db/types.js'
 import { aliceDbConfig } from './fixtures.js'
 
 const db = container.resolve(Database)
+const database = knex(aliceDbConfig)
 
 export async function cleanupDatabase() {
   tablesList.forEach(async (table) => await db.delete(table, {}))
 }
-
-const database = knex(aliceDbConfig)
 
 export async function migrateDatabase() {
   try {
