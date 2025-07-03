@@ -5,21 +5,12 @@ import { container } from 'tsyringe'
 
 import sinon from 'sinon'
 import Database from '../../src/models/db/index.js'
+import { ConnectionRow } from '../../src/models/db/types.js'
 import EmailService from '../../src/models/emailService/index.js'
 import VeritableCloudagent from '../../src/models/veritableCloudagent/index.js'
 import VeritableCloudagentEvents from '../../src/services/veritableCloudagentEvents.js'
-import type * as PartialQuery from '../integration/partialQueryAggregation.test.js'
-import { cleanupConnections, cleanupRemote } from './cleanup.js'
-import {
-  alice,
-  bob,
-  bobDbConfig,
-  charlie,
-  charlieDbConfig,
-  mockEnvAlice,
-  mockEnvBob,
-  mockEnvCharlie,
-} from './fixtures.js'
+import { cleanupRemote } from './cleanup.js'
+import { alice, bob, bobDbConfig, charlie, mockEnvBob } from './fixtures.js'
 import { mockLogger } from './logger.js'
 import { post } from './routeHelper.js'
 import { delay } from './util.js'
@@ -38,6 +29,30 @@ export type TwoPartyConnection = {
   remoteDatabase: Database
   remoteVerificationPin: string
   remoteConnectionId: string
+}
+
+export type PartialQueryContext = {
+  app: express.Express
+  cloudagentEvents: VeritableCloudagentEvents
+  smtpServer: EmailService
+  agent: {
+    alice: VeritableCloudagent
+    bob: VeritableCloudagent
+    charlie: VeritableCloudagent
+  }
+  db: {
+    alice: Database
+    bob: Database
+    charlie: Database
+  }
+  aliceConnectionId: string
+  charliesConnections: {
+    withBob: ConnectionRow
+  }
+  bobsConnections: {
+    withAlice: ConnectionRow
+    withCharlie: ConnectionRow
+  }
 }
 
 export const withEstablishedConnectionFromUs = function (context: TwoPartyConnection) {
@@ -227,26 +242,11 @@ export const withVerifiedConnection = function (context: TwoPartyConnection) {
   })
 }
 
-export const withBobAndCharlie = function (context: PartialQuery.Context) {
+export async function withBobAndCharlie(context: PartialQueryContext) {
   let emailSendStub: sinon.SinonStub
 
   beforeEach(async function () {
-    context.agent = {
-      bob: new VeritableCloudagent(mockEnvBob, mockLogger),
-      alice: new VeritableCloudagent(mockEnvAlice, mockLogger),
-      charlie: new VeritableCloudagent(mockEnvCharlie, mockLogger),
-    }
-    context.db = {
-      alice: context.db.alice,
-      bob: new Database(knex(bobDbConfig)),
-      charlie: new Database(knex(charlieDbConfig)),
-    }
-
-    await cleanupConnections(context.agent.bob, context.db.bob)
-    await cleanupConnections(context.agent.charlie, context.db.charlie)
-
-    const email = container.resolve(EmailService)
-    emailSendStub = sinon.stub(email, 'sendMail')
+    emailSendStub = sinon.stub(context.smtpServer, 'sendMail')
     await post(context.app, '/connection/new/create-invitation', {
       companyNumber: bob.company_number,
       email: 'bob@example.com',
@@ -273,7 +273,6 @@ export const withBobAndCharlie = function (context: PartialQuery.Context) {
       status: 'pending',
       pin_tries_remaining_count: null,
     })
-    context.bobsConnections.withAlice = withAlice
 
     await context.db.bob.insert('connection_invite', {
       validity: 'valid',
@@ -297,7 +296,6 @@ export const withBobAndCharlie = function (context: PartialQuery.Context) {
       status: 'pending',
       pin_tries_remaining_count: null,
     })
-    context.bobsConnections.withCharlie = withCharlie
 
     await context.db.bob.insert('connection_invite', {
       connection_id: withCharlie.id,
@@ -315,7 +313,6 @@ export const withBobAndCharlie = function (context: PartialQuery.Context) {
       status: 'pending',
       pin_tries_remaining_count: 4,
     })
-    context.charliesConnections.withBob = withBob
 
     await context.db.charlie.insert('connection_invite', {
       validity: 'valid',
@@ -324,6 +321,9 @@ export const withBobAndCharlie = function (context: PartialQuery.Context) {
       oob_invite_id: charliesInvite.outOfBandRecord.id,
       pin_hash: pinHash,
     })
+
+    context.bobsConnections = { withAlice, withCharlie }
+    context.charliesConnections = { withBob }
 
     await delay(3000)
 
@@ -335,8 +335,6 @@ export const withBobAndCharlie = function (context: PartialQuery.Context) {
 
   afterEach(async function () {
     emailSendStub.restore()
-    await cleanupConnections(context.agent.bob, context.db.bob)
-    await cleanupConnections(context.agent.charlie, context.db.charlie)
   })
 }
 
