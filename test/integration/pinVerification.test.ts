@@ -20,7 +20,7 @@ import { mockLogger } from '../helpers/logger.js'
 import { post } from '../helpers/routeHelper.js'
 import { delay, delayAndReject } from '../helpers/util.js'
 
-describe.only('pin-submission', function () {
+describe('pin-submission', function () {
   const context: TwoPartyConnection = {} as TwoPartyConnection
 
   afterEach(async () => {
