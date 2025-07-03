@@ -1,15 +1,19 @@
 import { expect } from 'chai'
 import type express from 'express'
+import knex from 'knex'
 import { afterEach, beforeEach, describe } from 'mocha'
 
 import { container } from 'tsyringe'
 import Database from '../../src/models/db/index.js'
+import EmailService from '../../src/models/emailService/index.js'
 import VeritableCloudagent from '../../src/models/veritableCloudagent/index.js'
 import createHttpServer from '../../src/server.js'
 import VeritableCloudagentEvents from '../../src/services/veritableCloudagentEvents.js'
 import { cleanupCloudagent } from '../helpers/cloudagent.js'
 import { withEstablishedConnectionFromThem, withEstablishedConnectionFromUs } from '../helpers/connection.js'
 import { cleanupDatabase } from '../helpers/db.js'
+import { bobDbConfig, mockEnvBob } from '../helpers/fixtures.js'
+import { mockLogger } from '../helpers/logger.js'
 import { post } from '../helpers/routeHelper.js'
 import { delay, delayAndReject } from '../helpers/util.js'
 
@@ -24,9 +28,10 @@ describe('pin-submission', function () {
     type Context = {
       app: express.Express
       cloudagentEvents: VeritableCloudagentEvents
+      smtpServer: EmailService
       remoteDatabase: Database
+      localDatabase: Database
       remoteCloudagent: VeritableCloudagent
-      inviteUrl: string
       remoteVerificationPin: string
       localVerificationPin: string
       remoteConnectionId: string
@@ -37,10 +42,13 @@ describe('pin-submission', function () {
     beforeEach(async function () {
       await cleanupDatabase()
       await cleanupCloudagent()
+      context.smtpServer = container.resolve(EmailService)
+      context.localDatabase = container.resolve(Database)
+      context.remoteDatabase = new Database(knex(bobDbConfig))
+      context.remoteCloudagent = new VeritableCloudagent(mockEnvBob, mockLogger)
       const server = await createHttpServer(true)
       Object.assign(context, {
         ...server,
-        inviteUrl: '',
         localConnectionId: '',
         localVerificationPin: '',
         remoteConnectionId: '',
@@ -111,9 +119,10 @@ describe('pin-submission', function () {
     type Context = {
       app: express.Express
       cloudagentEvents: VeritableCloudagentEvents
+      smtpServer: EmailService
       remoteDatabase: Database
+      localDatabase: Database
       remoteCloudagent: VeritableCloudagent
-      invite: string
       remoteVerificationPin: string
       localVerificationPin: string
       remoteConnectionId: string
@@ -124,10 +133,13 @@ describe('pin-submission', function () {
     beforeEach(async function () {
       await cleanupDatabase()
       await cleanupCloudagent()
+      context.smtpServer = container.resolve(EmailService)
+      context.localDatabase = container.resolve(Database)
+      context.remoteDatabase = new Database(knex(bobDbConfig))
+      context.remoteCloudagent = new VeritableCloudagent(mockEnvBob, mockLogger)
       const server = await createHttpServer(true)
       Object.assign(context, {
         ...server,
-        inviteUrl: '',
         localConnectionId: '',
         localVerificationPin: '',
         remoteConnectionId: '',

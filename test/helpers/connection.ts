@@ -38,9 +38,10 @@ const cleanupRemote = async (context: { remoteCloudagent: VeritableCloudagent; r
 
 export const withEstablishedConnectionFromUs = function (context: {
   app: express.Express
+  smtpServer: EmailService
   remoteDatabase: Database
+  localDatabase: Database
   remoteCloudagent: VeritableCloudagent
-  inviteUrl: string
   remoteVerificationPin: string
   localVerificationPin: string
   remoteConnectionId: string
@@ -49,21 +50,16 @@ export const withEstablishedConnectionFromUs = function (context: {
   let emailSendStub: sinon.SinonStub
 
   beforeEach(async function () {
-    const localDatabase = container.resolve(Database)
-    context.remoteDatabase = new Database(knex(bobDbConfig))
-    context.remoteCloudagent = new VeritableCloudagent(mockEnvBob, mockLogger)
-
     await cleanupRemote(context)
 
-    const email = container.resolve(EmailService)
-    emailSendStub = sinon.stub(email, 'sendMail').resolves()
+    emailSendStub = sinon.stub(context.smtpServer, 'sendMail').resolves()
     await post(context.app, '/connection/new/create-invitation', {
       companyNumber: alice.company_number,
       email: 'alice@example.com',
       action: 'submit',
     })
     const invite = (emailSendStub.args.find(([name]) => name === 'connection_invite') || [])[1].invite
-    context.inviteUrl = JSON.parse(Buffer.from(invite, 'base64url').toString('utf8')).inviteUrl
+    const inviteUrl = JSON.parse(Buffer.from(invite, 'base64url').toString('utf8')).inviteUrl
 
     const adminEmailArgs = emailSendStub.args.find(([name]) => name === 'connection_invite_admin') || []
     context.remoteVerificationPin = adminEmailArgs[1].pin
@@ -72,7 +68,7 @@ export const withEstablishedConnectionFromUs = function (context: {
     const pinHash = await argon2.hash(context.localVerificationPin, { secret: Buffer.from('secret', 'utf8') })
     const { connectionRecord, outOfBandRecord } = await context.remoteCloudagent.receiveOutOfBandInvite({
       companyName: alice.company_name,
-      invitationUrl: context.inviteUrl,
+      invitationUrl: inviteUrl,
     })
 
     const [{ id: remoteConnectionId }] = await context.remoteDatabase.insert('connection', {
@@ -94,7 +90,7 @@ export const withEstablishedConnectionFromUs = function (context: {
 
     // wait for status to not be pending
     for (let i = 0; i < 100; i++) {
-      const connections = await localDatabase.get('connection')
+      const connections = await context.localDatabase.get('connection')
       if (connections[0].status === 'pending') {
         await delay(10)
         continue
@@ -113,9 +109,10 @@ export const withEstablishedConnectionFromUs = function (context: {
 
 export const withEstablishedConnectionFromThem = function (context: {
   app: express.Express
+  smtpServer: EmailService
   remoteDatabase: Database
+  localDatabase: Database
   remoteCloudagent: VeritableCloudagent
-  invite: string
   remoteVerificationPin: string
   localVerificationPin: string
   remoteConnectionId: string
@@ -124,14 +121,10 @@ export const withEstablishedConnectionFromThem = function (context: {
   let emailSendStub: sinon.SinonStub
 
   beforeEach(async function () {
-    const localDatabase = container.resolve(Database)
-    context.remoteDatabase = new Database(knex(bobDbConfig))
-    context.remoteCloudagent = new VeritableCloudagent(mockEnvBob, mockLogger)
-
     await cleanupRemote(context)
 
     const invite = await context.remoteCloudagent.createOutOfBandInvite({ companyName: alice.company_name })
-    context.invite = Buffer.from(
+    const inviteContent = Buffer.from(
       JSON.stringify({
         companyNumber: alice.company_number,
         inviteUrl: invite.invitationUrl,
@@ -147,6 +140,7 @@ export const withEstablishedConnectionFromThem = function (context: {
       agent_connection_id: null,
       pin_tries_remaining_count: null,
     })
+
     context.remoteConnectionId = remoteConnectionId
     context.localVerificationPin = '123456'
     const pinHash = await argon2.hash(context.localVerificationPin, { secret: Buffer.from('secret', 'utf8') })
@@ -158,10 +152,9 @@ export const withEstablishedConnectionFromThem = function (context: {
       pin_hash: pinHash,
     })
 
-    const email = container.resolve(EmailService)
-    emailSendStub = sinon.stub(email, 'sendMail')
+    emailSendStub = sinon.stub(context.smtpServer, 'sendMail')
     await post(context.app, '/connection/new/receive-invitation', {
-      invite: context.invite,
+      invite: inviteContent,
       action: 'createConnection',
     })
     const adminEmailArgs = emailSendStub.args.find(([name]) => name === 'connection_invite_admin') || []
@@ -169,7 +162,7 @@ export const withEstablishedConnectionFromThem = function (context: {
 
     // wait for status to not be pending
     for (let i = 0; i < 100; i++) {
-      const connections = await localDatabase.get('connection')
+      const connections = await context.localDatabase.get('connection')
       if (connections[0].status === 'pending') {
         await delay(10)
         continue
