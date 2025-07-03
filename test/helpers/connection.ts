@@ -301,7 +301,7 @@ export async function withBobAndCharlie(context: PartialQueryContext) {
       connection_id: withCharlie.id,
       oob_invite_id: charlieOOB.outOfBandRecord.id,
       pin_hash: pinHash,
-      expires_at: new Date(new Date().getTime() + 14 * 24 * 60 * 60 * 1000),
+      expires_at: new Date(new Date().getTime() + 60 * 1000),
       validity: 'valid',
     })
 
