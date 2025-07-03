@@ -39,9 +39,9 @@ describe('partial query aggregation', function () {
   })
 
   afterEach(async () => {
+    context.cloudagentEvents.stop()
     await cleanupCloudagent([context.agent.alice, context.agent.bob, context.agent.charlie])
     await cleanupDatabase([context.db.alice, context.db.bob, context.db.charlie])
-    context.cloudagentEvents.stop()
   })
 
   describe('with established connections: Alice -> Bob -> Charlie', function () {

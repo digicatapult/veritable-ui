@@ -42,9 +42,9 @@ describe('integration tests for settings page', function () {
   })
 
   afterEach(async () => {
+    context.cloudagentEvents.stop()
     await cleanupCloudagent([context.localCloudagent])
     await cleanupDatabase([context.localDatabase])
-    context.cloudagentEvents.stop()
   })
 
   describe('happy path', function () {

@@ -33,9 +33,9 @@ describe('NewConnectionController', () => {
   })
 
   afterEach(async () => {
+    context.cloudagentEvents.stop()
     await cleanupCloudagent([context.localCloudagent, context.remoteCloudagent])
     await cleanupDatabase([context.localDatabase, context.remoteDatabase])
-    context.cloudagentEvents.stop()
   })
 
   describe('create invitation (happy path)', function () {

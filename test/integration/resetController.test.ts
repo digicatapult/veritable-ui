@@ -27,9 +27,9 @@ describe('integration test for /reset endpoint', function () {
   })
 
   afterEach(async () => {
+    context.cloudagentEvents.stop()
     await cleanupCloudagent([context.localCloudagent])
     await cleanupDatabase([context.localDatabase])
-    context.cloudagentEvents.stop()
   })
 
   describe('if DEMO_MODE=true', function () {

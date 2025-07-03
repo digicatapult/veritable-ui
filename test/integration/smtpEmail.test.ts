@@ -25,8 +25,8 @@ describe('SMTP email', () => {
     })
 
     afterEach(async () => {
-      await clearSmtp4devMessages()
       server.cloudagentEvents.stop()
+      await clearSmtp4devMessages()
     })
 
     it('should send an email via SMTP', async () => {
