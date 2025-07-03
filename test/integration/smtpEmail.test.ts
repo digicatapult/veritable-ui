@@ -3,7 +3,6 @@ import express from 'express'
 import { describe, it } from 'mocha'
 
 import http from 'http'
-import { z } from 'zod'
 import { resetContainer } from '../../src/ioc.js'
 import createHttpServer from '../../src/server.js'
 import VeritableCloudagentEvents from '../../src/services/veritableCloudagentEvents.js'
@@ -11,24 +10,7 @@ import { cleanupCloudagent } from '../helpers/cloudagent.js'
 import { cleanupDatabase } from '../helpers/db.js'
 import { alice } from '../helpers/fixtures.js'
 import { post } from '../helpers/routeHelper.js'
-
-const ToSchema = z.array(z.string())
-
-const EmailItemSchema = z.object({
-  isRelayed: z.boolean(),
-  deliveredTo: z.string().email(),
-  id: z.string().uuid(),
-  from: z.string().email(),
-  to: ToSchema,
-  receivedDate: z.string().datetime(),
-  subject: z.string(),
-  attachmentCount: z.number().int(),
-  isUnread: z.boolean(),
-})
-
-const EmailResponseSchema = z.object({
-  results: z.array(EmailItemSchema),
-})
+import { clearSmtp4devMessages, EmailResponseSchema } from '../helpers/smtpEmails.js'
 
 describe('SMTP email', () => {
   let server: { app: express.Express; cloudagentEvents: VeritableCloudagentEvents }
@@ -149,29 +131,5 @@ function setupSmtpTestEnvironment() {
     process.env.SMTP_USER = username
     process.env.SMTP_PASS = password
     resetContainer()
-  })
-}
-
-async function clearSmtp4devMessages() {
-  return new Promise((resolve, reject) => {
-    const options = {
-      hostname: 'localhost',
-      port: 5001,
-      path: '/api/messages/*', // Delete all messages
-      method: 'DELETE',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    }
-
-    const req = http.request(options, (res) => {
-      if (res.statusCode === 200) {
-        resolve(true)
-      } else {
-        reject(new Error(`Failed to clear messages, status code: ${res.statusCode}`))
-      }
-    })
-    req.on('error', (error) => reject(error))
-    req.end()
   })
 }
