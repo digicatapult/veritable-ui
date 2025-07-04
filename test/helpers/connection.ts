@@ -92,7 +92,7 @@ export const withEstablishedConnectionFromUs = function (context: TwoPartyContex
     emailSendStub = sinon.stub(context.smtpServer, 'sendMail').resolves()
     await post(context.app, '/connection/new/create-invitation', {
       companyNumber: alice.company_number,
-      email: 'alice@example.com',
+      email: 'alice@testmail.com',
       action: 'submit',
     })
     const invite = (emailSendStub.args.find(([name]) => name === 'connection_invite') || [])[1].invite
