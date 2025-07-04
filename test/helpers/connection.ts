@@ -335,22 +335,3 @@ export async function withBobAndCharlie(context: PartialQueryContext) {
     emailSendStub.restore()
   })
 }
-
-export async function withAliceReceivesBobsInvite(context: {
-  app: express.Express
-  remoteCloudagent: VeritableCloudagent
-}) {
-  const invite = await context.remoteCloudagent.createOutOfBandInvite({ companyName: alice.company_name })
-  const inviteContent = Buffer.from(
-    JSON.stringify({
-      companyNumber: alice.company_number,
-      inviteUrl: invite.invitationUrl,
-    }),
-    'utf8'
-  ).toString('base64url')
-
-  return await post(context.app, '/connection/new/receive-invitation', {
-    invite: inviteContent,
-    action: 'createConnection',
-  })
-}

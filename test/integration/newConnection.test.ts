@@ -3,12 +3,12 @@ import { afterEach, beforeEach, describe, it } from 'mocha'
 
 import sinon from 'sinon'
 import { cleanupCloudagent, cleanupDatabase } from '../helpers/cleanup.js'
-import { setupTwoPartyContext, TwoPartyConnection, withAliceReceivesBobsInvite } from '../helpers/connection.js'
+import { setupTwoPartyContext, TwoPartyConnection } from '../helpers/connection.js'
 import { alice } from '../helpers/fixtures.js'
 import { post } from '../helpers/routeHelper.js'
 import { delay } from '../helpers/util.js'
 
-describe('NewConnectionController', () => {
+describe.only('NewConnectionController', () => {
   const context: TwoPartyConnection = {} as TwoPartyConnection
 
   beforeEach(async () => {
@@ -57,7 +57,19 @@ describe('NewConnectionController', () => {
     let response: Awaited<ReturnType<typeof post>>
 
     beforeEach(async () => {
-      response = await withAliceReceivesBobsInvite(context)
+      const invite = await context.remoteCloudagent.createOutOfBandInvite({ companyName: alice.company_name })
+      const inviteContent = Buffer.from(
+        JSON.stringify({
+          companyNumber: alice.company_number,
+          inviteUrl: invite.invitationUrl,
+        }),
+        'utf8'
+      ).toString('base64url')
+
+      response = await post(context.app, '/connection/new/receive-invitation', {
+        invite: inviteContent,
+        action: 'createConnection',
+      })
     })
 
     it('should return success', async () => {
