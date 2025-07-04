@@ -14,7 +14,7 @@ import { bobDbConfig, mockEnvBob } from '../helpers/fixtures.js'
 import { mockLogger } from '../helpers/logger.js'
 import { del } from '../helpers/routeHelper.js'
 
-describe.only('integration test for /reset endpoint', function () {
+describe('integration test for /reset endpoint', function () {
   const context: TwoPartyConnection = {} as TwoPartyConnection
   let response: Awaited<ReturnType<typeof del>>
 
