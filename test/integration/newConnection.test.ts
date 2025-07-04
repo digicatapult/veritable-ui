@@ -1,17 +1,10 @@
 import { expect } from 'chai'
-import knex from 'knex'
 import { afterEach, beforeEach, describe, it } from 'mocha'
-import { container } from 'tsyringe'
 
 import sinon from 'sinon'
-import Database from '../../src/models/db/index.js'
-import EmailService from '../../src/models/emailService/index.js'
-import VeritableCloudagent from '../../src/models/veritableCloudagent/index.js'
-import createHttpServer from '../../src/server.js'
 import { cleanupCloudagent, cleanupDatabase } from '../helpers/cleanup.js'
-import { TwoPartyConnection, withAliceReceivesBobsInvite } from '../helpers/connection.js'
-import { alice, bobDbConfig, mockEnvBob } from '../helpers/fixtures.js'
-import { mockLogger } from '../helpers/logger.js'
+import { setupTwoPartyContext, TwoPartyConnection, withAliceReceivesBobsInvite } from '../helpers/connection.js'
+import { alice } from '../helpers/fixtures.js'
 import { post } from '../helpers/routeHelper.js'
 import { delay } from '../helpers/util.js'
 
@@ -19,15 +12,8 @@ describe('NewConnectionController', () => {
   const context: TwoPartyConnection = {} as TwoPartyConnection
 
   beforeEach(async () => {
-    context.smtpServer = container.resolve(EmailService)
-    context.localCloudagent = container.resolve(VeritableCloudagent)
-    context.localDatabase = container.resolve(Database)
-    context.remoteCloudagent = new VeritableCloudagent(mockEnvBob, mockLogger)
-    context.remoteDatabase = new Database(knex(bobDbConfig))
-    const server = await createHttpServer(true)
-    Object.assign(context, {
-      ...server,
-    })
+    await setupTwoPartyContext(context)
+
     await cleanupCloudagent([context.localCloudagent, context.remoteCloudagent])
     await cleanupDatabase([context.localDatabase, context.remoteDatabase])
   })

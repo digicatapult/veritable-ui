@@ -1,14 +1,18 @@
 import argon2 from 'argon2'
 import type express from 'express'
+import knex from 'knex'
+import { container } from 'tsyringe'
 
 import sinon from 'sinon'
 import Database from '../../src/models/db/index.js'
 import { ConnectionRow } from '../../src/models/db/types.js'
 import EmailService from '../../src/models/emailService/index.js'
 import VeritableCloudagent from '../../src/models/veritableCloudagent/index.js'
+import createHttpServer from '../../src/server.js'
 import VeritableCloudagentEvents from '../../src/services/veritableCloudagentEvents.js'
+import { mockLogger } from '../helpers/logger.js'
 import { cleanupRemote } from './cleanup.js'
-import { alice, bob, charlie } from './fixtures.js'
+import { alice, bob, bobDbConfig, charlie, mockEnvBob } from './fixtures.js'
 import { post } from './routeHelper.js'
 import { delay } from './util.js'
 
@@ -50,6 +54,18 @@ export type PartialQueryContext = {
     withAlice: ConnectionRow
     withCharlie: ConnectionRow
   }
+}
+
+export async function setupTwoPartyContext(context: TwoPartyConnection) {
+  context.smtpServer = container.resolve(EmailService)
+  context.localCloudagent = container.resolve(VeritableCloudagent)
+  context.localDatabase = container.resolve(Database)
+  context.remoteCloudagent = new VeritableCloudagent(mockEnvBob, mockLogger)
+  context.remoteDatabase = new Database(knex(bobDbConfig))
+  const server = await createHttpServer(true)
+  Object.assign(context, {
+    ...server,
+  })
 }
 
 export const withEstablishedConnectionFromUs = function (context: TwoPartyConnection) {

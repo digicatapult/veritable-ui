@@ -1,10 +1,6 @@
 import { expect } from 'chai'
-import { container } from 'tsyringe'
-import Database from '../../src/models/db/index.js'
-import VeritableCloudagent from '../../src/models/veritableCloudagent/index.js'
-import createHttpServer from '../../src/server.js'
 import { cleanupCloudagent, cleanupDatabase } from '../helpers/cleanup.js'
-import type { TwoPartyConnection } from '../helpers/connection.js'
+import { setupTwoPartyContext, type TwoPartyConnection } from '../helpers/connection.js'
 import { get, post } from '../helpers/routeHelper.js'
 
 describe('integration tests for settings page', function () {
@@ -27,14 +23,10 @@ describe('integration tests for settings page', function () {
   }
 
   beforeEach(async () => {
-    context.localCloudagent = container.resolve(VeritableCloudagent)
-    context.localDatabase = container.resolve(Database)
-    const server = await createHttpServer()
-    Object.assign(context, {
-      ...server,
-    })
-    await cleanupCloudagent([context.localCloudagent])
-    await cleanupDatabase([context.localDatabase])
+    await setupTwoPartyContext(context)
+
+    await cleanupCloudagent([context.localCloudagent, context.remoteCloudagent])
+    await cleanupDatabase([context.localDatabase, context.remoteDatabase])
     await context.localDatabase.insert('settings', {
       setting_key: 'admin_email',
       setting_value: 'admin@testmail.com',
@@ -43,8 +35,8 @@ describe('integration tests for settings page', function () {
 
   afterEach(async () => {
     context.cloudagentEvents.stop()
-    await cleanupCloudagent([context.localCloudagent])
-    await cleanupDatabase([context.localDatabase])
+    await cleanupCloudagent([context.localCloudagent, context.remoteCloudagent])
+    await cleanupDatabase([context.localDatabase, context.remoteDatabase])
   })
 
   describe('happy path', function () {

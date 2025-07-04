@@ -1,20 +1,13 @@
 import { expect } from 'chai'
-import knex from 'knex'
 import { afterEach, beforeEach, describe } from 'mocha'
 
-import { container } from 'tsyringe'
-import Database from '../../src/models/db/index.js'
-import EmailService from '../../src/models/emailService/index.js'
-import VeritableCloudagent from '../../src/models/veritableCloudagent/index.js'
-import createHttpServer from '../../src/server.js'
 import { cleanupCloudagent, cleanupDatabase } from '../helpers/cleanup.js'
 import {
+  setupTwoPartyContext,
   TwoPartyConnection,
   withEstablishedConnectionFromThem,
   withEstablishedConnectionFromUs,
 } from '../helpers/connection.js'
-import { bobDbConfig, mockEnvBob } from '../helpers/fixtures.js'
-import { mockLogger } from '../helpers/logger.js'
 import { post } from '../helpers/routeHelper.js'
 import { delay, delayAndReject } from '../helpers/util.js'
 
@@ -22,14 +15,8 @@ describe('pin-submission', function () {
   const context: TwoPartyConnection = {} as TwoPartyConnection
 
   beforeEach(async function () {
-    context.smtpServer = container.resolve(EmailService)
-    context.localCloudagent = container.resolve(VeritableCloudagent)
-    context.localDatabase = container.resolve(Database)
-    context.remoteCloudagent = new VeritableCloudagent(mockEnvBob, mockLogger)
-    context.remoteDatabase = new Database(knex(bobDbConfig))
-    const server = await createHttpServer(true)
+    await setupTwoPartyContext(context)
     Object.assign(context, {
-      ...server,
       localConnectionId: '',
       localVerificationPin: '',
       remoteConnectionId: '',
