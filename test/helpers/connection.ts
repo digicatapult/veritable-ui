@@ -11,7 +11,6 @@ import VeritableCloudagent from '../../src/models/veritableCloudagent/index.js'
 import createHttpServer from '../../src/server.js'
 import VeritableCloudagentEvents from '../../src/services/veritableCloudagentEvents.js'
 import { mockLogger } from '../helpers/logger.js'
-import { cleanupRemote } from './cleanup.js'
 import { alice, bob, bobDbConfig, charlie, mockEnvBob } from './fixtures.js'
 import { post } from './routeHelper.js'
 import { delay } from './util.js'
@@ -72,8 +71,6 @@ export const withEstablishedConnectionFromUs = function (context: TwoPartyConnec
   let emailSendStub: sinon.SinonStub
 
   beforeEach(async function () {
-    await cleanupRemote(context)
-
     emailSendStub = sinon.stub(context.smtpServer, 'sendMail').resolves()
     await post(context.app, '/connection/new/create-invitation', {
       companyNumber: alice.company_number,
@@ -124,7 +121,6 @@ export const withEstablishedConnectionFromUs = function (context: TwoPartyConnec
   })
 
   afterEach(async function () {
-    await cleanupRemote(context)
     emailSendStub.restore()
   })
 }
@@ -133,8 +129,6 @@ export const withEstablishedConnectionFromThem = function (context: TwoPartyConn
   let emailSendStub: sinon.SinonStub
 
   beforeEach(async function () {
-    await cleanupRemote(context)
-
     const invite = await context.remoteCloudagent.createOutOfBandInvite({ companyName: alice.company_name })
     const inviteContent = Buffer.from(
       JSON.stringify({
@@ -186,7 +180,6 @@ export const withEstablishedConnectionFromThem = function (context: TwoPartyConn
   })
 
   afterEach(async function () {
-    await cleanupRemote(context)
     emailSendStub.restore()
   })
 }
