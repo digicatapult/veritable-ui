@@ -1,6 +1,5 @@
 import argon2 from 'argon2'
 import type express from 'express'
-import knex from 'knex'
 import { container } from 'tsyringe'
 
 import sinon from 'sinon'
@@ -10,8 +9,7 @@ import EmailService from '../../src/models/emailService/index.js'
 import VeritableCloudagent from '../../src/models/veritableCloudagent/index.js'
 import VeritableCloudagentEvents from '../../src/services/veritableCloudagentEvents.js'
 import { cleanupRemote } from './cleanup.js'
-import { alice, bob, bobDbConfig, charlie, mockEnvBob } from './fixtures.js'
-import { mockLogger } from './logger.js'
+import { alice, bob, charlie } from './fixtures.js'
 import { post } from './routeHelper.js'
 import { delay } from './util.js'
 
@@ -182,12 +180,6 @@ export const withVerifiedConnection = function (context: TwoPartyConnection) {
   let emailSendStub: sinon.SinonStub
 
   beforeEach(async function () {
-    const localDatabase = container.resolve(Database)
-    context.remoteDatabase = new Database(knex(bobDbConfig))
-    context.remoteCloudagent = new VeritableCloudagent(mockEnvBob, mockLogger)
-
-    await cleanupRemote(context)
-
     const email = container.resolve(EmailService)
     emailSendStub = sinon.stub(email, 'sendMail')
     await post(context.app, '/connection/new/create-invitation', {
@@ -198,7 +190,7 @@ export const withVerifiedConnection = function (context: TwoPartyConnection) {
     const invite = (emailSendStub.args.find(([name]) => name === 'connection_invite') || [])[1].invite
     const inviteUrl = JSON.parse(Buffer.from(invite, 'base64url').toString('utf8')).inviteUrl
 
-    const [{ id: localConnectionId }] = await localDatabase.get('connection')
+    const [{ id: localConnectionId }] = await context.localDatabase.get('connection')
     context.localConnectionId = localConnectionId
 
     const { connectionRecord } = await context.remoteCloudagent.receiveOutOfBandInvite({
@@ -219,7 +211,7 @@ export const withVerifiedConnection = function (context: TwoPartyConnection) {
     // wait for status to not be pending
     const loopLimit = 100
     for (let i = 1; i <= loopLimit; i++) {
-      const connectionsLocal = await localDatabase.get('connection')
+      const connectionsLocal = await context.localDatabase.get('connection')
       const connectionsRemote = await context.remoteDatabase.get('connection')
       if (connectionsLocal[0].status === 'pending' || connectionsRemote[0].status === 'pending') {
         await delay(10)
@@ -232,7 +224,7 @@ export const withVerifiedConnection = function (context: TwoPartyConnection) {
       }
     }
 
-    await localDatabase.update('connection', { id: context.localConnectionId }, { status: 'verified_both' })
+    await context.localDatabase.update('connection', { id: context.localConnectionId }, { status: 'verified_both' })
     await context.remoteDatabase.update('connection', { id: context.remoteConnectionId }, { status: 'verified_both' })
   })
 

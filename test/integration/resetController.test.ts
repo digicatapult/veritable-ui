@@ -1,4 +1,5 @@
 import { expect } from 'chai'
+import knex from 'knex'
 import { afterEach, beforeEach, describe } from 'mocha'
 import { container } from 'tsyringe'
 
@@ -9,27 +10,31 @@ import { Connection } from '../../src/models/veritableCloudagent/internal.js'
 import createHttpServer from '../../src/server.js'
 import { cleanupCloudagent, cleanupDatabase } from '../helpers/cleanup.js'
 import { TwoPartyConnection, withVerifiedConnection } from '../helpers/connection.js'
+import { bobDbConfig, mockEnvBob } from '../helpers/fixtures.js'
+import { mockLogger } from '../helpers/logger.js'
 import { del } from '../helpers/routeHelper.js'
 
-describe('integration test for /reset endpoint', function () {
+describe.only('integration test for /reset endpoint', function () {
   const context: TwoPartyConnection = {} as TwoPartyConnection
   let response: Awaited<ReturnType<typeof del>>
 
   beforeEach(async function () {
     context.localCloudagent = container.resolve(VeritableCloudagent)
     context.localDatabase = container.resolve(Database)
+    context.remoteDatabase = new Database(knex(bobDbConfig))
+    context.remoteCloudagent = new VeritableCloudagent(mockEnvBob, mockLogger)
     const server = await createHttpServer(true)
     Object.assign(context, {
       ...server,
     })
-    await cleanupCloudagent([context.localCloudagent])
-    await cleanupDatabase([context.localDatabase])
+    await cleanupCloudagent([context.localCloudagent, context.remoteCloudagent])
+    await cleanupDatabase([context.localDatabase, context.remoteDatabase])
   })
 
   afterEach(async () => {
     context.cloudagentEvents.stop()
-    await cleanupCloudagent([context.localCloudagent])
-    await cleanupDatabase([context.localDatabase])
+    await cleanupCloudagent([context.localCloudagent, context.remoteCloudagent])
+    await cleanupDatabase([context.localDatabase, context.remoteDatabase])
   })
 
   describe('if DEMO_MODE=true', function () {
