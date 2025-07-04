@@ -4,6 +4,7 @@ import { afterEach, beforeEach, describe } from 'mocha'
 import { container } from 'tsyringe'
 import Database from '../../src/models/db/index.js'
 import { QueryRow } from '../../src/models/db/types.js'
+import EmailService from '../../src/models/emailService/index.js'
 import VeritableCloudagent from '../../src/models/veritableCloudagent/index.js'
 import createHttpServer from '../../src/server.js'
 import { cleanupCloudagent, cleanupDatabase } from '../helpers/cleanup.js'
@@ -17,6 +18,7 @@ describe('query submission', function () {
   const context: TwoPartyConnection = {} as TwoPartyConnection
 
   beforeEach(async function () {
+    context.smtpServer = container.resolve(EmailService)
     context.localCloudagent = container.resolve(VeritableCloudagent)
     context.localDatabase = container.resolve(Database)
     context.remoteCloudagent = new VeritableCloudagent(mockEnvBob, mockLogger)

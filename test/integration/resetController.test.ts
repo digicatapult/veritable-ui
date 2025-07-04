@@ -5,6 +5,7 @@ import { container } from 'tsyringe'
 
 import Database from '../../src/models/db/index.js'
 import { ConnectionRow } from '../../src/models/db/types.js'
+import EmailService from '../../src/models/emailService/index.js'
 import VeritableCloudagent from '../../src/models/veritableCloudagent/index.js'
 import { Connection } from '../../src/models/veritableCloudagent/internal.js'
 import createHttpServer from '../../src/server.js'
@@ -19,6 +20,7 @@ describe('integration test for /reset endpoint', function () {
   let response: Awaited<ReturnType<typeof del>>
 
   beforeEach(async function () {
+    context.smtpServer = container.resolve(EmailService)
     context.localCloudagent = container.resolve(VeritableCloudagent)
     context.localDatabase = container.resolve(Database)
     context.remoteDatabase = new Database(knex(bobDbConfig))

@@ -1,6 +1,5 @@
 import argon2 from 'argon2'
 import type express from 'express'
-import { container } from 'tsyringe'
 
 import sinon from 'sinon'
 import Database from '../../src/models/db/index.js'
@@ -180,8 +179,7 @@ export const withVerifiedConnection = function (context: TwoPartyConnection) {
   let emailSendStub: sinon.SinonStub
 
   beforeEach(async function () {
-    const email = container.resolve(EmailService)
-    emailSendStub = sinon.stub(email, 'sendMail')
+    emailSendStub = sinon.stub(context.smtpServer, 'sendMail')
     await post(context.app, '/connection/new/create-invitation', {
       companyNumber: alice.company_number,
       email: 'alice@example.com',
@@ -229,7 +227,6 @@ export const withVerifiedConnection = function (context: TwoPartyConnection) {
   })
 
   afterEach(async function () {
-    await cleanupRemote(context)
     emailSendStub.restore()
   })
 }
