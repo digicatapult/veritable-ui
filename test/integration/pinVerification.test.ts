@@ -4,7 +4,7 @@ import { afterEach, beforeEach, describe } from 'mocha'
 import { cleanupCloudagent, cleanupDatabase } from '../helpers/cleanup.js'
 import {
   setupTwoPartyContext,
-  TwoPartyConnection,
+  TwoPartyContext,
   withEstablishedConnectionFromThem,
   withEstablishedConnectionFromUs,
 } from '../helpers/connection.js'
@@ -12,7 +12,7 @@ import { post } from '../helpers/routeHelper.js'
 import { delay, delayAndReject } from '../helpers/util.js'
 
 describe('pin-submission', function () {
-  const context: TwoPartyConnection = {} as TwoPartyConnection
+  const context: TwoPartyContext = {} as TwoPartyContext
 
   beforeEach(async function () {
     await setupTwoPartyContext(context)

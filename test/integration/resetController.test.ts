@@ -4,11 +4,11 @@ import { afterEach, beforeEach, describe } from 'mocha'
 import { ConnectionRow } from '../../src/models/db/types.js'
 import { Connection } from '../../src/models/veritableCloudagent/internal.js'
 import { cleanupCloudagent, cleanupDatabase } from '../helpers/cleanup.js'
-import { setupTwoPartyContext, TwoPartyConnection, withVerifiedConnection } from '../helpers/connection.js'
+import { setupTwoPartyContext, TwoPartyContext, withVerifiedConnection } from '../helpers/connection.js'
 import { del } from '../helpers/routeHelper.js'
 
 describe('integration test for /reset endpoint', function () {
-  const context: TwoPartyConnection = {} as TwoPartyConnection
+  const context: TwoPartyContext = {} as TwoPartyContext
   let response: Awaited<ReturnType<typeof del>>
 
   beforeEach(async function () {

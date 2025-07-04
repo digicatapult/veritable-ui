@@ -1,10 +1,10 @@
 import { expect } from 'chai'
 import { cleanupCloudagent, cleanupDatabase } from '../helpers/cleanup.js'
-import { setupTwoPartyContext, type TwoPartyConnection } from '../helpers/connection.js'
+import { setupTwoPartyContext, type TwoPartyContext } from '../helpers/connection.js'
 import { get, post } from '../helpers/routeHelper.js'
 
 describe('integration tests for settings page', function () {
-  const context: TwoPartyConnection = {} as TwoPartyConnection
+  const context: TwoPartyContext = {} as TwoPartyContext
 
   const testBody = {
     company_name: 'Test Company Name',

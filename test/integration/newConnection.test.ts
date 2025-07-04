@@ -1,15 +1,14 @@
 import { expect } from 'chai'
 import { afterEach, beforeEach, describe, it } from 'mocha'
-
 import sinon from 'sinon'
 import { cleanupCloudagent, cleanupDatabase } from '../helpers/cleanup.js'
-import { setupTwoPartyContext, TwoPartyConnection } from '../helpers/connection.js'
+import { setupTwoPartyContext, TwoPartyContext } from '../helpers/connection.js'
 import { alice } from '../helpers/fixtures.js'
 import { post } from '../helpers/routeHelper.js'
 import { delay } from '../helpers/util.js'
 
-describe.only('NewConnectionController', () => {
-  const context: TwoPartyConnection = {} as TwoPartyConnection
+describe('NewConnectionController', () => {
+  const context: TwoPartyContext = {} as TwoPartyContext
 
   beforeEach(async () => {
     await setupTwoPartyContext(context)
@@ -91,9 +90,23 @@ describe.only('NewConnectionController', () => {
   })
 
   describe('connection complete (receive side)', function () {
-    it('should update connection to unverified once connection is established', async () => {
-      await withAliceReceivesBobsInvite(context)
+    beforeEach(async () => {
+      const invite = await context.remoteCloudagent.createOutOfBandInvite({ companyName: alice.company_name })
+      const inviteContent = Buffer.from(
+        JSON.stringify({
+          companyNumber: alice.company_number,
+          inviteUrl: invite.invitationUrl,
+        }),
+        'utf8'
+      ).toString('base64url')
 
+      await post(context.app, '/connection/new/receive-invitation', {
+        invite: inviteContent,
+        action: 'createConnection',
+      })
+    })
+
+    it('should update connection to unverified once connection is established', async () => {
       for (let i = 0; i < 100; i++) {
         await delay(100)
         const [connection] = await context.localDatabase.get('connection')

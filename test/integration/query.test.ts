@@ -2,12 +2,12 @@ import { expect } from 'chai'
 import { afterEach, beforeEach, describe } from 'mocha'
 import { QueryRow } from '../../src/models/db/types.js'
 import { cleanupCloudagent, cleanupDatabase } from '../helpers/cleanup.js'
-import { setupTwoPartyContext, TwoPartyConnection, withVerifiedConnection } from '../helpers/connection.js'
+import { setupTwoPartyContext, TwoPartyContext, withVerifiedConnection } from '../helpers/connection.js'
 import { post } from '../helpers/routeHelper.js'
 import { delay } from '../helpers/util.js'
 
 describe('query submission', function () {
-  const context: TwoPartyConnection = {} as TwoPartyConnection
+  const context: TwoPartyContext = {} as TwoPartyContext
 
   beforeEach(async function () {
     await setupTwoPartyContext(context)

@@ -1,39 +1,16 @@
 import { expect } from 'chai'
-import knex from 'knex'
 import { afterEach, beforeEach, describe } from 'mocha'
-
-import { container } from 'tsyringe'
-import Database from '../../src/models/db/index.js'
-import EmailService from '../../src/models/emailService/index.js'
-import VeritableCloudagent from '../../src/models/veritableCloudagent/index.js'
-import createHttpServer from '../../src/server.js'
 import { cleanupCloudagent, cleanupDatabase } from '../helpers/cleanup.js'
-import { PartialQueryContext, withBobAndCharlie } from '../helpers/connection.js'
-import { bobDbConfig, charlieDbConfig, mockEnvBob, mockEnvCharlie } from '../helpers/fixtures.js'
-import { mockLogger } from '../helpers/logger.js'
+import { setupThreePartyContext, ThreePartyContext, withBobAndCharlie } from '../helpers/connection.js'
 import { fetchPost, post } from '../helpers/routeHelper.js'
 
 describe('partial query aggregation', function () {
-  const context: PartialQueryContext = {} as PartialQueryContext
+  const context: ThreePartyContext = {} as ThreePartyContext
   let response: Awaited<ReturnType<typeof post>>
 
   beforeEach(async function () {
-    context.smtpServer = container.resolve(EmailService)
-    context.agent = {
-      alice: container.resolve(VeritableCloudagent),
-      bob: new VeritableCloudagent(mockEnvBob, mockLogger),
-      charlie: new VeritableCloudagent(mockEnvCharlie, mockLogger),
-    }
-    context.db = {
-      alice: container.resolve(Database),
-      bob: new Database(knex(bobDbConfig)),
-      charlie: new Database(knex(charlieDbConfig)),
-    }
+    await setupThreePartyContext(context)
 
-    const server = await createHttpServer(true)
-    Object.assign(context, {
-      ...server,
-    })
     await cleanupCloudagent([context.agent.alice, context.agent.bob, context.agent.charlie])
     await cleanupDatabase([context.db.alice, context.db.bob, context.db.charlie])
   })

@@ -11,11 +11,11 @@ import VeritableCloudagent from '../../src/models/veritableCloudagent/index.js'
 import createHttpServer from '../../src/server.js'
 import VeritableCloudagentEvents from '../../src/services/veritableCloudagentEvents.js'
 import { mockLogger } from '../helpers/logger.js'
-import { alice, bob, bobDbConfig, charlie, mockEnvBob } from './fixtures.js'
+import { alice, bob, bobDbConfig, charlie, charlieDbConfig, mockEnvBob, mockEnvCharlie } from './fixtures.js'
 import { post } from './routeHelper.js'
 import { delay } from './util.js'
 
-export type TwoPartyConnection = {
+export type TwoPartyContext = {
   app: express.Express
   cloudagentEvents: VeritableCloudagentEvents
   smtpServer: EmailService
@@ -31,7 +31,7 @@ export type TwoPartyConnection = {
   remoteConnectionId: string
 }
 
-export type PartialQueryContext = {
+export type ThreePartyContext = {
   app: express.Express
   cloudagentEvents: VeritableCloudagentEvents
   smtpServer: EmailService
@@ -55,7 +55,7 @@ export type PartialQueryContext = {
   }
 }
 
-export async function setupTwoPartyContext(context: TwoPartyConnection) {
+export async function setupTwoPartyContext(context: TwoPartyContext) {
   context.smtpServer = container.resolve(EmailService)
   context.localCloudagent = container.resolve(VeritableCloudagent)
   context.localDatabase = container.resolve(Database)
@@ -67,7 +67,25 @@ export async function setupTwoPartyContext(context: TwoPartyConnection) {
   })
 }
 
-export const withEstablishedConnectionFromUs = function (context: TwoPartyConnection) {
+export async function setupThreePartyContext(context: ThreePartyContext) {
+  context.smtpServer = container.resolve(EmailService)
+  context.agent = {
+    alice: container.resolve(VeritableCloudagent),
+    bob: new VeritableCloudagent(mockEnvBob, mockLogger),
+    charlie: new VeritableCloudagent(mockEnvCharlie, mockLogger),
+  }
+  context.db = {
+    alice: container.resolve(Database),
+    bob: new Database(knex(bobDbConfig)),
+    charlie: new Database(knex(charlieDbConfig)),
+  }
+  const server = await createHttpServer(true)
+  Object.assign(context, {
+    ...server,
+  })
+}
+
+export const withEstablishedConnectionFromUs = function (context: TwoPartyContext) {
   let emailSendStub: sinon.SinonStub
 
   beforeEach(async function () {
@@ -125,7 +143,7 @@ export const withEstablishedConnectionFromUs = function (context: TwoPartyConnec
   })
 }
 
-export const withEstablishedConnectionFromThem = function (context: TwoPartyConnection) {
+export const withEstablishedConnectionFromThem = function (context: TwoPartyContext) {
   let emailSendStub: sinon.SinonStub
 
   beforeEach(async function () {
@@ -184,7 +202,7 @@ export const withEstablishedConnectionFromThem = function (context: TwoPartyConn
   })
 }
 
-export const withVerifiedConnection = function (context: TwoPartyConnection) {
+export const withVerifiedConnection = function (context: TwoPartyContext) {
   let emailSendStub: sinon.SinonStub
 
   beforeEach(async function () {
@@ -240,7 +258,7 @@ export const withVerifiedConnection = function (context: TwoPartyConnection) {
   })
 }
 
-export async function withBobAndCharlie(context: PartialQueryContext) {
+export async function withBobAndCharlie(context: ThreePartyContext) {
   let emailSendStub: sinon.SinonStub
 
   beforeEach(async function () {
