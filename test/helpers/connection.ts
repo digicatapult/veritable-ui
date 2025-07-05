@@ -328,7 +328,7 @@ export async function withBobAndCharlie(context: ThreePartyContext) {
       company_name: bob.company_name,
       company_number: bob.company_number,
       status: 'pending',
-      pin_tries_remaining_count: 4,
+      pin_tries_remaining_count: null,
     })
 
     await context.db.charlie.insert('connection_invite', {
