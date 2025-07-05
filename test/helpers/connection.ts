@@ -92,7 +92,7 @@ export const withEstablishedConnectionFromUs = function (context: TwoPartyContex
     emailSendStub = sinon.stub(context.smtpServer, 'sendMail').resolves()
     await post(context.app, '/connection/new/create-invitation', {
       companyNumber: alice.company_number,
-      email: 'alice@testmail.com',
+      email: 'bob@testmail.com',
       action: 'submit',
     })
     const invite = (emailSendStub.args.find(([name]) => name === 'connection_invite') || [])[1].invite
@@ -116,12 +116,13 @@ export const withEstablishedConnectionFromUs = function (context: TwoPartyContex
       status: 'unverified',
       pin_tries_remaining_count: null,
     })
+
     await context.remoteDatabase.insert('connection_invite', {
-      validity: 'valid',
       connection_id: remoteConnectionId,
-      expires_at: new Date(new Date().getTime() + 60 * 1000),
       oob_invite_id: outOfBandRecord.id,
       pin_hash: pinHash,
+      expires_at: new Date(new Date().getTime() + 60 * 1000),
+      validity: 'valid',
     })
     context.remoteConnectionId = remoteConnectionId
 
@@ -169,11 +170,11 @@ export const withEstablishedConnectionFromThem = function (context: TwoPartyCont
     context.localVerificationPin = '123456'
     const pinHash = await argon2.hash(context.localVerificationPin, { secret: Buffer.from('secret', 'utf8') })
     await context.remoteDatabase.insert('connection_invite', {
-      validity: 'valid',
       connection_id: remoteConnectionId,
-      expires_at: new Date(new Date().getTime() + 60 * 1000),
       oob_invite_id: invite.outOfBandRecord.id,
       pin_hash: pinHash,
+      expires_at: new Date(new Date().getTime() + 60 * 1000),
+      validity: 'valid',
     })
 
     emailSendStub = sinon.stub(context.smtpServer, 'sendMail')
