@@ -1,4 +1,17 @@
-import { OrganisationProfile } from '../../src/models/organisationRegistry.js'
+import { Env } from '../../src/env/index.js'
+
+export const alice = {
+  registered_office_address: {
+    address_line_1: 'Level 9, 101 Euston Road',
+    country: 'United Kingdom',
+    locality: 'London',
+    postal_code: 'NW1 2RA',
+  },
+  company_status: 'active',
+  registered_office_is_in_dispute: false,
+  company_name: 'DIGITAL CATAPULT',
+  company_number: '07964699',
+}
 
 export const bob = {
   registered_office_address: {
@@ -22,25 +35,99 @@ export const charlie = {
     locality: 'London',
     postal_code: 'SE1 9RT',
   },
-  registered_office_is_in_dispute: false,
   company_status: 'active',
+  registered_office_is_in_dispute: false,
   company_name: 'OFFSHORE RENEWABLE ENERGY CATAPULT',
   company_number: '10016023',
 }
 
-export const validCompanyNumber = '07964699'
-export const bobCompanyNumber = '04659351'
-export const charlieCompanyNumber = '10016023'
-export const validCompanyName = 'DIGITAL CATAPULT'
-
-export const successResponse: OrganisationProfile = {
-  registered_office_address: {
-    address_line_1: 'Level 9, 101 Euston Road',
-    postal_code: 'NW1 2RA',
-    locality: 'London',
+export const aliceDbConfig = {
+  client: 'pg',
+  connection: {
+    host: 'localhost',
+    database: 'veritable-ui',
+    user: 'postgres',
+    password: 'postgres',
+    port: 5432,
   },
-  company_status: 'active',
-  registered_office_is_in_dispute: false,
-  company_name: validCompanyName,
-  company_number: validCompanyNumber,
+  pool: {
+    min: 2,
+    max: 10,
+  },
+  migrations: {
+    tableName: 'migrations',
+    directory: 'src/models/db/migrations',
+  },
 }
+
+export const bobDbConfig = {
+  client: 'pg',
+  connection: {
+    host: 'localhost',
+    database: 'veritable-ui',
+    user: 'postgres',
+    password: 'postgres',
+    port: 5433,
+  },
+  pool: {
+    min: 2,
+    max: 10,
+  },
+  migrations: {
+    tableName: 'migrations',
+  },
+}
+
+export const charlieDbConfig = {
+  client: 'pg',
+  connection: {
+    host: 'localhost',
+    database: 'veritable-ui',
+    user: 'postgres',
+    password: 'postgres',
+    port: 5434,
+  },
+  pool: {
+    min: 2,
+    max: 10,
+  },
+  migrations: {
+    tableName: 'migrations',
+  },
+}
+
+export const mockEnvAlice = {
+  get(name) {
+    if (name === 'PORT') {
+      return 3000
+    }
+    if (name === 'CLOUDAGENT_ADMIN_ORIGIN') {
+      return 'http://localhost:3100'
+    }
+    throw new Error('Unexpected env variable request')
+  },
+} as Env
+
+export const mockEnvBob = {
+  get(name) {
+    if (name === 'PORT') {
+      return 3001
+    }
+    if (name === 'CLOUDAGENT_ADMIN_ORIGIN') {
+      return 'http://localhost:3101'
+    }
+    throw new Error('Unexpected env variable request')
+  },
+} as Env
+
+export const mockEnvCharlie = {
+  get(name) {
+    if (name === 'PORT') {
+      return 3002
+    }
+    if (name === 'CLOUDAGENT_ADMIN_ORIGIN') {
+      return 'http://localhost:3102'
+    }
+    throw new Error('Unexpected env variable request')
+  },
+} as Env

@@ -2,8 +2,9 @@ import { use } from 'chai'
 import 'reflect-metadata'
 
 import chaiJestSnapshot from 'chai-jest-snapshot'
+import knex from 'knex'
 import { StartedTestContainer } from 'testcontainers'
-import { migrateDatabase } from './helpers/db.js'
+import { aliceDbConfig } from './helpers/fixtures.js'
 import {
   bringUpDependenciesContainers,
   bringUpSharedContainers,
@@ -27,7 +28,8 @@ before(async function () {
   bobUIContainer = await bringUpVeritableUIContainer('bob', 3001, '04659351')
   charlieUIContainer = await bringUpVeritableUIContainer('charlie', 3002, '10016023')
 
-  await migrateDatabase()
+  const database = knex(aliceDbConfig)
+  await database.migrate.latest()
   use(chaiJestSnapshot)
   chaiJestSnapshot.resetSnapshotRegistry()
 })
