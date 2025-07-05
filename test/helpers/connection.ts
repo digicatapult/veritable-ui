@@ -219,20 +219,20 @@ export const withVerifiedConnection = function (context: TwoPartyContext) {
     const [{ id: localConnectionId }] = await context.localDatabase.get('connection')
     context.localConnectionId = localConnectionId
 
-    const { connectionRecord } = await context.remoteCloudagent.receiveOutOfBandInvite({
+    const aliceOOB = await context.remoteCloudagent.receiveOutOfBandInvite({
       companyName: alice.company_name,
       invitationUrl: inviteUrl,
     })
 
-    const [{ id: remoteConnectionId }] = await context.remoteDatabase.insert('connection', {
+    const [withAlice] = await context.remoteDatabase.insert('connection', {
       pin_attempt_count: 0,
-      agent_connection_id: connectionRecord.id,
+      agent_connection_id: aliceOOB.connectionRecord.id,
       company_name: alice.company_name,
       company_number: alice.company_number,
       status: 'pending',
-      pin_tries_remaining_count: 4,
+      pin_tries_remaining_count: null,
     })
-    context.remoteConnectionId = remoteConnectionId
+    context.remoteConnectionId = withAlice.id
 
     // wait for status to not be pending
     const loopLimit = 100
