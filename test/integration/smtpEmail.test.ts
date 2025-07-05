@@ -19,7 +19,7 @@ describe('SMTP email', () => {
       server = await createHttpServer()
       await post(server.app, '/connection/new/create-invitation', {
         companyNumber: alice.company_number,
-        email: 'alice@example.com',
+        email: 'alice@testmail.com',
         action: 'submit',
       })
     })
@@ -61,9 +61,9 @@ describe('SMTP email', () => {
                 expect(inviteEmail.to).to.have.lengthOf(1)
                 expect(inviteEmail).to.deep.contain({
                   isRelayed: false,
-                  deliveredTo: 'alice@example.com',
+                  deliveredTo: 'alice@testmail.com',
                   from: 'hello@veritable.com',
-                  to: ['alice@example.com'],
+                  to: ['alice@testmail.com'],
                   subject: 'DIGITAL CATAPULT invites you to a secure, verified connection on Veritable',
                   attachmentCount: 0,
                   isUnread: true,

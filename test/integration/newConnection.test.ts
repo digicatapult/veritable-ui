@@ -29,7 +29,7 @@ describe('NewConnectionController', () => {
     beforeEach(async () => {
       response = await post(context.app, '/connection/new/create-invitation', {
         companyNumber: alice.company_number,
-        email: 'alice@example.com',
+        email: 'alice@testmail.com',
         action: 'submit',
       })
     })
@@ -130,7 +130,7 @@ describe('NewConnectionController', () => {
 
       await post(context.app, '/connection/new/create-invitation', {
         companyNumber: alice.company_number,
-        email: 'alice@example.com',
+        email: 'alice@testmail.com',
         action: 'submit',
       })
 
