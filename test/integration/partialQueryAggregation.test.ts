@@ -22,9 +22,8 @@ describe('partial query aggregation', function () {
   })
 
   describe('with established connections: Alice -> Bob -> Charlie', function () {
-    withBobAndCharlie(context)
-
     beforeEach(async function () {
+      await withBobAndCharlie(context)
       response = await post(context.app, `/queries/new/carbon-embodiment`, {
         connectionId: context.aliceConnectionId,
         productId: 'toaster-001(AliceReq)',

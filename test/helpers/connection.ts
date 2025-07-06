@@ -260,97 +260,91 @@ export const withVerifiedConnection = function (context: TwoPartyContext) {
 }
 
 export async function withBobAndCharlie(context: ThreePartyContext) {
-  let emailSendStub: sinon.SinonStub
+  const emailSendStub: sinon.SinonStub = sinon.stub(context.smtpServer, 'sendMail')
+  await post(context.app, '/connection/new/create-invitation', {
+    companyNumber: bob.company_number,
+    email: 'bob@testmail.com',
+    action: 'submit',
+  })
+  const invite = (emailSendStub.args.find(([name]) => name === 'connection_invite') || [])[1].invite
+  const bobsInvite = JSON.parse(Buffer.from(invite, 'base64url').toString('utf8')).inviteUrl
 
-  beforeEach(async function () {
-    emailSendStub = sinon.stub(context.smtpServer, 'sendMail')
-    await post(context.app, '/connection/new/create-invitation', {
-      companyNumber: bob.company_number,
-      email: 'bob@testmail.com',
-      action: 'submit',
-    })
-    const invite = (emailSendStub.args.find(([name]) => name === 'connection_invite') || [])[1].invite
-    const bobsInvite = JSON.parse(Buffer.from(invite, 'base64url').toString('utf8')).inviteUrl
+  const [{ id: aliceConnectionId }] = await context.db.alice.get('connection')
+  context.aliceConnectionId = aliceConnectionId
 
-    const [{ id: aliceConnectionId }] = await context.db.alice.get('connection')
-    context.aliceConnectionId = aliceConnectionId
-
-    // alice part on bob
-    const pinHash = await argon2.hash('123456', { secret: Buffer.from('secret', 'utf8') })
-    const aliceOOB = await context.agent.bob.receiveOutOfBandInvite({
-      companyName: alice.company_name,
-      invitationUrl: bobsInvite,
-    })
-
-    const [withAlice] = await context.db.bob.insert('connection', {
-      company_name: alice.company_name,
-      company_number: alice.company_number,
-      agent_connection_id: aliceOOB.connectionRecord.id,
-      status: 'pending',
-      pin_attempt_count: 0,
-      pin_tries_remaining_count: 4,
-    })
-
-    await context.db.bob.insert('connection_invite', {
-      connection_id: withAlice.id,
-      oob_invite_id: aliceOOB.outOfBandRecord.id,
-      pin_hash: pinHash,
-      expires_at: new Date(new Date().getTime() + 60 * 1000),
-      validity: 'valid',
-    })
-
-    const charliesInvite = await context.agent.charlie.createOutOfBandInvite({ companyName: charlie.company_name })
-    const charlieOOB = await context.agent.bob.receiveOutOfBandInvite({
-      companyName: charlie.company_name,
-      invitationUrl: charliesInvite.invitationUrl,
-    })
-
-    const [withCharlie] = await context.db.bob.insert('connection', {
-      company_name: charlie.company_name,
-      company_number: charlie.company_number,
-      agent_connection_id: charlieOOB.connectionRecord.id,
-      status: 'pending',
-      pin_attempt_count: 0,
-      pin_tries_remaining_count: 4,
-    })
-
-    await context.db.bob.insert('connection_invite', {
-      connection_id: withCharlie.id,
-      oob_invite_id: charlieOOB.outOfBandRecord.id,
-      pin_hash: pinHash,
-      expires_at: new Date(new Date().getTime() + 60 * 1000),
-      validity: 'valid',
-    })
-
-    const [withBob] = await context.db.charlie.insert('connection', {
-      company_name: bob.company_name,
-      company_number: bob.company_number,
-      agent_connection_id: null,
-      status: 'pending',
-      pin_attempt_count: 0,
-      pin_tries_remaining_count: 4,
-    })
-
-    await context.db.charlie.insert('connection_invite', {
-      connection_id: withBob.id,
-      oob_invite_id: charliesInvite.outOfBandRecord.id,
-      pin_hash: pinHash,
-      expires_at: new Date(new Date().getTime() + 60 * 1000),
-      validity: 'valid',
-    })
-
-    context.bobsConnections = { withAlice, withCharlie }
-    context.charliesConnections = { withBob }
-
-    await delay(3000)
-
-    await context.db.alice.update('connection', { id: context.aliceConnectionId }, { status: 'verified_both' })
-    await context.db.bob.update('connection', { id: withAlice.id }, { status: 'verified_both' })
-    await context.db.bob.update('connection', { id: withCharlie.id }, { status: 'verified_both' })
-    await context.db.charlie.update('connection', { id: withBob.id }, { status: 'verified_both' })
+  // alice part on bob
+  const pinHash = await argon2.hash('123456', { secret: Buffer.from('secret', 'utf8') })
+  const aliceOOB = await context.agent.bob.receiveOutOfBandInvite({
+    companyName: alice.company_name,
+    invitationUrl: bobsInvite,
   })
 
-  afterEach(async function () {
-    emailSendStub.restore()
+  const [withAlice] = await context.db.bob.insert('connection', {
+    company_name: alice.company_name,
+    company_number: alice.company_number,
+    agent_connection_id: aliceOOB.connectionRecord.id,
+    status: 'pending',
+    pin_attempt_count: 0,
+    pin_tries_remaining_count: 4,
   })
+
+  await context.db.bob.insert('connection_invite', {
+    connection_id: withAlice.id,
+    oob_invite_id: aliceOOB.outOfBandRecord.id,
+    pin_hash: pinHash,
+    expires_at: new Date(new Date().getTime() + 60 * 1000),
+    validity: 'valid',
+  })
+
+  const charliesInvite = await context.agent.charlie.createOutOfBandInvite({ companyName: charlie.company_name })
+  const charlieOOB = await context.agent.bob.receiveOutOfBandInvite({
+    companyName: charlie.company_name,
+    invitationUrl: charliesInvite.invitationUrl,
+  })
+
+  const [withCharlie] = await context.db.bob.insert('connection', {
+    company_name: charlie.company_name,
+    company_number: charlie.company_number,
+    agent_connection_id: charlieOOB.connectionRecord.id,
+    status: 'pending',
+    pin_attempt_count: 0,
+    pin_tries_remaining_count: 4,
+  })
+
+  await context.db.bob.insert('connection_invite', {
+    connection_id: withCharlie.id,
+    oob_invite_id: charlieOOB.outOfBandRecord.id,
+    pin_hash: pinHash,
+    expires_at: new Date(new Date().getTime() + 60 * 1000),
+    validity: 'valid',
+  })
+
+  const [withBob] = await context.db.charlie.insert('connection', {
+    company_name: bob.company_name,
+    company_number: bob.company_number,
+    agent_connection_id: null,
+    status: 'pending',
+    pin_attempt_count: 0,
+    pin_tries_remaining_count: 4,
+  })
+
+  await context.db.charlie.insert('connection_invite', {
+    connection_id: withBob.id,
+    oob_invite_id: charliesInvite.outOfBandRecord.id,
+    pin_hash: pinHash,
+    expires_at: new Date(new Date().getTime() + 60 * 1000),
+    validity: 'valid',
+  })
+
+  await delay(300)
+
+  await context.db.alice.update('connection', { id: context.aliceConnectionId }, { status: 'verified_both' })
+  await context.db.bob.update('connection', { id: withAlice.id }, { status: 'verified_both' })
+  await context.db.bob.update('connection', { id: withCharlie.id }, { status: 'verified_both' })
+  await context.db.charlie.update('connection', { id: withBob.id }, { status: 'verified_both' })
+
+  context.bobsConnections = { withAlice, withCharlie }
+  context.charliesConnections = { withBob }
+
+  emailSendStub.restore()
 }
