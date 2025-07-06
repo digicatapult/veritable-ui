@@ -109,12 +109,12 @@ export const withEstablishedConnectionFromUs = function (context: TwoPartyContex
     })
 
     const [{ id: remoteConnectionId }] = await context.remoteDatabase.insert('connection', {
-      pin_attempt_count: 0,
-      agent_connection_id: connectionRecord.id,
       company_name: alice.company_name,
       company_number: alice.company_number,
+      agent_connection_id: connectionRecord.id,
       status: 'unverified',
-      pin_tries_remaining_count: null,
+      pin_attempt_count: 0,
+      pin_tries_remaining_count: 4,
     })
 
     await context.remoteDatabase.insert('connection_invite', {
@@ -158,12 +158,12 @@ export const withEstablishedConnectionFromThem = function (context: TwoPartyCont
     ).toString('base64url')
 
     const [{ id: remoteConnectionId }] = await context.remoteDatabase.insert('connection', {
-      pin_attempt_count: 0,
       company_name: alice.company_name,
       company_number: alice.company_number,
-      status: 'pending',
       agent_connection_id: null,
-      pin_tries_remaining_count: null,
+      status: 'pending',
+      pin_attempt_count: 0,
+      pin_tries_remaining_count: 4,
     })
 
     context.remoteConnectionId = remoteConnectionId
@@ -225,12 +225,12 @@ export const withVerifiedConnection = function (context: TwoPartyContext) {
     })
 
     const [withAlice] = await context.remoteDatabase.insert('connection', {
-      pin_attempt_count: 0,
-      agent_connection_id: aliceOOB.connectionRecord.id,
       company_name: alice.company_name,
       company_number: alice.company_number,
+      agent_connection_id: aliceOOB.connectionRecord.id,
       status: 'pending',
-      pin_tries_remaining_count: null,
+      pin_attempt_count: 0,
+      pin_tries_remaining_count: 4,
     })
     context.remoteConnectionId = withAlice.id
 
@@ -283,12 +283,12 @@ export async function withBobAndCharlie(context: ThreePartyContext) {
     })
 
     const [withAlice] = await context.db.bob.insert('connection', {
-      pin_attempt_count: 0,
-      agent_connection_id: aliceOOB.connectionRecord.id,
       company_name: alice.company_name,
       company_number: alice.company_number,
+      agent_connection_id: aliceOOB.connectionRecord.id,
       status: 'pending',
-      pin_tries_remaining_count: null,
+      pin_attempt_count: 0,
+      pin_tries_remaining_count: 4,
     })
 
     await context.db.bob.insert('connection_invite', {
@@ -306,12 +306,12 @@ export async function withBobAndCharlie(context: ThreePartyContext) {
     })
 
     const [withCharlie] = await context.db.bob.insert('connection', {
-      pin_attempt_count: 0,
-      agent_connection_id: charlieOOB.connectionRecord.id,
       company_name: charlie.company_name,
       company_number: charlie.company_number,
+      agent_connection_id: charlieOOB.connectionRecord.id,
       status: 'pending',
-      pin_tries_remaining_count: null,
+      pin_attempt_count: 0,
+      pin_tries_remaining_count: 4,
     })
 
     await context.db.bob.insert('connection_invite', {
@@ -323,12 +323,12 @@ export async function withBobAndCharlie(context: ThreePartyContext) {
     })
 
     const [withBob] = await context.db.charlie.insert('connection', {
-      pin_attempt_count: 0,
-      agent_connection_id: null,
       company_name: bob.company_name,
       company_number: bob.company_number,
+      agent_connection_id: null,
       status: 'pending',
-      pin_tries_remaining_count: null,
+      pin_attempt_count: 0,
+      pin_tries_remaining_count: 4,
     })
 
     await context.db.charlie.insert('connection_invite', {
