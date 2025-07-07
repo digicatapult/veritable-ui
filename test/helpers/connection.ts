@@ -92,7 +92,7 @@ export const withEstablishedConnectionFromUs = function (context: TwoPartyContex
     emailSendStub = sinon.stub(context.smtpServer, 'sendMail').resolves()
     await post(context.app, '/connection/new/create-invitation', {
       companyNumber: alice.company_number,
-      email: 'bob@testmail.com',
+      email: 'alice@testmail.com',
       action: 'submit',
     })
     const invite = (emailSendStub.args.find(([name]) => name === 'connection_invite') || [])[1].invite
@@ -210,7 +210,7 @@ export const withVerifiedConnection = function (context: TwoPartyContext) {
     emailSendStub = sinon.stub(context.smtpServer, 'sendMail')
     await post(context.app, '/connection/new/create-invitation', {
       companyNumber: alice.company_number,
-      email: 'bob@testmail.com',
+      email: 'alice@testmail.com',
       action: 'submit',
     })
     const invite = (emailSendStub.args.find(([name]) => name === 'connection_invite') || [])[1].invite
@@ -263,7 +263,7 @@ export async function withBobAndCharlie(context: ThreePartyContext) {
   const emailSendStub: sinon.SinonStub = sinon.stub(context.smtpServer, 'sendMail')
   await post(context.app, '/connection/new/create-invitation', {
     companyNumber: bob.company_number,
-    email: 'bob@testmail.com',
+    email: 'alice@testmail.com',
     action: 'submit',
   })
   const invite = (emailSendStub.args.find(([name]) => name === 'connection_invite') || [])[1].invite
