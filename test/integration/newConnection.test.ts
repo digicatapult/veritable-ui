@@ -119,14 +119,8 @@ describe('NewConnectionController', () => {
   })
 
   describe('connection complete (send side)', function () {
-    let emailSendStub: sinon.SinonStub
-
-    afterEach(async () => {
-      emailSendStub.restore()
-    })
-
     it('should update connection to unverified once connection is established', async () => {
-      emailSendStub = sinon.stub(context.smtpServer, 'sendMail')
+      const emailSendStub: sinon.SinonStub = sinon.stub(context.smtpServer, 'sendMail')
 
       await post(context.app, '/connection/new/create-invitation', {
         companyNumber: alice.company_number,
@@ -141,6 +135,8 @@ describe('NewConnectionController', () => {
         companyName: alice.company_name,
         invitationUrl: inviteUrl,
       })
+
+      emailSendStub.restore()
 
       for (let i = 0; i < 100; i++) {
         const [connection] = await context.localDatabase.get('connection')
