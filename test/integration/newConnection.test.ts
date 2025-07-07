@@ -143,11 +143,11 @@ describe('NewConnectionController', () => {
       })
 
       for (let i = 0; i < 100; i++) {
-        await delay(100)
         const [connection] = await context.localDatabase.get('connection')
         if (connection.status === 'unverified') {
           return
         }
+        await delay(10)
       }
       expect.fail('Expected connection to update to state unverified')
     })
