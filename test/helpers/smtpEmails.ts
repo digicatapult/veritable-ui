@@ -15,13 +15,9 @@ const EmailItemSchema = z.object({
   isUnread: z.boolean(),
 })
 
-const EmailResponseSchema = z.object({
+export const EmailResponseSchema = z.object({
   results: z.array(EmailItemSchema),
 })
-
-// removing smtp4dev url since only one platform
-export const smtp4devUrl = process.env.VERITABLE_SMTP_ADDRESS || 'http://localhost:5001'
-const { host, port } = getHostPort(smtp4devUrl)
 
 export type Email = {
   isRelayed: boolean
@@ -39,11 +35,11 @@ export type Email = {
  * @param search this can be TO or FROM or in subject email address
  * @returns validated Email
  */
-async function checkEmails(search: string): Promise<Email> {
+export async function checkEmails(search: string): Promise<Email> {
   return new Promise((resolve, reject) => {
     const options = {
-      hostname: host,
-      port: port,
+      hostname: 'localhost',
+      port: '5001',
       path: `/api/messages?searchTerms=${search}&sortColumn=receivedDate`,
       method: 'GET',
       headers: {
@@ -72,10 +68,9 @@ async function checkEmails(search: string): Promise<Email> {
   })
 }
 
-async function extractPin(emailId: string): Promise<string | null> {
-  const apiUrl = `${smtp4devUrl}/api/Messages/${emailId}/part/2/content`
+export async function extractPin(emailId: string): Promise<string | null> {
   // Fetch the raw email content
-  const response = await fetch(apiUrl)
+  const response = await fetch(`http://localhost:5001/api/Messages/${emailId}/part/2/content`)
   if (!response.ok) {
     throw new Error(`Error fetching email: ${response.statusText}`)
   }
@@ -92,9 +87,8 @@ async function extractPin(emailId: string): Promise<string | null> {
   }
 }
 
-async function extractInvite(emailId: string): Promise<string | null> {
-  const apiUrl = `${smtp4devUrl}/api/Messages/${emailId}/plaintext`
-  const response = await fetch(apiUrl)
+export async function extractInvite(emailId: string): Promise<string | null> {
+  const response = await fetch(`http://localhost:5001/api/Messages/${emailId}/plaintext`)
   if (!response.ok) {
     throw new Error(`Error fetching email: ${response.statusText}`)
   }
@@ -110,11 +104,11 @@ async function extractInvite(emailId: string): Promise<string | null> {
   }
 }
 
-async function findNewAdminEmail(oldAdminEmailId: string): Promise<Email> {
+export async function findNewAdminEmail(oldAdminEmailId: string): Promise<Email> {
   return new Promise((resolve, reject) => {
     const options = {
-      hostname: host,
-      port: port,
+      hostname: 'localhost',
+      port: '5001',
       path: '/api/messages',
       method: 'GET',
       headers: {
@@ -155,16 +149,26 @@ async function findNewAdminEmail(oldAdminEmailId: string): Promise<Email> {
   })
 }
 
-function getHostPort(url: string): { host: string | null; port: string | null } {
-  const indexOfDoubleSlash = url.indexOf('//')
-  const hostAndPort = url.substring(indexOfDoubleSlash + 2)
-  const hostPortArr = hostAndPort.split(':')
-  const host = hostPortArr[0]
-  const port = hostPortArr[1]
-  if (host === null || port === null) {
-    throw new Error(`Unspecified smtp4dev host or port ${smtp4devUrl}`)
-  }
-  return { host, port }
-}
+export async function clearSmtp4devMessages() {
+  return new Promise((resolve, reject) => {
+    const options = {
+      hostname: 'localhost',
+      port: '5001',
+      path: '/api/messages/*', // Delete all messages
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    }
 
-export { checkEmails, extractInvite, extractPin, findNewAdminEmail, getHostPort }
+    const req = http.request(options, (res) => {
+      if (res.statusCode === 200) {
+        resolve(true)
+      } else {
+        reject(new Error(`Failed to clear messages, status code: ${res.statusCode}`))
+      }
+    })
+    req.on('error', (error) => reject(error))
+    req.end()
+  })
+}
