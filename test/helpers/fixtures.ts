@@ -96,18 +96,6 @@ export const charlieDbConfig = {
   },
 }
 
-export const mockEnvAlice = {
-  get(name) {
-    if (name === 'PORT') {
-      return 3000
-    }
-    if (name === 'CLOUDAGENT_ADMIN_ORIGIN') {
-      return 'http://localhost:3100'
-    }
-    throw new Error('Unexpected env variable request')
-  },
-} as Env
-
 export const mockEnvBob = {
   get(name) {
     if (name === 'PORT') {
