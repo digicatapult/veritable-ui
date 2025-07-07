@@ -39,7 +39,7 @@ export async function checkEmails(search: string): Promise<Email> {
   return new Promise((resolve, reject) => {
     const options = {
       hostname: 'localhost',
-      port: 5001,
+      port: '5001',
       path: `/api/messages?searchTerms=${search}&sortColumn=receivedDate`,
       method: 'GET',
       headers: {
@@ -108,7 +108,7 @@ export async function findNewAdminEmail(oldAdminEmailId: string): Promise<Email>
   return new Promise((resolve, reject) => {
     const options = {
       hostname: 'localhost',
-      port: 5001,
+      port: '5001',
       path: '/api/messages',
       method: 'GET',
       headers: {
@@ -153,7 +153,7 @@ export async function clearSmtp4devMessages() {
   return new Promise((resolve, reject) => {
     const options = {
       hostname: 'localhost',
-      port: 5001,
+      port: '5001',
       path: '/api/messages/*', // Delete all messages
       method: 'DELETE',
       headers: {
