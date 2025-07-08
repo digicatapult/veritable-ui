@@ -8,7 +8,6 @@ import VeritableCloudagent from '../../models/veritableCloudagent/index.js'
 import { Credential } from '../../models/veritableCloudagent/internal.js'
 import CredentialListTemplates from '../../views/credentials/index.js'
 import { HTML, HTMLController } from '../HTMLController.js'
-import { filterRejectedAndAcceptedPromises } from '../../utils/promises.js'
 
 @injectable()
 @Security('oauth2')
