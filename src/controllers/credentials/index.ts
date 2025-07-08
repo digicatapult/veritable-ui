@@ -8,6 +8,7 @@ import VeritableCloudagent from '../../models/veritableCloudagent/index.js'
 import { Credential } from '../../models/veritableCloudagent/internal.js'
 import CredentialListTemplates from '../../views/credentials/index.js'
 import { HTML, HTMLController } from '../HTMLController.js'
+import { filterRejectedAndAcceptedPromises } from '../../utils/promises.js'
 
 @injectable()
 @Security('oauth2')
@@ -30,20 +31,17 @@ export class CredentialsController extends HTMLController {
 
     const results = await Promise.allSettled(credentials.map((c) => this.formatCredential(req, c)))
 
-    const fulfilled = results
-      .filter((r) => r.status === 'fulfilled')
-      .map((r) => (r as PromiseFulfilledResult<Credential>).value)
+    const fulfilled = results.filter((r) => r.status === 'fulfilled').map((r) => r.value)
     const rejected = results.filter((r) => r.status === 'rejected').map((r) => (r as PromiseRejectedResult).reason)
 
     if (rejected.length > 0) {
       throw new Error(`${rejected.length} ${credentials}s were rejected with Error: ${rejected[0]}`)
     }
-
     const filtered = fulfilled
-      // .filter((x) => !!x)
+      .filter((x) => !!x)
       .filter(({ companyName }) => !search || companyName.toLowerCase().includes(search.toLowerCase()))
 
-    req.log.info('returning HTML along with formatted credentials %j', formatted)
+    req.log.info('returning HTML along with formatted credentials %j', fulfilled)
 
     this.setHeader('HX-Replace-Url', search ? `/credentials?search=${encodeURIComponent(search)}` : `/credentials`)
     return this.html(this.credentialsTemplates.listPage(filtered, search))
