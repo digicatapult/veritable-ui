@@ -1,4 +1,6 @@
+import { escapeHtml } from '@kitajs/html'
 import { singleton } from 'tsyringe'
+import { version } from '../../../package.json' // Assuming version is in package.json
 import { SettingsType } from '../../controllers/settings/index.js'
 import { FormButton, Page } from '../common.js'
 
@@ -39,6 +41,7 @@ export default class SettingsTemplates {
             </button>
           </div>
         </div>
+        <div id="version-id">v{escapeHtml(version)}</div>
       </Page>
     )
   }
