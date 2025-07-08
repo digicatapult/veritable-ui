@@ -2,6 +2,7 @@ import dotenv from 'dotenv'
 import envalid from 'envalid'
 
 import { container } from 'tsyringe'
+import { RegistryCountryCode } from '../controllers/connection/strings.js'
 import {
   emailTransportValidator,
   issuanceRecordValidator,
@@ -55,7 +56,10 @@ export const defaultConfig = {
   ISSUANCE_CRED_DEF_POLICY: issuanceRecordValidator({ devDefault: 'EXISTING_OR_NEW' }),
   DEMO_MODE: envalid.bool({ devDefault: true, default: false }),
   SOCRATA_API_URL: envalid.str({ default: 'https://data.ny.gov/resource/p66s-i79p.json' }),
-  LOCAL_REGISTRY_TO_USE: envalid.str({ default: 'UK' }),
+  LOCAL_REGISTRY_TO_USE: envalid.str({
+    default: RegistryCountryCode.UK,
+    choices: [RegistryCountryCode.UK, RegistryCountryCode.NY],
+  }),
 }
 
 // we mainly separate out the raw environment loading so we can override it safely in tests

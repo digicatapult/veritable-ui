@@ -26,6 +26,7 @@ import { FromInviteTemplates } from '../../views/newConnection/fromInvite.js'
 import { NewInviteFormStage, NewInviteTemplates } from '../../views/newConnection/newInvite.js'
 import { PinSubmissionTemplates } from '../../views/newConnection/pinSubmission.js'
 import { HTML, HTMLController } from '../HTMLController.js'
+import { RegistryCountryCode } from './strings.js'
 
 const submitToFormStage = {
   back: 'form',
@@ -35,7 +36,7 @@ const submitToFormStage = {
 
 const inviteParser = z.object({
   companyNumber: z.string(),
-  goalCode: z.string(),
+  goalCode: z.nativeEnum(RegistryCountryCode),
   inviteUrl: z.string(),
 })
 type Invite = z.infer<typeof inviteParser>
@@ -93,18 +94,22 @@ export class NewConnectionController extends HTMLController {
   public async verifyCompanyForm(
     @Request() req: express.Request,
     @Query() companyNumber: COMPANY_NUMBER | string,
-    @Query() countryCode: string
+    @Query() registryCountryCode: RegistryCountryCode
   ): Promise<HTML> {
-    req.log.debug('verifying %s company number for country %s', companyNumber, countryCode)
+    req.log.debug('verifying %s company number for country %s', companyNumber, registryCountryCode)
 
-    if (countryCode === 'UK' && !companyNumber.match(companyNumberRegex)) {
+    if (registryCountryCode === RegistryCountryCode.UK && !companyNumber.match(companyNumberRegex)) {
       req.log.info('company %s number did not match %s regex', companyNumber, companyNumberRegex)
       return this.newConnectionForm(req)
     }
 
-    const companyOrError = await this.lookupCompany(req.log, companyNumber, countryCode)
+    const companyOrError = await this.lookupCompany(req.log, companyNumber, registryCountryCode)
     if (companyOrError.type === 'error') {
-      req.log.warn('Error occured while looking up the company %j', { companyNumber, countryCode, err: companyOrError })
+      req.log.warn('Error occured while looking up the company %j', {
+        companyNumber,
+        registryCountryCode,
+        err: companyOrError,
+      })
       return this.newInviteErrorHtml(companyOrError.message, undefined, companyNumber)
     }
     req.log.debug('comapny found, rendering next stage %j', companyOrError)
@@ -117,7 +122,7 @@ export class NewConnectionController extends HTMLController {
         },
         formStage: 'form',
         companyNumber,
-        countryCode,
+        registryCountryCode,
       })
     )
   }
@@ -127,11 +132,14 @@ export class NewConnectionController extends HTMLController {
    */
   @SuccessResponse(200)
   @Get('/update-pattern')
-  public async updatePattern(@Request() req: express.Request, @Query() countryCode: string): Promise<HTML> {
-    req.log.debug('updating pattern for country %s', countryCode)
-    const pattern = countryCode === 'UK' ? companyNumberRegex.source : socrataRegex.source
-    const minLength = countryCode === 'UK' ? 8 : 7
-    const maxLength = countryCode === 'UK' ? 8 : 7
+  public async updatePattern(
+    @Request() req: express.Request,
+    @Query() registryCountryCode: RegistryCountryCode
+  ): Promise<HTML> {
+    req.log.debug('updating pattern for country %s', registryCountryCode)
+    const pattern = registryCountryCode === RegistryCountryCode.UK ? companyNumberRegex.source : socrataRegex.source
+    const minLength = registryCountryCode === RegistryCountryCode.UK ? 8 : 7
+    const maxLength = registryCountryCode === RegistryCountryCode.UK ? 8 : 7
 
     return this.html(
       this.newInvite.newInviteFormPage({
@@ -190,12 +198,12 @@ export class NewConnectionController extends HTMLController {
       companyNumber: COMPANY_NUMBER | SOCRATA_NUMBER
       email: EMAIL
       action: 'back' | 'continue' | 'submit'
-      countryCode: 'UK' | 'NY' // TODO: generify this somewhere
+      registryCountryCode: RegistryCountryCode
     }
   ): Promise<HTML> {
     console.log('submitNewInvite', body)
     // lookup company by number
-    const companyOrError = await this.lookupCompany(req.log, body.companyNumber, body.countryCode)
+    const companyOrError = await this.lookupCompany(req.log, body.companyNumber, body.registryCountryCode)
     if (companyOrError.type === 'error') {
       req.log.warn('unable to retrieve company details %j', body)
       return this.newInviteErrorHtml(companyOrError.message, body.email, body.companyNumber)
@@ -215,20 +223,30 @@ export class NewConnectionController extends HTMLController {
     const pin = randomInt(1e6).toString(10).padStart(6, '0')
     const [pinHash, invite] = await Promise.all([
       argon2.hash(pin, { secret: this.env.get('INVITATION_PIN_SECRET') }),
-      this.cloudagent.createOutOfBandInvite({ companyName: company.name, countryCode: body.countryCode }),
+      this.cloudagent.createOutOfBandInvite({
+        companyName: company.name,
+        registryCountryCode: body.registryCountryCode,
+      }),
     ])
 
     req.log.info('invite created, inserting new connection %j', { company, pinHash, invite })
     // insert the connection
-    const dbResult = await this.insertNewConnection(company, pinHash, invite.outOfBandRecord.id, null, body.countryCode)
+    const dbResult = await this.insertNewConnection(
+      company,
+      pinHash,
+      invite.outOfBandRecord.id,
+      null,
+      body.registryCountryCode
+    )
     if (dbResult.type === 'error') {
       req.log.warn('unable to insert a new connection %j', dbResult)
       return this.newInviteErrorHtml(dbResult.error, body.email, company.name)
     }
 
+    // TODO: goalCode is now one registry, but could be a list of registries our company's info can be found in
     const wrappedInvitation: Invite = {
       companyNumber: this.env.get('INVITATION_FROM_COMPANY_NUMBER'),
-      goalCode: this.env.get('LOCAL_REGISTRY_TO_USE'),
+      goalCode: this.env.get('LOCAL_REGISTRY_TO_USE'), // 'search for me in this registry' --> allows the company we're issuing the invite to add the registry if needed
       inviteUrl: invite.invitationUrl,
     }
 
@@ -285,7 +303,7 @@ export class NewConnectionController extends HTMLController {
       pinHash,
       invite.outOfBandRecord.id,
       invite.connectionRecord.id,
-      inviteOrError.countryCode
+      inviteOrError.registryCountryCode
     )
     if (dbResult.type === 'error') {
       req.log.warn('unable to insert a new connection %j', dbResult)
@@ -303,7 +321,7 @@ export class NewConnectionController extends HTMLController {
     logger: pino.Logger,
     invite: BASE_64_URL
   ): Promise<
-    | { type: 'success'; inviteUrl: string; company: SharedOrganisationInfo; countryCode: string }
+    | { type: 'success'; inviteUrl: string; company: SharedOrganisationInfo; registryCountryCode: string }
     | { type: 'error'; message: string }
   > {
     let wrappedInvite: Invite
@@ -318,7 +336,11 @@ export class NewConnectionController extends HTMLController {
       }
     }
 
-    if (!wrappedInvite.companyNumber.match(wrappedInvite.goalCode === 'UK' ? companyNumberRegex : socrataRegex)) {
+    if (
+      !wrappedInvite.companyNumber.match(
+        wrappedInvite.goalCode === RegistryCountryCode.UK ? companyNumberRegex : socrataRegex
+      )
+    ) {
       logger.info('company number did not match a %s regex', companyNumberRegex)
       return { type: 'error', message: 'Invitation is not valid' }
     }
@@ -331,18 +353,18 @@ export class NewConnectionController extends HTMLController {
       type: 'success',
       inviteUrl: wrappedInvite.inviteUrl,
       company: companyOrError.company,
-      countryCode: wrappedInvite.goalCode,
+      registryCountryCode: wrappedInvite.goalCode,
     }
   }
 
   private async lookupCompany(
     logger: pino.Logger,
     companyNumber: COMPANY_NUMBER,
-    countryCode: string
+    registryCountryCode: RegistryCountryCode
   ): Promise<{ type: 'success'; company: SharedOrganisationInfo } | { type: 'error'; message: string }> {
     const companySearch = await this.organisationRegistry.getOrganisationProfileByOrganisationNumber(
       companyNumber,
-      countryCode
+      registryCountryCode
     )
     if (companySearch.type === 'notFound') {
       logger.info('%s company not found', companySearch)

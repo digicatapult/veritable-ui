@@ -38,7 +38,7 @@ export class NewInviteTemplates extends NewConnectionTemplates {
     formStage: NewInviteFormStage
     companyNumber?: COMPANY_NUMBER
     email?: EMAIL
-    countryCode?: string
+    registryCountryCode?: string
     feedback: FormFeedback
   }): JSX.Element => {
     switch (props.formStage) {
@@ -54,7 +54,7 @@ export class NewInviteTemplates extends NewConnectionTemplates {
   private newInviteInput = (props: {
     companyNumber?: COMPANY_NUMBER
     email?: EMAIL
-    countryCode?: string
+    registryCountryCode?: string
     feedback: FormFeedback
   }): JSX.Element => {
     return (
@@ -70,9 +70,9 @@ export class NewInviteTemplates extends NewConnectionTemplates {
       >
         <select
           id="new-invite-country-select"
-          name="countryCode"
+          name="registryCountryCode"
           required
-          value={props.countryCode}
+          value={props.registryCountryCode}
           hx-get="/connection/new/update-pattern"
           hx-trigger="change"
           hx-target="#new-invite-company-number-input"
@@ -141,13 +141,16 @@ export class NewInviteTemplates extends NewConnectionTemplates {
         <input id="new-invite-email-input" name="email" value={props.email} type="hidden"></input>
         <input
           id="new-invite-country-code-input"
-          name="countryCode"
-          value={props.feedback.type === 'companyFound' ? props.feedback.company.countryCode : ''}
+          name="registryCountryCode"
+          value={props.feedback.type === 'companyFound' ? props.feedback.company.registryCountryCode : ''}
           type="hidden"
         ></input>
         <div id="new-connection-confirmation-text">
           <p>Please confirm the details of the connection before sending</p>
-          <p> {Html.escapeHtml(props.feedback.type === 'companyFound' && props.feedback.company.countryCode)}</p>
+          <p>
+            {' '}
+            {Html.escapeHtml(props.feedback.type === 'companyFound' && props.feedback.company.registryCountryCode)}
+          </p>
           <p>
             {Html.escapeHtml(
               `Company House Number: ${props.feedback.type === 'companyFound' && props.feedback.company.number}`

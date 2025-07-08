@@ -5,6 +5,7 @@ import { container } from 'tsyringe'
 import { Env } from './env/index.js'
 import Server from './server.js'
 
+import { RegistryCountryCode } from './controllers/connection/strings.js'
 import { Logger, type ILogger } from './logger.js'
 import { CredentialSchema } from './models/credentialSchema.js'
 import Database from './models/db/index.js'
@@ -47,7 +48,7 @@ async function initializeSettings(logger: ILogger, env: Env, db: Database) {
     },
     {
       setting_key: 'local_registry_to_use',
-      setting_value: env.get('LOCAL_REGISTRY_TO_USE') || 'UK',
+      setting_value: env.get('LOCAL_REGISTRY_TO_USE') || RegistryCountryCode.UK,
     },
   ]
 

@@ -1,5 +1,6 @@
 import { inject, injectable, singleton } from 'tsyringe'
 import z from 'zod'
+import { RegistryCountryCode } from '../../controllers/connection/strings.js'
 import { Env } from '../../env/index.js'
 import { InternalError } from '../../errors.js'
 import { type ILogger, Logger } from '../../logger.js'
@@ -15,7 +16,7 @@ export type SharedOrganisationInfo = {
   address: string
   status: string
   number: string
-  countryCode: string
+  registryCountryCode: string
 }
 export type OrganisationProfile =
   | {
@@ -98,17 +99,17 @@ export default class OrganisationRegistry {
 
   async getOrganisationProfileByOrganisationNumber(
     companyNumber: string,
-    countryCode: string
+    registryCountryCode: RegistryCountryCode
   ): Promise<OrganisationProfile> {
-    this.logger.info(`Retrieving organisation profile for ${companyNumber} in ${countryCode}`)
-    const registry = await this.resolveOrganisationRegistry(countryCode)
+    this.logger.info(`Retrieving organisation profile for ${companyNumber} in ${registryCountryCode}`)
+    const registry = await this.resolveOrganisationRegistry(registryCountryCode)
     if (!registry) {
-      throw new InternalError(`Registry for ${countryCode} not set`)
+      throw new InternalError(`Registry for ${registryCountryCode} not set`)
     }
-    switch (countryCode) {
-      case 'UK':
+    switch (registryCountryCode) {
+      case RegistryCountryCode.UK:
         return this.formatCompanyHouseResults(await this.getCompanyHouseProfileByCompanyNumber(companyNumber, registry))
-      case 'NY':
+      case RegistryCountryCode.NY:
         return this.formatSocrataResults(await this.getSocrataProfileByCompanyNumber(companyNumber, registry))
       default:
         throw new InternalError(`Registry ${registry} not set`)
@@ -164,7 +165,7 @@ export default class OrganisationRegistry {
           .join(', '),
         number: socrataResults.company[0].dos_id,
         status: 'active', // presume active if org is found
-        countryCode: 'NY', // TODO: generify this somewhere
+        registryCountryCode: RegistryCountryCode.NY, // TODO: is it ok if this is hardcoded?
       },
       type: 'found',
     }
@@ -197,22 +198,22 @@ export default class OrganisationRegistry {
           .join(', '),
         number: companyHouseResults.company.company_number,
         status: companyHouseResults.company.company_status,
-        countryCode: 'UK', // TODO: generify this somewhere
+        registryCountryCode: RegistryCountryCode.UK, // TODO: is it ok if this is hardcoded?
       },
       type: 'found',
     }
   }
 
-  private async resolveOrganisationRegistry(countryCode: string) {
-    this.logger.info(`Resolving organisation registry for ${countryCode}`)
+  private async resolveOrganisationRegistry(registryCountryCode: string) {
+    this.logger.info(`Resolving organisation registry for ${registryCountryCode}`)
     const [registry]: OrganisationRegistriesRow[] = await this.db.get('organisation_registries', {
-      country_code: countryCode,
+      country_code: registryCountryCode,
     })
     if (registry) {
-      this.logger.info(`Resolved organisation registry for ${countryCode} to ${registry.registry_name}`)
+      this.logger.info(`Resolved organisation registry for ${registryCountryCode} to ${registry.registry_name}`)
       return registry
     }
-    this.logger.info(`No organisation registry found for ${countryCode}`)
+    this.logger.info(`No organisation registry found for ${registryCountryCode}`)
     return null
   }
 }
