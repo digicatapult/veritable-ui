@@ -1,4 +1,5 @@
 import { expect, Page, test } from '@playwright/test'
+import version from '../../src/version'
 import { cleanup, CustomBrowserContext, withLoggedInUser, withRegisteredAccount } from '../helpers/registerLogIn'
 
 test.describe('Updating Settings - email', () => {
@@ -23,8 +24,6 @@ test.describe('Updating Settings - email', () => {
   })
 
   test('Update admin email on alice', async () => {
-    test.setTimeout(100000)
-
     await page.waitForSelector('a[href="/settings"]')
     await page.click('a[href="/settings"]')
     await page.waitForURL(`${baseUrlAlice}/settings`)
@@ -41,5 +40,27 @@ test.describe('Updating Settings - email', () => {
 
     const changedEmailValue = await page.inputValue('#admin_email')
     expect(changedEmailValue).toContain('sometestmail@test.com')
+  })
+  test('Check reset is enabled and return success response', async () => {
+    await page.waitForSelector('a[href="/settings"]')
+    await page.click('a[href="/settings"]')
+    await page.waitForURL(`${baseUrlAlice}/settings`)
+
+    await page.waitForSelector('#reset-btn')
+    await page.click('#reset-btn')
+    expect(
+      page.waitForResponse((response) => {
+        return response.url().includes('/reset') && response.status() === 200
+      })
+    ).toBeTruthy()
+  })
+  test('Check version id', async () => {
+    await page.waitForSelector('a[href="/settings"]')
+    await page.click('a[href="/settings"]')
+    await page.waitForURL(`${baseUrlAlice}/settings`)
+
+    await page.waitForSelector('#version-id')
+    const versionId = await page.textContent('#version-id')
+    expect(versionId).toContain(version)
   })
 })
