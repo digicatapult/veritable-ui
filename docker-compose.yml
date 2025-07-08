@@ -70,6 +70,9 @@ services:
       - DEMO_MODE=true
       - SMTP_SECURE=false
       - COMPANY_PROFILE_API_KEY=API_KEY
+      - LOCAL_REGISTRY_TO_USE=UK
+      - SOCRATA_API_URL=https://data.ny.gov/resource/p66s-i79p.json
+
   postgres-veritable-ui-alice:
     image: postgres:17.5-alpine
     container_name: postgres-veritable-ui-alice
@@ -127,8 +130,8 @@ services:
         npm i -g pino-colada
         node ./node_modules/.bin/knex migrate:latest
         npm start | pino-colada"
-    # env_file:
-    #   - .env
+    env_file:
+      - .env
     environment:
       - NODE_ENV=production
       - LOG_LEVEL=debug
@@ -159,6 +162,8 @@ services:
       - EMAIL_TRANSPORT=SMTP_EMAIL
       - SMTP_SECURE=false
       - COMPANY_PROFILE_API_KEY=API_KEY
+      - LOCAL_REGISTRY_TO_USE=UK
+      - SOCRATA_API_URL=https://data.ny.gov/resource/p66s-i79p.json
 
   postgres-veritable-ui-bob:
     image: postgres:17.5-alpine
@@ -306,7 +311,6 @@ services:
     restart: always
     volumes:
       - ./test/wiremock/:/home/wiremock/mappings/
-
 
 volumes:
   ipfs:

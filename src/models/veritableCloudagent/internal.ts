@@ -194,11 +194,12 @@ export default class VeritableCloudagentInt<Config extends CloudagentConfig = De
     protected logger: ILogger
   ) {}
 
-  public async createOutOfBandInvite(params: { companyName: string }): Promise<OutOfBandInvite> {
+  public async createOutOfBandInvite(params: { companyName: string; countryCode: string }): Promise<OutOfBandInvite> {
     return this.postRequest(
       '/v1/oob/create-invitation',
       {
         alias: params.companyName,
+        goalCode: params.countryCode,
         handshake: true,
         multiUseInvitation: false,
         autoAcceptConnection: true,

@@ -35,7 +35,7 @@ const submitToFormStage = {
 
 const inviteParser = z.object({
   companyNumber: z.string(),
-  countryCode: z.string(),
+  goalCode: z.string(),
   inviteUrl: z.string(),
 })
 type Invite = z.infer<typeof inviteParser>
@@ -175,7 +175,7 @@ export class NewConnectionController extends HTMLController {
       this.fromInvite.fromInviteForm({
         feedback: {
           type: 'companyFound',
-          company: inviteOrError.company,
+          company: inviteOrError.company, //TODO: show which registry the company wants you to search for it
         },
       })
     )
@@ -218,12 +218,12 @@ export class NewConnectionController extends HTMLController {
     const pin = randomInt(1e6).toString(10).padStart(6, '0')
     const [pinHash, invite] = await Promise.all([
       argon2.hash(pin, { secret: this.env.get('INVITATION_PIN_SECRET') }),
-      this.cloudagent.createOutOfBandInvite({ companyName: company.name }),
+      this.cloudagent.createOutOfBandInvite({ companyName: company.name, countryCode: body.countryCode }),
     ])
 
     req.log.info('invite created, inserting new connection %j', { company, pinHash, invite })
     // insert the connection
-    const dbResult = await this.insertNewConnection(company, pinHash, invite.outOfBandRecord.id, null)
+    const dbResult = await this.insertNewConnection(company, pinHash, invite.outOfBandRecord.id, null, body.countryCode)
     if (dbResult.type === 'error') {
       req.log.warn('unable to insert a new connection %j', dbResult)
       return this.newInviteErrorHtml(dbResult.error, body.email, company.name)
@@ -231,7 +231,7 @@ export class NewConnectionController extends HTMLController {
 
     const wrappedInvitation: Invite = {
       companyNumber: this.env.get('INVITATION_FROM_COMPANY_NUMBER'),
-      countryCode: this.env.get('LOCAL_REGISTRY_TO_USE'),
+      goalCode: this.env.get('LOCAL_REGISTRY_TO_USE'),
       inviteUrl: invite.invitationUrl,
     }
 
@@ -287,7 +287,8 @@ export class NewConnectionController extends HTMLController {
       inviteOrError.company,
       pinHash,
       invite.outOfBandRecord.id,
-      invite.connectionRecord.id
+      invite.connectionRecord.id,
+      inviteOrError.countryCode
     )
     if (dbResult.type === 'error') {
       req.log.warn('unable to insert a new connection %j', dbResult)
@@ -305,11 +306,13 @@ export class NewConnectionController extends HTMLController {
     logger: pino.Logger,
     invite: BASE_64_URL
   ): Promise<
-    { type: 'success'; inviteUrl: string; company: SharedOrganisationInfo } | { type: 'error'; message: string }
+    | { type: 'success'; inviteUrl: string; company: SharedOrganisationInfo; countryCode: string }
+    | { type: 'error'; message: string }
   > {
     let wrappedInvite: Invite
     try {
       wrappedInvite = inviteParser.parse(JSON.parse(Buffer.from(invite, 'base64url').toString('utf8')))
+      console.log('wrappedInvite', wrappedInvite)
     } catch (err) {
       logger.info('unknown error occured %j', err)
       return {
@@ -318,16 +321,21 @@ export class NewConnectionController extends HTMLController {
       }
     }
 
-    if (!wrappedInvite.companyNumber.match(wrappedInvite.countryCode === 'UK' ? companyNumberRegex : socrataRegex)) {
+    if (!wrappedInvite.companyNumber.match(wrappedInvite.goalCode === 'UK' ? companyNumberRegex : socrataRegex)) {
       logger.info('company number did not match a %s regex', companyNumberRegex)
       return { type: 'error', message: 'Invitation is not valid' }
     }
 
-    const companyOrError = await this.lookupCompany(logger, wrappedInvite.companyNumber, wrappedInvite.countryCode)
+    const companyOrError = await this.lookupCompany(logger, wrappedInvite.companyNumber, wrappedInvite.goalCode)
     if (companyOrError.type === 'error') {
       return companyOrError
     }
-    return { type: 'success', inviteUrl: wrappedInvite.inviteUrl, company: companyOrError.company }
+    return {
+      type: 'success',
+      inviteUrl: wrappedInvite.inviteUrl,
+      company: companyOrError.company,
+      countryCode: wrappedInvite.goalCode,
+    }
   }
 
   private async lookupCompany(
@@ -386,7 +394,8 @@ export class NewConnectionController extends HTMLController {
     company: SharedOrganisationInfo,
     pinHash: string,
     invitationId: string,
-    agentConnectionId: string | null
+    agentConnectionId: string | null,
+    registryCountryCode: string
   ): Promise<{ type: 'success'; connectionId: string } | { type: 'error'; error: string }> {
     try {
       let connectionId: string = ''
@@ -398,7 +407,7 @@ export class NewConnectionController extends HTMLController {
           status: 'pending',
           pin_attempt_count: 0,
           pin_tries_remaining_count: null,
-          country_code: company.countryCode,
+          registry_country_code: registryCountryCode,
         })
 
         await db.insert('connection_invite', {
