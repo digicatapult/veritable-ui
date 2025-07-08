@@ -1,44 +1,37 @@
 import { expect } from 'chai'
-import express from 'express'
 import { afterEach, beforeEach, describe, it } from 'mocha'
-import { container } from 'tsyringe'
-
 import sinon from 'sinon'
-import Database from '../../src/models/db/index.js'
-import EmailService from '../../src/models/emailService/index.js'
-import createHttpServer from '../../src/server.js'
-import VeritableCloudagentEvents from '../../src/services/veritableCloudagentEvents.js'
-import { cleanupCloudagent, withBobCloudAgentInvite, withBobCloudagentAcceptInvite } from '../helpers/cloudagent.js'
-import { cleanup } from '../helpers/db.js'
-import { validCompanyNumber } from '../helpers/fixtures.js'
+import { cleanupCloudagent, cleanupDatabase } from '../helpers/cleanup.js'
+import { setupTwoPartyContext, TwoPartyContext } from '../helpers/connection.js'
+import { alice } from '../helpers/fixtures.js'
 import { post } from '../helpers/routeHelper.js'
 import { delay } from '../helpers/util.js'
 
-const db = container.resolve(Database)
-
 describe('NewConnectionController', () => {
-  let server: { app: express.Express; cloudagentEvents: VeritableCloudagentEvents }
+  const context: TwoPartyContext = {} as TwoPartyContext
+
+  beforeEach(async () => {
+    await setupTwoPartyContext(context)
+
+    await cleanupCloudagent([context.localCloudagent, context.remoteCloudagent])
+    await cleanupDatabase([context.localDatabase, context.remoteDatabase])
+  })
 
   afterEach(async () => {
-    await cleanup()
+    context.cloudagentEvents.stop()
+    await cleanupCloudagent([context.localCloudagent, context.remoteCloudagent])
+    await cleanupDatabase([context.localDatabase, context.remoteDatabase])
   })
 
   describe('create invitation (happy path)', function () {
     let response: Awaited<ReturnType<typeof post>>
+
     beforeEach(async () => {
-      await cleanup()
-      await cleanupCloudagent()
-      server = await createHttpServer()
-      response = await post(server.app, '/connection/new/create-invitation', {
-        companyNumber: validCompanyNumber,
-        email: 'alice@example.com',
+      response = await post(context.app, '/connection/new/create-invitation', {
+        companyNumber: alice.company_number,
+        email: 'alice@testmail.com',
         action: 'submit',
       })
-    })
-
-    afterEach(async () => {
-      await cleanupCloudagent()
-      server.cloudagentEvents.stop()
     })
 
     it('should return success', async () => {
@@ -46,37 +39,36 @@ describe('NewConnectionController', () => {
     })
 
     it('should insert new connection into db', async () => {
-      const connectionRows = await db.get('connection')
+      const connectionRows = await context.localDatabase.get('connection')
       expect(connectionRows.length).to.equal(1)
       expect(connectionRows[0]).to.deep.contain({
-        company_name: 'DIGITAL CATAPULT',
-        company_number: '07964699',
+        company_name: alice.company_name,
+        company_number: alice.company_number,
         status: 'pending',
       })
 
-      const invites = await db.get('connection_invite', { connection_id: connectionRows[0].id })
+      const invites = await context.localDatabase.get('connection_invite', { connection_id: connectionRows[0].id })
       expect(invites.length).to.equal(1)
     })
   })
 
   describe('receive invitation (happy path)', function () {
     let response: Awaited<ReturnType<typeof post>>
-    const context: { invite: string } = { invite: '' }
-
-    withBobCloudAgentInvite(context)
 
     beforeEach(async () => {
-      await cleanup()
-      await cleanupCloudagent()
-      server = await createHttpServer(false)
-      response = await post(server.app, '/connection/new/receive-invitation', {
-        invite: context.invite,
+      const invite = await context.remoteCloudagent.createOutOfBandInvite({ companyName: alice.company_name })
+      const inviteContent = Buffer.from(
+        JSON.stringify({
+          companyNumber: alice.company_number,
+          inviteUrl: invite.invitationUrl,
+        }),
+        'utf8'
+      ).toString('base64url')
+
+      response = await post(context.app, '/connection/new/receive-invitation', {
+        invite: inviteContent,
         action: 'createConnection',
       })
-    })
-
-    afterEach(async () => {
-      await cleanupCloudagent()
     })
 
     it('should return success', async () => {
@@ -84,7 +76,7 @@ describe('NewConnectionController', () => {
     })
 
     it('should insert new connection into db', async () => {
-      const connectionRows = await db.get('connection')
+      const connectionRows = await context.localDatabase.get('connection')
       expect(connectionRows.length).to.equal(1)
       expect(connectionRows[0]).to.deep.contain({
         company_name: 'DIGITAL CATAPULT',
@@ -92,34 +84,31 @@ describe('NewConnectionController', () => {
         status: 'pending',
       })
 
-      const invites = await db.get('connection_invite', { connection_id: connectionRows[0].id })
-      expect(invites.length).to.equal(1)
+      const invitations = await context.localDatabase.get('connection_invite', { connection_id: connectionRows[0].id })
+      expect(invitations.length).to.equal(1)
     })
   })
 
   describe('connection complete (receive side)', function () {
-    const context: { invite: string } = { invite: '' }
-
-    withBobCloudAgentInvite(context)
-
     beforeEach(async () => {
-      await cleanup()
-      await cleanupCloudagent()
-      server = await createHttpServer(true)
-      await post(server.app, '/connection/new/receive-invitation', {
-        invite: context.invite,
+      const invite = await context.remoteCloudagent.createOutOfBandInvite({ companyName: alice.company_name })
+      const inviteContent = Buffer.from(
+        JSON.stringify({
+          companyNumber: alice.company_number,
+          inviteUrl: invite.invitationUrl,
+        }),
+        'utf8'
+      ).toString('base64url')
+
+      await post(context.app, '/connection/new/receive-invitation', {
+        invite: inviteContent,
         action: 'createConnection',
       })
     })
 
-    afterEach(async () => {
-      await cleanupCloudagent()
-      server.cloudagentEvents.stop()
-    })
-
     it('should update connection to unverified once connection is established', async () => {
       for (let i = 0; i < 100; i++) {
-        const [connection] = await db.get('connection')
+        const [connection] = await context.localDatabase.get('connection')
         if (connection.status === 'unverified') {
           return
         }
@@ -130,39 +119,27 @@ describe('NewConnectionController', () => {
   })
 
   describe('connection complete (send side)', function () {
-    const context: { inviteUrl: string } = { inviteUrl: '' }
-    let emailSendStub: sinon.SinonStub
+    it('should update connection to unverified once connection is established', async () => {
+      const emailSendStub: sinon.SinonStub = sinon.stub(context.smtpServer, 'sendMail')
 
-    beforeEach(async () => {
-      await cleanup()
-      await cleanupCloudagent()
-      server = await createHttpServer(true)
-
-      const email = container.resolve(EmailService)
-      emailSendStub = sinon.stub(email, 'sendMail')
-      await post(server.app, '/connection/new/create-invitation', {
-        companyNumber: validCompanyNumber,
-        email: 'alice@example.com',
+      await post(context.app, '/connection/new/create-invitation', {
+        companyNumber: alice.company_number,
+        email: 'alice@testmail.com',
         action: 'submit',
       })
+
       const invite = (emailSendStub.args.find(([name]) => name === 'connection_invite') || [])[1].invite
-      context.inviteUrl = JSON.parse(Buffer.from(invite, 'base64url').toString('utf8')).inviteUrl
-    })
+      const inviteUrl = JSON.parse(Buffer.from(invite, 'base64url').toString('utf8')).inviteUrl
 
-    withBobCloudagentAcceptInvite(context)
+      await context.remoteCloudagent.receiveOutOfBandInvite({
+        companyName: alice.company_name,
+        invitationUrl: inviteUrl,
+      })
 
-    afterEach(async () => {
-      if (emailSendStub) {
-        emailSendStub.restore()
-      }
+      emailSendStub.restore()
 
-      await cleanupCloudagent()
-      server.cloudagentEvents.stop()
-    })
-
-    it('should update connection to unverified once connection is established', async () => {
       for (let i = 0; i < 100; i++) {
-        const [connection] = await db.get('connection')
+        const [connection] = await context.localDatabase.get('connection')
         if (connection.status === 'unverified') {
           return
         }
