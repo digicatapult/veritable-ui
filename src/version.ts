@@ -1,5 +1,3 @@
-import { createRequire } from 'node:module'
-const require = createRequire(import.meta.url)
-const packageJson = require('../package.json')
-const version = packageJson.version || 'unknown'
+import packageJson from '../package.json' with { type: 'json' }
+const { version } = packageJson
 export default version
