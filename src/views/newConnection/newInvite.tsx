@@ -68,6 +68,21 @@ export class NewInviteTemplates extends NewConnectionTemplates {
           { type: 'submit', value: 'continue', text: 'Continue' },
         ]}
       >
+        <select
+          id="new-invite-country-select"
+          name="countryCode"
+          required
+          value={props.countryCode}
+          hx-get="/connection/new/update-pattern"
+          hx-trigger="change"
+          hx-target="#new-invite-company-number-input"
+          hx-select="#new-invite-company-number-input"
+          hx-swap="outerHTML"
+          hx-include="this"
+        >
+          <option value="UK">United Kingdom</option>
+          <option value="NY">New York</option>
+        </select>
         <input
           id="new-invite-company-number-input"
           name="companyNumber"
@@ -88,21 +103,7 @@ export class NewInviteTemplates extends NewConnectionTemplates {
           value={props.companyNumber}
           type="text"
         ></input>
-        <select
-          id="new-invite-country-select"
-          name="countryCode"
-          required
-          value={props.countryCode}
-          hx-get="/connection/new/update-pattern"
-          hx-trigger="change"
-          hx-target="#new-invite-company-number-input"
-          hx-select="#new-invite-company-number-input"
-          hx-swap="outerHTML"
-          hx-include="this"
-        >
-          <option value="UK">United Kingdom</option>
-          <option value="NY">New York</option>
-        </select>
+
         <input
           required
           id="new-invite-email-input"

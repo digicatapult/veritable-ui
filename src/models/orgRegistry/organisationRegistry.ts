@@ -33,6 +33,9 @@ export type BaseProfileSearchResult<T> =
       type: 'notFound'
     }
 
+const emptySocrataResParser = z.array(z.any()).length(0)
+type EmptySocrataRes = z.infer<typeof emptySocrataResParser>
+
 @singleton()
 @injectable()
 export default class OrganisationRegistry {
@@ -136,9 +139,8 @@ export default class OrganisationRegistry {
     const endpoint = `${registry.url}?dos_id=${companyNumber}`
 
     const companyProfile = await this.makeSocrataRequest(endpoint)
-    return companyProfile === null
-      ? { type: 'notFound' }
-      : { type: 'found', company: dosEntitySchema.parse(companyProfile) }
+    const parsedCompanyProfile = dosEntitySchema.parse(companyProfile)
+    return parsedCompanyProfile.length === 0 ? { type: 'notFound' } : { type: 'found', company: parsedCompanyProfile }
   }
 
   async localOrganisationProfile(): Promise<SharedOrganisationInfo> {

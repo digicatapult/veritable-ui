@@ -108,7 +108,7 @@
   box-shadow: none;
   width: 100%;
   min-width: 32ch;
-  max-width: 40ch;
+  max-width: 40.5ch;
   padding: 16px;
   border-radius: 0.5em;
   margin-top: var(--form-element-vert-spacing);

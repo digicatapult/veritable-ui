@@ -127,11 +127,8 @@ export class NewConnectionController extends HTMLController {
    */
   @SuccessResponse(200)
   @Get('/update-pattern')
-  public async updatePattern(
-    @Request() req: express.Request,
-    @Query() countryCode: string,
-    @Query() companyNumber: string = ''
-  ): Promise<HTML> {
+  public async updatePattern(@Request() req: express.Request, @Query() countryCode: string): Promise<HTML> {
+    req.log.debug('updating pattern for country %s', countryCode)
     const pattern = countryCode === 'UK' ? companyNumberRegex.source : socrataRegex.source
     const minLength = countryCode === 'UK' ? 8 : 7
     const maxLength = countryCode === 'UK' ? 8 : 7
