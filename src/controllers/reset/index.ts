@@ -26,14 +26,21 @@ export class ResetController {
   private async isReset(logger: pino.Logger): Promise<boolean> {
     const tables: TABLE[] = ['connection', 'connection_invite', 'query', 'query_rpc']
     try {
-      const items: number[] = await Promise.all([
+      const results = await Promise.allSettled([
         ...tables.map(async (table: TABLE) => await this.db.get(table).then((res) => res.length)),
         await this.cloudagent.getCredentials().then((res) => res.length),
         await this.cloudagent.getConnections().then((res) => res.length),
       ])
 
+      const fulfilled = results.filter((r) => r.status === 'fulfilled').map((r) => r.value)
+      const rejected = results.filter((r) => r.status === 'rejected').map((r) => (r as PromiseRejectedResult).reason)
+
+      if (rejected.length > 0) {
+        throw new Error(`${rejected.length} Resets were rejected with Error: ${rejected[0]}`)
+      }
+
       return (
-        items.reduce((out: number, next: number) => {
+        fulfilled.reduce((out: number, next: number) => {
           return out + next
         }, 0) === 0
       )
