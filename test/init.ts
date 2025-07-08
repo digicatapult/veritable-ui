@@ -35,29 +35,21 @@ before(async function () {
 })
 
 after(async function () {
-  let results
-  results = await Promise.allSettled(aliceDepsContainers.map(async (container) => await container.stop()))
-  await processPromises(results)
-
-  results = await Promise.allSettled(bobDepsContainers.map(async (container) => await container.stop()))
-  await processPromises(results)
-
-  results = await Promise.allSettled(charlieDepsContainers.map(async (container) => await container.stop()))
-  await processPromises(results)
-
-  results = await Promise.allSettled(bobUIContainer.map(async (container) => await container.stop()))
-  await processPromises(results)
-
-  results = await Promise.allSettled(charlieUIContainer.map(async (container) => await container.stop()))
-  await processPromises(results)
-
-  results = await Promise.allSettled(sharedContainers.map(async (container) => await container.stop()))
-  await processPromises(results)
+  stopContainers(aliceDepsContainers)
+  stopContainers(bobDepsContainers)
+  stopContainers(charlieDepsContainers)
+  stopContainers(bobUIContainer)
+  stopContainers(charlieUIContainer)
+  stopContainers(sharedContainers)
 })
 
 beforeEach(function () {
   chaiJestSnapshot.configureUsingMochaContext(this)
 })
+
+async function stopContainers(containers: StartedTestContainer[]) {
+  await processPromises(await Promise.allSettled(containers.map((container) => container.stop())))
+}
 
 async function processPromises(results: PromiseSettledResult<StoppedTestContainer>[]) {
   const rejected = results.filter((r) => r.status === 'rejected').map((r) => (r as PromiseRejectedResult).reason)
