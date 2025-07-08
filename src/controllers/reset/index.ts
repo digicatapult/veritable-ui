@@ -69,7 +69,7 @@ export class ResetController {
 
       req.log.info('items to be deleted: %j', { credentials, connections })
 
-      await Promise.all([
+      const results = await Promise.allSettled([
         ...credentials.map(({ id }: { id: string }) => {
           req.log.debug('deleting credential from cloudagent %s: ', id)
           return this.cloudagent.deleteCredential(id)
@@ -80,6 +80,12 @@ export class ResetController {
         }),
         await this.db.delete('connection', {}),
       ])
+
+      const rejected = results.filter((r) => r.status === 'rejected').map((r) => (r as PromiseRejectedResult).reason)
+
+      if (rejected.length > 0) {
+        throw new Error(`${rejected.length} deletions were rejected with Error: ${rejected[0]}`)
+      }
 
       req.log.debug('item have been delete and running check to confirm')
       // confirm reset by calling isReset() method
