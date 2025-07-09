@@ -1,7 +1,7 @@
 import { escapeHtml } from '@kitajs/html'
 import { singleton } from 'tsyringe'
 import { SettingsType } from '../../controllers/settings/index.js'
-import version from '../../version.js'
+import version from '../../utils/version.js'
 import { FormButton, Page } from '../common.js'
 
 @singleton()
