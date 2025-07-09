@@ -16,9 +16,6 @@ export const pgConfig = {
     directory: './src/models/db/migrations',
     tableName: 'migrations',
   },
-  seeds: {
-    directory: './seeds',
-  },
 }
 
 const config = {

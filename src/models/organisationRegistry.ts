@@ -33,7 +33,6 @@ export default class OrganisationRegistry {
       return result.company
     })
   }
-
   private async makeCompanyProfileRequest(route: string): Promise<unknown> {
     const url = new URL(route)
 
