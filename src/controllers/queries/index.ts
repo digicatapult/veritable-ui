@@ -14,7 +14,7 @@ import VeritableCloudagent from '../../models/veritableCloudagent/index.js'
 import { JsonRpcError } from '../../models/veritableCloudagent/internal.js'
 import QueriesTemplates from '../../views/queries/queries.js'
 import QueryListTemplates from '../../views/queries/queriesList.js'
-import CarbonEmbodimentTemplates from '../../views/queries/requestCo2embodiment.js'
+import QueryFormTemplates from '../../views/queries/queryForm.js'
 import CarbonEmbodimentResponseTemplates from '../../views/queries/responseCo2embodiment.js'
 import { HTML, HTMLController } from '../HTMLController.js'
 
@@ -24,7 +24,7 @@ import { HTML, HTMLController } from '../HTMLController.js'
 @Produces('text/html')
 export class QueriesController extends HTMLController {
   constructor(
-    private carbonEmbodimentTemplates: CarbonEmbodimentTemplates,
+    private queryFormTemplates: QueryFormTemplates,
     private carbonEmbodimentResponseTemplates: CarbonEmbodimentResponseTemplates,
     private queriesTemplates: QueriesTemplates,
     private queryManagementTemplates: QueryListTemplates,
@@ -35,7 +35,7 @@ export class QueriesController extends HTMLController {
   }
 
   /**
-   * Retrieves the query page
+   * Retrieves the new query page
    */
   @SuccessResponse(200)
   @Get('/new')
@@ -65,7 +65,7 @@ export class QueriesController extends HTMLController {
   }
 
   /**
-   * Retrieves the query page
+   * Retrieves the carbon embodiment query page
    */
   @SuccessResponse(200)
   @Get('/new/carbon-embodiment')
@@ -74,11 +74,13 @@ export class QueriesController extends HTMLController {
     @Query() search?: string,
     @Query() connectionId?: UUID
   ): Promise<HTML> {
+    const baseQuery = { name: 'Total Carbon Embodiment', urlSegment: 'carbon-embodiment' }
     if (connectionId) {
       return this.html(
-        this.carbonEmbodimentTemplates.newCarbonEmbodimentFormPage({
-          formStage: 'form',
+        this.queryFormTemplates.newQueryFormPage({
+          formStage: 'carbonEmbodiment',
           connectionId: connectionId,
+          ...baseQuery,
         })
       )
     }
@@ -97,10 +99,56 @@ export class QueriesController extends HTMLController {
     )
 
     return this.html(
-      this.carbonEmbodimentTemplates.newCarbonEmbodimentFormPage({
+      this.queryFormTemplates.newQueryFormPage({
         formStage: 'companySelect',
         connections,
         search: search ?? '',
+        ...baseQuery,
+      })
+    )
+  }
+
+  /**
+   * Retrieves the bav query page
+   */
+  @SuccessResponse(200)
+  @Get('/new/bav')
+  public async bav(
+    @Request() req: express.Request,
+    @Query() search?: string,
+    @Query() connectionId?: UUID
+  ): Promise<HTML> {
+    const baseQuery = { name: 'Beneficiary Account Validation', urlSegment: 'bav' }
+
+    if (connectionId) {
+      return this.html(
+        this.queryFormTemplates.newQueryFormPage({
+          formStage: 'bav',
+          connectionId: connectionId,
+          ...baseQuery,
+        })
+      )
+    }
+
+    const query: Where<'connection'> = []
+    if (search) {
+      query.push(['company_name', 'ILIKE', `%${search}%`])
+      req.log.info('retrieving data... %j', JSON.stringify(query))
+    }
+
+    const connections = await this.db.get('connection', query, [['updated_at', 'desc']])
+    req.log.info('bav requested')
+    this.setHeader(
+      'HX-Replace-Url',
+      search ? `/queries/new/bav?search=${encodeURIComponent(search)}` : `/queries/new/bav`
+    )
+
+    return this.html(
+      this.queryFormTemplates.newQueryFormPage({
+        formStage: 'companySelect',
+        connections,
+        search: search ?? '',
+        ...baseQuery,
       })
     )
   }
@@ -405,6 +453,8 @@ export class QueriesController extends HTMLController {
     params: Omit<SubmitQueryRequest['params'], 'id' | 'createdTime' | 'expiresTime'>,
     expiresAt: Date
   ) {
+    const baseQuery = { name: 'Total Carbon Embodiment', urlSegment: 'carbon-embodiment' }
+
     const [connection]: ConnectionRow[] = await this.db.get(
       'connection',
       { id: connectionId, status: 'verified_both' },
@@ -444,22 +494,24 @@ export class QueriesController extends HTMLController {
       await this.db.update('query', { id: query?.id }, { status: 'errored' })
 
       return this.html(
-        this.carbonEmbodimentTemplates.newCarbonEmbodimentFormPage({
+        this.queryFormTemplates.newQueryFormPage({
           formStage: 'error',
           company: {
             companyNumber: connection.company_number,
             companyName: connection.company_name,
           },
+          ...baseQuery,
         })
       )
     }
 
     return this.html(
-      this.carbonEmbodimentTemplates.newCarbonEmbodimentFormPage({
+      this.queryFormTemplates.newQueryFormPage({
         formStage: 'success',
         company: {
           companyName: connection.company_name,
         },
+        ...baseQuery,
       })
     )
   }

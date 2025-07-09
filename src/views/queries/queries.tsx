@@ -28,6 +28,10 @@ export default class QueriesTemplates {
               Creates a query for calculating the total carbon embodiment for a given product or component.
             </p>
           </a>
+          <a class="query-item" href="/queries/new/bav">
+            <h1 class="query-header">Beneficiary Account Validation</h1>
+            <p class="query-text">Creates a query to verify a company's financial details</p>
+          </a>
           <a class="query-item disabled" href="#">
             <h1 class="query-header">Product Provenance</h1>
             <p class="query-text">

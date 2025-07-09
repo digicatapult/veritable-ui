@@ -3,62 +3,69 @@ import { singleton } from 'tsyringe'
 import { ConnectionRow } from '../../models/db/types.js'
 import { FormButton, LinkButton, Page } from '../common.js'
 
-export type CarbonEmbodimentFormStage = 'companySelect' | 'form' | 'success' | 'error'
-type CarbonEmbodimentSelectProps = {
+type BaseQuery = {
+  name: string
+  urlSegment: string
+}
+
+export type FormStage = 'companySelect' | 'carbonEmbodiment' | 'bav' | 'success' | 'error'
+type SelectProps = BaseQuery & {
   formStage: 'companySelect'
   connections: ConnectionRow[]
   search: string
 }
-type CarbonEmbodimentFormProps = {
-  formStage: 'form'
+type CarbonEmbodimentFormProps = BaseQuery & {
+  formStage: 'carbonEmbodiment'
   connectionId: string
   productId?: string
   quantity?: number
 }
-type CarbonEmbodimentSuccessProps = {
+type BavFormProps = BaseQuery & {
+  formStage: 'bav'
+  connectionId: string
+}
+type SuccessProps = BaseQuery & {
   formStage: 'success'
   company: { companyName?: string }
 }
-type CarbonEmbodimentErrorProps = {
+type ErrorProps = BaseQuery & {
   formStage: 'error'
   company: { companyNumber: string; companyName?: string }
 }
 
-type CarbonEmbodimentQueryProps =
-  | CarbonEmbodimentSelectProps
-  | CarbonEmbodimentFormProps
-  | CarbonEmbodimentSuccessProps
-  | CarbonEmbodimentErrorProps
+type QueryProps = SelectProps | CarbonEmbodimentFormProps | BavFormProps | SuccessProps | ErrorProps
 
 @singleton()
-export default class CarbonEmbodimentTemplates {
+export default class QueryFormTemplates {
   constructor() {}
 
-  public newCarbonEmbodimentFormPage = (props: CarbonEmbodimentQueryProps) => {
+  public newQueryFormPage = (props: QueryProps) => {
     return (
       <Page
-        title="Veritable - New Total Carbon Embodiment Query"
+        title={`Veritable - New ${props.name} Query`}
         activePage="queries"
         heading="Select Company To Send Your Query To"
         headerLinks={[
           { name: 'Query Management', url: '/queries' },
           { name: 'New', url: '/queries/new' },
-          { name: 'Total Carbon Embodiment', url: '/queries/new/carbon-embodiment' },
+          { name: props.name, url: `/queries/new/${props.urlSegment}` },
         ]}
       >
         <div class="connections header"></div>
         <div class="card-body">
-          <this.newCarbonEmbodiment {...props} />
+          <this.newQueryForm {...props} />
         </div>
       </Page>
     )
   }
-  private newCarbonEmbodiment = (props: CarbonEmbodimentQueryProps): JSX.Element => {
+  private newQueryForm = (props: QueryProps): JSX.Element => {
     switch (props.formStage) {
       case 'companySelect':
         return <this.listPage {...props}></this.listPage>
-      case 'form':
+      case 'carbonEmbodiment':
         return <this.carbonEmbodimentFormPage {...props}></this.carbonEmbodimentFormPage>
+      case 'bav':
+        return <></>
       case 'success':
         return <this.newQuerySuccess {...props}></this.newQuerySuccess>
       case 'error':
@@ -66,12 +73,12 @@ export default class CarbonEmbodimentTemplates {
     }
   }
 
-  private listPage = (props: CarbonEmbodimentSelectProps) => {
+  private listPage = (props: SelectProps) => {
     return (
       <div>
         <div
           class="main-list-page"
-          hx-post="/queries/new/carbon-embodiment"
+          hx-post={`/queries/new/${props.urlSegment}`}
           hx-trigger="input changed delay:500ms"
           hx-select="#search-results"
           hx-target="#search-results"
@@ -80,7 +87,7 @@ export default class CarbonEmbodimentTemplates {
         >
           <div class="list-page ">
             <div class="list-nav">
-              <span>Select a Company to send Query to </span>
+              <span>Select a Company to send Query to</span>
               <input
                 id="queries-search-input"
                 class="search-window"
@@ -88,7 +95,7 @@ export default class CarbonEmbodimentTemplates {
                 name="search"
                 value={Html.escapeHtml(props.search)}
                 placeholder="Search"
-                hx-get="/queries/new/carbon-embodiment"
+                hx-get={`/queries/new/${props.urlSegment}`}
                 hx-trigger="input changed delay:50ms, search"
                 hx-target="#search-results"
                 hx-select="#search-results"
@@ -97,7 +104,7 @@ export default class CarbonEmbodimentTemplates {
             </div>
             <form
               id="company-form"
-              hx-get="/queries/new/carbon-embodiment"
+              hx-get={`/queries/new/${props.urlSegment}`}
               hx-select="main > *"
               hx-target="main"
               hx-swap="innerHTML"
@@ -209,7 +216,7 @@ export default class CarbonEmbodimentTemplates {
     )
   }
 
-  private newQuerySuccess = (props: CarbonEmbodimentSuccessProps): JSX.Element => {
+  private newQuerySuccess = (props: SuccessProps): JSX.Element => {
     return (
       <div id="new-query-confirmation-text">
         <h1>Your Query has been sent!</h1>
@@ -228,7 +235,7 @@ export default class CarbonEmbodimentTemplates {
     )
   }
 
-  private newQueryError = (props: CarbonEmbodimentErrorProps): JSX.Element => {
+  private newQueryError = (props: ErrorProps): JSX.Element => {
     return (
       <div id="new-query-confirmation-text">
         <p>An unknown error occurred whilst submitting your query to: {Html.escapeHtml(props.company.companyName)}.</p>
