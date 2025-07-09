@@ -3,7 +3,7 @@ import 'reflect-metadata'
 
 import chaiJestSnapshot from 'chai-jest-snapshot'
 import knex from 'knex'
-import { StartedTestContainer } from 'testcontainers'
+import { StartedTestContainer, StoppedTestContainer } from 'testcontainers'
 import { aliceDbConfig } from './helpers/fixtures.js'
 import {
   bringUpDependenciesContainers,
@@ -35,38 +35,26 @@ before(async function () {
 })
 
 after(async function () {
-  await Promise.all(
-    aliceDepsContainers.map(async function (container) {
-      await container.stop()
-    })
-  )
-  await Promise.all(
-    bobDepsContainers.map(async function (container) {
-      await container.stop()
-    })
-  )
-  await Promise.all(
-    charlieDepsContainers.map(async function (container) {
-      await container.stop()
-    })
-  )
-  await Promise.all(
-    bobUIContainer.map(async function (container) {
-      await container.stop()
-    })
-  )
-  await Promise.all(
-    charlieUIContainer.map(async function (container) {
-      await container.stop()
-    })
-  )
-  await Promise.all(
-    sharedContainers.map(async function (container) {
-      await container.stop()
-    })
-  )
+  stopContainers(aliceDepsContainers)
+  stopContainers(bobDepsContainers)
+  stopContainers(charlieDepsContainers)
+  stopContainers(bobUIContainer)
+  stopContainers(charlieUIContainer)
+  stopContainers(sharedContainers)
 })
 
 beforeEach(function () {
   chaiJestSnapshot.configureUsingMochaContext(this)
 })
+
+async function stopContainers(containers: StartedTestContainer[]) {
+  await processPromises(await Promise.allSettled(containers.map((container) => container.stop())))
+}
+
+async function processPromises(results: PromiseSettledResult<StoppedTestContainer>[]) {
+  const rejected = results.filter((r) => r.status === 'rejected').map((r) => (r as PromiseRejectedResult).reason)
+
+  if (rejected.length > 0) {
+    throw new Error(`${rejected.length} container shutdown unsuccessful with error: ${rejected[0]}`)
+  }
+}
