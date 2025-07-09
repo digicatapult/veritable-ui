@@ -235,7 +235,9 @@ export default class CarbonEmbodimentResponseTemplates {
                 </tr>
                 <tr>
                   <td>Product ID:</td>
-                  <td class="query-results-left-padding-table">{Html.escapeHtml(query.details.subjectId)}</td>
+                  <td class="query-results-left-padding-table">
+                    {Html.escapeHtml(query.details.subjectId.content.productId)}
+                  </td>
                 </tr>
                 <tr>
                   <td>Quantity:</td>
