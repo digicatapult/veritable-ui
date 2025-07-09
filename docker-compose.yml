@@ -69,7 +69,7 @@ services:
       - COMPANY_HOUSE_API_URL=https://api.company-information.service.gov.uk
       - DEMO_MODE=true
       - SMTP_SECURE=false
-      - COMPANY_PROFILE_API_KEY=API_KEY
+      - COMPANY_PROFILE_API_KEY=${COMPANY_PROFILE_API_KEY}
   postgres-veritable-ui-alice:
     image: postgres:17.5-alpine
     container_name: postgres-veritable-ui-alice
@@ -158,7 +158,7 @@ services:
       - SMTP_USER=username
       - EMAIL_TRANSPORT=SMTP_EMAIL
       - SMTP_SECURE=false
-      - COMPANY_PROFILE_API_KEY=API_KEY
+      - COMPANY_PROFILE_API_KEY=${COMPANY_PROFILE_API_KEY}
 
   postgres-veritable-ui-bob:
     image: postgres:17.5-alpine
@@ -246,7 +246,7 @@ services:
       - SMTP_USER=username
       - EMAIL_TRANSPORT=SMTP_EMAIL
       - SMTP_SECURE=false
-      - COMPANY_PROFILE_API_KEY=API_KEY
+      - COMPANY_PROFILE_API_KEY=${COMPANY_PROFILE_API_KEY}
 
   postgres-veritable-ui-charlie:
     image: postgres:17.5-alpine
@@ -306,7 +306,6 @@ services:
     restart: always
     volumes:
       - ./test/wiremock/:/home/wiremock/mappings/
-
 
 volumes:
   ipfs:
