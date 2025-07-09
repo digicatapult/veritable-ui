@@ -201,7 +201,6 @@ export class NewConnectionController extends HTMLController {
       registryCountryCode: RegistryCountryCode
     }
   ): Promise<HTML> {
-    console.log('submitNewInvite', body)
     // lookup company by number
     const companyOrError = await this.lookupCompany(req.log, body.companyNumber, body.registryCountryCode)
     if (companyOrError.type === 'error') {
@@ -240,9 +239,8 @@ export class NewConnectionController extends HTMLController {
     )
     if (dbResult.type === 'error') {
       req.log.warn('unable to insert a new connection %j', dbResult)
-      return this.newInviteErrorHtml(dbResult.error, body.email, company.name)
+      return this.newInviteErrorHtml(dbResult.error, body.email, company.number)
     }
-
     // TODO: goalCode is now one registry, but could be a list of registries our company's info can be found in
     const wrappedInvitation: Invite = {
       companyNumber: this.env.get('INVITATION_FROM_COMPANY_NUMBER'),
@@ -327,12 +325,11 @@ export class NewConnectionController extends HTMLController {
     let wrappedInvite: Invite
     try {
       wrappedInvite = inviteParser.parse(JSON.parse(Buffer.from(invite, 'base64url').toString('utf8')))
-      console.log('wrappedInvite', wrappedInvite)
     } catch (err) {
       logger.info('unknown error occured %j', err)
       return {
         type: 'error',
-        message: 'Invitation is not valid',
+        message: 'Invitation is not valid, the invite is not in the correct format',
       }
     }
 
@@ -342,7 +339,10 @@ export class NewConnectionController extends HTMLController {
       )
     ) {
       logger.info('company number did not match a %s regex', companyNumberRegex)
-      return { type: 'error', message: 'Invitation is not valid' }
+      return {
+        type: 'error',
+        message: 'Invitation is not valid',
+      }
     }
 
     const companyOrError = await this.lookupCompany(logger, wrappedInvite.companyNumber, wrappedInvite.goalCode)
@@ -454,11 +454,7 @@ export class NewConnectionController extends HTMLController {
     }
   }
 
-  private async sendNewConnectionEmail(
-    email: string,
-    toCompanyName: string,
-    invite: { companyNumber: string; inviteUrl: string }
-  ) {
+  private async sendNewConnectionEmail(email: string, toCompanyName: string, invite: Invite) {
     const fromCompany = await this.organisationRegistry.localOrganisationProfile()
     const inviteBase64 = Buffer.from(JSON.stringify(invite), 'utf8').toString('base64url')
 

@@ -1,6 +1,8 @@
 import type { Knex } from 'knex'
 
 export async function up(knex: Knex): Promise<void> {
+  const now = () => knex.fn.now()
+
   await knex.schema.createTable('organisation_registries', (def) => {
     def.uuid('id').defaultTo(knex.raw('uuid_generate_v4()'))
     def.string('country_code').notNullable()
@@ -8,6 +10,8 @@ export async function up(knex: Knex): Promise<void> {
     def.string('registry_name').notNullable()
     def.string('url')
     def.string('api_key') // this seems like a silly place to keep it
+    def.datetime('created_at').notNullable().defaultTo(now())
+    def.datetime('updated_at').notNullable().defaultTo(now())
   })
   await knex.schema.alterTable('connection', (def) => {
     def.string('registry_country_code').notNullable()

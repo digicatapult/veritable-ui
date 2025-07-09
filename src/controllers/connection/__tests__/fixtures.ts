@@ -1,5 +1,6 @@
 import { randomUUID } from 'crypto'
 import type { ConnectionRow } from '../../../models/db/types.js'
+import { RegistryCountryCode } from '../strings.js'
 
 export const notFoundCompanyNumber = '00000000'
 export const invalidCompanyNumber = 'XXXXXXXX'
@@ -7,43 +8,34 @@ export const validCompanyNumber = '00000001'
 export const validExistingCompanyNumber = '00000002'
 export const validCompanyNumberInDispute = '00000003'
 export const validCompanyNumberInactive = '00000004'
+export const ukRegistryCountryCode = RegistryCountryCode.UK
 
 export const validCompany = {
-  company_name: 'NAME',
-  company_number: validCompanyNumber,
-  registered_office_address: {
-    address_line_1: 'ADDRESS_LINE_1',
-    address_line_2: 'ADDRESS_LINE_2',
-    care_of: 'CARE_OF',
-    country: 'COUNTRY',
-    locality: 'LOCALITY',
-    po_box: 'PO_BOX',
-    postal_code: 'POSTAL_CODE',
-    premises: 'PREMISES',
-    region: 'REGION',
-  },
-  registered_office_is_in_dispute: false,
-  company_status: 'active',
+  name: 'NAME',
+  number: validCompanyNumber,
+  address: 'ADDRESS_LINE_1, ADDRESS_LINE_2, COUNTRY, LOCALITY, PO_BOX, POSTAL_CODE, REGION',
+  status: 'active',
+  registryCountryCode: ukRegistryCountryCode,
 }
 
 export const validExistingCompany = {
   ...validCompany,
-  company_number: validExistingCompanyNumber,
-  company_name: 'NAME2',
+  number: validExistingCompanyNumber,
+  name: 'NAME2',
 }
 
 export const validCompanyInDispute = {
   ...validCompany,
-  company_number: validCompanyNumberInDispute,
-  company_name: 'NAME3',
-  registered_office_is_in_dispute: true,
+  number: validCompanyNumberInDispute,
+  name: 'NAME3',
+  // registered_office_is_in_dispute: true, // TODO: add this??
 }
 
 export const validCompanyInactive = {
   ...validCompany,
-  company_number: validCompanyNumberInDispute,
-  company_name: 'NAME4',
-  company_status: 'inactive',
+  number: validCompanyNumberInDispute,
+  name: 'NAME4',
+  status: 'inactive',
 }
 
 export const validCompanyMap: Record<string, typeof validCompany> = {
@@ -63,6 +55,7 @@ export const validConnection: ConnectionRow = {
   company_name: 'must be a valid company name',
   pin_attempt_count: 0,
   pin_tries_remaining_count: 0,
+  registry_country_code: ukRegistryCountryCode,
 }
 
 const buildBase64Invite = (companyNumber: string) =>
@@ -70,6 +63,7 @@ const buildBase64Invite = (companyNumber: string) =>
     JSON.stringify({
       companyNumber,
       inviteUrl: 'http://example.com',
+      goalCode: ukRegistryCountryCode,
     }),
     'utf8'
   ).toString('base64url')

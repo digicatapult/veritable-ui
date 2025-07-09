@@ -58,6 +58,7 @@ export const defaultConfig = {
   SOCRATA_API_URL: envalid.str({ default: 'https://data.ny.gov/resource/p66s-i79p.json' }),
   LOCAL_REGISTRY_TO_USE: envalid.str({
     default: RegistryCountryCode.UK,
+    devDefault: RegistryCountryCode.UK,
     choices: [RegistryCountryCode.UK, RegistryCountryCode.NY],
   }),
 }

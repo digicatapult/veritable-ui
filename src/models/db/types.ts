@@ -105,9 +105,11 @@ const Zod = {
   },
   organisation_registries: {
     insert: insertOrganisationRegistries,
-    get: insertOrganisationRegistries.extend({
-      id: z.string(),
-    }),
+    get: insertOrganisationRegistries
+      .extend({
+        id: z.string(),
+      })
+      .merge(defaultFields),
   },
 }
 

@@ -125,6 +125,7 @@ export default class OrganisationRegistry {
   ): Promise<BaseProfileSearchResult<CompanyHouseProfile>> {
     this.logger.info(`Getting company house profile for ${companyNumber}`)
     const endpoint = `${registry.url}/company/${encodeURIComponent(companyNumber)}`
+    console.log('endpoint', endpoint)
     const companyProfile = await this.makeCompanyProfileRequest(endpoint)
     return companyProfile === null
       ? { type: 'notFound' }
