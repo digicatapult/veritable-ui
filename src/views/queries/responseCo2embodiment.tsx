@@ -1,7 +1,7 @@
 import Html from '@kitajs/html'
 import { singleton } from 'tsyringe'
 import { ConnectionRow, QueryRow } from '../../models/db/types.js'
-import { CarbonEmbodimentRes } from '../../models/drpc.js'
+import { CarbonEmbodimentRes, carbonEmbodimentResponse, ProductAndQuantity } from '../../models/drpc.js'
 import { FormButton, LinkButton, Page } from '../common.js'
 
 export type CarbonEmbodimentFormStage = 'form' | 'success' | 'error'
@@ -24,6 +24,7 @@ export default class CarbonEmbodimentResponseTemplates {
     partial,
     connections,
   }: CarbonEmbodimentFormProps) => {
+    const subjectId = ProductAndQuantity.parse(query.details.subjectId)
     return (
       <Page
         title="Veritable - Select Company"
@@ -32,7 +33,7 @@ export default class CarbonEmbodimentResponseTemplates {
         headerLinks={[
           { name: 'Query Management', url: '/queries' },
           {
-            name: `Query Request ${query.details.subjectId.content.productId}`,
+            name: `Query Request ${subjectId.content.productId}`,
             url: `/queries/carbon-embodiment/${query.id}/response`,
           },
         ]}
@@ -61,12 +62,14 @@ export default class CarbonEmbodimentResponseTemplates {
     }
   }
 
-  public carbonEmbodimentResponseFormPage = ({
+  private carbonEmbodimentResponseFormPage = ({
     partial = undefined,
     connections = [],
     query,
     ...props
   }: CarbonEmbodimentFormProps) => {
+    const subjectId = ProductAndQuantity.parse(query.details.subjectId)
+
     return (
       <div class="container-query-form">
         <div class="query-form-left">
@@ -91,9 +94,9 @@ export default class CarbonEmbodimentResponseTemplates {
               hx-swap="innerHTML"
             >
               <p>
-                Product ID: {Html.escapeHtml(query.details.subjectId.content.productId)}
+                Product ID: {Html.escapeHtml(subjectId.content.productId)}
                 <br />
-                Quantity: {Html.escapeHtml(query.details.subjectId.content.quantity)}
+                Quantity: {Html.escapeHtml(subjectId.content.quantity)}
               </p>
               <input type="hidden" name="companyId" value={Html.escapeHtml(props.company.id)} />
               <div class="input-container">
@@ -183,11 +186,11 @@ export default class CarbonEmbodimentResponseTemplates {
     }
   }
 
-  private reduceResponse = (query: CarbonEmbodimentRes['data']): number => {
+  private reduceResponse = (response: CarbonEmbodimentRes): number => {
     return (
-      query.mass * this.multFactor(query.unit) +
-      query.partialResponses.reduce((acc, response) => {
-        return acc + this.reduceResponse(response.data)
+      response.data.mass * this.multFactor(response.data.unit) +
+      response.data.partialResponses.reduce((acc, r) => {
+        return acc + this.reduceResponse(r)
       }, 0)
     )
   }
@@ -196,6 +199,9 @@ export default class CarbonEmbodimentResponseTemplates {
     if (!query.response) {
       throw new Error('Cannot view query response without a response')
     }
+
+    const subjectId = ProductAndQuantity.parse(query.details.subjectId)
+    const response = carbonEmbodimentResponse.parse(query.response)
 
     return (
       <Page
@@ -231,15 +237,11 @@ export default class CarbonEmbodimentResponseTemplates {
                 </tr>
                 <tr>
                   <td>Product ID:</td>
-                  <td class="query-results-left-padding-table">
-                    {Html.escapeHtml(query.details.subjectId.content.productId)}
-                  </td>
+                  <td class="query-results-left-padding-table">{Html.escapeHtml(subjectId.content.productId)}</td>
                 </tr>
                 <tr>
                   <td>Quantity:</td>
-                  <td class="query-results-left-padding-table">
-                    {Html.escapeHtml(query.details.subjectId.content.quantity)}
-                  </td>
+                  <td class="query-results-left-padding-table">{Html.escapeHtml(subjectId.content.quantity)}</td>
                 </tr>
                 <tr>
                   <td>Query:</td>
@@ -259,7 +261,7 @@ export default class CarbonEmbodimentResponseTemplates {
                 <tr>
                   <td>Carbon Emissions:</td>
                   <td class="query-results-left-padding-table">
-                    {Html.escapeHtml(this.reduceResponse(query.response))} kg CO2e
+                    {Html.escapeHtml(this.reduceResponse(response))} kg CO2e
                   </td>
                 </tr>
               </table>

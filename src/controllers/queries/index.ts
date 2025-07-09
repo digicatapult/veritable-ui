@@ -7,14 +7,22 @@ import { InvalidInputError, NotFoundError } from '../../errors.js'
 import { PartialQueryPayload } from '../../models/arrays.js'
 import Database from '../../models/db/index.js'
 import { ConnectionRow, QueryRow, Where } from '../../models/db/types.js'
-import { drpcQueryAck, DrpcQueryRequest, DrpcQueryResponse, SubmitQueryRequest } from '../../models/drpc.js'
+import {
+  CarbonEmbodimentRes,
+  drpcQueryAck,
+  DrpcQueryRequest,
+  DrpcQueryResponse,
+  schemaToTypeMap,
+  SubmitQueryRequest,
+  SubmitQueryResponseRpcParams,
+} from '../../models/drpc.js'
 import { UInt } from '../../models/numbers.js'
 import { type UUID } from '../../models/strings.js'
 import VeritableCloudagent from '../../models/veritableCloudagent/index.js'
 import { JsonRpcError } from '../../models/veritableCloudagent/internal.js'
 import QueriesTemplates from '../../views/queries/queries.js'
 import QueryListTemplates from '../../views/queries/queriesList.js'
-import QueryFormTemplates, { bavBaseQuery, carbonBaseQuery } from '../../views/queries/queryForm.js'
+import QueryFormTemplates from '../../views/queries/queryForm.js'
 import CarbonEmbodimentResponseTemplates from '../../views/queries/responseCo2embodiment.js'
 import { HTML, HTMLController } from '../HTMLController.js'
 
@@ -79,7 +87,7 @@ export class QueriesController extends HTMLController {
         this.queryFormTemplates.newQueryFormPage({
           formStage: 'carbonEmbodiment',
           connectionId: connectionId,
-          ...carbonBaseQuery,
+          type: 'total_carbon_embodiment',
         })
       )
     }
@@ -102,7 +110,7 @@ export class QueriesController extends HTMLController {
         formStage: 'companySelect',
         connections,
         search: search ?? '',
-        ...carbonBaseQuery,
+        type: 'total_carbon_embodiment',
       })
     )
   }
@@ -127,7 +135,7 @@ export class QueriesController extends HTMLController {
         this.queryFormTemplates.newQueryFormPage({
           formStage: 'bav',
           connection: connection,
-          ...bavBaseQuery,
+          type: 'beneficiary_account_validation',
         })
       )
     }
@@ -150,7 +158,7 @@ export class QueriesController extends HTMLController {
         formStage: 'companySelect',
         connections,
         search: search ?? '',
-        ...bavBaseQuery,
+        type: 'beneficiary_account_validation',
       })
     )
   }
@@ -192,7 +200,7 @@ export class QueriesController extends HTMLController {
       connection.id,
       null,
       {
-        type: 'https://github.com/digicatapult/veritable-documentation/tree/main/schemas/veritable_messaging/query_types/total_carbon_embodiment/request/0.1',
+        type: 'https://github.com/digicatapult/veritable-documentation/tree/main/schemas/veritable_messaging/query_types/total_carbon_embodiment/request',
         data: {
           subjectId: {
             idType: 'product_and_quantity',
@@ -200,6 +208,52 @@ export class QueriesController extends HTMLController {
               productId: body.productId,
               quantity: body.quantity,
             },
+          },
+        },
+      },
+      expiresTime
+    )
+  }
+
+  /**
+   * Submits a new bav query
+   */
+  @SuccessResponse(200)
+  @Post('/new/bav')
+  public async bavSubmit(
+    @Request() req: express.Request,
+    @Body()
+    body: {
+      connectionId: UUID
+    }
+  ) {
+    const [connection] = await this.db.get('connection', { id: body.connectionId, status: 'verified_both' }, [
+      ['updated_at', 'desc'],
+    ])
+    if (!connection) {
+      req.log.warn('connection [%s] is not found', body.connectionId)
+      throw new InvalidInputError(`Invalid connection ${body.connectionId}`)
+    }
+    if (!connection.agent_connection_id || connection.status !== 'verified_both') {
+      req.log.warn(
+        'connection agent id is %s or invalid status - %s',
+        connection.agent_connection_id,
+        connection.status
+      )
+      throw new InvalidInputError(`Cannot query unverified connection`)
+    }
+
+    const expiresTime = new Date(new Date().getTime() + 7 * 24 * 60 * 60 * 1000) // add a week to now
+
+    return await this.handleQueryRequest(
+      req.log,
+      connection.id,
+      null,
+      {
+        type: 'https://github.com/digicatapult/veritable-documentation/tree/main/schemas/veritable_messaging/query_types/beneficiary_account_validation/request',
+        data: {
+          subjectId: {
+            idType: 'bav',
           },
         },
       },
@@ -356,7 +410,17 @@ export class QueriesController extends HTMLController {
     }
 
     if (!partialQuery) {
-      return this.handleQueryResponse(req.log, connection, queryRow, emissions)
+      const response: CarbonEmbodimentRes = {
+        id: queryRow.response_id,
+        type: 'https://github.com/digicatapult/veritable-documentation/tree/main/schemas/veritable_messaging/query_types/total_carbon_embodiment/response',
+        data: {
+          subjectId: queryRow.details.subjectId,
+          mass: emissions,
+          unit: 'kg',
+          partialResponses: [],
+        },
+      }
+      return this.handleQueryResponse(req.log, connection, queryRow, response)
     }
 
     if (!partial.connectionIds || !partial.productIds || !partial.quantities) {
@@ -376,7 +440,7 @@ export class QueriesController extends HTMLController {
             connectionIds[i],
             queryRow.id,
             {
-              type: 'https://github.com/digicatapult/veritable-documentation/tree/main/schemas/veritable_messaging/query_types/total_carbon_embodiment/request/0.1',
+              type: 'https://github.com/digicatapult/veritable-documentation/tree/main/schemas/veritable_messaging/query_types/total_carbon_embodiment/request',
               data: {
                 subjectId: {
                   idType: 'product_and_quantity',
@@ -464,7 +528,7 @@ export class QueriesController extends HTMLController {
 
     const [query] = await this.db.insert('query', {
       connection_id: connectionId,
-      type: 'total_carbon_embodiment',
+      type: schemaToTypeMap[params.type],
       status: 'pending_their_input',
       details: params.data,
       response_id: null,
@@ -482,7 +546,7 @@ export class QueriesController extends HTMLController {
           createdTime: Math.floor(query.created_at.getTime() / 1000),
           expiresTime: Math.floor(query.expires_at.getTime() / 1000),
           ...params,
-        },
+        } as SubmitQueryRequest['params'],
       })
     } catch (err) {
       if (err instanceof Error) {
@@ -497,10 +561,9 @@ export class QueriesController extends HTMLController {
         this.queryFormTemplates.newQueryFormPage({
           formStage: 'error',
           company: {
-            companyNumber: connection.company_number,
             companyName: connection.company_name,
           },
-          ...carbonBaseQuery,
+          type: query.type,
         })
       )
     }
@@ -511,12 +574,17 @@ export class QueriesController extends HTMLController {
         company: {
           companyName: connection.company_name,
         },
-        ...carbonBaseQuery,
+        type: query.type,
       })
     )
   }
 
-  private async handleQueryResponse(log: Logger, connection: ConnectionRow, query: QueryRow, emissions?: number) {
+  private async handleQueryResponse(
+    log: Logger,
+    connection: ConnectionRow,
+    query: QueryRow,
+    response: SubmitQueryResponseRpcParams
+  ) {
     if (query.response) {
       log.warn('Attempted to respond to already completed query %j', query)
       throw new InvalidInputError(`Query with id ${query.id} has already been responded to`)
@@ -525,7 +593,7 @@ export class QueriesController extends HTMLController {
       log.warn('Cannot respond to query without a response_id %j', query)
       throw new InvalidInputError(`Query from self with id ${query.id} cannot be responded to`)
     }
-    if (emissions === undefined) {
+    if (response === undefined) {
       log.warn('Attempt to respond to query without response %j', query)
       throw new InvalidInputError(`Must provide response to respond to query`)
     }
@@ -538,16 +606,9 @@ export class QueriesController extends HTMLController {
       await this.submitDrpcQueryAndStoreResult(log, connection.agent_connection_id, query, {
         method: 'submit_query_response',
         params: {
-          id: query.response_id,
+          ...response,
           createdTime: Math.floor(query.created_at.getTime() / 1000),
-          expiresTime: Math.floor(query.expires_at.getTime() / 1000),
-          type: 'https://github.com/digicatapult/veritable-documentation/tree/main/schemas/veritable_messaging/query_types/total_carbon_embodiment/response/0.1',
-          data: {
-            subjectId: query.details.subjectId,
-            mass: emissions,
-            unit: 'kg',
-            partialResponses: [],
-          },
+          expiresAt: Math.floor(query.expires_at.getTime() / 1000),
         },
       })
 
@@ -556,7 +617,7 @@ export class QueriesController extends HTMLController {
         { id: query.id },
         {
           status: 'resolved',
-          response: { mass: emissions, unit: 'kg', partialResponses: [], subjectId: query.details.subjectId },
+          response: response.data,
         }
       )
     } catch (err) {
@@ -569,19 +630,19 @@ export class QueriesController extends HTMLController {
       await this.db.update('query', { id: query.id }, { status: 'errored' })
 
       return this.html(
-        this.carbonEmbodimentResponseTemplates.newCarbonEmbodimentResponseFormPage({
+        this.queryFormTemplates.newQueryFormPage({
           formStage: 'error',
-          company: connection,
-          query,
+          company: { companyName: connection.company_name },
+          type: query.type,
         })
       )
     }
 
     return this.html(
-      this.carbonEmbodimentResponseTemplates.newCarbonEmbodimentResponseFormPage({
+      this.queryFormTemplates.newQueryFormPage({
         formStage: 'success',
-        company: connection,
-        query,
+        company: { companyName: connection.company_name },
+        type: query.type,
       })
     )
   }

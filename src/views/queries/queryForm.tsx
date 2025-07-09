@@ -1,46 +1,47 @@
 import Html from '@kitajs/html'
 import { singleton } from 'tsyringe'
-import { ConnectionRow } from '../../models/db/types.js'
+import { ConnectionRow, QueryType } from '../../models/db/types.js'
 import { FormButton, LinkButton, Page } from '../common.js'
 
-type BaseQuery = {
-  name: string
-  urlSegment: string
+const typeMap: Record<QueryType, { name: string; urlSegment: string }> = {
+  total_carbon_embodiment: {
+    name: 'Total Carbon Embodiment',
+    urlSegment: 'carbon-embodiment',
+  },
+  beneficiary_account_validation: {
+    name: 'Beneficiary Account Validation',
+    urlSegment: 'bav',
+  },
 }
 
-export const carbonBaseQuery: BaseQuery = {
-  name: 'Total Carbon Embodiment',
-  urlSegment: 'carbon-embodiment',
-} as const
-
-export const bavBaseQuery: BaseQuery = {
-  name: 'Beneficiary Account Validation',
-  urlSegment: 'bav',
-} as const
-
 export type FormStage = 'companySelect' | 'carbonEmbodiment' | 'bav' | 'success' | 'error'
-type SelectProps = BaseQuery & {
+type SelectProps = {
   formStage: 'companySelect'
+  type: QueryType
   connections: ConnectionRow[]
   search: string
 }
-type CarbonEmbodimentFormProps = BaseQuery & {
+type CarbonEmbodimentFormProps = {
   formStage: 'carbonEmbodiment'
+  type: QueryType
   connectionId: string
   productId?: string
   quantity?: number
 }
-type BavFormProps = BaseQuery & {
+type BavFormProps = {
   formStage: 'bav'
+  type: QueryType
   connection: ConnectionRow
 }
-type SuccessProps = BaseQuery & {
+type SuccessProps = {
   formStage: 'success'
+  type: QueryType
   company: { companyName?: string }
 }
-type ErrorProps = BaseQuery & {
+type ErrorProps = {
   formStage: 'error'
-  company: { companyNumber: string; companyName?: string }
+  type: QueryType
+  company: { companyName?: string }
 }
 
 type QueryProps = SelectProps | CarbonEmbodimentFormProps | BavFormProps | SuccessProps | ErrorProps
@@ -52,13 +53,13 @@ export default class QueryFormTemplates {
   public newQueryFormPage = (props: QueryProps) => {
     return (
       <Page
-        title={`Veritable - New ${props.name} Query`}
+        title={`Veritable - New ${typeMap[props.type].name} Query`}
         activePage="queries"
         heading="Select Company To Send Your Query To"
         headerLinks={[
           { name: 'Query Management', url: '/queries' },
           { name: 'New', url: '/queries/new' },
-          { name: props.name, url: `/queries/new/${props.urlSegment}` },
+          { name: typeMap[props.type].name, url: `/queries/new/${typeMap[props.type].urlSegment}` },
         ]}
       >
         <div class="connections header"></div>
@@ -86,15 +87,7 @@ export default class QueryFormTemplates {
   private listPage = (props: SelectProps) => {
     return (
       <div>
-        <div
-          class="main-list-page"
-          hx-post={`/queries/new/${props.urlSegment}`}
-          hx-trigger="input changed delay:500ms"
-          hx-select="#search-results"
-          hx-target="#search-results"
-          hx-swap="outerHTML"
-          hx-include="#queries-search-input"
-        >
+        <div class="main-list-page">
           <div class="list-page ">
             <div class="list-nav">
               <span>Select a Company to send Query to</span>
@@ -105,7 +98,7 @@ export default class QueryFormTemplates {
                 name="search"
                 value={Html.escapeHtml(props.search)}
                 placeholder="Search"
-                hx-get={`/queries/new/${props.urlSegment}`}
+                hx-get={`/queries/new/${typeMap[props.type].urlSegment}`}
                 hx-trigger="input changed delay:50ms, search"
                 hx-target="#search-results"
                 hx-select="#search-results"
@@ -114,7 +107,7 @@ export default class QueryFormTemplates {
             </div>
             <form
               id="company-form"
-              hx-get={`/queries/new/${props.urlSegment}`}
+              hx-get={`/queries/new/${typeMap[props.type].urlSegment}`}
               hx-select="main > *"
               hx-target="main"
               hx-swap="innerHTML"
