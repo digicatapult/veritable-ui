@@ -22,8 +22,12 @@ const ukRegistryCountryCode = RegistryCountryCode.UK
 describe('organisationRegistry with company house as registry', () => {
   withCompanyHouseMock()
   const db = container.resolve(Database)
+
   cleanupRegistries()
   insertCompanyHouseRegistry()
+  after(() => {
+    cleanupRegistries()
+  })
 
   describe('getOrganisationProfileByOrganisationNumber', () => {
     it('should return company found if valid company', async () => {
