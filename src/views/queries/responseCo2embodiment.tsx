@@ -68,23 +68,19 @@ export default class CarbonEmbodimentResponseTemplates {
     ...props
   }: CarbonEmbodimentFormProps) => {
     return (
-      <div class="container-carbon-embodiment">
-        <div class="co2-embodiment-left">
+      <div class="container-query-form">
+        <div class="query-form-left">
           <h1 id="co2-embodiment-heading">Total Carbon Embodiment</h1>
           <span>
-            <p class="query-text-carbon-embodiment">
-              Provide the total carbon embodiment for the specified product/component.
-            </p>
-            <p class="query-text-carbon-embodiment">
+            <p class="query-form-text">Provide the total carbon embodiment for the specified product/component.</p>
+            <p class="query-form-text">
               If you do not have all the required information, please forward this query to your suppliers to gather
               their responses. Once you have all the necessary information, you can submit the final total.{''}
             </p>
           </span>
         </div>
-        <div class="co2-embodiment-right">
-          <p class="query-text-carbon-embodiment">
-            What is the total carbon embodiment for the product/component below?
-          </p>
+        <div class="query-form-right">
+          <p class="query-form-text">What is the total carbon embodiment for the product/component below?</p>
           <div hx-swap-oob="true" hx-swap="ignoreTitle:true" id="partial-query">
             <form
               id="carbon-embodiment"
@@ -213,14 +209,14 @@ export default class CarbonEmbodimentResponseTemplates {
       >
         <div class="connections header"></div>
         <div class="card-body">
-          <div class="container-carbon-embodiment">
-            <div class="co2-embodiment-left">
+          <div class="container-query-form">
+            <div class="query-form-left">
               <h1>Total Carbon Embodiment</h1>
-              <p class="query-text-carbon-embodiment">
+              <p class="query-form-text">
                 A query for calculating the total carbon embodiment for a given product or component.
               </p>
             </div>
-            <div class="co2-embodiment-right">
+            <div class="query-form-right">
               <div class="row">
                 <h2>Query Information</h2>
                 <div style={{ maxHeight: '25px' }} class="list-item-status" data-status="success">

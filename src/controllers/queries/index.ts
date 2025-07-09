@@ -14,7 +14,7 @@ import VeritableCloudagent from '../../models/veritableCloudagent/index.js'
 import { JsonRpcError } from '../../models/veritableCloudagent/internal.js'
 import QueriesTemplates from '../../views/queries/queries.js'
 import QueryListTemplates from '../../views/queries/queriesList.js'
-import QueryFormTemplates from '../../views/queries/queryForm.js'
+import QueryFormTemplates, { bavBaseQuery, carbonBaseQuery } from '../../views/queries/queryForm.js'
 import CarbonEmbodimentResponseTemplates from '../../views/queries/responseCo2embodiment.js'
 import { HTML, HTMLController } from '../HTMLController.js'
 
@@ -74,13 +74,12 @@ export class QueriesController extends HTMLController {
     @Query() search?: string,
     @Query() connectionId?: UUID
   ): Promise<HTML> {
-    const baseQuery = { name: 'Total Carbon Embodiment', urlSegment: 'carbon-embodiment' }
     if (connectionId) {
       return this.html(
         this.queryFormTemplates.newQueryFormPage({
           formStage: 'carbonEmbodiment',
           connectionId: connectionId,
-          ...baseQuery,
+          ...carbonBaseQuery,
         })
       )
     }
@@ -103,7 +102,7 @@ export class QueriesController extends HTMLController {
         formStage: 'companySelect',
         connections,
         search: search ?? '',
-        ...baseQuery,
+        ...carbonBaseQuery,
       })
     )
   }
@@ -118,14 +117,17 @@ export class QueriesController extends HTMLController {
     @Query() search?: string,
     @Query() connectionId?: UUID
   ): Promise<HTML> {
-    const baseQuery = { name: 'Beneficiary Account Validation', urlSegment: 'bav' }
-
     if (connectionId) {
+      const [connection]: ConnectionRow[] = await this.db.get('connection', { id: connectionId })
+      if (!connection) {
+        throw new NotFoundError(`[connection]: ${connectionId}`)
+      }
+
       return this.html(
         this.queryFormTemplates.newQueryFormPage({
           formStage: 'bav',
-          connectionId: connectionId,
-          ...baseQuery,
+          connection: connection,
+          ...bavBaseQuery,
         })
       )
     }
@@ -148,7 +150,7 @@ export class QueriesController extends HTMLController {
         formStage: 'companySelect',
         connections,
         search: search ?? '',
-        ...baseQuery,
+        ...bavBaseQuery,
       })
     )
   }
@@ -453,8 +455,6 @@ export class QueriesController extends HTMLController {
     params: Omit<SubmitQueryRequest['params'], 'id' | 'createdTime' | 'expiresTime'>,
     expiresAt: Date
   ) {
-    const baseQuery = { name: 'Total Carbon Embodiment', urlSegment: 'carbon-embodiment' }
-
     const [connection]: ConnectionRow[] = await this.db.get(
       'connection',
       { id: connectionId, status: 'verified_both' },
@@ -500,7 +500,7 @@ export class QueriesController extends HTMLController {
             companyNumber: connection.company_number,
             companyName: connection.company_name,
           },
-          ...baseQuery,
+          ...carbonBaseQuery,
         })
       )
     }
@@ -511,7 +511,7 @@ export class QueriesController extends HTMLController {
         company: {
           companyName: connection.company_name,
         },
-        ...baseQuery,
+        ...carbonBaseQuery,
       })
     )
   }
