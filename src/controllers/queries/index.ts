@@ -317,7 +317,7 @@ export class QueriesController extends HTMLController {
 
     const { connectionIds, productIds, quantities } = partial
     if (connectionIds && productIds && quantities) {
-      await Promise.all(
+      const results = await Promise.allSettled(
         new Array(size).fill({}).map((_, i) => {
           req.log.debug('submitting DRPC request to %s connection', connectionIds[i])
           // TODO: handle errors
@@ -341,6 +341,11 @@ export class QueriesController extends HTMLController {
           )
         })
       )
+      const rejected = results.filter((r) => r.status === 'rejected').map((r) => (r as PromiseRejectedResult).reason)
+
+      if (rejected.length > 0) {
+        throw new Error(`${rejected.length} Partial queries were rejected with Error: ${rejected[0]}`)
+      }
     }
 
     await this.db.update(

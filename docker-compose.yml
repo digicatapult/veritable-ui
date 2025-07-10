@@ -1,7 +1,7 @@
 services:
   # -------------------- shared -------------------------------#
   keycloak:
-    image: quay.io/keycloak/keycloak:26.2.5
+    image: quay.io/keycloak/keycloak:26.3.0
     container_name: keycloak
     environment:
       - KC_BOOTSTRAP_ADMIN_USERNAME=admin
@@ -69,10 +69,9 @@ services:
       - COMPANY_HOUSE_API_URL=https://api.company-information.service.gov.uk
       - DEMO_MODE=true
       - SMTP_SECURE=false
-      - COMPANY_PROFILE_API_KEY=API_KEY
       - LOCAL_REGISTRY_TO_USE=UK
       - SOCRATA_API_URL=https://data.ny.gov/resource/p66s-i79p.json
-
+      - COMPANY_PROFILE_API_KEY=${COMPANY_PROFILE_API_KEY}
   postgres-veritable-ui-alice:
     image: postgres:17.5-alpine
     container_name: postgres-veritable-ui-alice
@@ -95,7 +94,7 @@ services:
       - POSTGRES_PASSWORD=postgres
       - POSTGRES_DB=postgres-veritable-cloudagent
   veritable-cloudagent-alice:
-    image: digicatapult/veritable-cloudagent:v0.13.6
+    image: digicatapult/veritable-cloudagent:v0.13.14
     container_name: veritable-cloudagent-alice
     restart: always
     depends_on:
@@ -161,9 +160,9 @@ services:
       - SMTP_USER=username
       - EMAIL_TRANSPORT=SMTP_EMAIL
       - SMTP_SECURE=false
-      - COMPANY_PROFILE_API_KEY=API_KEY
       - LOCAL_REGISTRY_TO_USE=UK
       - SOCRATA_API_URL=https://data.ny.gov/resource/p66s-i79p.json
+      - COMPANY_PROFILE_API_KEY=${COMPANY_PROFILE_API_KEY}
 
   postgres-veritable-ui-bob:
     image: postgres:17.5-alpine
@@ -187,7 +186,7 @@ services:
       - POSTGRES_PASSWORD=postgres
       - POSTGRES_DB=postgres-veritable-cloudagent
   veritable-cloudagent-bob:
-    image: digicatapult/veritable-cloudagent:v0.13.6
+    image: digicatapult/veritable-cloudagent:v0.13.14
     container_name: veritable-cloudagent-bob
     restart: always
     depends_on:
@@ -251,7 +250,7 @@ services:
       - SMTP_USER=username
       - EMAIL_TRANSPORT=SMTP_EMAIL
       - SMTP_SECURE=false
-      - COMPANY_PROFILE_API_KEY=API_KEY
+      - COMPANY_PROFILE_API_KEY=${COMPANY_PROFILE_API_KEY}
 
   postgres-veritable-ui-charlie:
     image: postgres:17.5-alpine
@@ -275,7 +274,7 @@ services:
       - POSTGRES_PASSWORD=postgres
       - POSTGRES_DB=postgres-veritable-cloudagent
   veritable-cloudagent-charlie:
-    image: digicatapult/veritable-cloudagent:v0.13.6
+    image: digicatapult/veritable-cloudagent:v0.13.14
     container_name: veritable-cloudagent-charlie
     restart: always
     depends_on:

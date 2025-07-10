@@ -112,7 +112,7 @@ export class ConnectionController extends HTMLController {
     )
 
     if (localPinAttemptCount.nextScreen === 'success') {
-      req.log.debug('pin %s accepted and redering success page', pin)
+      req.log.debug('pin %s accepted and rendering success page', pin)
 
       return this.html(
         this.pinSubmission.renderSuccess({ companyName: connection.company_name, stepCount: body.stepCount ?? 2 })

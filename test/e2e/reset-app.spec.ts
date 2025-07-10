@@ -1,7 +1,7 @@
 import { expect, Page, test } from '@playwright/test'
 import 'reflect-metadata'
-import { cleanup, CustomBrowserContext, withLoggedInUser, withRegisteredAccount } from './helpers/registerLogIn.js'
-import { withConnection } from './helpers/setupConnection.js'
+import { cleanup, CustomBrowserContext, withLoggedInUser, withRegisteredAccount } from '../helpers/registerLogIn.js'
+import { withConnection } from '../helpers/setupConnection.js'
 
 test.describe('Resetting app', () => {
   let context: CustomBrowserContext

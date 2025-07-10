@@ -1,16 +1,24 @@
 import { randomUUID } from 'node:crypto'
 
 import { BrowserContext, expect, Page } from '@playwright/test'
-import { del } from './routeHelpers'
+import { fetchDel } from '../helpers/routeHelper'
 
 export interface CustomBrowserContext extends BrowserContext {
   username?: string
 }
 
 export async function cleanup(urls: string[]) {
-  const results = await Promise.all(urls.map((url) => del(url, '/reset')))
-  if (!results.every((res) => res.ok)) {
-    throw new Error('Error resetting application or deleting emails form smtp4dev')
+  const results = await Promise.allSettled(urls.map((url) => fetchDel(url)))
+
+  const fulfilled = results.filter((r) => r.status === 'fulfilled').map((r) => r.value)
+  const rejected = results.filter((r) => r.status === 'rejected').map((r) => (r as PromiseRejectedResult).reason)
+
+  if (rejected.length > 0) {
+    throw new Error(`${rejected.length} Cleanup URLs were rejected with Error: ${rejected[0]}`)
+  }
+
+  if (!fulfilled.every((res) => res.ok)) {
+    throw new Error('Error resetting application or deleting emails from smtp4dev')
   }
 }
 

@@ -1,80 +1,30 @@
 import { expect } from 'chai'
-import type express from 'express'
 import { afterEach, beforeEach, describe } from 'mocha'
-
-import Database from '../../src/models/db/index.js'
-import VeritableCloudagent from '../../src/models/veritableCloudagent/index.js'
-import { cleanupCloudagent } from '../helpers/cloudagent.js'
-import { withCompanyHouseMock } from '../helpers/companyHouse.js'
-import { cleanup } from '../helpers/db.js'
-
-import { container } from 'tsyringe'
-import { ConnectionRow } from '../../src/models/db/types.js'
-import createHttpServer from '../../src/server.js'
-import VeritableCloudagentEvents from '../../src/services/veritableCloudagentEvents.js'
-import { withBobAndCharlie } from '../helpers/connection.js'
+import { cleanupCloudagent, cleanupDatabase } from '../helpers/cleanup.js'
+import { setupThreePartyContext, ThreePartyContext, withBobAndCharlie } from '../helpers/connection.js'
 import { fetchPost, post } from '../helpers/routeHelper.js'
 
-export type Context = {
-  app: express.Express
-  agent: {
-    alice: VeritableCloudagent
-    bob: VeritableCloudagent
-    charlie: VeritableCloudagent
-  }
-  cloudagentEvents: VeritableCloudagentEvents
-  db: {
-    alice: Database
-    bob: Database
-    charlie: Database
-  }
-  aliceConnectionId: string
-  charliesConnections: {
-    withBob: ConnectionRow
-  }
-  bobsConnections: {
-    withCharlie: ConnectionRow
-    withAlice: ConnectionRow
-  }
-  response: Awaited<ReturnType<typeof post>>
-}
-
 describe('partial query aggregation', function () {
-  this.timeout(30000)
-  afterEach(async () => {
-    await cleanup()
+  const context: ThreePartyContext = {} as ThreePartyContext
+  let response: Awaited<ReturnType<typeof post>>
+
+  beforeEach(async function () {
+    await setupThreePartyContext(context)
+
+    await cleanupCloudagent([context.agent.alice, context.agent.bob, context.agent.charlie])
+    await cleanupDatabase([context.db.alice, context.db.bob, context.db.charlie])
   })
 
-  withCompanyHouseMock()
+  afterEach(async () => {
+    context.cloudagentEvents.stop()
+    await cleanupCloudagent([context.agent.alice, context.agent.bob, context.agent.charlie])
+    await cleanupDatabase([context.db.alice, context.db.bob, context.db.charlie])
+  })
 
   describe('with established connections: Alice -> Bob -> Charlie', function () {
-    const context: Context = {
-      db: {
-        alice: container.resolve(Database),
-      },
-      agent: {},
-      bobsConnections: {},
-      charliesConnections: {},
-    } as unknown as Context
-
     beforeEach(async function () {
-      await cleanup()
-      await cleanupCloudagent()
-      const server = await createHttpServer(true)
-      Object.assign(context, {
-        ...server,
-      })
-    })
-
-    afterEach(async function () {
-      context.cloudagentEvents.stop()
-      await cleanup()
-    })
-
-    withBobAndCharlie(context)
-
-    beforeEach(async function () {
-      context.response = await post(context.app, `/queries/new/carbon-embodiment`, {
+      await withBobAndCharlie(context)
+      response = await post(context.app, `/queries/new/carbon-embodiment`, {
         connectionId: context.aliceConnectionId,
         productId: 'toaster-001(AliceReq)',
         quantity: 1,
@@ -98,7 +48,7 @@ describe('partial query aggregation', function () {
     it('Alice sends a query request for co2 emissions to Bob', async function () {
       const [query] = await context.db.alice.get('query')
 
-      expect(context.response.statusCode).to.equal(200)
+      expect(response.statusCode).to.equal(200)
       expect(query).to.deep.contain({
         connection_id: context.aliceConnectionId,
         parent_id: null,

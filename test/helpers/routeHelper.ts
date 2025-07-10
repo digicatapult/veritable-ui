@@ -74,6 +74,20 @@ export const del = async (
   }
   return request(app).delete(endpoint).set(headersWithToken)
 }
+
+export const fetchDel = async (endpoint: string, headers: Record<string, string> = {}): Promise<Response> => {
+  const token = await getToken()
+  const res = await fetch(`${endpoint}/reset`, {
+    method: 'DELETE',
+    headers: {
+      ...headers,
+      authorization: `bearer ${token}`,
+    },
+  })
+
+  return res
+}
+
 export const fetchPost = async (
   endpoint: string,
   body: BodyInit | Record<string, string | string[] | number | number[]>,
