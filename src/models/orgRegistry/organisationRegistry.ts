@@ -142,7 +142,9 @@ export default class OrganisationRegistry {
 
     const companyProfile = await this.makeSocrataRequest(endpoint)
     const parsedCompanyProfile = dosEntitySchema.parse(companyProfile)
-    return parsedCompanyProfile.length === 0 ? { type: 'notFound' } : { type: 'found', company: parsedCompanyProfile }
+    return parsedCompanyProfile.length === 0 || parsedCompanyProfile === null
+      ? { type: 'notFound' }
+      : { type: 'found', company: parsedCompanyProfile }
   }
 
   async localOrganisationProfile(): Promise<SharedOrganisationInfo> {

@@ -19,3 +19,14 @@ export function insertCompanyHouseRegistry() {
     api_key: '',
   })
 }
+
+export function insertSocrataRegistry() {
+  const db = container.resolve(Database)
+  db.insert('organisation_registries', {
+    country_code: 'NY',
+    registry_name: 'Socrata',
+    registry_key: 'socrata',
+    url: env.get('SOCRATA_API_URL'),
+    api_key: '',
+  })
+}
