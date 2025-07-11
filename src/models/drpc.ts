@@ -1,50 +1,81 @@
 import z from 'zod'
+import { QueryType } from './db/types'
 
-import { UUID } from './strings.js'
-
-const subjectIdParser = z.discriminatedUnion('idType', [
-  z.object({
-    idType: z.literal('product_and_quantity'),
-    content: z.object({
-      productId: z.string(),
-      quantity: z.number().int().gte(1),
-    }),
+export const ProductAndQuantity = z.object({
+  idType: z.literal('product_and_quantity'),
+  content: z.object({
+    productId: z.string(),
+    quantity: z.number().int().gte(1),
   }),
-])
-type SubjectId = z.infer<typeof subjectIdParser>
-
-export const carbonEmbodimentRequestData = z.object({
-  subjectId: subjectIdParser,
 })
-export const carbonEmbodimentRequest = z.object({
+
+const Bav = z.object({
+  idType: z.literal('bav'),
+})
+
+export const subjectIdParser = z.discriminatedUnion('idType', [ProductAndQuantity, Bav])
+export type SubjectId = z.infer<typeof subjectIdParser>
+
+const schemaBaseUrl = 'https://github.com/digicatapult/veritable-documentation/tree/main/schemas/veritable_messaging'
+export const carbonRequestSchema = z.literal(`${schemaBaseUrl}/query_types/total_carbon_embodiment/request/0.1`)
+export const carbonResponseSchema = z.literal(`${schemaBaseUrl}/query_types/total_carbon_embodiment/response/0.1`)
+export const bavRequestSchema = z.literal(`${schemaBaseUrl}/query_types/beneficiary_account_validation/request/0.1`)
+export const bavResponseSchema = z.literal(`${schemaBaseUrl}/query_types/beneficiary_account_validation/response/0.1`)
+
+export const schema = z.union([carbonRequestSchema, carbonResponseSchema, bavRequestSchema, bavResponseSchema])
+export type Schema = z.infer<typeof schema>
+
+export const schemaToTypeMap: Record<Schema, QueryType> = {
+  [carbonRequestSchema.value]: 'total_carbon_embodiment',
+  [carbonResponseSchema.value]: 'total_carbon_embodiment',
+  [bavRequestSchema.value]: 'beneficiary_account_validation',
+  [bavResponseSchema.value]: 'beneficiary_account_validation',
+}
+
+export const responseSchema = z.union([carbonResponseSchema, bavResponseSchema])
+export type ResponseSchema = z.infer<typeof responseSchema>
+export const typeToResponseSchemaMap: Record<QueryType, ResponseSchema> = {
+  total_carbon_embodiment: carbonResponseSchema.value,
+  beneficiary_account_validation: bavResponseSchema.value,
+} as const
+
+const baseQueryRequest = {
   id: z.string(),
   createdTime: z.number().int().gte(0),
   expiresTime: z.number().int().gte(0),
-  type: z.literal(
-    'https://github.com/digicatapult/veritable-documentation/tree/main/schemas/veritable_messaging/query_types/total_carbon_embodiment/request/0.1'
-  ),
-  data: carbonEmbodimentRequestData,
+}
+export const carbonEmbodimentRequest = z.object({
+  ...baseQueryRequest,
+  type: carbonRequestSchema,
+  data: z.object({
+    subjectId: ProductAndQuantity,
+  }),
 })
-export const submitQueryRpcParams = z.discriminatedUnion('type', [carbonEmbodimentRequest])
+export const bavRequest = z.object({
+  ...baseQueryRequest,
+  type: bavRequestSchema,
+  data: z.object({
+    subjectId: Bav,
+  }),
+})
+export const submitQueryRpcParams = z.discriminatedUnion('type', [carbonEmbodimentRequest, bavRequest])
 export type SubmitQueryRpcParams = z.infer<typeof submitQueryRpcParams>
 
-export type CarbonEmbodimentReqData = z.infer<typeof carbonEmbodimentRequestData>
-
-export type CarbonEmbodimentReq = z.infer<typeof carbonEmbodimentRequest>
 export type SubmitQueryRequest = {
   method: 'submit_query_request'
-  params: {
-    id: UUID
-    createdTime: number
-    expiresTime: number
-  } & CarbonEmbodimentReq
+  params: SubmitQueryRpcParams
 }
 
-export type CarbonEmbodimentRes = {
-  id: string
-  type: 'https://github.com/digicatapult/veritable-documentation/tree/main/schemas/veritable_messaging/query_types/total_carbon_embodiment/response/0.1'
-  createdTime?: number
-  expiresAt?: number
+const baseQueryResponse = z.object({
+  id: z.string(),
+  createdTime: z.number().int().gte(0).optional(),
+  expiresTime: z.number().int().gte(0).optional(),
+})
+
+type BaseQueryResponse = z.infer<typeof baseQueryResponse>
+
+export type CarbonEmbodimentRes = BaseQueryResponse & {
+  type: z.infer<typeof carbonResponseSchema>
   data: {
     mass: number
     unit: 'ug' | 'mg' | 'g' | 'kg' | 'tonne'
@@ -58,34 +89,41 @@ export const carbonEmbodimentResponseData: z.ZodType<CarbonEmbodimentRes['data']
   subjectId: subjectIdParser,
   partialResponses: z.lazy(() => carbonEmbodimentResponse.array()),
 })
-export const carbonEmbodimentResponse: z.ZodType<CarbonEmbodimentRes> = z.object({
-  id: z.string(),
-  createdTime: z.number().int().gte(0).optional(),
-  expiresAt: z.number().int().gte(0).optional(),
-  type: z.literal(
-    'https://github.com/digicatapult/veritable-documentation/tree/main/schemas/veritable_messaging/query_types/total_carbon_embodiment/response/0.1'
-  ),
+export const carbonEmbodimentResponse = z.object({
+  ...baseQueryResponse.shape,
+  type: carbonResponseSchema,
   data: carbonEmbodimentResponseData,
 })
 
-export const submitQueryResponseRpcParams = carbonEmbodimentResponse
+export type BavRes = BaseQueryResponse & {
+  type: z.infer<typeof bavResponseSchema>
+  data: {
+    subjectId: SubjectId
+    partialResponses: BavRes[]
+  }
+}
+export const bavResponseData: z.ZodType<BavRes['data']> = z.object({
+  subjectId: subjectIdParser,
+  partialResponses: z.lazy(() => bavResponse.array()),
+})
+export const bavResponse = z.object({
+  ...baseQueryResponse.shape,
+  type: bavResponseSchema,
+  data: bavResponseData,
+})
+
+export const submitQueryResponseRpcParams = z.discriminatedUnion('type', [carbonEmbodimentResponse, bavResponse])
 export type SubmitQueryResponseRpcParams = z.infer<typeof submitQueryResponseRpcParams>
 
 export type SubmitQueryResponse = {
   method: 'submit_query_response'
-  params: {
-    id: UUID
-    createdTime?: number
-    expiresTime?: number
-  } & CarbonEmbodimentRes
+  params: SubmitQueryResponseRpcParams
 }
 
 export type DrpcQueryRequest = SubmitQueryRequest | SubmitQueryResponse
 
 export const drpcQueryAck = z.object({
-  type: z.literal(
-    'https://github.com/digicatapult/veritable-documentation/tree/main/schemas/veritable_messaging/query_ack/0.1'
-  ),
+  type: z.literal(`${schemaBaseUrl}/query_ack/0.1`),
   createdTime: z.number().int().gte(0).optional(),
   expiresTime: z.number().int().gte(0).optional(),
 })
