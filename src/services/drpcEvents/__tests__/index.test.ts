@@ -18,7 +18,7 @@ const goodRequest: DrpcRequest = {
         content: { productId: 'product-id', quantity: 42 },
       },
     },
-    type: 'https://github.com/digicatapult/veritable-documentation/tree/main/schemas/veritable_messaging/query_types/total_carbon_embodiment/request',
+    type: 'https://github.com/digicatapult/veritable-documentation/tree/main/schemas/veritable_messaging/query_types/total_carbon_embodiment/request/0.1',
     createdTime: 0,
     expiresTime: 1,
   },
@@ -30,7 +30,7 @@ const goodResponse: DrpcRequest = {
   method: 'submit_query_response',
   params: {
     id: 'query-id',
-    type: 'https://github.com/digicatapult/veritable-documentation/tree/main/schemas/veritable_messaging/query_types/total_carbon_embodiment/response',
+    type: 'https://github.com/digicatapult/veritable-documentation/tree/main/schemas/veritable_messaging/query_types/total_carbon_embodiment/response/0.1',
     data: {
       mass: 3456,
       unit: 'kg',
@@ -49,7 +49,7 @@ const goodResponseChild = {
   method: 'submit_query_response',
   params: {
     id: 'child-query-id',
-    type: 'https://github.com/digicatapult/veritable-documentation/tree/main/schemas/veritable_messaging/query_types/total_carbon_embodiment/response',
+    type: 'https://github.com/digicatapult/veritable-documentation/tree/main/schemas/veritable_messaging/query_types/total_carbon_embodiment/response/0.1',
     data: {
       mass: 200,
       unit: 'kg',
@@ -695,7 +695,7 @@ describe('DrpcEvents', function () {
                     partialResponses: [],
                   },
                   id: 'child-query-id',
-                  type: 'https://github.com/digicatapult/veritable-documentation/tree/main/schemas/veritable_messaging/query_types/total_carbon_embodiment/response',
+                  type: 'https://github.com/digicatapult/veritable-documentation/tree/main/schemas/veritable_messaging/query_types/total_carbon_embodiment/response/0.1',
                 },
               ],
               subjectId: {

@@ -196,7 +196,7 @@ describe('partial query aggregation', function () {
                     },
                   },
                 },
-                type: 'https://github.com/digicatapult/veritable-documentation/tree/main/schemas/veritable_messaging/query_types/total_carbon_embodiment/response',
+                type: 'https://github.com/digicatapult/veritable-documentation/tree/main/schemas/veritable_messaging/query_types/total_carbon_embodiment/response/0.1',
               },
             ],
             subjectId: {
@@ -272,7 +272,7 @@ describe('partial query aggregation', function () {
             partialResponses: [
               {
                 id: `${query.response?.partialResponses[0].id}`,
-                type: 'https://github.com/digicatapult/veritable-documentation/tree/main/schemas/veritable_messaging/query_types/total_carbon_embodiment/response',
+                type: 'https://github.com/digicatapult/veritable-documentation/tree/main/schemas/veritable_messaging/query_types/total_carbon_embodiment/response/0.1',
                 data: {
                   mass: 500,
                   unit: 'kg',

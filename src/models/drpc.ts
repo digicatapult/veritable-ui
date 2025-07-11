@@ -17,10 +17,10 @@ export const subjectIdParser = z.discriminatedUnion('idType', [ProductAndQuantit
 export type SubjectId = z.infer<typeof subjectIdParser>
 
 const schemaBaseUrl = 'https://github.com/digicatapult/veritable-documentation/tree/main/schemas/veritable_messaging'
-export const carbonRequestSchema = z.literal(`${schemaBaseUrl}/query_types/total_carbon_embodiment/request`)
-export const carbonResponseSchema = z.literal(`${schemaBaseUrl}/query_types/total_carbon_embodiment/response`)
-export const bavRequestSchema = z.literal(`${schemaBaseUrl}/query_types/beneficiary_account_validation/request`)
-export const bavResponseSchema = z.literal(`${schemaBaseUrl}/query_types/beneficiary_account_validation/response`)
+export const carbonRequestSchema = z.literal(`${schemaBaseUrl}/query_types/total_carbon_embodiment/request/0.1`)
+export const carbonResponseSchema = z.literal(`${schemaBaseUrl}/query_types/total_carbon_embodiment/response/0.1`)
+export const bavRequestSchema = z.literal(`${schemaBaseUrl}/query_types/beneficiary_account_validation/request/0.1`)
+export const bavResponseSchema = z.literal(`${schemaBaseUrl}/query_types/beneficiary_account_validation/response/0.1`)
 
 export const schema = z.union([carbonRequestSchema, carbonResponseSchema, bavRequestSchema, bavResponseSchema])
 export type Schema = z.infer<typeof schema>
@@ -69,7 +69,7 @@ export type SubmitQueryRequest = {
 const baseQueryResponse = z.object({
   id: z.string(),
   createdTime: z.number().int().gte(0).optional(),
-  expiresAt: z.number().int().gte(0).optional(),
+  expiresTime: z.number().int().gte(0).optional(),
 })
 
 type BaseQueryResponse = z.infer<typeof baseQueryResponse>

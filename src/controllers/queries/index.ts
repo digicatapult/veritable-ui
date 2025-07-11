@@ -15,6 +15,7 @@ import {
   schemaToTypeMap,
   SubmitQueryRequest,
   SubmitQueryResponseRpcParams,
+  submitQueryRpcParams,
 } from '../../models/drpc.js'
 import { UInt } from '../../models/numbers.js'
 import { type UUID } from '../../models/strings.js'
@@ -200,7 +201,7 @@ export class QueriesController extends HTMLController {
       connection.id,
       null,
       {
-        type: 'https://github.com/digicatapult/veritable-documentation/tree/main/schemas/veritable_messaging/query_types/total_carbon_embodiment/request',
+        type: 'https://github.com/digicatapult/veritable-documentation/tree/main/schemas/veritable_messaging/query_types/total_carbon_embodiment/request/0.1',
         data: {
           subjectId: {
             idType: 'product_and_quantity',
@@ -250,7 +251,7 @@ export class QueriesController extends HTMLController {
       connection.id,
       null,
       {
-        type: 'https://github.com/digicatapult/veritable-documentation/tree/main/schemas/veritable_messaging/query_types/beneficiary_account_validation/request',
+        type: 'https://github.com/digicatapult/veritable-documentation/tree/main/schemas/veritable_messaging/query_types/beneficiary_account_validation/request/0.1',
         data: {
           subjectId: {
             idType: 'bav',
@@ -412,7 +413,7 @@ export class QueriesController extends HTMLController {
     if (!partialQuery) {
       const response: CarbonEmbodimentRes = {
         id: queryRow.response_id,
-        type: 'https://github.com/digicatapult/veritable-documentation/tree/main/schemas/veritable_messaging/query_types/total_carbon_embodiment/response',
+        type: 'https://github.com/digicatapult/veritable-documentation/tree/main/schemas/veritable_messaging/query_types/total_carbon_embodiment/response/0.1',
         data: {
           subjectId: queryRow.details.subjectId,
           mass: emissions,
@@ -440,7 +441,7 @@ export class QueriesController extends HTMLController {
             connectionIds[i],
             queryRow.id,
             {
-              type: 'https://github.com/digicatapult/veritable-documentation/tree/main/schemas/veritable_messaging/query_types/total_carbon_embodiment/request',
+              type: 'https://github.com/digicatapult/veritable-documentation/tree/main/schemas/veritable_messaging/query_types/total_carbon_embodiment/request/0.1',
               data: {
                 subjectId: {
                   idType: 'product_and_quantity',
@@ -517,7 +518,7 @@ export class QueriesController extends HTMLController {
     connectionId: UUID,
     parentId: UUID | null,
     params: Omit<SubmitQueryRequest['params'], 'id' | 'createdTime' | 'expiresTime'>,
-    expiresAt: Date
+    expiresTime: Date
   ) {
     const [connection]: ConnectionRow[] = await this.db.get(
       'connection',
@@ -535,18 +536,20 @@ export class QueriesController extends HTMLController {
       response: null,
       role: 'requester',
       parent_id: parentId,
-      expires_at: expiresAt,
+      expires_at: expiresTime,
     })
 
     try {
+      const fullParams = {
+        id: query.id,
+        createdTime: Math.floor(query.created_at.getTime() / 1000),
+        expiresTime: Math.floor(query.expires_at.getTime() / 1000),
+        ...params,
+      }
+      const safeParams = submitQueryRpcParams.parse(fullParams)
       await this.submitDrpcQueryAndStoreResult(log, connection.agent_connection_id, query, {
         method: 'submit_query_request',
-        params: {
-          id: query.id,
-          createdTime: Math.floor(query.created_at.getTime() / 1000),
-          expiresTime: Math.floor(query.expires_at.getTime() / 1000),
-          ...params,
-        } as SubmitQueryRequest['params'],
+        params: safeParams,
       })
     } catch (err) {
       if (err instanceof Error) {
@@ -608,7 +611,7 @@ export class QueriesController extends HTMLController {
         params: {
           ...response,
           createdTime: Math.floor(query.created_at.getTime() / 1000),
-          expiresAt: Math.floor(query.expires_at.getTime() / 1000),
+          expiresTime: Math.floor(query.expires_at.getTime() / 1000),
         },
       })
 

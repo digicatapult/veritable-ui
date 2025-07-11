@@ -533,7 +533,7 @@ describe('QueriesController', () => {
               },
             },
             id: 'ccaaaaaa-0000-0000-0000-d8ae0805059e',
-            type: 'https://github.com/digicatapult/veritable-documentation/tree/main/schemas/veritable_messaging/query_types/total_carbon_embodiment/request',
+            type: 'https://github.com/digicatapult/veritable-documentation/tree/main/schemas/veritable_messaging/query_types/total_carbon_embodiment/request/0.1',
             createdTime: 1,
             expiresTime: 1,
           },
