@@ -1,7 +1,7 @@
 import Html from '@kitajs/html'
 import { singleton } from 'tsyringe'
 import { ConnectionRow, QueryRow } from '../../models/db/types.js'
-import { CarbonEmbodimentRes, carbonEmbodimentResponse, ProductAndQuantity } from '../../models/drpc.js'
+import { CarbonEmbodimentRes, carbonEmbodimentResponseData, ProductAndQuantity } from '../../models/drpc.js'
 import { FormButton, LinkButton, Page } from '../common.js'
 
 export type CarbonEmbodimentFormStage = 'form' | 'success' | 'error'
@@ -186,11 +186,11 @@ export default class CarbonEmbodimentResponseTemplates {
     }
   }
 
-  private reduceResponse = (response: CarbonEmbodimentRes): number => {
+  private reduceResponse = (data: CarbonEmbodimentRes['data']): number => {
     return (
-      response.data.mass * this.multFactor(response.data.unit) +
-      response.data.partialResponses.reduce((acc, r) => {
-        return acc + this.reduceResponse(r)
+      data.mass * this.multFactor(data.unit) +
+      data.partialResponses.reduce((acc, r) => {
+        return acc + this.reduceResponse(r.data)
       }, 0)
     )
   }
@@ -201,7 +201,7 @@ export default class CarbonEmbodimentResponseTemplates {
     }
 
     const subjectId = ProductAndQuantity.parse(query.details.subjectId)
-    const response = carbonEmbodimentResponse.parse(query.response)
+    const responseData = carbonEmbodimentResponseData.parse(query.response)
 
     return (
       <Page
@@ -261,7 +261,7 @@ export default class CarbonEmbodimentResponseTemplates {
                 <tr>
                   <td>Carbon Emissions:</td>
                   <td class="query-results-left-padding-table">
-                    {Html.escapeHtml(this.reduceResponse(response))} kg CO2e
+                    {Html.escapeHtml(this.reduceResponse(responseData))} kg CO2e
                   </td>
                 </tr>
               </table>

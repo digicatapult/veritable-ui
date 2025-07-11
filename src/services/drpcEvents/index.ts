@@ -343,7 +343,6 @@ export default class DrpcEvents {
         }
       )
     } catch (err) {
-      console.log(err)
       if (rpcResponse?.id) {
         this.logger.warn('error in rpc response %s to query %s', rpcResponse.id, childQuery?.id)
         this.logger.debug('DRPC response %j', rpcResponse)
