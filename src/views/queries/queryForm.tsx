@@ -158,60 +158,62 @@ export default class QueryFormTemplates {
 
   private carbonEmbodimentFormPage = (props: CarbonEmbodimentFormProps) => {
     return (
-      <div class="container-query-form">
-        <div class="query-form-left">
-          <h1>Total Carbon Embodiment</h1>
-          <p class="query-form-text">
-            Creates a query for obtaining the total carbon embodiment for a given product/component.
-          </p>
-        </div>
-        <div class="query-form-right">
-          <p>
-            Choose the product that you want to apply the query “What is the total carbon embodiment for the
-            product/component below?” to.
-          </p>
-          <form
-            id="carbon-embodiment"
-            hx-post="/queries/new/carbon-embodiment"
-            hx-select="main > *"
-            hx-target="main"
-            hx-swap="innerHTML"
-          >
-            <input type="hidden" name="connectionId" value={props.connectionId} />
-            <div class="input-container">
-              <label for="productId-input" class="input-label">
-                Product ID
-              </label>
+      <div>
+        <div class="container-query-form">
+          <div class="query-form-left">
+            <h1>Total Carbon Embodiment</h1>
+            <p class="query-form-text">
+              Creates a query for obtaining the total carbon embodiment for a given product/component.
+            </p>
+          </div>
+          <div class="query-form-right">
+            <p>
+              Choose the product that you want to apply the query “What is the total carbon embodiment for the
+              product/component below?” to.
+            </p>
+            <form
+              id="carbon-embodiment"
+              hx-post="/queries/new/carbon-embodiment"
+              hx-select="main > *"
+              hx-target="main"
+              hx-swap="innerHTML"
+            >
+              <input type="hidden" name="connectionId" value={props.connectionId} />
+              <div class="input-container">
+                <label for="productId-input" class="input-label">
+                  Product ID
+                </label>
 
-              <input
-                id="productId-input"
-                name="productId"
-                placeholder="BX20001"
-                class="input-with-label"
-                type="text"
-                required
-                value={props.productId}
-              ></input>
-              <p class="additional-input-label">Product ID</p>
-            </div>
-            <div class="input-container">
-              <label for="productQuantity-input" class="input-label">
-                Quantity
-              </label>
-              <input
-                id="productQuantity-input"
-                name="quantity"
-                type="text"
-                placeholder="123"
-                pattern="^\d+$"
-                required
-                value={props?.quantity?.toString()}
-                class="input-with-label"
-              ></input>
-              <p class="additional-input-label">Quantity of product</p>
-            </div>
-            <FormButton text="Submit Query" style="filled" />
-          </form>
+                <input
+                  id="productId-input"
+                  name="productId"
+                  placeholder="BX20001"
+                  class="input-with-label"
+                  type="text"
+                  required
+                  value={props.productId}
+                ></input>
+                <p class="additional-input-label">Product ID</p>
+              </div>
+              <div class="input-container">
+                <label for="productQuantity-input" class="input-label">
+                  Quantity
+                </label>
+                <input
+                  id="productQuantity-input"
+                  name="quantity"
+                  type="text"
+                  placeholder="123"
+                  pattern="^\d+$"
+                  required
+                  value={props?.quantity?.toString()}
+                  class="input-with-label"
+                ></input>
+                <p class="additional-input-label">Quantity of product</p>
+              </div>
+              <FormButton text="Submit Query" style="filled" />
+            </form>
+          </div>
         </div>
       </div>
     )
