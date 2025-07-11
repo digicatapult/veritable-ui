@@ -227,7 +227,7 @@ export default class QueryFormTemplates {
           <p class="query-form-text">Creates a query to verify a company's financial details.</p>
         </div>
         <div class="query-form-right">
-          <p>Request financial details from {props.connection.company_name}</p>
+          <p>Request financial details from {Html.escapeHtml(props.connection.company_name)}</p>
           <form id="bav" hx-post="/queries/new/bav" hx-select="main > *" hx-target="main" hx-swap="innerHTML">
             <input type="hidden" name="connectionId" value={props.connection.id} />
             <FormButton text="Submit Query" style="filled" />
