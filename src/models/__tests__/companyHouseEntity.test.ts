@@ -2,6 +2,7 @@ import { expect } from 'chai'
 import { describe, it } from 'mocha'
 import { pino } from 'pino'
 import { container } from 'tsyringe'
+import { cleanupRegistries, insertCompanyHouseRegistry } from '../../../test/helpers/registries.js'
 import { RegistryCountryCode } from '../../controllers/connection/strings.js'
 import { Env } from '../../env/index.js'
 import type { ILogger } from '../../logger.js'
@@ -13,7 +14,6 @@ import {
   noCompanyNumber,
   validCompanyNumber,
 } from './fixtures/companyHouseFixtures.js'
-import { cleanupRegistries, insertCompanyHouseRegistry } from './helpers/db.js'
 import { withCompanyHouseMock } from './helpers/mockCompanyHouse.js'
 
 const mockLogger: ILogger = pino({ level: 'silent' })
@@ -22,11 +22,12 @@ const ukRegistryCountryCode = RegistryCountryCode.UK
 describe('organisationRegistry with company house as registry', () => {
   withCompanyHouseMock()
   const db = container.resolve(Database)
-
-  cleanupRegistries()
-  insertCompanyHouseRegistry()
-  after(() => {
-    cleanupRegistries()
+  beforeEach(async () => {
+    await cleanupRegistries()
+    await insertCompanyHouseRegistry()
+  })
+  afterEach(async () => {
+    await cleanupRegistries()
   })
 
   describe('getOrganisationProfileByOrganisationNumber', () => {

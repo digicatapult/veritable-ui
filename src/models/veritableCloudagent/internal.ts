@@ -1,5 +1,6 @@
 import { z } from 'zod'
 
+import { RegistryCountryCode } from '../../controllers/connection/strings.js'
 import { type PartialEnv } from '../../env/index.js'
 import { InternalError } from '../../errors.js'
 import { type ILogger } from '../../logger.js'
@@ -196,7 +197,7 @@ export default class VeritableCloudagentInt<Config extends CloudagentConfig = De
 
   public async createOutOfBandInvite(params: {
     companyName: string
-    registryCountryCode: string
+    registryCountryCode: RegistryCountryCode
   }): Promise<OutOfBandInvite> {
     return this.postRequest(
       '/v1/oob/create-invitation',

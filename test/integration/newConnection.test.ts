@@ -1,11 +1,14 @@
 import { expect } from 'chai'
 import { afterEach, beforeEach, describe, it } from 'mocha'
 import sinon from 'sinon'
+import { RegistryCountryCode } from '../../src/controllers/connection/strings.js'
 import { cleanupCloudagent, cleanupDatabase } from '../helpers/cleanup.js'
 import { setupTwoPartyContext, TwoPartyContext } from '../helpers/connection.js'
 import { alice } from '../helpers/fixtures.js'
+import { cleanupRegistries, insertCompanyHouseRegistry } from '../helpers/registries.js'
 import { post } from '../helpers/routeHelper.js'
 import { delay } from '../helpers/util.js'
+const ukRegistryCountryCode = RegistryCountryCode.UK
 
 describe('NewConnectionController', () => {
   const context: TwoPartyContext = {} as TwoPartyContext
@@ -15,12 +18,14 @@ describe('NewConnectionController', () => {
 
     await cleanupCloudagent([context.localCloudagent, context.remoteCloudagent])
     await cleanupDatabase([context.localDatabase, context.remoteDatabase])
+    await insertCompanyHouseRegistry()
   })
 
   afterEach(async () => {
     context.cloudagentEvents.stop()
     await cleanupCloudagent([context.localCloudagent, context.remoteCloudagent])
     await cleanupDatabase([context.localDatabase, context.remoteDatabase])
+    await cleanupRegistries()
   })
 
   describe('create invitation (happy path)', function () {
@@ -31,6 +36,7 @@ describe('NewConnectionController', () => {
         companyNumber: alice.company_number,
         email: 'alice@testmail.com',
         action: 'submit',
+        registryCountryCode: ukRegistryCountryCode,
       })
     })
 
@@ -56,11 +62,15 @@ describe('NewConnectionController', () => {
     let response: Awaited<ReturnType<typeof post>>
 
     beforeEach(async () => {
-      const invite = await context.remoteCloudagent.createOutOfBandInvite({ companyName: alice.company_name })
+      const invite = await context.remoteCloudagent.createOutOfBandInvite({
+        companyName: alice.company_name,
+        registryCountryCode: ukRegistryCountryCode,
+      })
       const inviteContent = Buffer.from(
         JSON.stringify({
           companyNumber: alice.company_number,
           inviteUrl: invite.invitationUrl,
+          goalCode: ukRegistryCountryCode,
         }),
         'utf8'
       ).toString('base64url')
@@ -91,11 +101,15 @@ describe('NewConnectionController', () => {
 
   describe('connection complete (receive side)', function () {
     beforeEach(async () => {
-      const invite = await context.remoteCloudagent.createOutOfBandInvite({ companyName: alice.company_name })
+      const invite = await context.remoteCloudagent.createOutOfBandInvite({
+        companyName: alice.company_name,
+        registryCountryCode: ukRegistryCountryCode,
+      })
       const inviteContent = Buffer.from(
         JSON.stringify({
           companyNumber: alice.company_number,
           inviteUrl: invite.invitationUrl,
+          goalCode: ukRegistryCountryCode,
         }),
         'utf8'
       ).toString('base64url')
@@ -126,6 +140,7 @@ describe('NewConnectionController', () => {
         companyNumber: alice.company_number,
         email: 'alice@testmail.com',
         action: 'submit',
+        registryCountryCode: ukRegistryCountryCode,
       })
 
       const invite = (emailSendStub.args.find(([name]) => name === 'connection_invite') || [])[1].invite

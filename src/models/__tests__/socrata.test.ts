@@ -2,6 +2,7 @@ import { expect } from 'chai'
 import { describe, it } from 'mocha'
 import { pino } from 'pino'
 import { container } from 'tsyringe'
+import { cleanupRegistries } from '../../../test/helpers/registries.js'
 import { RegistryCountryCode } from '../../controllers/connection/strings.js'
 import { Env } from '../../env/index.js'
 import type { ILogger } from '../../logger.js'
@@ -13,7 +14,7 @@ import {
   noCompanyNumber,
   validCompanyNumber,
 } from './fixtures/socrataFixtures.js'
-import { cleanupRegistries, insertSocrataRegistry } from './helpers/db.js'
+import { insertSocrataRegistry } from './helpers/db.js'
 import { withSocrataMock } from './helpers/mockSocrata.js'
 const mockLogger: ILogger = pino({ level: 'silent' })
 const nyRegistryCountryCode = RegistryCountryCode.NY
@@ -21,14 +22,15 @@ const nyRegistryCountryCode = RegistryCountryCode.NY
 describe('organisationRegistry with socrata as registry', () => {
   withSocrataMock()
   const db = container.resolve(Database)
-
-  cleanupRegistries()
-  insertSocrataRegistry()
-  after(() => {
-    cleanupRegistries()
+  beforeEach(async () => {
+    await cleanupRegistries()
+    await insertSocrataRegistry()
+  })
+  afterEach(async () => {
+    await cleanupRegistries()
   })
 
-  describe.only('getOrganisationProfileByOrganisationNumber', () => {
+  describe('getOrganisationProfileByOrganisationNumber', () => {
     it('should return company found if valid company', async () => {
       const environment = container.resolve(Env)
 
@@ -37,7 +39,6 @@ describe('organisationRegistry with socrata as registry', () => {
         validCompanyNumber,
         nyRegistryCountryCode
       )
-      console.log(response)
       expect(response).deep.equal({ type: 'found', company: finalSuccessResponse })
     })
     it('should return notFound if company notFound', async () => {

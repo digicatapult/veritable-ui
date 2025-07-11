@@ -34,9 +34,6 @@ export type BaseProfileSearchResult<T> =
       type: 'notFound'
     }
 
-const emptySocrataResParser = z.array(z.any()).length(0)
-type EmptySocrataRes = z.infer<typeof emptySocrataResParser>
-
 @singleton()
 @injectable()
 export default class OrganisationRegistry {
@@ -125,7 +122,6 @@ export default class OrganisationRegistry {
   ): Promise<BaseProfileSearchResult<CompanyHouseProfile>> {
     this.logger.info(`Getting company house profile for ${companyNumber}`)
     const endpoint = `${registry.url}/company/${encodeURIComponent(companyNumber)}`
-    console.log('endpoint', endpoint)
     const companyProfile = await this.makeCompanyProfileRequest(endpoint)
     return companyProfile === null
       ? { type: 'notFound' }

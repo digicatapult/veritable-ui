@@ -47,7 +47,6 @@ export class SettingsController extends HTMLController {
     const settingsDict = await this.transformSettingsToDict(settings)
     const resetEnabled = this.env.get('DEMO_MODE')
     const profile = await this.organisationRegistry.localOrganisationProfile()
-    console.log('profile', profile)
     const set = {
       company_name: profile.name,
       companies_house_number: this.env.get('INVITATION_FROM_COMPANY_NUMBER'),
@@ -120,29 +119,29 @@ export class SettingsController extends HTMLController {
       return acc
     }, {} as SettingsDict)
   }
-  private async formatAddress(registeredOfficeAddress: {
-    address_line_1?: string
-    address_line_2?: string
-    care_of?: string
-    country?: string
-    locality?: string
-    po_box?: string
-    postal_code?: string
-    premises?: string
-    region?: string
-  }): Promise<string> {
-    return [
-      registeredOfficeAddress.care_of,
-      registeredOfficeAddress.premises,
-      registeredOfficeAddress.address_line_1,
-      registeredOfficeAddress.address_line_2,
-      registeredOfficeAddress.po_box,
-      registeredOfficeAddress.locality,
-      registeredOfficeAddress.region,
-      registeredOfficeAddress.postal_code,
-      registeredOfficeAddress.country,
-    ]
-      .filter(Boolean)
-      .join(', ')
-  }
+  // private async formatAddress(registeredOfficeAddress: {
+  //   address_line_1?: string
+  //   address_line_2?: string
+  //   care_of?: string
+  //   country?: string
+  //   locality?: string
+  //   po_box?: string
+  //   postal_code?: string
+  //   premises?: string
+  //   region?: string
+  // }): Promise<string> {
+  //   return [
+  //     registeredOfficeAddress.care_of,
+  //     registeredOfficeAddress.premises,
+  //     registeredOfficeAddress.address_line_1,
+  //     registeredOfficeAddress.address_line_2,
+  //     registeredOfficeAddress.po_box,
+  //     registeredOfficeAddress.locality,
+  //     registeredOfficeAddress.region,
+  //     registeredOfficeAddress.postal_code,
+  //     registeredOfficeAddress.country,
+  //   ]
+  //     .filter(Boolean)
+  //     .join(', ')
+  // }
 }
