@@ -359,7 +359,7 @@ describe('QueriesController', () => {
         })
         .then(toHTMLString)
 
-      expect(result).to.equal('queryForm_success_queryForm')
+      expect(result).to.equal('queriesResponse_success_template')
     })
 
     it('sets query status to error if rpc succeeds without response', async () => {
@@ -376,7 +376,7 @@ describe('QueriesController', () => {
         })
         .then(toHTMLString)
 
-      expect(result).to.equal('queryForm_error_queryForm')
+      expect(result).to.equal('queriesResponse_error_template')
       expect(dbMock.update.getCall(0).args).to.deep.equal([
         'query',
         { id: '5390af91-c551-4d74-b394-d8ae0805059a' },
@@ -397,7 +397,7 @@ describe('QueriesController', () => {
         })
         .then(toHTMLString)
 
-      expect(result).to.equal('queryForm_error_queryForm')
+      expect(result).to.equal('queriesResponse_error_template')
     })
   })
 
@@ -421,7 +421,7 @@ describe('QueriesController', () => {
       { id: '5390af91-c551-4d74-b394-d8ae0805059a' },
       { status: 'errored' },
     ])
-    expect(result).to.equal('queryForm_error_queryForm')
+    expect(result).to.equal('queriesResponse_error_template')
   })
 
   describe('viewing query responses', () => {

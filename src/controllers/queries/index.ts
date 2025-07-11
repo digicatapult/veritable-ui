@@ -633,19 +633,19 @@ export class QueriesController extends HTMLController {
       await this.db.update('query', { id: query.id }, { status: 'errored' })
 
       return this.html(
-        this.queryFormTemplates.newQueryFormPage({
+        this.carbonEmbodimentResponseTemplates.newCarbonEmbodimentResponseFormPage({
           formStage: 'error',
-          company: { companyName: connection.company_name },
-          type: query.type,
+          company: connection,
+          query,
         })
       )
     }
 
     return this.html(
-      this.queryFormTemplates.newQueryFormPage({
+      this.carbonEmbodimentResponseTemplates.newCarbonEmbodimentResponseFormPage({
         formStage: 'success',
-        company: { companyName: connection.company_name },
-        type: query.type,
+        company: connection,
+        query,
       })
     )
   }
