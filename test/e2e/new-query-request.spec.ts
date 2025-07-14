@@ -147,4 +147,33 @@ test.describe('New query request', () => {
       await expect(queryRow.getByText('Pending Your Input')).toHaveClass('list-item-status')
     })
   })
+
+  test('requests a query from connection page (Alice)', async () => {
+    await test.step('creates a new query request from connections', async () => {
+      await page.goto(`${AliceHost}/connection`)
+      await page.click('text=Send Query')
+
+      expect(page.url()).toContain('/queries/new')
+
+      const bavCard = await page.$('a[href^="/queries/new/bav"]')
+      await bavCard?.click()
+    })
+
+    await test.step('connection select page skipped - submits a new BAV query request', async () => {
+      expect(page.url()).toContain('/queries/new/bav')
+      const content = page.locator('#content-main')
+      await expect(content.locator(page.getByText('Request financial details from'))).toHaveText(
+        'Request financial details from OFFSHORE RENEWABLE ENERGY CATAPULT'
+      )
+
+      await page.getByRole('button', { name: 'Submit Query' }).click({ delay: 2000 })
+
+      const successModal = page.locator('#new-query-confirmation-text')
+      await expect(successModal).toBeVisible()
+      await expect(successModal.getByRole('heading')).toContainText('Your Query has been sent!')
+      expect(await successModal.textContent()).toContain(
+        'Your Query has been sent!Your query has been successfully shared with the following supplier:OFFSHORE RENEWABLE ENERGY CATAPULTOnce all responses are received, the information will be automatically gathered and shared with you. No further action is needed on your part. You can trust that the process is secure, transparent, and streamlined for your convenience.You can check the status of your query in the Queries section of your dashboard.Back to Queries'
+      )
+    })
+  })
 })

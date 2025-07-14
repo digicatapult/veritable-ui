@@ -47,10 +47,10 @@ type ErrorProps = {
 type QueryProps = SelectProps | CarbonEmbodimentFormProps | BavFormProps | SuccessProps | ErrorProps
 
 @singleton()
-export default class QueryFormTemplates {
+export default class QueryRequestTemplates {
   constructor() {}
 
-  public newQueryFormPage = (props: QueryProps) => {
+  public newQueryRequestPage = (props: QueryProps) => {
     return (
       <Page
         title={`Veritable - New ${typeMap[props.type].name} Query`}

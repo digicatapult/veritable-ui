@@ -23,7 +23,7 @@ import VeritableCloudagent from '../../models/veritableCloudagent/index.js'
 import { JsonRpcError } from '../../models/veritableCloudagent/internal.js'
 import QueriesTemplates from '../../views/queries/queries.js'
 import QueryListTemplates from '../../views/queries/queriesList.js'
-import QueryFormTemplates from '../../views/queries/queryForm.js'
+import QueryRequestTemplates from '../../views/queries/queryRequest.js'
 import CarbonEmbodimentResponseTemplates from '../../views/queries/responseCo2embodiment.js'
 import { HTML, HTMLController } from '../HTMLController.js'
 
@@ -33,7 +33,7 @@ import { HTML, HTMLController } from '../HTMLController.js'
 @Produces('text/html')
 export class QueriesController extends HTMLController {
   constructor(
-    private queryFormTemplates: QueryFormTemplates,
+    private queryFormTemplates: QueryRequestTemplates,
     private carbonEmbodimentResponseTemplates: CarbonEmbodimentResponseTemplates,
     private queriesTemplates: QueriesTemplates,
     private queryManagementTemplates: QueryListTemplates,
@@ -48,8 +48,8 @@ export class QueriesController extends HTMLController {
    */
   @SuccessResponse(200)
   @Get('/new')
-  public async queries(): Promise<HTML> {
-    return this.html(this.queriesTemplates.chooseQueryPage())
+  public async queries(@Query() connectionId?: UUID): Promise<HTML> {
+    return this.html(this.queriesTemplates.chooseQueryPage(connectionId))
   }
   /**
    * Retrieves the queries page
@@ -85,7 +85,7 @@ export class QueriesController extends HTMLController {
   ): Promise<HTML> {
     if (connectionId) {
       return this.html(
-        this.queryFormTemplates.newQueryFormPage({
+        this.queryFormTemplates.newQueryRequestPage({
           formStage: 'carbonEmbodiment',
           connectionId: connectionId,
           type: 'total_carbon_embodiment',
@@ -107,7 +107,7 @@ export class QueriesController extends HTMLController {
     )
 
     return this.html(
-      this.queryFormTemplates.newQueryFormPage({
+      this.queryFormTemplates.newQueryRequestPage({
         formStage: 'companySelect',
         connections,
         search: search ?? '',
@@ -133,7 +133,7 @@ export class QueriesController extends HTMLController {
       }
 
       return this.html(
-        this.queryFormTemplates.newQueryFormPage({
+        this.queryFormTemplates.newQueryRequestPage({
           formStage: 'bav',
           connection: connection,
           type: 'beneficiary_account_validation',
@@ -155,7 +155,7 @@ export class QueriesController extends HTMLController {
     )
 
     return this.html(
-      this.queryFormTemplates.newQueryFormPage({
+      this.queryFormTemplates.newQueryRequestPage({
         formStage: 'companySelect',
         connections,
         search: search ?? '',
@@ -561,7 +561,7 @@ export class QueriesController extends HTMLController {
       await this.db.update('query', { id: query?.id }, { status: 'errored' })
 
       return this.html(
-        this.queryFormTemplates.newQueryFormPage({
+        this.queryFormTemplates.newQueryRequestPage({
           formStage: 'error',
           company: {
             companyName: connection.company_name,
@@ -572,7 +572,7 @@ export class QueriesController extends HTMLController {
     }
 
     return this.html(
-      this.queryFormTemplates.newQueryFormPage({
+      this.queryFormTemplates.newQueryRequestPage({
         formStage: 'success',
         company: {
           companyName: connection.company_name,
