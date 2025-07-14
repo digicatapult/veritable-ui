@@ -24,8 +24,6 @@ describe('organisationRegistry with company house as registry', () => {
   describe('getOrganisationProfileByOrganisationNumber', () => {
     it('should return company found if valid company', async () => {
       const environment = container.resolve(Env)
-      console.log(`environment: ${environment.get('COMPANY_HOUSE_API_URL')}`)
-
       const organisationRegistryObject = new OrganisationRegistry(environment, mockDb, mockLogger)
       const response = await organisationRegistryObject.getOrganisationProfileByOrganisationNumber(
         validCompanyNumber,
