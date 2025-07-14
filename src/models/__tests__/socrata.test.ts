@@ -2,7 +2,7 @@ import { expect } from 'chai'
 import { describe, it } from 'mocha'
 import { pino } from 'pino'
 import { container } from 'tsyringe'
-import { cleanupRegistries } from '../../../test/helpers/registries.js'
+import { cleanupRegistries, insertSocrataRegistry } from '../../../test/helpers/registries.js'
 import { RegistryCountryCode } from '../../controllers/connection/strings.js'
 import { Env } from '../../env/index.js'
 import type { ILogger } from '../../logger.js'
@@ -14,7 +14,6 @@ import {
   noCompanyNumber,
   validCompanyNumber,
 } from './fixtures/socrataFixtures.js'
-import { insertSocrataRegistry } from './helpers/db.js'
 import { withSocrataMock } from './helpers/mockSocrata.js'
 const mockLogger: ILogger = pino({ level: 'silent' })
 const nyRegistryCountryCode = RegistryCountryCode.NY

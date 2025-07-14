@@ -15,6 +15,17 @@ export async function insertCompanyHouseRegistry() {
   })
 }
 
+export async function insertSocrataRegistry() {
+  const db = container.resolve(Database)
+  await db.insert('organisation_registries', {
+    country_code: 'NY',
+    registry_name: 'Socrata',
+    registry_key: 'socrata',
+    url: env.get('SOCRATA_API_URL'),
+    api_key: '',
+  })
+}
+
 export async function cleanupRegistries() {
   const db = container.resolve(Database)
   await db.delete('organisation_registries', {})
