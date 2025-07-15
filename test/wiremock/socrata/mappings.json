@@ -1,0 +1,53 @@
+{
+  "mappings": [
+    {
+      "request": {
+        "method": "GET",
+        "url": "/?dos_id=3211809"
+      },
+      "response": {
+        "status": 200,
+        "jsonBody": [
+          {
+            "dos_id": "3211809",
+            "current_entity_name": "00:02:59 LLC",
+            "initial_dos_filing_date": "2005-05-31T00:00:00.000",
+            "county": "Kings",
+            "jurisdiction": "New York",
+            "entity_type": "DOMESTIC LIMITED LIABILITY COMPANY",
+            "dos_process_name": "00:02:59 LLC",
+            "dos_process_address_1": "656 UNION STREET, APT. 2",
+            "dos_process_city": "BROOKLYN",
+            "dos_process_state": "NY",
+            "dos_process_zip": "11215"
+          }
+        ]
+      }
+    },
+    {
+      "request": {
+        "method": "GET",
+        "url": "/?dos_id=6928616"
+      },
+      "response": {
+        "status": 200,
+        "jsonBody": [
+          {
+            "dos_id": "6928616",
+            "current_entity_name": "000 ARCHITECTURE PLLC",
+            "initial_dos_filing_date": "2023-07-05T00:00:00.000",
+            "county": "New York",
+            "jurisdiction": "New York",
+            "entity_type": "DOMESTIC PROFESSIONAL SERVICE LIMITED LIABILITY COMPANY",
+            "dos_process_name": "the pllc",
+            "dos_process_address_1": "335 east 14th st,",
+            "dos_process_address_2": "#1154",
+            "dos_process_city": "NEW YORK",
+            "dos_process_state": "NY",
+            "dos_process_zip": "10009"
+          }
+        ]
+      }
+    }
+  ]
+}

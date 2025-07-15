@@ -309,7 +309,17 @@ services:
       - '8443:8080' # Port for accessing wiremock
     restart: always
     volumes:
-      - ./test/wiremock/:/home/wiremock/mappings/
+      - ./test/wiremock/company-house/:/home/wiremock/mappings/
+
+  wiremock-socrata:
+    image: wiremock/wiremock:3.13.1
+    container_name: wiremock-socrata
+    scale: 0
+    ports:
+      - '8444:8080' # Port for accessing wiremock
+    restart: always
+    volumes:
+      - ./test/wiremock/socrata/:/home/wiremock/mappings/
 
 volumes:
   ipfs:
