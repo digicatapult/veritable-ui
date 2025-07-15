@@ -208,7 +208,7 @@ export const withNewConnectionMocks = () => {
   } as unknown as Env
 
   return {
-    mockTransactionDb,
+    mockWithTransaction,
     mockDb,
     mockCompanyHouseEntity,
     mockCloudagent,
