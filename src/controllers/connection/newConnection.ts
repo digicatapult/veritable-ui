@@ -373,7 +373,6 @@ export class NewConnectionController extends HTMLController {
     companyData: OrganisationProfile
   ): Promise<{ type: 'success'; state: 'new_connection' | 'update_existing' } | { type: 'error'; message: string }> {
     const existingConnections = await this.db.get('connection', { company_number: companyData.company_number })
-    logger.info('existingConnections.length %s', existingConnections.length)
     // Allow to progress if no connection record exists
     if (existingConnections.length !== 0) {
       // NB following check should be adjusted if we need to store 'disconnected' records/connections
@@ -384,7 +383,7 @@ export class NewConnectionController extends HTMLController {
       //     message: `Database error - duplicate connection records exist for ${companyData.company_name}`,
       //   }
       // }
-      existingConnections.forEach(async (connection) => {
+      for await (const connection of existingConnections) {
         // error early if verified_both
         if (connection.status === 'verified_both') {
           logger.info('verified connection already exists %s', connection.id)
@@ -404,7 +403,7 @@ export class NewConnectionController extends HTMLController {
           }
         }
         // now check each invitation status
-        existingInvitations.forEach(async (invitation) => {
+        for (const invitation of existingInvitations) {
           // catch the case where they have verified our invite but we've not verified theirs
           if (connection.status === 'verified_them' && invitation.validity === 'used') {
             logger.info('other party verified, request new pin instead %s', connection.id)
@@ -425,10 +424,10 @@ export class NewConnectionController extends HTMLController {
               message: `Edge case database state detected for connection ${connection.id}, aborting`,
             }
           }
-        })
+        }
         logger.info('returning success - update existing')
         return { type: 'success', state: 'update_existing' }
-      })
+      }
     }
     logger.info('returning success - new connection')
     return { type: 'success', state: 'new_connection' }
