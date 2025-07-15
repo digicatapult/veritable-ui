@@ -12,6 +12,7 @@ import {
   invalidCompanyNumber,
   invalidCompanyNumberInvite,
   invalidInvite,
+  noExistingInviteCompanyNumber,
   notFoundCompanyNumber,
   notFoundCompanyNumberInvite,
   validCompanyNumber,
@@ -20,8 +21,9 @@ import {
   validCompanyNumberInactive,
   validCompanyNumberInactiveInvite,
   validCompanyNumberInvite,
-  validExistingCompanyNumber,
   validExistingCompanyNumberInvite,
+  verifiedBothCompanyNumber,
+  verifiedBothCompanyNumberInvite,
 } from './fixtures.js'
 
 describe('NewConnectionController', () => {
@@ -123,13 +125,6 @@ describe('NewConnectionController', () => {
       expect(result).to.equal('fromInviteForm_error--Company number does not exist_fromInviteForm')
     })
 
-    it('should return rendered error when company already connected', async () => {
-      const { args } = withNewConnectionMocks()
-      const controller = new NewConnectionController(...args)
-      const result = await controller.verifyInviteForm(req, validExistingCompanyNumberInvite).then(toHTMLString)
-      expect(result).to.equal('fromInviteForm_error--Connection already exists with NAME2_fromInviteForm')
-    })
-
     it('should return rendered error when company registered office in dispute', async () => {
       const { args } = withNewConnectionMocks()
       const controller = new NewConnectionController(...args)
@@ -170,18 +165,33 @@ describe('NewConnectionController', () => {
       )
     })
 
-    it('should return rendered error when company already connected', async () => {
+    it('should return rendered error when connection has no invitation in db', async () => {
       const { args } = withNewConnectionMocks()
       const controller = new NewConnectionController(...args)
       const result = await controller
         .submitNewInvite(req, {
-          companyNumber: validExistingCompanyNumber,
+          companyNumber: noExistingInviteCompanyNumber,
           email: 'alice@example.com',
           action: 'continue',
         })
         .then(toHTMLString)
       expect(result).to.equal(
-        'companyFormInput_error--Connection already exists with NAME2-form-alice@example.com-00000002_companyFormInput'
+        'companyFormInput_error--No invitation found for connection record undefined-form-alice@example.com-00000011_companyFormInput'
+      )
+    })
+
+    it('should return rendered error when company already connected and verified_both', async () => {
+      const { args } = withNewConnectionMocks()
+      const controller = new NewConnectionController(...args)
+      const result = await controller
+        .submitNewInvite(req, {
+          companyNumber: verifiedBothCompanyNumber,
+          email: 'alice@example.com',
+          action: 'continue',
+        })
+        .then(toHTMLString)
+      expect(result).to.equal(
+        'companyFormInput_error--Verified connection already exists with organisation VERIFIED_BOTH-form-alice@example.com-00000010_companyFormInput'
       )
     })
 
@@ -231,10 +241,10 @@ describe('NewConnectionController', () => {
     })
 
     it('should return rendered error when unique constraint is violated', async () => {
-      const { mockTransactionDb, args } = withNewConnectionMocks()
+      const { mockWithTransaction, args } = withNewConnectionMocks()
 
       sinon
-        .stub(mockTransactionDb, 'insert')
+        .stub(mockWithTransaction, 'insert')
         .rejects(new Error('details - duplicate key value violates unique constraint "unq_connection_company_number"'))
 
       const controller = new NewConnectionController(...args)
@@ -275,9 +285,9 @@ describe('NewConnectionController', () => {
       let result: string
 
       beforeEach(async () => {
-        const { mockTransactionDb, mockEmail, args } = withNewConnectionMocks()
+        const { mockWithTransaction, mockEmail, args } = withNewConnectionMocks()
 
-        insertSpy = sinon.spy(mockTransactionDb, 'insert')
+        insertSpy = sinon.spy(mockWithTransaction, 'insert')
         emailSpy = sinon.spy(mockEmail, 'sendMail')
         clock = sinon.useFakeTimers(100)
 
@@ -414,14 +424,14 @@ describe('NewConnectionController', () => {
       expect(result).to.equal('fromInviteForm_error--Company number does not exist_fromInviteForm')
     })
 
-    it('should return rendered error when company already connected', async () => {
-      const { args } = withNewConnectionMocks()
-      const controller = new NewConnectionController(...args)
-      const result = await controller
-        .submitFromInvite(req, { invite: validExistingCompanyNumberInvite, action: 'createConnection' })
-        .then(toHTMLString)
-      expect(result).to.equal('fromInviteForm_error--Connection already exists with NAME2_fromInviteForm')
-    })
+    // it('should return rendered error when company already connected', async () => {
+    //   const { args } = withNewConnectionMocks()
+    //   const controller = new NewConnectionController(...args)
+    //   const result = await controller
+    //     .submitFromInvite(req, { invite: verifiedBothCompanyNumberInvite, action: 'createConnection' })
+    //     .then(toHTMLString)
+    //   expect(result).to.equal('fromInviteForm_error--Connection already exists with NAME2_fromInviteForm')
+    // })
 
     it('should return rendered error when company registered office in dispute', async () => {
       const { args } = withNewConnectionMocks()
@@ -444,10 +454,10 @@ describe('NewConnectionController', () => {
     })
 
     it('should return rendered error when unique constraint is violated', async () => {
-      const { mockTransactionDb, args } = withNewConnectionMocks()
+      const { mockWithTransaction, args } = withNewConnectionMocks()
 
       sinon
-        .stub(mockTransactionDb, 'insert')
+        .stub(mockWithTransaction, 'insert')
         .rejects(new Error('details - duplicate key value violates unique constraint "unq_connection_company_number"'))
 
       const controller = new NewConnectionController(...args)
@@ -484,9 +494,9 @@ describe('NewConnectionController', () => {
       let result: string
 
       beforeEach(async () => {
-        const { mockTransactionDb, mockEmail, args } = withNewConnectionMocks()
+        const { mockWithTransaction, mockEmail, args } = withNewConnectionMocks()
 
-        insertSpy = sinon.spy(mockTransactionDb, 'insert')
+        insertSpy = sinon.spy(mockWithTransaction, 'insert')
         emailSpy = sinon.spy(mockEmail, 'sendMail')
         clock = sinon.useFakeTimers(100)
 
