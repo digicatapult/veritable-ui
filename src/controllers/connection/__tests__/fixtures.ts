@@ -133,7 +133,7 @@ export const validCompanyMap: Record<string, typeof validCompany> = {
   [tooManyDisconnectedCompanyNumber]: tooManyDisconnectCompany,
   [validDisconnectedCompanyNumber]: validDisconnectedCompany,
   [usedUnverifiedCompanyNumber]: usedUnVerifiedCompany,
-  [usedVerifiedThemCompanyNumber]: validExistingCompany,
+  [usedVerifiedThemCompanyNumber]: usedVerifiedThemCompany,
   [usedVerifiedUsCompanyNumber]: usedVerifiedUsCompany,
   [usedDisconnectedCompanyNumber]: usedDisconnectedCompany,
   [allowNewInvitationCompanyNumber]: allowNewInvitationCompany,
