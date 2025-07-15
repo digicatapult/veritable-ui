@@ -15,11 +15,24 @@ import { FromInviteTemplates } from '../../../views/newConnection/fromInvite.js'
 import { NewInviteTemplates } from '../../../views/newConnection/newInvite.js'
 import { PinSubmissionTemplates } from '../../../views/newConnection/pinSubmission.js'
 import {
+  allowNewInvitationCompanyNumber,
+  expiredInvite,
+  noExistingInviteCompanyNumber,
   notFoundCompanyNumber,
+  tooManyDisconnectedCompanyNumber,
+  tooManyInvite,
+  usedDisconnectedCompanyNumber,
+  usedInvite,
+  usedPendingCompanyNumber,
+  usedUnverifiedCompanyNumber,
+  usedVerifiedThemCompanyNumber,
+  usedVerifiedUsCompanyNumber,
   validCompanyMap,
   validCompanyNumber,
   validConnection,
-  validExistingCompanyNumber,
+  validDisconnectedCompanyNumber,
+  validInvite,
+  verifiedBothCompanyNumber,
 } from './fixtures.js'
 
 function templateFake(templateName: string, ...args: unknown[]) {
@@ -110,11 +123,31 @@ export const withNewConnectionMocks = () => {
   }
   const mockDb = {
     get: (tableName: string, where?: Record<string, string>) => {
-      if (tableName !== 'connection') throw new Error('Invalid table')
-      if (where?.company_number === validCompanyNumber) return []
-      if (where?.company_number === validExistingCompanyNumber) return [{}]
-      if (where?.id === '4a5d4085-5924-43c6-b60d-754440332e3d') return [validConnection]
-      return []
+      if (tableName === 'connection') {
+        if (where?.company_number === validCompanyNumber) return []
+        if (where?.id === '4a5d4085-5924-43c6-b60d-754440332e3d') return [validConnection]
+        if (where?.company_number === noExistingInviteCompanyNumber) return [{}]
+        if (where?.company_number === verifiedBothCompanyNumber) return [{ status: 'verified_both' }]
+        if (where?.company_number === usedPendingCompanyNumber) return [{ id: usedInvite, status: 'pending' }]
+        if (where?.company_number === usedUnverifiedCompanyNumber) return [{ id: usedInvite, status: 'unverified' }]
+        if (where?.company_number === usedVerifiedThemCompanyNumber)
+          return [{ id: usedInvite, status: 'verified_them' }]
+        if (where?.company_number === usedVerifiedUsCompanyNumber) return [{ id: usedInvite, status: 'verified_us' }]
+        if (where?.company_number === usedDisconnectedCompanyNumber) return [{ id: usedInvite, status: 'disconnected' }]
+        if (where?.company_number === tooManyDisconnectedCompanyNumber)
+          return [{ id: tooManyInvite, status: 'disconnected' }]
+        if (where?.company_number === validDisconnectedCompanyNumber)
+          return [{ id: validInvite, status: 'disconnected' }]
+        if (where?.company_number === allowNewInvitationCompanyNumber) return [{ id: validInvite, status: 'pending' }]
+        return []
+      }
+      if (tableName === 'connection_invite') {
+        if (where?.connection_id === validInvite) return [{ validity: 'valid' }]
+        if (where?.connection_id === expiredInvite) return [{ validity: 'expired' }]
+        if (where?.connection_id === tooManyInvite) return [{ validity: 'too_many_attempts' }]
+        if (where?.connection_id === usedInvite) return [{ validity: 'used' }]
+        return []
+      }
     },
     withTransaction: (fn: (arg: unknown) => unknown) => {
       return Promise.resolve(fn(mockWithTransaction))
