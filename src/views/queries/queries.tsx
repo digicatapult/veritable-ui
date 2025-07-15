@@ -4,7 +4,8 @@ import { Page } from '../common.js'
 @singleton()
 export default class QueriesTemplates {
   constructor() {}
-  public chooseQueryPage = () => {
+  public chooseQueryPage = (connectionId?: string) => {
+    const connectionQuery = connectionId ? `?connectionId=${connectionId}` : ''
     return (
       <Page
         title="Veritable - Queries"
@@ -22,11 +23,15 @@ export default class QueriesTemplates {
           <hr class="divider"></hr>
         </div>
         <div class="query-container">
-          <a class="query-item" href="/queries/new/carbon-embodiment">
+          <a class="query-item" href={`/queries/new/carbon-embodiment${connectionQuery}`}>
             <h1 class="query-header">Total Carbon Embodiment</h1>
             <p class="query-text">
               Creates a query for calculating the total carbon embodiment for a given product or component.
             </p>
+          </a>
+          <a class="query-item" href={`/queries/new/bav${connectionQuery}`}>
+            <h1 class="query-header">Beneficiary Account Validation</h1>
+            <p class="query-text">Creates a query to verify a company's financial details</p>
           </a>
           <a class="query-item disabled" href="#">
             <h1 class="query-header">Product Provenance</h1>

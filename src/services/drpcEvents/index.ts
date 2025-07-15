@@ -6,10 +6,12 @@ import { QueryRow } from '../../models/db/types.js'
 import {
   drpcQueryAck,
   DrpcQueryResponse,
+  schemaToTypeMap,
   submitQueryResponseRpcParams,
   SubmitQueryResponseRpcParams,
   SubmitQueryRpcParams,
   submitQueryRpcParams,
+  typeToResponseSchemaMap,
 } from '../../models/drpc.js'
 import { UUID } from '../../models/strings.js'
 import VeritableCloudagent from '../../models/veritableCloudagent/index.js'
@@ -112,7 +114,7 @@ export default class DrpcEvents {
       const [query] = await this.db.insert('query', {
         connection_id: connection.id,
         status: 'pending_your_input',
-        type: 'total_carbon_embodiment',
+        type: schemaToTypeMap[params.type],
         details: {
           subjectId: params.data.subjectId,
         },
@@ -276,27 +278,33 @@ export default class DrpcEvents {
       }
       const partialResponses = allChilds.map(({ id, type, response }) => {
         if (!response || type != parentQuery.type) {
-          throw new Error('Unexpected child query in resolved status without response')
+          throw new Error('Unexpected child query in resolved status without response or type not matching parent')
         }
         return {
           id,
-          type: `https://github.com/digicatapult/veritable-documentation/tree/main/schemas/veritable_messaging/query_types/${type}/response/0.1` as const,
+          type: typeToResponseSchemaMap[type],
           data: response,
         }
       })
       const response = {
-        mass: parentQuery.response.mass,
-        unit: parentQuery.response.unit,
+        ...parentQuery.response,
         partialResponses,
         subjectId: parentQuery.details.subjectId,
       }
+      const params = {
+        id: parentQuery.response_id as UUID,
+        type: typeToResponseSchemaMap[parentQuery.type],
+        data: response,
+      }
+
+      const safeParams = submitQueryResponseRpcParams.parse(params)
 
       // if all child responded, respond to the parent query
-      rpcResponse = await this.cloudagent.submitDrpcRequest(connection.agent_connection_id, 'submit_query_response', {
-        id: parentQuery.response_id as UUID,
-        type: `https://github.com/digicatapult/veritable-documentation/tree/main/schemas/veritable_messaging/query_types/${parentQuery.type}/response/0.1`,
-        data: response,
-      })
+      rpcResponse = await this.cloudagent.submitDrpcRequest(
+        connection.agent_connection_id,
+        'submit_query_response',
+        safeParams
+      )
       this.logger.info('submitting DRPC request %j', rpcResponse)
 
       if (!rpcResponse) throw new Error('DRPC has not responded')
@@ -330,7 +338,7 @@ export default class DrpcEvents {
         'query',
         { id: parentQuery.id },
         {
-          response,
+          response: safeParams.data,
           status: 'resolved',
         }
       )
