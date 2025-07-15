@@ -8,6 +8,22 @@ export const validExistingCompanyNumber = '00000002'
 export const validCompanyNumberInDispute = '00000003'
 export const validCompanyNumberInactive = '00000004'
 
+export const verifiedBothCompanyNumber = '00000010'
+export const noExistingInviteCompanyNumber = '00000011'
+export const usedPendingCompanyNumber = '00000012'
+export const tooManyDisconnectedCompanyNumber = '00000013'
+export const validDisconnectedCompanyNumber = '00000014'
+export const usedVerifiedThemCompanyNumber = '00000015'
+export const usedUnverifiedCompanyNumber = '00000016'
+export const usedVerifiedUsCompanyNumber = '00000017'
+export const usedDisconnectedCompanyNumber = '00000018'
+export const allowNewInvitationCompanyNumber = '00000019'
+
+export const validInvite = 'aaaa'
+export const expiredInvite = 'bbbb'
+export const tooManyInvite = 'cccc'
+export const usedInvite = 'dddd'
+
 export const validCompany = {
   company_name: 'NAME',
   company_number: validCompanyNumber,
@@ -46,11 +62,81 @@ export const validCompanyInactive = {
   company_status: 'inactive',
 }
 
+export const verifiedBothCompany = {
+  ...validCompany,
+  company_number: verifiedBothCompanyNumber,
+  company_name: 'VERIFIED_BOTH',
+}
+
+export const noInviteCompany = {
+  ...validCompany,
+  company_number: noExistingInviteCompanyNumber,
+  company_name: 'NO_INVITE',
+}
+
+export const usedPendingCompany = {
+  ...validCompany,
+  company_number: usedPendingCompanyNumber,
+  company_name: 'USED_PENDING',
+}
+
+export const tooManyDisconnectCompany = {
+  ...validCompany,
+  company_number: tooManyDisconnectedCompanyNumber,
+  company_name: 'TOO_MANY_DISCONNECTED',
+}
+
+export const validDisconnectedCompany = {
+  ...validCompany,
+  company_number: validDisconnectedCompanyNumber,
+  company_name: 'VALID_DISCONNECTED',
+}
+
+export const usedUnVerifiedCompany = {
+  ...validCompany,
+  company_number: usedUnverifiedCompanyNumber,
+  company_name: 'USED_UNVERIFIED',
+}
+
+export const usedVerifiedThemCompany = {
+  ...validCompany,
+  company_number: usedVerifiedThemCompanyNumber,
+  company_name: 'USED_VER_THEM',
+}
+
+export const usedVerifiedUsCompany = {
+  ...validCompany,
+  company_number: usedVerifiedUsCompanyNumber,
+  company_name: 'USED_VER_US',
+}
+
+export const usedDisconnectedCompany = {
+  ...validCompany,
+  company_number: usedDisconnectedCompanyNumber,
+  company_name: 'USED_DISCONNECTED',
+}
+
+export const allowNewInvitationCompany = {
+  ...validCompany,
+  company_number: allowNewInvitationCompanyNumber,
+  company_name: 'ALLOW_NEW',
+}
+
 export const validCompanyMap: Record<string, typeof validCompany> = {
   [validCompanyNumber]: validCompany,
-  [validExistingCompanyNumber]: validExistingCompany,
   [validCompanyNumberInDispute]: validCompanyInDispute,
   [validCompanyNumberInactive]: validCompanyInactive,
+  [validExistingCompanyNumber]: validExistingCompany,
+  [verifiedBothCompanyNumber]: verifiedBothCompany,
+  [noExistingInviteCompanyNumber]: noInviteCompany,
+  [usedPendingCompanyNumber]: usedPendingCompany,
+  [tooManyDisconnectedCompanyNumber]: tooManyDisconnectCompany,
+  [validDisconnectedCompanyNumber]: validDisconnectedCompany,
+  [usedUnverifiedCompanyNumber]: usedUnVerifiedCompany,
+  [usedVerifiedThemCompanyNumber]: validExistingCompany,
+  [usedVerifiedUsCompanyNumber]: usedVerifiedUsCompany,
+  [usedDisconnectedCompanyNumber]: usedDisconnectedCompany,
+  [allowNewInvitationCompanyNumber]: allowNewInvitationCompany,
 }
 
 export const validConnection: ConnectionRow = {
@@ -83,3 +169,4 @@ export const validExistingCompanyNumberInvite = buildBase64Invite(validExistingC
 export const validCompanyNumberInDisputeInvite = buildBase64Invite(validCompanyNumberInDispute)
 export const validCompanyNumberInactiveInvite = buildBase64Invite(validCompanyNumberInactive)
 export const validCompanyNumberInvite = buildBase64Invite(validCompanyNumber)
+export const verifiedBothCompanyNumberInvite = buildBase64Invite(verifiedBothCompanyNumber)
