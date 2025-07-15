@@ -1,10 +1,11 @@
 import Html from '@kitajs/html'
-import { singleton } from 'tsyringe'
+import { injectable, singleton } from 'tsyringe'
 import { UUID, pinCodeRegex } from '../../models/strings.js'
 import { Page } from '../common.js'
 import { NewConnectionTemplates } from './base.js'
 
 @singleton()
+@injectable()
 export class PinSubmissionTemplates extends NewConnectionTemplates {
   constructor() {
     super()

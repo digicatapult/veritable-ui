@@ -3,13 +3,14 @@ import express from 'express'
 import { describe, it } from 'mocha'
 
 import http from 'http'
+import { RegistryCountryCode } from '../../src/controllers/connection/strings.js'
 import { resetContainer } from '../../src/ioc.js'
 import createHttpServer from '../../src/server.js'
 import VeritableCloudagentEvents from '../../src/services/veritableCloudagentEvents.js'
 import { alice } from '../helpers/fixtures.js'
+import { cleanupRegistries, insertCompanyHouseRegistry } from '../helpers/registries.js'
 import { post } from '../helpers/routeHelper.js'
 import { clearSmtp4devMessages, EmailResponseSchema } from '../helpers/smtpEmails.js'
-
 describe('SMTP email', () => {
   let server: { app: express.Express; cloudagentEvents: VeritableCloudagentEvents }
 
@@ -17,16 +18,19 @@ describe('SMTP email', () => {
     setupSmtpTestEnvironment()
     beforeEach(async () => {
       server = await createHttpServer()
+      await insertCompanyHouseRegistry()
       await post(server.app, '/connection/new/create-invitation', {
         companyNumber: alice.company_number,
         email: 'alice@testmail.com',
         action: 'submit',
+        registryCountryCode: RegistryCountryCode.UK,
       })
     })
 
     afterEach(async () => {
       server.cloudagentEvents.stop()
       await clearSmtp4devMessages()
+      await cleanupRegistries()
     })
 
     it('should send an email via SMTP', async () => {

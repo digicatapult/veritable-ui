@@ -1,5 +1,5 @@
 import Html from '@kitajs/html'
-import { singleton } from 'tsyringe'
+import { injectable, singleton } from 'tsyringe'
 import { ConnectionRow } from '../../models/db/types.js'
 import { connectionStatusToClass, LinkButton, Page } from '../common.js'
 
@@ -46,6 +46,7 @@ const statusToAction = (
 }
 
 @singleton()
+@injectable()
 export default class ConnectionTemplates {
   constructor() {}
 

@@ -1,9 +1,9 @@
 import 'reflect-metadata'
 
+import { RegistryCountryCode } from '../../src/controllers/connection/strings.js'
 import { fetchGet, fetchPost } from './routeHelper.js'
 import { checkEmails, extractInvite, extractPin } from './smtpEmails.js'
 import { delay } from './util.js'
-
 export async function withConnection(inviterUrl: string, receiverUrl: string) {
   const uuidRegex = /[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-4[0-9a-fA-F]{3}-[89ab][0-9a-fA-F]{3}-[0-9a-fA-F]{12}/g
 
@@ -11,6 +11,7 @@ export async function withConnection(inviterUrl: string, receiverUrl: string) {
     companyNumber: '04659351',
     email: 'alice@testmail.com',
     action: 'submit',
+    registryCountryCode: RegistryCountryCode.UK,
   })
 
   // Get pin and invite for the new holder

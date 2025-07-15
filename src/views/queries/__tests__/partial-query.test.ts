@@ -16,6 +16,7 @@ const connectionsExample: ConnectionRow[] = [{}, {}, {}, {}].map((_, i) => ({
   pin_tries_remaining_count: null,
   created_at: sampleDate,
   updated_at: sampleDate,
+  registry_country_code: 'UK',
 }))
 
 const queryExample: QueryRow = {
@@ -53,6 +54,7 @@ describe('Partial Query', () => {
           pin_attempt_count: 0,
           created_at: new Date(),
           updated_at: new Date(),
+          registry_country_code: 'UK',
         },
         query: queryExample,
         partial: false,
@@ -76,6 +78,7 @@ describe('Partial Query', () => {
         pin_attempt_count: 0,
         created_at: new Date(),
         updated_at: new Date(),
+        registry_country_code: 'UK',
       },
       query: queryExample,
       partial: true,

@@ -151,7 +151,8 @@ export async function bringUpSharedContainers() {
   const ipfsContainer = await composeIpfsContainer()
   const smtp4dev = await composeSmtp4dev()
   const wiremockContainer = await wireMockContainer()
-  return [keycloakContainer, ipfsContainer, smtp4dev, wiremockContainer]
+  const wiremockSocrataContainerInstance = await wireMockSocrataContainer()
+  return [keycloakContainer, ipfsContainer, smtp4dev, wiremockContainer, wiremockSocrataContainerInstance]
 }
 
 export async function composeKeycloakContainer(): Promise<StartedTestContainer> {
@@ -206,12 +207,32 @@ export async function composeSmtp4dev(): Promise<StartedTestContainer> {
 }
 
 export async function wireMockContainer(): Promise<StartedTestContainer> {
-  const mappings = fs.readFileSync('./test/wiremock/mappings.json', 'utf-8')
+  const mappings = fs.readFileSync('./test/wiremock/company-house/mappings.json', 'utf-8')
   const container = await new GenericContainer(wireMockVersion)
     .withName('wiremock')
     .withExposedPorts({
       container: 8080,
       host: 8443,
+    })
+    .withCopyContentToContainer([
+      {
+        content: mappings,
+        target: '/home/wiremock/mappings/mappings.json',
+      },
+    ])
+    .withWaitStrategy(Wait.forLogMessage('response-template,webhook'))
+    .withNetwork(network)
+    .start()
+  return container
+}
+
+export async function wireMockSocrataContainer(): Promise<StartedTestContainer> {
+  const mappings = fs.readFileSync('./test/wiremock/socrata/mappings.json', 'utf-8')
+  const container = await new GenericContainer(wireMockVersion)
+    .withName('wiremock-socrata')
+    .withExposedPorts({
+      container: 8080,
+      host: 8444,
     })
     .withCopyContentToContainer([
       {
