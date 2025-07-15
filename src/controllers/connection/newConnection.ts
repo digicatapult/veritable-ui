@@ -138,7 +138,7 @@ export class NewConnectionController extends HTMLController {
       return this.receiveInviteErrorHtml(inviteOrError.message)
     }
 
-    req.log.debug('invite successfully decoded %s', inviteOrError)
+    req.log.debug('invite successfully decoded %j', inviteOrError)
 
     return this.html(
       this.fromInvite.fromInviteForm({
@@ -328,6 +328,7 @@ export class NewConnectionController extends HTMLController {
 
     const companyOrError = await this.lookupCompany(logger, wrappedInvite.companyNumber)
     if (companyOrError.type === 'error') {
+      logger.info('companyOrError')
       return companyOrError
     }
     return { type: 'success', inviteUrl: wrappedInvite.inviteUrl, company: companyOrError.company }
