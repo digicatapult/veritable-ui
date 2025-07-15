@@ -376,13 +376,13 @@ export class NewConnectionController extends HTMLController {
     // Allow to progress if no connection record exists
     if (existingConnections.length !== 0) {
       // NB following check should be adjusted if we need to store 'disconnected' records/connections
-      // if (existingConnections.length > 1) {
-      //   logger.info('database error - duplicate connection records exist for %s', companyData.company_name)
-      //   return {
-      //     type: 'error',
-      //     message: `Database error - duplicate connection records exist for ${companyData.company_name}`,
-      //   }
-      // }
+      if (existingConnections.length > 1) {
+        logger.info('database error - duplicate connection records exist for %s', companyData.company_name)
+        return {
+          type: 'error',
+          message: `Database error - duplicate connection records exist for ${companyData.company_name}`,
+        }
+      }
       for await (const connection of existingConnections) {
         // error early if verified_both
         if (connection.status === 'verified_both') {
