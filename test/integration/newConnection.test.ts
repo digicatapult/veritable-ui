@@ -235,8 +235,6 @@ describe('NewConnectionController', () => {
     })
   })
   describe('connection complete for a ny based company (receive side)', function () {
-    let response: Awaited<ReturnType<typeof post>>
-
     beforeEach(async () => {
       const invite = await context.remoteCloudagent.createOutOfBandInvite({
         companyName: socrataCompany.current_entity_name,
@@ -251,7 +249,7 @@ describe('NewConnectionController', () => {
         'utf8'
       ).toString('base64url')
 
-      response = await post(context.app, '/connection/new/receive-invitation', {
+      await post(context.app, '/connection/new/receive-invitation', {
         invite: inviteContent,
         action: 'createConnection',
       })
