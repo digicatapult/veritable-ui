@@ -188,7 +188,7 @@ export class NewConnectionController extends HTMLController {
       return this.newInviteErrorHtml(allowInvitation.message, body.email, body.companyNumber)
     }
 
-    req.log.debug('new invitation permitted, progressing invitation to %j', { company })
+    req.log.debug('new invitation allowed, progressing invitation to %j', { company })
 
     // if we're not at the final submission return next stage
     const formStage: NewInviteFormStage = submitToFormStage[body.action]
@@ -372,60 +372,65 @@ export class NewConnectionController extends HTMLController {
     logger: pino.Logger,
     companyData: OrganisationProfile
   ): Promise<{ type: 'success'; state: 'new_connection' | 'update_existing' } | { type: 'error'; message: string }> {
-    const [existingConnections] = await this.db.get('connection', { company_number: companyData.company_number })
+    const existingConnections = await this.db.get('connection', { company_number: companyData.company_number })
+    logger.info('existingConnections.length %s', existingConnections.length)
     // Allow to progress if no connection record exists
-    if ([existingConnections].length !== 0) {
+    if (existingConnections.length !== 0) {
       // NB following check should be adjusted if we need to store 'disconnected' records/connections
-      if ([existingConnections].length > 1) {
-        logger.info('database error - duplicate connection records exist for %s', companyData.company_name)
-        return {
-          type: 'error',
-          message: `Database error - duplicate connection records exist for ${companyData.company_name}`,
-        }
-      }
-      // error early if verified_both
-      if (existingConnections.status === 'verified_both') {
-        logger.info('verified connection already exists %s', existingConnections.id)
-        return {
-          type: 'error',
-          message: `Verified connection already exists with organisation ${companyData.company_name}`,
-        }
-      }
-      // now get invitation records for the connection
-      const existingInvitations = await this.db.get('connection_invite', { connection_id: existingConnections.id })
-      // error if connection record exists without an invitation record
-      if (existingInvitations.length !== 0) {
-        logger.info('database error - no invitation found for connection record %s', existingConnections.id)
-        return {
-          type: 'error',
-          message: `Database error - no invitation found for connection record ${existingConnections.id}`,
-        }
-      }
-      // now check each invitation status
-      existingInvitations.forEach(async (invitation) => {
-        // catch the case where they have verified our invite but we've not verified theirs
-        if (existingConnections.status === 'verified_them' && invitation.validity === 'used') {
-          logger.info('other party verified, request new pin instead %s', existingConnections.id)
+      // if (existingConnections.length > 1) {
+      //   logger.info('database error - duplicate connection records exist for %s', companyData.company_name)
+      //   return {
+      //     type: 'error',
+      //     message: `Database error - duplicate connection records exist for ${companyData.company_name}`,
+      //   }
+      // }
+      existingConnections.forEach(async (connection) => {
+        // error early if verified_both
+        if (connection.status === 'verified_both') {
+          logger.info('verified connection already exists %s', connection.id)
           return {
             type: 'error',
-            message: `Other party has already verified, request new pin instead from ${companyData.company_name}`,
+            message: `Verified connection already exists with organisation ${companyData.company_name}`,
           }
         }
-        // now catch rare forbidden states: disconnected & valid, disconnected & too_many_attempts, pending & used
-        if (
-          (existingConnections.status === 'disconnected' && invitation.validity === 'valid') ||
-          (existingConnections.status === 'disconnected' && invitation.validity === 'too_many_attempts') ||
-          (existingConnections.status === 'pending' && invitation.validity === 'used')
-        ) {
-          logger.info('edge case database state detected, aborting %s', existingConnections.id)
+        // now get invitation records for the connection
+        const existingInvitations = await this.db.get('connection_invite', { connection_id: connection.id })
+        // error if connection record exists without an invitation record
+        if (existingInvitations.length === 0) {
+          logger.info('no invitation found for connection record %s', connection.id)
           return {
             type: 'error',
-            message: `Edge case database state detected for connection ${existingConnections.id}, aborting`,
+            message: `No invitation found for connection record ${connection.id}`,
           }
         }
+        // now check each invitation status
+        existingInvitations.forEach(async (invitation) => {
+          // catch the case where they have verified our invite but we've not verified theirs
+          if (connection.status === 'verified_them' && invitation.validity === 'used') {
+            logger.info('other party verified, request new pin instead %s', connection.id)
+            return {
+              type: 'error',
+              message: `Other party has already verified, request new pin instead from ${companyData.company_name}`,
+            }
+          }
+          // now catch rare forbidden states: disconnected & valid, disconnected & too_many_attempts, pending & used
+          if (
+            (connection.status === 'disconnected' && invitation.validity === 'valid') ||
+            (connection.status === 'disconnected' && invitation.validity === 'too_many_attempts') ||
+            (connection.status === 'pending' && invitation.validity === 'used')
+          ) {
+            logger.info('edge case database state detected, aborting %s', connection.id)
+            return {
+              type: 'error',
+              message: `Edge case database state detected for connection ${connection.id}, aborting`,
+            }
+          }
+        })
+        logger.info('returning success - update existing')
+        return { type: 'success', state: 'update_existing' }
       })
-      return { type: 'success', state: 'update_existing' }
     }
+    logger.info('returning success - new connection')
     return { type: 'success', state: 'new_connection' }
   }
 
