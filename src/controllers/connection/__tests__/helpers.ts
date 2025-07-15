@@ -103,7 +103,7 @@ export const withConnectionMocks = (
 }
 
 export const withNewConnectionMocks = () => {
-  const mockTransactionDb = {
+  const mockWithTransaction = {
     insert: () => Promise.resolve([{ id: '42' }]),
     get: () => Promise.resolve([validConnection]),
     update: () => Promise.resolve(),
@@ -117,7 +117,7 @@ export const withNewConnectionMocks = () => {
       return []
     },
     withTransaction: (fn: (arg: unknown) => unknown) => {
-      return Promise.resolve(fn(mockTransactionDb))
+      return Promise.resolve(fn(mockWithTransaction))
     },
   } as unknown as Database
   const mockCompanyHouseEntity = {
