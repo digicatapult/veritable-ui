@@ -120,6 +120,7 @@ export const withNewConnectionMocks = () => {
       return Promise.resolve(fn(mockWithTransaction))
     },
   } as unknown as Database
+
   const mockCompanyHouseEntity = {
     getOrganisationProfileByOrganisationNumber: async (companyNumber: string) => {
       if (companyNumber === notFoundCompanyNumber) {
@@ -159,6 +160,7 @@ export const withNewConnectionMocks = () => {
       }
     },
   } as unknown as VeritableCloudagent
+
   const mockEmail = {
     sendMail: () => Promise.resolve(),
   } as unknown as EmailService
@@ -176,6 +178,7 @@ export const withNewConnectionMocks = () => {
         companyNumber
       ),
   } as unknown as NewInviteTemplates
+
   const mockFromInvite = {
     fromInviteFormPage: (feedback: FormFeedback) => templateFake('fromInvitePage', feedback.type),
     // eslint-disable-next-line  @typescript-eslint/no-explicit-any
@@ -187,6 +190,7 @@ export const withNewConnectionMocks = () => {
         feedback.message || feedback.error || ''
       ),
   } as unknown as FromInviteTemplates
+
   const mockPinForm = {
     renderPinForm: (props: { connectionId: string; pin?: string; continuationFromInvite: boolean }) =>
       templateFake('renderPinForm', props.connectionId, props.pin, props.continuationFromInvite),
