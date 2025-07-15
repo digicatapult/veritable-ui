@@ -39,7 +39,7 @@ const statusToAction = (
     case 'verified_both':
       return {
         disabled: false,
-        href: `/queries/new/carbon-embodiment?connectionId=${connectionId}`,
+        href: `/queries/new?connectionId=${connectionId}`,
         text: 'Send Query',
       }
   }

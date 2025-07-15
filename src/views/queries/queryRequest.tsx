@@ -1,64 +1,82 @@
 import Html from '@kitajs/html'
 import { singleton } from 'tsyringe'
-import { ConnectionRow } from '../../models/db/types.js'
+import { ConnectionRow, QueryType } from '../../models/db/types.js'
 import { FormButton, LinkButton, Page } from '../common.js'
 
-export type CarbonEmbodimentFormStage = 'companySelect' | 'form' | 'success' | 'error'
-type CarbonEmbodimentSelectProps = {
+const typeMap: Record<QueryType, { name: string; urlSegment: string }> = {
+  total_carbon_embodiment: {
+    name: 'Total Carbon Embodiment',
+    urlSegment: 'carbon-embodiment',
+  },
+  beneficiary_account_validation: {
+    name: 'Beneficiary Account Validation',
+    urlSegment: 'bav',
+  },
+}
+
+export type FormStage = 'companySelect' | 'carbonEmbodiment' | 'bav' | 'success' | 'error'
+type SelectProps = {
   formStage: 'companySelect'
+  type: QueryType
   connections: ConnectionRow[]
   search: string
 }
 type CarbonEmbodimentFormProps = {
-  formStage: 'form'
+  formStage: 'carbonEmbodiment'
+  type: QueryType
   connectionId: string
   productId?: string
   quantity?: number
 }
-type CarbonEmbodimentSuccessProps = {
+type BavFormProps = {
+  formStage: 'bav'
+  type: QueryType
+  connection: ConnectionRow
+}
+type SuccessProps = {
   formStage: 'success'
+  type: QueryType
   company: { companyName?: string }
 }
-type CarbonEmbodimentErrorProps = {
+type ErrorProps = {
   formStage: 'error'
-  company: { companyNumber: string; companyName?: string }
+  type: QueryType
+  company: { companyName?: string }
 }
 
-type CarbonEmbodimentQueryProps =
-  | CarbonEmbodimentSelectProps
-  | CarbonEmbodimentFormProps
-  | CarbonEmbodimentSuccessProps
-  | CarbonEmbodimentErrorProps
+type QueryProps = SelectProps | CarbonEmbodimentFormProps | BavFormProps | SuccessProps | ErrorProps
 
 @singleton()
-export default class CarbonEmbodimentTemplates {
+export default class QueryRequestTemplates {
   constructor() {}
 
-  public newCarbonEmbodimentFormPage = (props: CarbonEmbodimentQueryProps) => {
+  public newQueryRequestPage = (props: QueryProps) => {
     return (
       <Page
-        title="Veritable - New Total Carbon Embodiment Query"
+        title={`Veritable - New ${typeMap[props.type].name} Query`}
         activePage="queries"
         heading="Select Company To Send Your Query To"
         headerLinks={[
           { name: 'Query Management', url: '/queries' },
           { name: 'New', url: '/queries/new' },
-          { name: 'Total Carbon Embodiment', url: '/queries/new/carbon-embodiment' },
+          { name: typeMap[props.type].name, url: `/queries/new/${typeMap[props.type].urlSegment}` },
         ]}
       >
         <div class="connections header"></div>
         <div class="card-body">
-          <this.newCarbonEmbodiment {...props} />
+          <this.newQueryForm {...props} />
         </div>
       </Page>
     )
   }
-  private newCarbonEmbodiment = (props: CarbonEmbodimentQueryProps): JSX.Element => {
+  private newQueryForm = (props: QueryProps): JSX.Element => {
     switch (props.formStage) {
       case 'companySelect':
         return <this.listPage {...props}></this.listPage>
-      case 'form':
+      case 'carbonEmbodiment':
         return <this.carbonEmbodimentFormPage {...props}></this.carbonEmbodimentFormPage>
+      case 'bav':
+        return <this.bavFormPage {...props}></this.bavFormPage>
       case 'success':
         return <this.newQuerySuccess {...props}></this.newQuerySuccess>
       case 'error':
@@ -66,21 +84,13 @@ export default class CarbonEmbodimentTemplates {
     }
   }
 
-  private listPage = (props: CarbonEmbodimentSelectProps) => {
+  private listPage = (props: SelectProps) => {
     return (
       <div>
-        <div
-          class="main-list-page"
-          hx-post="/queries/new/carbon-embodiment"
-          hx-trigger="input changed delay:500ms"
-          hx-select="#search-results"
-          hx-target="#search-results"
-          hx-swap="outerHTML"
-          hx-include="#queries-search-input"
-        >
+        <div class="main-list-page">
           <div class="list-page ">
             <div class="list-nav">
-              <span>Select a Company to send Query to </span>
+              <span>Select a Company to send Query to</span>
               <input
                 id="queries-search-input"
                 class="search-window"
@@ -88,7 +98,7 @@ export default class CarbonEmbodimentTemplates {
                 name="search"
                 value={Html.escapeHtml(props.search)}
                 placeholder="Search"
-                hx-get="/queries/new/carbon-embodiment"
+                hx-get={`/queries/new/${typeMap[props.type].urlSegment}`}
                 hx-trigger="input changed delay:50ms, search"
                 hx-target="#search-results"
                 hx-select="#search-results"
@@ -97,7 +107,7 @@ export default class CarbonEmbodimentTemplates {
             </div>
             <form
               id="company-form"
-              hx-get="/queries/new/carbon-embodiment"
+              hx-get={`/queries/new/${typeMap[props.type].urlSegment}`}
               hx-select="main > *"
               hx-target="main"
               hx-swap="innerHTML"
@@ -149,14 +159,14 @@ export default class CarbonEmbodimentTemplates {
   private carbonEmbodimentFormPage = (props: CarbonEmbodimentFormProps) => {
     return (
       <div>
-        <div class="container-carbon-embodiment">
-          <div class="co2-embodiment-left">
+        <div class="container-query-form">
+          <div class="query-form-left">
             <h1>Total Carbon Embodiment</h1>
-            <p class="query-text-carbon-embodiment">
+            <p class="query-form-text">
               Creates a query for obtaining the total carbon embodiment for a given product/component.
             </p>
           </div>
-          <div class="co2-embodiment-right">
+          <div class="query-form-right">
             <p>
               Choose the product that you want to apply the query “What is the total carbon embodiment for the
               product/component below?” to.
@@ -209,7 +219,25 @@ export default class CarbonEmbodimentTemplates {
     )
   }
 
-  private newQuerySuccess = (props: CarbonEmbodimentSuccessProps): JSX.Element => {
+  private bavFormPage = (props: BavFormProps) => {
+    return (
+      <div class="container-query-form">
+        <div class="query-form-left">
+          <h1>Beneficiary Account Validation</h1>
+          <p class="query-form-text">Creates a query to verify a company's financial details.</p>
+        </div>
+        <div class="query-form-right">
+          <p>Request financial details from {Html.escapeHtml(props.connection.company_name)}</p>
+          <form id="bav" hx-post="/queries/new/bav" hx-select="main > *" hx-target="main" hx-swap="innerHTML">
+            <input type="hidden" name="connectionId" value={props.connection.id} />
+            <FormButton text="Submit Query" style="filled" />
+          </form>
+        </div>
+      </div>
+    )
+  }
+
+  private newQuerySuccess = (props: SuccessProps): JSX.Element => {
     return (
       <div id="new-query-confirmation-text">
         <h1>Your Query has been sent!</h1>
@@ -228,7 +256,7 @@ export default class CarbonEmbodimentTemplates {
     )
   }
 
-  private newQueryError = (props: CarbonEmbodimentErrorProps): JSX.Element => {
+  private newQueryError = (props: ErrorProps): JSX.Element => {
     return (
       <div id="new-query-confirmation-text">
         <p>An unknown error occurred whilst submitting your query to: {Html.escapeHtml(props.company.companyName)}.</p>

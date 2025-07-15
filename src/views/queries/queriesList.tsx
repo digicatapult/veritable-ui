@@ -14,6 +14,8 @@ function mapQueryType(query: Query) {
   switch (query.type) {
     case 'total_carbon_embodiment':
       return 'Total Carbon Embodiment'
+    case 'beneficiary_account_validation':
+      return 'Beneficiary Account Validation'
   }
 }
 
@@ -127,7 +129,10 @@ export default class QueryListTemplates {
                       <LinkButton
                         icon='url("/public/images/dot-icon.svg")'
                         style="outlined"
-                        disabled={this.isButtonDisabled(query.status, query.role)}
+                        disabled={
+                          this.isButtonDisabled(query.status, query.role) ||
+                          query.type === 'beneficiary_account_validation' // TODO implement BAV responses
+                        }
                         text={this.buttonText(query.status, query.role)}
                         href={
                           query.status === 'resolved' && query.role === 'requester'

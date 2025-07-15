@@ -69,12 +69,12 @@ describe('QueriesController', () => {
       expect(spy.firstCall.calledWith('connection', query, [['updated_at', 'desc']])).to.equal(true)
     })
 
-    it('should call page with stage FORM as expected', async () => {
+    it('should call page with stage carbonEmbodiment as expected', async () => {
       const { args } = withQueriesMocks()
       const controller = new QueriesController(...args)
       const result = await controller.carbonEmbodiment(req, undefined, 'connection-id').then(toHTMLString)
 
-      expect(result).to.equal('carbonEmbodiment_form_carbonEmbodiment')
+      expect(result).to.equal('queryForm_carbonEmbodiment_queryForm')
     })
 
     it('should call page with stage success as expected', async () => {
@@ -110,7 +110,7 @@ describe('QueriesController', () => {
           expires_at: expiresAtExpectation,
         },
       ])
-      expect(result).to.equal('carbonEmbodiment_success_carbonEmbodiment')
+      expect(result).to.equal('queryForm_success_queryForm')
     })
 
     it('should call page with stage error if rpc fails', async () => {
@@ -126,7 +126,7 @@ describe('QueriesController', () => {
         })
         .then(toHTMLString)
 
-      expect(result).to.equal('carbonEmbodiment_error_carbonEmbodiment')
+      expect(result).to.equal('queryForm_error_queryForm')
     })
 
     it('should call page with stage error if rpc succeeds without response', async () => {
@@ -146,7 +146,7 @@ describe('QueriesController', () => {
         { id: 'ccaaaaaa-0000-0000-0000-d8ae0805059e' },
         { status: 'errored' },
       ])
-      expect(result).to.equal('carbonEmbodiment_error_carbonEmbodiment')
+      expect(result).to.equal('queryForm_error_queryForm')
     })
 
     it('should call page with stage error if rpc returns with error', async () => {
@@ -170,7 +170,7 @@ describe('QueriesController', () => {
         { status: 'errored' },
       ])
 
-      expect(result).to.equal('carbonEmbodiment_error_carbonEmbodiment')
+      expect(result).to.equal('queryForm_error_queryForm')
     })
   })
 
