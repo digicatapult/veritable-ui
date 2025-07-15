@@ -26,11 +26,10 @@ import {
   validCompanyNumberInactive,
   validCompanyNumberInactiveInvite,
   validCompanyNumberInvite,
-  validDisconnectedCompanyNumber,
   verifiedBothCompanyNumber,
 } from './fixtures.js'
 
-describe('NewConnectionController', () => {
+describe.only('NewConnectionController', () => {
   const req = { log: mockLogger } as unknown as Request
 
   afterEach(() => {
@@ -252,98 +251,6 @@ describe('NewConnectionController', () => {
       expect(result).to.equal('companyFormInput_companyFound-NAME--success-alice@example.com-00000001_companyFormInput')
     })
 
-    describe('sending a second invitation', function () {
-      it('should return rendered error when connection has no invitation in db', async () => {
-        const { args } = withNewConnectionMocks()
-        const controller = new NewConnectionController(...args)
-        const result = await controller
-          .submitNewInvite(req, {
-            companyNumber: noExistingInviteCompanyNumber,
-            email: 'alice@example.com',
-            action: 'continue',
-          })
-          .then(toHTMLString)
-        expect(result).to.equal(
-          'companyFormInput_error--No invitation found for connection record undefined-form-alice@example.com-00000011_companyFormInput'
-        )
-      })
-
-      it('should return rendered error when company already connected and verified_both', async () => {
-        const { args } = withNewConnectionMocks()
-        const controller = new NewConnectionController(...args)
-        const result = await controller
-          .submitNewInvite(req, {
-            companyNumber: verifiedBothCompanyNumber,
-            email: 'alice@example.com',
-            action: 'continue',
-          })
-          .then(toHTMLString)
-        expect(result).to.equal(
-          'companyFormInput_error--Verified connection already exists with organisation VERIFIED_BOTH-form-alice@example.com-00000010_companyFormInput'
-        )
-      })
-
-      it('should return edge case error when invite used but connection pending', async () => {
-        const { args } = withNewConnectionMocks()
-        const controller = new NewConnectionController(...args)
-        const result = await controller
-          .submitNewInvite(req, {
-            companyNumber: usedPendingCompanyNumber,
-            email: 'alice@example.com',
-            action: 'continue',
-          })
-          .then(toHTMLString)
-        expect(result).to.equal(
-          'companyFormInput_error--Edge case database state detected for connection dddd, aborting-form-alice@example.com-00000012_companyFormInput'
-        )
-      })
-
-      it('should return edge case error when invite too_many_attempts and disconnected', async () => {
-        const { args } = withNewConnectionMocks()
-        const controller = new NewConnectionController(...args)
-        const result = await controller
-          .submitNewInvite(req, {
-            companyNumber: tooManyDisconnectedCompanyNumber,
-            email: 'alice@example.com',
-            action: 'continue',
-          })
-          .then(toHTMLString)
-        expect(result).to.equal(
-          'companyFormInput_error--Edge case database state detected for connection cccc, aborting-form-alice@example.com-00000013_companyFormInput'
-        )
-      })
-
-      it('should say to request new pin when invite used and verified_them', async () => {
-        const { args } = withNewConnectionMocks()
-        const controller = new NewConnectionController(...args)
-        const result = await controller
-          .submitNewInvite(req, {
-            companyNumber: usedVerifiedThemCompanyNumber,
-            email: 'alice@example.com',
-            action: 'continue',
-          })
-          .then(toHTMLString)
-        expect(result).to.equal(
-          'companyFormInput_error--Other party has already verified, request new pin instead from USED_VER_THEM-form-alice@example.com-00000015_companyFormInput'
-        )
-      })
-
-      it('should say to request new pin when invite used and verified_them', async () => {
-        const { args } = withNewConnectionMocks()
-        const controller = new NewConnectionController(...args)
-        const result = await controller
-          .submitNewInvite(req, {
-            companyNumber: usedVerifiedThemCompanyNumber,
-            email: 'alice@example.com',
-            action: 'continue',
-          })
-          .then(toHTMLString)
-        expect(result).to.equal(
-          'companyFormInput_error--Other party has already verified, request new pin instead from USED_VER_THEM-form-alice@example.com-00000015_companyFormInput'
-        )
-      })
-    })
-
     describe('happy path assertions', function () {
       let clock: sinon.SinonFakeTimers
       let insertSpy: sinon.SinonSpy
@@ -439,6 +346,130 @@ describe('NewConnectionController', () => {
           receiver: 'NAME',
           address:
             'NAME, ADDRESS_LINE_1, ADDRESS_LINE_2, CARE_OF, LOCALITY, PO_BOX, POSTAL_CODE, COUNTRY, PREMISES, REGION',
+        })
+      })
+    })
+
+    describe('sending a second invitation', function () {
+      it('should return rendered error when connection has no invitation in db', async () => {
+        const { args } = withNewConnectionMocks()
+        const controller = new NewConnectionController(...args)
+        const result = await controller
+          .submitNewInvite(req, {
+            companyNumber: noExistingInviteCompanyNumber,
+            email: 'alice@example.com',
+            action: 'continue',
+          })
+          .then(toHTMLString)
+        expect(result).to.equal(
+          'companyFormInput_error--No invitation found for connection record undefined-form-alice@example.com-00000011_companyFormInput'
+        )
+      })
+
+      it('should return rendered error when company already connected and verified_both', async () => {
+        const { args } = withNewConnectionMocks()
+        const controller = new NewConnectionController(...args)
+        const result = await controller
+          .submitNewInvite(req, {
+            companyNumber: verifiedBothCompanyNumber,
+            email: 'alice@example.com',
+            action: 'continue',
+          })
+          .then(toHTMLString)
+        expect(result).to.equal(
+          'companyFormInput_error--Verified connection already exists with organisation VERIFIED_BOTH-form-alice@example.com-00000010_companyFormInput'
+        )
+      })
+
+      it('should return edge case error when invite used but connection pending', async () => {
+        const { args } = withNewConnectionMocks()
+        const controller = new NewConnectionController(...args)
+        const result = await controller
+          .submitNewInvite(req, {
+            companyNumber: usedPendingCompanyNumber,
+            email: 'alice@example.com',
+            action: 'continue',
+          })
+          .then(toHTMLString)
+        expect(result).to.equal(
+          'companyFormInput_error--Edge case database state detected for connection dddd, aborting-form-alice@example.com-00000012_companyFormInput'
+        )
+      })
+
+      it('should return edge case error when invite too_many_attempts and disconnected', async () => {
+        const { args } = withNewConnectionMocks()
+        const controller = new NewConnectionController(...args)
+        const result = await controller
+          .submitNewInvite(req, {
+            companyNumber: tooManyDisconnectedCompanyNumber,
+            email: 'alice@example.com',
+            action: 'continue',
+          })
+          .then(toHTMLString)
+        expect(result).to.equal(
+          'companyFormInput_error--Edge case database state detected for connection cccc, aborting-form-alice@example.com-00000013_companyFormInput'
+        )
+      })
+
+      it('should say to request new pin when invite used and verified_them', async () => {
+        const { args } = withNewConnectionMocks()
+        const controller = new NewConnectionController(...args)
+        const result = await controller
+          .submitNewInvite(req, {
+            companyNumber: usedVerifiedThemCompanyNumber,
+            email: 'alice@example.com',
+            action: 'continue',
+          })
+          .then(toHTMLString)
+        expect(result).to.equal(
+          'companyFormInput_error--Other party has already verified, request new pin instead from USED_VER_THEM-form-alice@example.com-00000015_companyFormInput'
+        )
+      })
+
+      it('should say to request new pin when invite used and verified_them', async () => {
+        const { args } = withNewConnectionMocks()
+        const controller = new NewConnectionController(...args)
+        const result = await controller
+          .submitNewInvite(req, {
+            companyNumber: usedVerifiedThemCompanyNumber,
+            email: 'alice@example.com',
+            action: 'continue',
+          })
+          .then(toHTMLString)
+        expect(result).to.equal(
+          'companyFormInput_error--Other party has already verified, request new pin instead from USED_VER_THEM-form-alice@example.com-00000015_companyFormInput'
+        )
+      })
+
+      describe('happy path resending invitation', function () {
+        it('should allow resubmission with a used invitation but unverified connection', async () => {
+          const { args } = withNewConnectionMocks()
+          const controller = new NewConnectionController(...args)
+          const result = await controller
+            .submitNewInvite(req, {
+              companyNumber: usedUnverifiedCompanyNumber,
+              email: 'alice@example.com',
+              action: 'continue',
+            })
+            .then(toHTMLString)
+          expect(result).to.equal(
+            'companyFormInput_companyFound-USED_UNVERIFIED--confirmation-alice@example.com-00000016_companyFormInput'
+          )
+        })
+
+        it('should allow resubmission with a used invitation and verified_us', async () => {
+          const { args } = withNewConnectionMocks()
+          const controller = new NewConnectionController(...args)
+          const result = await controller
+            .submitNewInvite(req, {
+              companyNumber: usedVerifiedUsCompanyNumber,
+              email: 'alice@example.com',
+              action: 'continue',
+            })
+            .then(toHTMLString)
+          expect(result).to.equal(
+            'companyFormInput_companyFound-USED_VER_US--confirmation-alice@example.com-00000017_companyFormInput'
+          )
         })
       })
     })
