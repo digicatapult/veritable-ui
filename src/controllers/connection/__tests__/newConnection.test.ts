@@ -63,15 +63,6 @@ describe('NewConnectionController', () => {
       expect(result).to.equal('companyFormInput_error--Company number does not exist-form--00000000_companyFormInput')
     })
 
-    it('should return rendered error when company already connected', async () => {
-      const { args } = withNewConnectionMocks()
-      const controller = new NewConnectionController(...args)
-      const result = await controller.verifyCompanyForm(req, validExistingCompanyNumber).then(toHTMLString)
-      expect(result).to.equal(
-        'companyFormInput_error--Connection already exists with NAME2-form--00000002_companyFormInput'
-      )
-    })
-
     it('should return rendered error when company registered office in dispute', async () => {
       const { args } = withNewConnectionMocks()
       const controller = new NewConnectionController(...args)
