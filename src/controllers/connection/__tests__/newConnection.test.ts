@@ -29,7 +29,7 @@ import {
   verifiedBothCompanyNumber,
 } from './fixtures.js'
 
-describe.only('NewConnectionController', () => {
+describe('NewConnectionController', () => {
   const req = { log: mockLogger } as unknown as Request
 
   afterEach(() => {
