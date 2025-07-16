@@ -26,6 +26,7 @@ import {
   validCompanyNumberInactive,
   validCompanyNumberInactiveInvite,
   validCompanyNumberInvite,
+  validDisconnectedCompanyNumber,
   validPendingCompanyNumber,
   verifiedBothCompanyNumber,
   verifiedBothCompanyNumberInvite,
@@ -383,7 +384,7 @@ describe('NewConnectionController', () => {
         )
       })
 
-      it('should return edge case error when invite used but connection pending', async () => {
+      it('should return rendered error for edge case when invite used but connection pending', async () => {
         const { args } = withNewConnectionMocks()
         const controller = new NewConnectionController(...args)
         const result = await controller
@@ -398,7 +399,7 @@ describe('NewConnectionController', () => {
         )
       })
 
-      it('should return edge case error when invite too_many_attempts and disconnected', async () => {
+      it('should return rendered error of edge case when invite too_many_attempts and disconnected', async () => {
         const { args } = withNewConnectionMocks()
         const controller = new NewConnectionController(...args)
         const result = await controller
@@ -410,6 +411,21 @@ describe('NewConnectionController', () => {
           .then(toHTMLString)
         expect(result).to.equal(
           'companyFormInput_error--Edge case database state detected for connection cccc, aborting-form-alice@example.com-00000013_companyFormInput'
+        )
+      })
+
+      it.only('should return rendered error of edge case when invite valid and disconnected', async () => {
+        const { args } = withNewConnectionMocks()
+        const controller = new NewConnectionController(...args)
+        const result = await controller
+          .submitNewInvite(req, {
+            companyNumber: validDisconnectedCompanyNumber,
+            email: 'alice@example.com',
+            action: 'continue',
+          })
+          .then(toHTMLString)
+        expect(result).to.equal(
+          'companyFormInput_error--Edge case database state detected for connection aaaa, aborting-form-alice@example.com-00000014_companyFormInput'
         )
       })
 
