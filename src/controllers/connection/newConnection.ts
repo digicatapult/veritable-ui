@@ -442,39 +442,41 @@ export class NewConnectionController extends HTMLController {
     try {
       // logic in allowNewInvitation ensures only one entry exists for connectionRecord
       const [connectionRecord] = await this.db.get('connection', { company_number: company.company_number })
+      const connectionId = connectionRecord.id // to return the connectionId
       // reset pin count and invite status to 'pending'
-      await this.db.update(
-        'connection',
-        { company_number: company.company_number },
-        {
-          status: 'pending',
-          pin_attempt_count: 0,
-          pin_tries_remaining_count: null,
-        }
-      )
-      // leave 'expired' as expired, leave 'too_many_attempts' as too_many_attempts
-      // expire existing invitations if they're 'valid' (condition verified_both && valid already aborted in allowNewInvitation)
-      await this.db.update(
-        'connection_invite',
-        { connection_id: connectionRecord.id, validity: 'valid' },
-        { expires_at: new Date(), validity: 'expired' }
-      )
-      // expire existing invitations if they're 'used' (condition verified_them && used, and verified_both && used already aborted in allowNewInvitation)
-      await this.db.update(
-        'connection_invite',
-        { connection_id: connectionRecord.id, validity: 'used' },
-        { expires_at: new Date(), validity: 'expired' }
-      )
-
-      // create the new invitation record
-      await this.db.insert('connection_invite', {
-        connection_id: connectionRecord.id,
-        oob_invite_id: invitationId,
-        pin_hash: pinHash,
-        expires_at: new Date(new Date().getTime() + 14 * 24 * 60 * 60 * 1000),
-        validity: 'valid',
+      await this.db.withTransaction(async (db) => {
+        await db.update(
+          'connection',
+          { company_number: company.company_number },
+          {
+            status: 'pending',
+            pin_attempt_count: 0,
+            pin_tries_remaining_count: null,
+          }
+        )
+        // leave 'expired' as expired, leave 'too_many_attempts' as too_many_attempts
+        // expire existing invitations if they're 'valid' (condition verified_both && valid already aborted in allowNewInvitation)
+        await db.update(
+          'connection_invite',
+          { connection_id: connectionRecord.id, validity: 'valid' },
+          { expires_at: new Date(), validity: 'expired' }
+        )
+        // expire existing invitations if they're 'used' (condition verified_them && used, and verified_both && used already aborted in allowNewInvitation)
+        await db.update(
+          'connection_invite',
+          { connection_id: connectionRecord.id, validity: 'used' },
+          { expires_at: new Date(), validity: 'expired' }
+        )
+        // create the new invitation record
+        await db.insert('connection_invite', {
+          connection_id: connectionRecord.id,
+          oob_invite_id: invitationId,
+          pin_hash: pinHash,
+          expires_at: new Date(new Date().getTime() + 14 * 24 * 60 * 60 * 1000),
+          validity: 'valid',
+        })
       })
-      const connectionId = connectionRecord.id
+
       return { type: 'success', connectionId }
     } catch (err) {
       return {
