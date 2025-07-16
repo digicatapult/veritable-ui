@@ -129,7 +129,10 @@ export default class QueryListTemplates {
                       <LinkButton
                         icon='url("/public/images/dot-icon.svg")'
                         style="outlined"
-                        disabled={this.isButtonDisabled(query.status, query.role)}
+                        disabled={
+                          this.isButtonDisabled(query.status, query.role) ||
+                          query.type === 'beneficiary_account_validation' // TODO implement BAV responses
+                        }
                         text={this.buttonText(query.status, query.role)}
                         href={`/queries/${query.id}/response`}
                       />
