@@ -55,7 +55,7 @@ test.describe('New query request', () => {
       await expect(checkbox).toBeChecked()
 
       await page.getByRole('button', { name: 'Next' }).click()
-      await expect(page.getByRole('heading', { name: 'Total Carbon Embodiment' })).toBeVisible()
+      await expect(page.getByRole('heading', { name: 'Total Carbon Embodiment Query' })).toBeVisible()
     })
 
     await test.step('enters product ID along with quantities and submits a new query request', async () => {
@@ -111,7 +111,7 @@ test.describe('New query request', () => {
       await expect(checkbox).toBeChecked()
 
       await page.getByRole('button', { name: 'Next' }).click()
-      await expect(page.getByRole('heading', { name: 'Beneficiary Account Validation' })).toBeVisible()
+      await expect(page.getByRole('heading', { name: 'Beneficiary Account Validation Query' })).toBeVisible()
     })
 
     await test.step('submits a new BAV query request', async () => {

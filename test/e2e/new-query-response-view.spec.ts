@@ -20,7 +20,7 @@ test.describe('Query response view', () => {
   })
 
   test.afterAll(async () => {
-    // await cleanup([AliceHost, BobHost])
+    await cleanup([AliceHost, BobHost])
     await page.close()
   })
 

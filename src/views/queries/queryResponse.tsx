@@ -262,7 +262,7 @@ export default class QueryResponseTemplates {
                 <select id="country-select" name="countryCode" class="input-with-label" required>
                   <option value="">Select country</option>
                   {Object.entries(countries).map(([countryCode, name]) => (
-                    <option value={countryCode}>{name}</option>
+                    <option value={countryCode}>{Html.escapeHtml(name)}</option>
                   ))}
                 </select>
               </div>
