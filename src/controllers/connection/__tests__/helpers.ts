@@ -15,7 +15,6 @@ import { FromInviteTemplates } from '../../../views/newConnection/fromInvite.js'
 import { NewInviteTemplates } from '../../../views/newConnection/newInvite.js'
 import { PinSubmissionTemplates } from '../../../views/newConnection/pinSubmission.js'
 import {
-  validPendingCompanyNumber,
   expiredInvite,
   noExistingInviteCompanyNumber,
   notFoundCompanyNumber,
@@ -32,6 +31,7 @@ import {
   validConnection,
   validDisconnectedCompanyNumber,
   validInvite,
+  validPendingCompanyNumber,
   verifiedBothCompanyNumber,
 } from './fixtures.js'
 
