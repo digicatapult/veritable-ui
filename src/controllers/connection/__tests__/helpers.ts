@@ -15,24 +15,11 @@ import { FromInviteTemplates } from '../../../views/newConnection/fromInvite.js'
 import { NewInviteTemplates } from '../../../views/newConnection/newInvite.js'
 import { PinSubmissionTemplates } from '../../../views/newConnection/pinSubmission.js'
 import {
-  expiredInvite,
-  noExistingInviteCompanyNumber,
+  companyNumberToConnectionMap,
+  inviteValidityMap,
   notFoundCompanyNumber,
-  tooManyDisconnectedCompanyNumber,
-  tooManyInvite,
-  usedDisconnectedCompanyNumber,
-  usedInvite,
-  usedPendingCompanyNumber,
-  usedUnverifiedCompanyNumber,
-  usedVerifiedThemCompanyNumber,
-  usedVerifiedUsCompanyNumber,
   validCompanyMap,
-  validCompanyNumber,
   validConnection,
-  validDisconnectedCompanyNumber,
-  validInvite,
-  validPendingCompanyNumber,
-  verifiedBothCompanyNumber,
 } from './fixtures.js'
 
 function templateFake(templateName: string, ...args: unknown[]) {
@@ -124,30 +111,12 @@ export const withNewConnectionMocks = () => {
   const mockDb = {
     get: (tableName: string, where?: Record<string, string>) => {
       if (tableName === 'connection') {
-        if (where?.company_number === validCompanyNumber) return []
         if (where?.id === '4a5d4085-5924-43c6-b60d-754440332e3d') return [validConnection]
-        // sending a second invite test setup - sad path cases
-        if (where?.company_number === noExistingInviteCompanyNumber) return [{}]
-        if (where?.company_number === verifiedBothCompanyNumber) return [{ status: 'verified_both' }]
-        if (where?.company_number === usedPendingCompanyNumber) return [{ id: usedInvite, status: 'pending' }]
-        if (where?.company_number === usedVerifiedThemCompanyNumber)
-          return [{ id: usedInvite, status: 'verified_them' }]
-        if (where?.company_number === usedDisconnectedCompanyNumber) return [{ id: usedInvite, status: 'disconnected' }]
-        if (where?.company_number === tooManyDisconnectedCompanyNumber)
-          return [{ id: tooManyInvite, status: 'disconnected' }]
-        if (where?.company_number === validDisconnectedCompanyNumber)
-          return [{ id: validInvite, status: 'disconnected' }]
-        // happy path cases for sending a second invite
-        if (where?.company_number === usedUnverifiedCompanyNumber) return [{ id: usedInvite, status: 'unverified' }] // happy path
-        if (where?.company_number === usedVerifiedUsCompanyNumber) return [{ id: usedInvite, status: 'verified_us' }] // happy path
-        if (where?.company_number === validPendingCompanyNumber) return [{ id: validInvite, status: 'pending' }]
+        if (where?.company_number) return companyNumberToConnectionMap[where?.company_number]
         return []
       }
       if (tableName === 'connection_invite') {
-        if (where?.connection_id === validInvite) return [{ validity: 'valid' }]
-        if (where?.connection_id === expiredInvite) return [{ validity: 'expired' }]
-        if (where?.connection_id === tooManyInvite) return [{ validity: 'too_many_attempts' }]
-        if (where?.connection_id === usedInvite) return [{ validity: 'used' }]
+        if (where?.connection_id) return inviteValidityMap[where?.connection_id]
         return []
       }
     },
