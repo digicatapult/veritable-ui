@@ -38,7 +38,7 @@ test.describe('New query request', () => {
       expect(queryTypes.nth(2)).toHaveClass('query-item disabled')
       expect(queryTypes.nth(3)).toHaveClass('query-item disabled')
 
-      const co2Card = await page.$('a[href="/queries/new/carbon-embodiment"]')
+      const co2Card = await page.$('a[href="/queries/new?type=total_carbon_embodiment"]')
       expect(await co2Card?.textContent()).toContain(
         'Total Carbon EmbodimentCreates a query for calculating the total carbon embodiment for a given product or component.'
       )
@@ -46,7 +46,6 @@ test.describe('New query request', () => {
     })
 
     await test.step('selects company from already established connections', async () => {
-      expect(page.url()).toContain('/queries/new/carbon-embodiment')
       const aliceConnections = page.locator('#search-results')
       expect(await aliceConnections.textContent()).toContain('OFFSHORE RENEWABLE ENERGY CATAPULT')
 
@@ -60,7 +59,6 @@ test.describe('New query request', () => {
     })
 
     await test.step('enters product ID along with quantities and submits a new query request', async () => {
-      expect(page.url()).toContain('/queries/new/carbon-embodiment')
       const content = page.locator('#content-main')
       await expect(content.locator(page.getByText('Choose the product'))).toHaveText(
         'Choose the product that you want to apply the query “What is the total carbon embodiment for the product/component below?” to.'
@@ -96,7 +94,7 @@ test.describe('New query request', () => {
       await page.goto(`${AliceHost}/queries`)
       await page.click('text=Query Request')
 
-      const bavCard = await page.$('a[href="/queries/new/bav"]')
+      const bavCard = await page.$('a[href="/queries/new?type=beneficiary_account_validation"]')
       expect(await bavCard?.textContent()).toContain(
         `Beneficiary Account ValidationCreates a query to verify a company's financial details`
       )
@@ -104,7 +102,6 @@ test.describe('New query request', () => {
     })
 
     await test.step('selects company from already established connections', async () => {
-      expect(page.url()).toContain('/queries/new/bav')
       const aliceConnections = page.locator('#search-results')
       expect(await aliceConnections.textContent()).toContain('OFFSHORE RENEWABLE ENERGY CATAPULT')
 
@@ -118,7 +115,6 @@ test.describe('New query request', () => {
     })
 
     await test.step('submits a new BAV query request', async () => {
-      expect(page.url()).toContain('/queries/new/bav')
       const content = page.locator('#content-main')
       await expect(content.locator(page.getByText('Request financial details from'))).toHaveText(
         'Request financial details from OFFSHORE RENEWABLE ENERGY CATAPULT'
@@ -153,14 +149,13 @@ test.describe('New query request', () => {
       await page.goto(`${AliceHost}/connection`)
       await page.click('text=Send Query')
 
-      expect(page.url()).toContain('/queries/new')
+      expect(page.url()).toContain('/queries/choose')
 
-      const bavCard = await page.$('a[href^="/queries/new/bav"]')
+      const bavCard = await page.$('a[href^="/queries/new?type=beneficiary_account_validation"]')
       await bavCard?.click()
     })
 
     await test.step('connection select page skipped - submits a new BAV query request', async () => {
-      expect(page.url()).toContain('/queries/new/bav')
       const content = page.locator('#content-main')
       await expect(content.locator(page.getByText('Request financial details from'))).toHaveText(
         'Request financial details from OFFSHORE RENEWABLE ENERGY CATAPULT'
