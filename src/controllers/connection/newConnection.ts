@@ -7,7 +7,6 @@ import { injectable } from 'tsyringe'
 import { z } from 'zod'
 
 import { Env } from '../../env/index.js'
-import { InternalError } from '../../errors.js'
 import Database from '../../models/db/index.js'
 import EmailService from '../../models/emailService/index.js'
 import OrganisationRegistry, { OrganisationProfile } from '../../models/organisationRegistry.js'
@@ -458,10 +457,19 @@ export class NewConnectionController extends HTMLController {
 
       return { type: 'success', connectionId }
     } catch (err) {
-      return {
-        type: 'error',
-        error: `database errors when expiring invitation records or creating new invitation entry ${err}`,
-      }
+      if (
+        err instanceof Error &&
+        err.message.endsWith('duplicate key value violates unique constraint "unq_connection_company_number"')
+      ) {
+        return {
+          type: 'error',
+          error: `Connection already exists with ${company.company_name}`,
+        }
+      } else
+        return {
+          type: 'error',
+          error: `database errors when expiring invitation records or creating new invitation entry ${err}`,
+        }
     }
   }
 
