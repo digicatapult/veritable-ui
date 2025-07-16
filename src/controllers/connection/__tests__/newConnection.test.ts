@@ -287,7 +287,7 @@ describe('NewConnectionController', () => {
         )
       })
 
-      it('should insert two row', () => {
+      it('should insert two rows', () => {
         expect(insertSpy.callCount).to.equal(2)
       })
 
@@ -394,7 +394,7 @@ describe('NewConnectionController', () => {
           })
           .then(toHTMLString)
         expect(result).to.equal(
-          'companyFormInput_error--Edge case database state detected for connection dddd, aborting-form-alice@example.com-00000012_companyFormInput'
+          'companyFormInput_error--Edge case database state detected for connection 4444, aborting-form-alice@example.com-00000012_companyFormInput'
         )
       })
 
@@ -409,7 +409,7 @@ describe('NewConnectionController', () => {
           })
           .then(toHTMLString)
         expect(result).to.equal(
-          'companyFormInput_error--Edge case database state detected for connection cccc, aborting-form-alice@example.com-00000013_companyFormInput'
+          'companyFormInput_error--Edge case database state detected for connection 3333, aborting-form-alice@example.com-00000013_companyFormInput'
         )
       })
 
@@ -424,7 +424,7 @@ describe('NewConnectionController', () => {
           })
           .then(toHTMLString)
         expect(result).to.equal(
-          'companyFormInput_error--Edge case database state detected for connection aaaa, aborting-form-alice@example.com-00000014_companyFormInput'
+          'companyFormInput_error--Edge case database state detected for connection 1111, aborting-form-alice@example.com-00000014_companyFormInput'
         )
       })
 
@@ -587,7 +587,6 @@ describe('NewConnectionController', () => {
           action: 'createConnection',
         })
         .then(toHTMLString)
-
       expect(result).to.equal('fromInviteForm_error--Connection already exists with NAME_fromInviteForm')
     })
 
@@ -638,7 +637,7 @@ describe('NewConnectionController', () => {
         expect(result).to.equal('renderPinForm_42--true_renderPinForm')
       })
 
-      it('should insert two row', () => {
+      it('should insert two rows', () => {
         expect(insertSpy.callCount).to.equal(2)
       })
 
