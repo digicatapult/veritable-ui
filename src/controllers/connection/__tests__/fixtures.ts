@@ -19,10 +19,10 @@ export const usedVerifiedUsCompanyNumber = '00000017'
 export const usedDisconnectedCompanyNumber = '00000018'
 export const validPendingCompanyNumber = '00000019'
 
-export const validInvite = 1111
-export const expiredInvite = 2222
-export const tooManyInvite = 3333
-export const usedInvite = 4444
+export const validInvite = 'aaaa'
+export const expiredInvite = 'bbbb'
+export const tooManyInvite = 'cccc'
+export const usedInvite = 'dddd'
 
 export const validCompany = {
   company_name: 'NAME',
