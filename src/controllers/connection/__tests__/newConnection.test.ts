@@ -414,7 +414,7 @@ describe('NewConnectionController', () => {
         )
       })
 
-      it.only('should return rendered error of edge case when invite valid and disconnected', async () => {
+      it('should return rendered error of edge case when invite valid and disconnected', async () => {
         const { args } = withNewConnectionMocks()
         const controller = new NewConnectionController(...args)
         const result = await controller
