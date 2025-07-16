@@ -15,7 +15,7 @@ import { FromInviteTemplates } from '../../../views/newConnection/fromInvite.js'
 import { NewInviteTemplates } from '../../../views/newConnection/newInvite.js'
 import { PinSubmissionTemplates } from '../../../views/newConnection/pinSubmission.js'
 import {
-  allowNewInvitationCompanyNumber,
+  validPendingCompanyNumber,
   expiredInvite,
   noExistingInviteCompanyNumber,
   notFoundCompanyNumber,
@@ -140,7 +140,7 @@ export const withNewConnectionMocks = () => {
         // happy path cases for sending a second invite
         if (where?.company_number === usedUnverifiedCompanyNumber) return [{ id: usedInvite, status: 'unverified' }] // happy path
         if (where?.company_number === usedVerifiedUsCompanyNumber) return [{ id: usedInvite, status: 'verified_us' }] // happy path
-        if (where?.company_number === allowNewInvitationCompanyNumber) return [{ id: validInvite, status: 'pending' }]
+        if (where?.company_number === validPendingCompanyNumber) return [{ id: validInvite, status: 'pending' }]
         return []
       }
       if (tableName === 'connection_invite') {

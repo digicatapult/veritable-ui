@@ -26,6 +26,7 @@ import {
   validCompanyNumberInactive,
   validCompanyNumberInactiveInvite,
   validCompanyNumberInvite,
+  validPendingCompanyNumber,
   verifiedBothCompanyNumber,
 } from './fixtures.js'
 
@@ -442,7 +443,22 @@ describe('NewConnectionController', () => {
       })
 
       describe('happy path resending invitation', function () {
-        it('should allow resubmission with a used invitation but unverified connection', async () => {
+        it('should allow resubmission with a previous valid invitation and pending connection', async () => {
+          const { args } = withNewConnectionMocks()
+          const controller = new NewConnectionController(...args)
+          const result = await controller
+            .submitNewInvite(req, {
+              companyNumber: validPendingCompanyNumber,
+              email: 'alice@example.com',
+              action: 'continue',
+            })
+            .then(toHTMLString)
+          expect(result).to.equal(
+            'companyFormInput_companyFound-ALLOW_NEW--confirmation-alice@example.com-00000019_companyFormInput'
+          )
+        })
+
+        it('should allow resubmission with a previous used invitation but unverified connection', async () => {
           const { args } = withNewConnectionMocks()
           const controller = new NewConnectionController(...args)
           const result = await controller
@@ -457,7 +473,7 @@ describe('NewConnectionController', () => {
           )
         })
 
-        it('should allow resubmission with a used invitation and verified_us', async () => {
+        it('should allow resubmission with a previous used invitation and verified_us', async () => {
           const { args } = withNewConnectionMocks()
           const controller = new NewConnectionController(...args)
           const result = await controller

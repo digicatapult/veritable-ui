@@ -17,7 +17,7 @@ export const usedVerifiedThemCompanyNumber = '00000015'
 export const usedUnverifiedCompanyNumber = '00000016'
 export const usedVerifiedUsCompanyNumber = '00000017'
 export const usedDisconnectedCompanyNumber = '00000018'
-export const allowNewInvitationCompanyNumber = '00000019'
+export const validPendingCompanyNumber = '00000019'
 
 export const validInvite = 'aaaa'
 export const expiredInvite = 'bbbb'
@@ -116,9 +116,9 @@ export const usedDisconnectedCompany = {
   company_name: 'USED_DISCONNECTED',
 }
 
-export const allowNewInvitationCompany = {
+export const validPendingCompany = {
   ...validCompany,
-  company_number: allowNewInvitationCompanyNumber,
+  company_number: validPendingCompanyNumber,
   company_name: 'ALLOW_NEW',
 }
 
@@ -136,7 +136,7 @@ export const validCompanyMap: Record<string, typeof validCompany> = {
   [usedVerifiedThemCompanyNumber]: usedVerifiedThemCompany,
   [usedVerifiedUsCompanyNumber]: usedVerifiedUsCompany,
   [usedDisconnectedCompanyNumber]: usedDisconnectedCompany,
-  [allowNewInvitationCompanyNumber]: allowNewInvitationCompany,
+  [validPendingCompanyNumber]: validPendingCompany,
 }
 
 export const validConnection: ConnectionRow = {
