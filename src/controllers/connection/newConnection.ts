@@ -245,7 +245,7 @@ export class NewConnectionController extends HTMLController {
   }
 
   /**
-   * submits the company number for
+   * submits the invitation for decoding and connection insertion
    */
   @SuccessResponse(200)
   @Post('/receive-invitation')
