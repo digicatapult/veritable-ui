@@ -554,17 +554,6 @@ describe('NewConnectionController', () => {
       expect(result).to.equal('fromInviteForm_error--Company number does not exist_fromInviteForm')
     })
 
-    it.skip('should return rendered error when company already connected', async () => {
-      // No longer works because we're not trivially checking for the company_name in the ui db
-      // Instead we're relying on the cloudagent to throw when it sees the same invite presented twice
-      const { args } = withNewConnectionMocks()
-      const controller = new NewConnectionController(...args)
-      const result = await controller
-        .submitFromInvite(req, { invite: verifiedBothCompanyNumberInvite, action: 'createConnection' })
-        .then(toHTMLString)
-      expect(result).to.equal('fromInviteForm_error--Connection already exists with NAME2_fromInviteForm')
-    })
-
     it('should return rendered error when company registered office in dispute', async () => {
       const { args } = withNewConnectionMocks()
       const controller = new NewConnectionController(...args)
