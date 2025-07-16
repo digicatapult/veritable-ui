@@ -29,7 +29,6 @@ import {
   validDisconnectedCompanyNumber,
   validPendingCompanyNumber,
   verifiedBothCompanyNumber,
-  verifiedBothCompanyNumberInvite,
 } from './fixtures.js'
 
 describe('NewConnectionController', () => {

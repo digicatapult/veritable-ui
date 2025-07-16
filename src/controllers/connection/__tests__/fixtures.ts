@@ -169,4 +169,3 @@ export const validExistingCompanyNumberInvite = buildBase64Invite(validExistingC
 export const validCompanyNumberInDisputeInvite = buildBase64Invite(validCompanyNumberInDispute)
 export const validCompanyNumberInactiveInvite = buildBase64Invite(validCompanyNumberInactive)
 export const validCompanyNumberInvite = buildBase64Invite(validCompanyNumber)
-export const verifiedBothCompanyNumberInvite = buildBase64Invite(verifiedBothCompanyNumber)
