@@ -376,7 +376,7 @@ export class NewConnectionController extends HTMLController {
       logger.info('returning success - new connection')
       return { type: 'success', state: 'new_connection' }
     }
-    // Test for error conditions
+    // Or test whether we're allowed to send a new invitation
     for await (const connection of existingConnections) {
       // error early if verified_both
       if (connection.status === 'verified_both') {
@@ -420,6 +420,7 @@ export class NewConnectionController extends HTMLController {
         }
       }
     }
+    // otherwise allowed to submit a new invitation to existing connection
     logger.info('returning success - update existing')
     return { type: 'success', state: 'update_existing' }
   }
