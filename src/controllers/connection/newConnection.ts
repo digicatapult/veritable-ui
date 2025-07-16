@@ -204,26 +204,14 @@ export class NewConnectionController extends HTMLController {
       this.cloudagent.createOutOfBandInvite({ companyName: company.company_name }),
     ])
 
-    // if connection exists and we can send a new invitation, expire old invitation and update record
-    if (allowInvitation.state === 'update_existing') {
-      req.log.info('invite created, updating existing connection %j', { company, pinHash, invite })
-      const dbResult = await this.updateExistingConnection(company, pinHash, invite.outOfBandRecord.id)
-      if (dbResult.type === 'error') {
-        req.log.warn('unable to update existing connection %j', dbResult)
-        return this.newInviteErrorHtml(dbResult.error, body.email, company.company_number)
-      }
-      req.log.info('update complete with connection id: %s', dbResult.connectionId)
-    }
-
-    // or insert a new connection
-    if (allowInvitation.state === 'new_connection') {
-      req.log.info('invite created, inserting new connection %j', { company, pinHash, invite })
-      const dbResult = await this.insertNewConnection(company, pinHash, invite.outOfBandRecord.id, null)
-      if (dbResult.type === 'error') {
-        req.log.warn('unable to insert a new connection %j', dbResult)
-        return this.newInviteErrorHtml(dbResult.error, body.email, company.company_number)
-      }
-      req.log.info('new connection inserted with id: %s', dbResult.connectionId)
+    req.log.info(`invite created, applying '${allowInvitation.state}' %j`, { company, pinHash, invite })
+    const dbResult =
+      allowInvitation.state === 'update_existing'
+        ? await this.updateExistingConnection(company, pinHash, invite.outOfBandRecord.id)
+        : await this.insertNewConnection(company, pinHash, invite.outOfBandRecord.id, null)
+    if (dbResult.type === 'error') {
+      req.log.warn(`unable to apply '${allowInvitation.state}' %j`, dbResult)
+      return this.newInviteErrorHtml(dbResult.error, body.email, company.company_number)
     }
 
     const wrappedInvitation: Invite = {
