@@ -371,12 +371,12 @@ export class NewConnectionController extends HTMLController {
     companyData: OrganisationProfile
   ): Promise<{ type: 'success'; state: 'new_connection' | 'update_existing' } | { type: 'error'; message: string }> {
     const existingConnections = await this.db.get('connection', { company_number: companyData.company_number })
-    // Allow to progress if no connection record exists
+    // allow to progress if no connection record exists
     if (existingConnections.length === 0) {
       logger.info('returning success - new connection')
       return { type: 'success', state: 'new_connection' }
     }
-    // Or test whether we're allowed to send a new invitation
+    // or test whether we're allowed to send a new invitation
     for await (const connection of existingConnections) {
       // error early if verified_both
       if (connection.status === 'verified_both') {
