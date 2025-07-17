@@ -185,36 +185,48 @@ export default class CompanyDetailsV1Handler implements CredentialEventHandler<'
   }
 
   public async handleDone(credential: Credential): Promise<void> {
-    await this.db.withTransaction(async (db) => {
-      const connectionSearch = await db.get('connection', { agent_connection_id: credential.connectionId })
-      const connection = connectionSearch[0] || undefined
-      if (!connection) {
-        this.logger.warn('Unknown connection %s associated with credential %s', credential.connectionId, credential.id)
-        return
-      }
+    try {
+      await this.db.withTransaction(async (db) => {
+        const connectionSearch = await db.get('connection', { agent_connection_id: credential.connectionId })
+        const connection = connectionSearch[0] || undefined
+        if (!connection) {
+          this.logger.warn(
+            'Unknown connection %s associated with credential %s',
+            credential.connectionId,
+            credential.id
+          )
+          return
+        }
 
-      let newState: typeof connection.status | null = null
-      if (connection.status === 'unverified') {
-        newState = credential.role === 'holder' ? 'verified_us' : 'verified_them'
-      }
+        let newState: typeof connection.status | null = null
+        if (connection.status === 'unverified') {
+          newState = credential.role === 'holder' ? 'verified_us' : 'verified_them'
+        }
 
-      if (connection.status === 'verified_them' && credential.role === 'holder') {
-        newState = 'verified_both'
-      }
+        if (connection.status === 'verified_them' && credential.role === 'holder') {
+          newState = 'verified_both'
+        }
 
-      if (connection.status === 'verified_us' && credential.role === 'issuer') {
-        newState = 'verified_both'
-      }
+        if (connection.status === 'verified_us' && credential.role === 'issuer') {
+          newState = 'verified_both'
+        }
 
-      if (newState === null) {
-        return
-      }
+        if (newState === null) {
+          return
+        }
 
-      await db.update('connection', { id: connection.id }, { status: newState })
+        await db.update('connection', { id: connection.id }, { status: newState })
 
-      if (credential.role === 'issuer') {
-        await db.update('connection_invite', { connection_id: connection.id, validity: 'valid' }, { validity: 'used' })
-      }
-    })
+        if (credential.role === 'issuer') {
+          await db.update(
+            'connection_invite',
+            { connection_id: connection.id, validity: 'valid' },
+            { validity: 'used' }
+          )
+        }
+      })
+    } catch (err) {
+      this.logger.error('error handling credential exchange %j', err)
+    }
   }
 }
