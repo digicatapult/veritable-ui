@@ -1,6 +1,6 @@
 {
   "name": "veritable-ui",
-  "version": "0.16.36",
+  "version": "0.16.37",
   "description": "UI for Veritable",
   "main": "src/index.ts",
   "type": "module",
@@ -55,7 +55,7 @@
     "tsoa": "^6.6.0",
     "tsyringe": "^4.10.0",
     "ws": "^8.18.3",
-    "zod": "^3.25.76"
+    "zod": "^4.0.5"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.3.1",
