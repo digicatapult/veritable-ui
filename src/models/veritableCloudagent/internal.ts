@@ -224,6 +224,10 @@ export default class VeritableCloudagentInt<Config extends CloudagentConfig = De
     )
   }
 
+  public async deleteOutOfBandInvite(id: string): Promise<void> {
+    return this.deleteRequest(`/v1/oob/${id}`, () => {})
+  }
+
   public async getConnections(): Promise<Connection[]> {
     return this.getRequest('/v1/connections', this.buildParser(connectionListParser))
   }
