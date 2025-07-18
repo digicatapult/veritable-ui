@@ -59,8 +59,8 @@ const insertQueryRpc = z.object({
   agent_rpc_id: z.string(),
   role: z.union([z.literal('client'), z.literal('server')]),
   method: z.union([z.literal('submit_query_request'), z.literal('submit_query_response')]),
-  result: z.union([z.record(z.any()), z.null()]).optional(),
-  error: z.union([z.record(z.any()), z.null()]).optional(),
+  result: z.union([z.record(z.any(), z.any()), z.null()]).optional(),
+  error: z.union([z.record(z.any(), z.any()), z.null()]).optional(),
 })
 const insertSettings = z.object({
   setting_key: z.string(),
