@@ -12,6 +12,13 @@ const oobParser = z.object({
 })
 type OutOfBandInvite = z.infer<typeof oobParser>
 
+const oobInviteParser = z.object({
+  id: z.string().uuid(),
+  role: z.enum(['sender', 'receiver']),
+})
+
+type OutOfBandRecord = z.infer<typeof oobInviteParser>
+
 const receiveUrlParser = z.object({
   outOfBandRecord: z.object({
     id: z.string(),
@@ -143,6 +150,7 @@ export const drpcResponseParser = z.union([
 export type JsonRpcError = z.infer<typeof jsonRpcError>
 export type DrpcResponse = z.infer<typeof drpcResponseParser>
 
+const oobInviteListParser = z.array(oobInviteParser)
 const connectionListParser = z.array(connectionParser)
 const credentialListParser = z.array(credentialParser)
 const schemaListParser = z.array(schemaParser)
@@ -222,6 +230,10 @@ export default class VeritableCloudagentInt<Config extends CloudagentConfig = De
       },
       this.buildParser(receiveUrlParser)
     )
+  }
+
+  public async getOutOfBandInvites(): Promise<OutOfBandRecord[]> {
+    return this.getRequest(`/v1/oob/`, this.buildParser(oobInviteListParser))
   }
 
   public async deleteOutOfBandInvite(id: string): Promise<void> {
