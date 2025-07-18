@@ -150,7 +150,6 @@ export const drpcResponseParser = z.union([
 export type JsonRpcError = z.infer<typeof jsonRpcError>
 export type DrpcResponse = z.infer<typeof drpcResponseParser>
 
-const oobInviteListParser = z.array(oobInviteParser)
 const connectionListParser = z.array(connectionParser)
 const credentialListParser = z.array(credentialParser)
 const schemaListParser = z.array(schemaParser)
@@ -234,10 +233,6 @@ export default class VeritableCloudagentInt<Config extends CloudagentConfig = De
 
   public async getOutOfBandInvite(id: string): Promise<OutOfBandRecord> {
     return this.getRequest(`/v1/oob/${id}`, this.buildParser(oobInviteParser))
-  }
-
-  public async getOutOfBandInvites(): Promise<OutOfBandRecord[]> {
-    return this.getRequest(`/v1/oob/`, this.buildParser(oobInviteListParser))
   }
 
   public async deleteOutOfBandInvite(id: string): Promise<void> {
