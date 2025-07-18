@@ -232,6 +232,10 @@ export default class VeritableCloudagentInt<Config extends CloudagentConfig = De
     )
   }
 
+  public async getOutOfBandInvite(id: string): Promise<OutOfBandRecord> {
+    return this.getRequest(`/v1/oob/${id}`, this.buildParser(oobInviteParser))
+  }
+
   public async getOutOfBandInvites(): Promise<OutOfBandRecord[]> {
     return this.getRequest(`/v1/oob/`, this.buildParser(oobInviteListParser))
   }
