@@ -436,7 +436,7 @@ export class NewConnectionController extends HTMLController {
         // Make sure we're only deleting invitations we've sent
         if (exists && exists.role === 'sender') {
           await this.cloudagent.deleteOutOfBandInvite(invite.oob_invite_id)
-          logger.info('OOB invitation deleted %s', invite.oob_invite_id)
+          logger.debug('OOB invitation deleted %s', invite.oob_invite_id)
         }
       }
       // database transactions
