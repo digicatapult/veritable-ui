@@ -216,6 +216,8 @@ services:
         condition: service_healthy
     ports:
       - 3002:3000
+    env_file:
+      - .env
     command: >
       sh -c "
         npm i -g pino-colada
