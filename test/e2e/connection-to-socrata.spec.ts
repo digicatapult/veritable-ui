@@ -101,6 +101,52 @@ test.describe('Connection to Socrata', () => {
       expect(positiveFeedback).not.toBeNull()
       const feedback = await page.$('#new-connection-feedback')
       expect(feedback).not.toBeNull()
+
+      const feedbackText = await feedback?.textContent()
+      expect(feedbackText).toContain('Registered Office Address')
+      expect(feedbackText).toContain('DIGITAL CATAPULT')
+
+      await page.click('button[type="submit"][name="action"][value="createConnection"]')
+
+      // Submit pin
+      await page.fill('#new-connection-invite-input-pin', pinForCharlie)
+      await page.click('button[type="submit"][name="action"][value="submitPinCode"]')
+
+      await page.waitForSelector('#new-connection-invite-input')
+      const confirmationElement = await page.$('#new-connection-invite-input')
+      expect(confirmationElement).not.toBeNull()
+      const confirmationText = await confirmationElement?.textContent()
+      expect(confirmationText).toContain('PIN Code has been submitted for DIGITAL CATAPULT company ID.')
+      await page.click('a[href="/connection"]', { delay: 1000 })
+    })
+
+    await test.step('Retrieve pin for Alice', async () => {
+      const newAdminEmail = await checkEmails('admin@veritable.com')
+      const extractedPin = await extractPin(newAdminEmail.id)
+      expect(extractedPin).toHaveLength(6)
+      if (!extractedPin) throw new Error('PIN from admin email was not found.')
+
+      pinForAlice = extractedPin
+    })
+
+    await test.step('Alice submits her PIN', async () => {
+      await page.goto(`${baseUrlAlice}/connection`)
+
+      const hrefRegex = /\/connection\/[0-9a-fA-F-]{36}\/pin-submission/
+      const hrefElement = await page.$(`a[href*="/connection/"][href*="/pin-submission"]`)
+      expect(hrefElement).not.toBeNull()
+
+      const href = await hrefElement?.getAttribute('href')
+      expect(href).toMatch(hrefRegex)
+
+      await page.click(`a[href="${href}"]`)
+      await page.fill('#new-connection-invite-input-pin', pinForAlice)
+      await page.click('button[type="submit"][name="action"][value="submitPinCode"]')
+    })
+    await test.step('Check connection is in state verified', async () => {
+      await page.click('a[href="/connection"]', { delay: 5000 })
+      const statusText = await page.textContent('div.list-item-status[data-status="success"]')
+      expect(statusText).toContain('Connected')
     })
   })
 })
