@@ -88,7 +88,7 @@ test.describe('Connection to Socrata', () => {
       expect(page.url()).toContain('/connection')
 
       // Fill in invite without last character, then enter last character to simulate typing
-      if (!invite) throw new Error('Invitation for Bob was not found.')
+      if (!invite) throw new Error('Invitation for Charlie was not found.')
       const contentWithoutLastChar = invite.slice(0, -1)
       const lastChar = invite.slice(-1)
       // Submit invite
