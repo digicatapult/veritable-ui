@@ -14,7 +14,7 @@ async function globalSetup() {
   // Pass in ('name', host port for UI, 'company number')
   await bringUpVeritableUIContainer('alice', 3000, '07964699')
   await bringUpVeritableUIContainer('bob', 3001, '04659351')
-  await bringUpVeritableUIContainer('charlie', 3002, '10016023')
+  await bringUpVeritableUIContainer('charlie', 3002, '10016023', 'NY')
 }
 
 export default globalSetup

@@ -21,7 +21,12 @@ const wireMockVersion = parsed.services.wiremock.image
 
 //============ Veritable UI Container ============
 
-export async function bringUpVeritableUIContainer(name: string, hostPort: number, invitationFromCompanyNumber: string) {
+export async function bringUpVeritableUIContainer(
+  name: string,
+  hostPort: number,
+  invitationFromCompanyNumber: string,
+  localRegistryToUse: string = 'UK'
+) {
   const base = await GenericContainer.fromDockerfile('./').build()
 
   const veritableUIContainer = await base
@@ -59,6 +64,8 @@ export async function bringUpVeritableUIContainer(name: string, hostPort: number
       DEMO_MODE: 'true',
       SMTP_SECURE: 'false',
       COMPANY_PROFILE_API_KEY: 'API_KEY',
+      SOCRATA_API_URL: 'http://wiremock-socrata:8080',
+      LOCAL_REGISTRY_TO_USE: localRegistryToUse,
     })
     .withCommand([
       'sh',
