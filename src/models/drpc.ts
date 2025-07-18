@@ -1,5 +1,6 @@
 import z from 'zod'
 import { QueryType } from './db/types'
+import { BIC, CountryCode, countryCodes } from './strings.js'
 
 export const ProductAndQuantity = z.object({
   idType: z.literal('product_and_quantity'),
@@ -99,12 +100,14 @@ export type BavRes = BaseQueryResponse & {
   type: z.infer<typeof bavResponseSchema>
   data: {
     subjectId: SubjectId
-    partialResponses: BavRes[]
+    bic: BIC
+    countryCode: CountryCode
   }
 }
 export const bavResponseData: z.ZodType<BavRes['data']> = z.object({
   subjectId: subjectIdParser,
-  partialResponses: z.lazy(() => bavResponse.array()),
+  bic: z.string(),
+  countryCode: z.enum(countryCodes),
 })
 export const bavResponse = z.object({
   ...baseQueryResponse.shape,

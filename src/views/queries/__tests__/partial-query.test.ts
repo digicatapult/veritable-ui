@@ -2,9 +2,9 @@ import { expect } from 'chai'
 import { describe } from 'mocha'
 import { mockIds } from '../../../controllers/queries/__tests__/helpers.js'
 import { ConnectionRow, QueryRow } from '../../../models/db/types.js'
-import Templates from '../responseCo2embodiment.js'
+import QueryResponseTemplates from '../queryResponse.js'
 
-const templates = new Templates()
+const templates = new QueryResponseTemplates()
 const sampleDate = new Date(Date.UTC(2024, 6, 4))
 const connectionsExample: ConnectionRow[] = [{}, {}, {}, {}].map((_, i) => ({
   id: `${mockIds.connectionId.substr(0, mockIds.connectionId.length - 1)}${i}`,
@@ -41,9 +41,9 @@ const queryExample: QueryRow = {
 describe('Partial Query', () => {
   describe('if partial is set to false', () => {
     it('does not render connections list and leaves quantity input enabled', async () => {
-      const rendered = await templates.newCarbonEmbodimentResponseFormPage({
+      const rendered = await templates.queryResponsePage({
         formStage: 'form',
-        company: {
+        connection: {
           company_name: 'VER123',
           company_number: '3456789',
           status: 'verified_both',
@@ -54,6 +54,7 @@ describe('Partial Query', () => {
           created_at: new Date(),
           updated_at: new Date(),
         },
+        type: 'total_carbon_embodiment',
         query: queryExample,
         partial: false,
         connections: connectionsExample,
@@ -64,9 +65,9 @@ describe('Partial Query', () => {
   })
 
   it('renders partial query table with connections that are verified', async () => {
-    const rendered = await templates.newCarbonEmbodimentResponseFormPage({
+    const rendered = await templates.queryResponsePage({
       formStage: 'form',
-      company: {
+      connection: {
         company_name: 'VER123',
         company_number: '3456789',
         status: 'verified_both',
@@ -77,6 +78,7 @@ describe('Partial Query', () => {
         created_at: new Date(),
         updated_at: new Date(),
       },
+      type: 'total_carbon_embodiment',
       query: queryExample,
       partial: true,
       connections: connectionsExample,

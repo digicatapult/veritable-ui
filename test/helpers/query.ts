@@ -8,37 +8,70 @@ export const co2QueryContent = {
   quantity: '100',
 }
 
-export async function withQueryRequest(requesterUrl: string) {
-  const uuidRegex = /[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-4[0-9a-fA-F]{3}-[89ab][0-9a-fA-F]{3}-[0-9a-fA-F]{12}/
-  const connections = await fetchGet(`${requesterUrl}/connection`)
-  const html = await connections.text()
-  const [connectionId] = html.match(uuidRegex) || []
-  if (!connectionId) {
-    throw new Error(`Connection not found ${connectionId}`)
-  }
+const uuidRegex = /[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-4[0-9a-fA-F]{3}-[89ab][0-9a-fA-F]{3}-[0-9a-fA-F]{12}/
 
-  await fetchPost(`${requesterUrl}/queries/new/carbon-embodiment`, {
+export async function withCarbonQueryRequest(requesterUrl: string) {
+  const connectionId = await getConnectionId(requesterUrl)
+
+  await fetchPost(`${requesterUrl}/queries/carbon-embodiment`, {
     connectionId,
     ...co2QueryContent,
   })
 }
 
-export async function withQueryResponse(requesterUrl: string, responderUrl: string, emissions?: number) {
-  await withQueryRequest(requesterUrl)
-  const uuidRegex = /[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-4[0-9a-fA-F]{3}-[89ab][0-9a-fA-F]{3}-[0-9a-fA-F]{12}/
-  const connections = await fetchGet(`${responderUrl}/connection`)
+export async function withBavQueryRequest(requesterUrl: string) {
+  const connectionId = await getConnectionId(requesterUrl)
+
+  await fetchPost(`${requesterUrl}/queries/bav`, {
+    connectionId,
+  })
+}
+
+export async function withCarbonQueryResponse(requesterUrl: string, responderUrl: string, emissions?: number) {
+  await withCarbonQueryRequest(requesterUrl)
+  const connectionId = await getConnectionId(responderUrl)
+  const queryId = await getQuery(responderUrl)
+
+  await fetchPost(`${responderUrl}/queries/${queryId}/response/carbon-embodiment`, {
+    companyId: connectionId,
+    emissions: emissions || 999,
+  })
+}
+
+export async function withBavQueryResponse(
+  requesterUrl: string,
+  responderUrl: string,
+  bic: string,
+  countryCode: string
+) {
+  await withBavQueryRequest(requesterUrl)
+  const connectionId = await getConnectionId(responderUrl)
+  const queryId = await getQuery(responderUrl)
+
+  await fetchPost(`${responderUrl}/queries/${queryId}/response/bav`, {
+    companyId: connectionId,
+    bic,
+    countryCode,
+  })
+}
+
+async function getConnectionId(baseUrl: string) {
+  const connections = await fetchGet(`${baseUrl}/connection`)
   const connectionsHtml = await connections.text()
   const [connectionId] = connectionsHtml.match(uuidRegex) || []
   if (!connectionId) {
     throw new Error(`Connection not found ${connectionId}`)
   }
+  return connectionId
+}
 
+async function getQuery(baseUrl: string) {
   let retries = 30
   let queryId: string[] = ['']
 
   while (retries > 0) {
     await delay(500)
-    const queriesRes = await fetchGet(`${responderUrl}/queries`)
+    const queriesRes = await fetchGet(`${baseUrl}/queries`)
     const queriesHtml = await queriesRes.text()
     const [queryStatus] = queriesHtml.match(/Respond to query/g) || []
     queryId = queriesHtml.match(uuidRegex) || []
@@ -51,10 +84,5 @@ export async function withQueryResponse(requesterUrl: string, responderUrl: stri
       retries--
     }
   }
-
-  await fetchPost(`${responderUrl}/queries/carbon-embodiment/${queryId[0]}/response`, {
-    companyId: connectionId,
-    action: 'success',
-    emissions: emissions || 999,
-  })
+  return queryId[0]
 }

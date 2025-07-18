@@ -1,64 +1,89 @@
 import Html from '@kitajs/html'
-import { singleton } from 'tsyringe'
-import { ConnectionRow, QueryRow } from '../../models/db/types.js'
-import { CarbonEmbodimentRes, carbonEmbodimentResponseData, ProductAndQuantity } from '../../models/drpc.js'
-import { FormButton, LinkButton, Page } from '../common.js'
+import isoCountries from 'i18n-iso-countries'
 
-export type CarbonEmbodimentFormStage = 'form' | 'success' | 'error'
-export interface CarbonEmbodimentFormProps {
-  formStage: CarbonEmbodimentFormStage
-  company: ConnectionRow
+import { singleton } from 'tsyringe'
+import { ConnectionRow, QueryRow, QueryType } from '../../models/db/types.js'
+import {
+  bavResponseData,
+  CarbonEmbodimentRes,
+  carbonEmbodimentResponseData,
+  ProductAndQuantity,
+} from '../../models/drpc.js'
+import { bicRegex } from '../../models/strings.js'
+import { FormButton, LinkButton, Page } from '../common.js'
+import { typeMap } from './queryRequest.js'
+
+export interface ResponseFormProps {
+  formStage: 'form' | 'success' | 'error' | 'view'
+  connection: ConnectionRow
   connections?: ConnectionRow[]
   partial?: boolean
   query: QueryRow
+  type: QueryType
 }
 
+const countries = isoCountries.getNames('en', { select: 'official' })
+
 @singleton()
-export default class CarbonEmbodimentResponseTemplates {
+export default class QueryResponseTemplates {
   constructor() {}
 
-  public newCarbonEmbodimentResponseFormPage = ({
-    formStage,
-    company,
-    query,
-    partial,
-    connections,
-  }: CarbonEmbodimentFormProps) => {
-    const subjectId = ProductAndQuantity.parse(query.details.subjectId)
+  public queryResponsePage = ({ formStage, connection, query, partial, connections, type }: ResponseFormProps) => {
     return (
       <Page
-        title="Veritable - Select Company"
+        title="Veritable - Query Response"
         activePage="queries"
-        heading="Select Company To Send Your Query To"
+        heading={`${typeMap[type].name} Query`}
         headerLinks={[
           { name: 'Query Management', url: '/queries' },
           {
-            name: `Query Request ${subjectId.content.productId}`,
-            url: `/queries/carbon-embodiment/${query.id}/response`,
+            name: typeMap[type].name,
+            url: `/queries/${query.id}/response`,
           },
         ]}
       >
         <div class="connections header"></div>
         <div class="card-body">
-          <this.carbonEmbodiment
+          <this.Body
             formStage={formStage}
-            company={company}
+            connection={connection}
             query={query}
             partial={partial}
             connections={connections}
+            type={type}
           />
         </div>
       </Page>
     )
   }
-  public carbonEmbodiment = (props: CarbonEmbodimentFormProps): JSX.Element => {
+  private Body = (props: ResponseFormProps): JSX.Element => {
     switch (props.formStage) {
       case 'form':
-        return <this.carbonEmbodimentResponseFormPage {...props}></this.carbonEmbodimentResponseFormPage>
+        return this.Form(props)
       case 'success':
         return <this.queryResponseSuccess {...props}></this.queryResponseSuccess>
       case 'error':
         return <this.queryResponseError {...props}></this.queryResponseError>
+      case 'view':
+        return <this.View {...props}></this.View>
+    }
+  }
+
+  private Form = (props: ResponseFormProps) => {
+    switch (props.type) {
+      case 'total_carbon_embodiment':
+        return <this.carbonEmbodimentResponseFormPage {...props} />
+      case 'beneficiary_account_validation':
+        return <this.bavResponseFormPage {...props} />
+    }
+  }
+
+  private View = (props: ResponseFormProps) => {
+    switch (props.type) {
+      case 'total_carbon_embodiment':
+        return <this.carbonEmbodimentView {...props} />
+      case 'beneficiary_account_validation':
+        return <this.bavView {...props} />
     }
   }
 
@@ -67,7 +92,7 @@ export default class CarbonEmbodimentResponseTemplates {
     connections = [],
     query,
     ...props
-  }: CarbonEmbodimentFormProps) => {
+  }: ResponseFormProps) => {
     const subjectId = ProductAndQuantity.parse(query.details.subjectId)
 
     return (
@@ -87,7 +112,7 @@ export default class CarbonEmbodimentResponseTemplates {
           <div hx-swap-oob="true" hx-swap="ignoreTitle:true" id="partial-query">
             <form
               id="carbon-embodiment"
-              hx-post={`/queries/carbon-embodiment/${query.id}/response`}
+              hx-post={`/queries/${query.id}/response/carbon-embodiment`}
               hx-select="main > *"
               hx-include={"[name='quantity'], [name='companyId'], [name='productId']"}
               hx-target="main"
@@ -98,7 +123,7 @@ export default class CarbonEmbodimentResponseTemplates {
                 <br />
                 Quantity: {Html.escapeHtml(subjectId.content.quantity)}
               </p>
-              <input type="hidden" name="companyId" value={Html.escapeHtml(props.company.id)} />
+              <input type="hidden" name="companyId" value={Html.escapeHtml(props.connection.id)} />
               <div class="input-container">
                 <label for="co2-embodiment-input" class="input-label">
                   Total carbon from my operations only (Scope 1 & 2)
@@ -163,7 +188,7 @@ export default class CarbonEmbodimentResponseTemplates {
                 </div>
               ) : undefined}
               <br />
-              <FormButton name="action" value="success" text="Submit Response" style="filled" />
+              <FormButton text="Submit Response" style="filled" />
             </form>
           </div>
         </div>
@@ -195,7 +220,61 @@ export default class CarbonEmbodimentResponseTemplates {
     )
   }
 
-  public view = (connection: ConnectionRow, query: QueryRow): JSX.Element => {
+  private bavResponseFormPage = ({ query, ...props }: ResponseFormProps) => {
+    return (
+      <div class="container-query-form">
+        <div class="query-form-left">
+          <h1>Beneficiary Account Validation</h1>
+          <span>
+            <p class="query-form-text">Provide your company's financial details</p>
+          </span>
+        </div>
+        <div class="query-form-right">
+          <div hx-swap-oob="true" hx-swap="ignoreTitle:true" id="partial-query">
+            <form
+              id="bav"
+              hx-post={`/queries/${query.id}/response/bav`}
+              hx-select="main > *"
+              hx-include={"[name='bic'], [name='countryCode']"}
+              hx-target="main"
+              hx-swap="innerHTML"
+            >
+              <input type="hidden" name="companyId" value={Html.escapeHtml(props.connection.id)} />
+              <div class="input-container">
+                <label for="bav-bic-input" class="input-label">
+                  Bank Identifier Code
+                </label>
+                <input
+                  id="bav-bic-input"
+                  name="bic"
+                  placeholder="AAAABBCC123"
+                  class="input-with-label"
+                  type="text"
+                  required
+                  pattern={bicRegex.source}
+                  title="Valid BIC (4 letters, 2 country letters, 2 alphanumeric, optional 3 more alphanumeric)"
+                />
+              </div>
+              <div class="input-container">
+                <label for="country-select" class="input-label">
+                  Country
+                </label>
+                <select id="country-select" name="countryCode" class="input-with-label" required>
+                  <option value="">Select country</option>
+                  {Object.entries(countries).map(([countryCode, name]) => (
+                    <option value={countryCode}>{Html.escapeHtml(name)}</option>
+                  ))}
+                </select>
+              </div>
+              <FormButton text="Submit Response" style="filled" />
+            </form>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  private carbonEmbodimentView = ({ query, connection }: ResponseFormProps): JSX.Element => {
     if (!query.response) {
       throw new Error('Cannot view query response without a response')
     }
@@ -204,72 +283,59 @@ export default class CarbonEmbodimentResponseTemplates {
     const responseData = carbonEmbodimentResponseData.parse(query.response)
 
     return (
-      <Page
-        title="Veritable - Query Response"
-        activePage="queries"
-        heading="View response to your query"
-        headerLinks={[
-          { name: 'Queries', url: '/queries' },
-          { name: connection.company_name, url: `/queries/carbon-embodiment/${query.id}/view-response` },
-        ]}
-      >
-        <div class="connections header"></div>
-        <div class="card-body">
-          <div class="container-query-form">
-            <div class="query-form-left">
-              <h1>Total Carbon Embodiment</h1>
-              <p class="query-form-text">
-                A query for calculating the total carbon embodiment for a given product or component.
-              </p>
-            </div>
-            <div class="query-form-right">
-              <div class="row">
-                <h2>Query Information</h2>
-                <div style={{ maxHeight: '25px' }} class="list-item-status" data-status="success">
-                  Resolved
-                </div>
-              </div>
-              <br />
-              <table id="query-response-view">
-                <tr>
-                  <td>Company name:</td>
-                  <td class="query-results-left-padding-table">{Html.escapeHtml(connection.company_name)}</td>
-                </tr>
-                <tr>
-                  <td>Product ID:</td>
-                  <td class="query-results-left-padding-table">{Html.escapeHtml(subjectId.content.productId)}</td>
-                </tr>
-                <tr>
-                  <td>Quantity:</td>
-                  <td class="query-results-left-padding-table">{Html.escapeHtml(subjectId.content.quantity)}</td>
-                </tr>
-                <tr>
-                  <td>Query:</td>
-                  <td class="query-results-left-padding-table">
-                    Please provide details on the total carbon embodiment associated with the product.
-                  </td>
-                </tr>
-              </table>
-              <h2>Response Information</h2>
-              <table id="query-response-view">
-                <tr>
-                  <td>Date Certified:</td>
-                  <td>
-                    <time class="query-results-left-padding-table">{Html.escapeHtml(new Date(query.updated_at))}</time>
-                  </td>
-                </tr>
-                <tr>
-                  <td>Carbon Emissions:</td>
-                  <td class="query-results-left-padding-table">
-                    {Html.escapeHtml(this.reduceResponse(responseData))} kg CO2e
-                  </td>
-                </tr>
-              </table>
-              <LinkButton text="Back to Queries" href="/queries" style="filled" />
+      <div class="container-query-form">
+        <div class="query-form-left">
+          <h1>Total Carbon Embodiment</h1>
+          <p class="query-form-text">
+            A query for calculating the total carbon embodiment for a given product or component.
+          </p>
+        </div>
+        <div class="query-form-right">
+          <div class="row">
+            <h2>Query Information</h2>
+            <div style={{ maxHeight: '25px' }} class="list-item-status" data-status="success">
+              Resolved
             </div>
           </div>
+          <br />
+          <table id="query-response-view">
+            <tr>
+              <td>Company name:</td>
+              <td class="query-results-left-padding-table">{Html.escapeHtml(connection.company_name)}</td>
+            </tr>
+            <tr>
+              <td>Product ID:</td>
+              <td class="query-results-left-padding-table">{Html.escapeHtml(subjectId.content.productId)}</td>
+            </tr>
+            <tr>
+              <td>Quantity:</td>
+              <td class="query-results-left-padding-table">{Html.escapeHtml(subjectId.content.quantity)}</td>
+            </tr>
+            <tr>
+              <td>Query:</td>
+              <td class="query-results-left-padding-table">
+                Please provide details on the total carbon embodiment associated with the product.
+              </td>
+            </tr>
+          </table>
+          <h2>Response Information</h2>
+          <table id="query-response-view">
+            <tr>
+              <td>Date Certified:</td>
+              <td class="query-results-left-padding-table">
+                <time>{Html.escapeHtml(new Date(query.updated_at))}</time>
+              </td>
+            </tr>
+            <tr>
+              <td>Carbon Emissions:</td>
+              <td class="query-results-left-padding-table">
+                {Html.escapeHtml(this.reduceResponse(responseData))} kg CO2e
+              </td>
+            </tr>
+          </table>
+          <LinkButton text="Back to Queries" href="/queries" style="filled" />
         </div>
-      </Page>
+      </div>
     )
   }
 
@@ -323,7 +389,61 @@ export default class CarbonEmbodimentResponseTemplates {
     )
   }
 
-  private queryResponseSuccess = (props: CarbonEmbodimentFormProps): JSX.Element => {
+  private bavView = ({ query, connection }: ResponseFormProps): JSX.Element => {
+    if (!query.response) {
+      throw new Error('Cannot view query response without a response')
+    }
+
+    const responseData = bavResponseData.parse(query.response)
+
+    return (
+      <div class="container-query-form">
+        <div class="query-form-left">
+          <h1>Beneficiary Account Validation</h1>
+          <p class="query-form-text">A query to verify a company's financial details</p>
+        </div>
+        <div class="query-form-right">
+          <div class="row">
+            <h2>Query Information</h2>
+            <div style={{ maxHeight: '25px' }} class="list-item-status" data-status="success">
+              Resolved
+            </div>
+          </div>
+          <br />
+          <table id="query-response-view">
+            <tr>
+              <td>Company name:</td>
+              <td class="query-results-left-padding-table">{Html.escapeHtml(connection.company_name)}</td>
+            </tr>
+            <tr>
+              <td>Query:</td>
+              <td class="query-results-left-padding-table">Provide your company's financial details</td>
+            </tr>
+          </table>
+          <h2>Response Information</h2>
+          <table id="query-response-view">
+            <tr>
+              <td>Date Certified:</td>
+              <td class="query-results-left-padding-table">
+                <time>{Html.escapeHtml(new Date(query.updated_at))}</time>
+              </td>
+            </tr>
+            <tr>
+              <td>Bank Identifier Code:</td>
+              <td class="query-results-left-padding-table">{Html.escapeHtml(responseData.bic)}</td>
+            </tr>
+            <tr>
+              <td>Country Code:</td>
+              <td class="query-results-left-padding-table">{Html.escapeHtml(responseData.countryCode)}</td>
+            </tr>
+          </table>
+          <LinkButton text="Back to Queries" href="/queries" style="filled" />
+        </div>
+      </div>
+    )
+  }
+
+  private queryResponseSuccess = (props: ResponseFormProps): JSX.Element => {
     return (
       <div id="new-query-confirmation-text">
         <h2>Thank you for your response!</h2>
@@ -332,7 +452,7 @@ export default class CarbonEmbodimentResponseTemplates {
           product/component:
         </p>
         <i>
-          <p>{Html.escapeHtml(props.company.company_name)}</p>
+          <p>{Html.escapeHtml(props.connection.company_name)}</p>
         </i>
         <p>
           Once all supplier responses are received, they will be automatically gathered and securely sent to Alice’s
@@ -346,12 +466,12 @@ export default class CarbonEmbodimentResponseTemplates {
     )
   }
 
-  private queryResponseError = (props: CarbonEmbodimentFormProps): JSX.Element => {
+  private queryResponseError = (props: ResponseFormProps): JSX.Element => {
     return (
       <div id="new-query-confirmation-text">
         <p>
           There has been an error when responding to the query by following company:{' '}
-          {Html.escapeHtml(props.company.company_name)}.
+          {Html.escapeHtml(props.connection.company_name)}.
         </p>
         <p>Please try again or contact the respective company to resolve this issue.</p>
         <LinkButton disabled={false} text="Back to Home" href="/" icon={''} style="filled" />

@@ -28,7 +28,7 @@ describe('query submission', function () {
     withVerifiedConnection(context)
 
     beforeEach(async function () {
-      response = await post(context.app, `/queries/new/carbon-embodiment`, {
+      response = await post(context.app, `/queries/carbon-embodiment`, {
         connectionId: context.localConnectionId,
         productId: 'Test',
         quantity: 1,

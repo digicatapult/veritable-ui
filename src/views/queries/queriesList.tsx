@@ -39,9 +39,9 @@ export default class QueryListTemplates {
     } else if (status === 'pending_your_input' && role === 'responder') {
       return 'Respond to query'
     } else if (status === 'resolved' && role === 'responder') {
-      return 'no action required'
+      return 'No action required'
     }
-    return 'no action available'
+    return 'No action available'
   }
 
   private isButtonDisabled = (status: string | QueryStatus, role: QueryRole) => {
@@ -76,7 +76,7 @@ export default class QueryListTemplates {
           <LinkButton
             disabled={false}
             text="Query Request"
-            href="/queries/new"
+            href="/queries/choose"
             icon={'url("/public/images/plus.svg")'}
             style="filled"
           />
@@ -129,16 +129,9 @@ export default class QueryListTemplates {
                       <LinkButton
                         icon='url("/public/images/dot-icon.svg")'
                         style="outlined"
-                        disabled={
-                          this.isButtonDisabled(query.status, query.role) ||
-                          query.type === 'beneficiary_account_validation' // TODO implement BAV responses
-                        }
+                        disabled={this.isButtonDisabled(query.status, query.role)}
                         text={this.buttonText(query.status, query.role)}
-                        href={
-                          query.status === 'resolved' && query.role === 'requester'
-                            ? `/queries/carbon-embodiment/${query.id}/view-response`
-                            : `/queries/carbon-embodiment/${query.id}/response`
-                        }
+                        href={`/queries/${query.id}/response`}
                       />
                     </td>
                   </tr>

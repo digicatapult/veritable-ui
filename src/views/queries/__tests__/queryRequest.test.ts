@@ -3,6 +3,8 @@ import { describe, test } from 'mocha'
 import { ConnectionRow } from '../../../models/db/types.js'
 import QueryRequestTemplates from '../queryRequest.js'
 
+const connection = { id: 'connection-id', company_name: 'company-name' } as ConnectionRow
+
 describe('QueryRequestTemplates', () => {
   describe('newQueryRequestPage', () => {
     test('companySelect with companies', async () => {
@@ -41,20 +43,8 @@ describe('QueryRequestTemplates', () => {
     test('carbon embodiment form without product and quantity inputs', async () => {
       const templates = new QueryRequestTemplates()
       const rendered = await templates.newQueryRequestPage({
-        formStage: 'carbonEmbodiment',
-        connectionId: 'connection-id',
-        type: 'total_carbon_embodiment',
-      })
-      expect(rendered).to.matchSnapshot()
-    })
-
-    test('carbon embodiment form with product and quantity inputs', async () => {
-      const templates = new QueryRequestTemplates()
-      const rendered = await templates.newQueryRequestPage({
-        formStage: 'carbonEmbodiment',
-        connectionId: 'connection-id',
-        productId: 'product-id',
-        quantity: 123,
+        formStage: 'form',
+        connection,
         type: 'total_carbon_embodiment',
       })
       expect(rendered).to.matchSnapshot()
@@ -63,8 +53,8 @@ describe('QueryRequestTemplates', () => {
     test('bav form', async () => {
       const templates = new QueryRequestTemplates()
       const rendered = await templates.newQueryRequestPage({
-        formStage: 'bav',
-        connection: { id: 'connection-id', company_name: 'company-name' } as ConnectionRow,
+        formStage: 'form',
+        connection,
         type: 'beneficiary_account_validation',
       })
       expect(rendered).to.matchSnapshot()

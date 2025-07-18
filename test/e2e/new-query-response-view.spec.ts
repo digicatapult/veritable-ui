@@ -1,5 +1,5 @@
 import { expect, Page, test } from '@playwright/test'
-import { withQueryResponse } from '../helpers/query.js'
+import { withBavQueryResponse, withCarbonQueryResponse } from '../helpers/query.js'
 import { cleanup, CustomBrowserContext, withLoggedInUser, withRegisteredAccount } from '../helpers/registerLogIn.js'
 import { withConnection } from '../helpers/setupConnection.js'
 
@@ -17,7 +17,6 @@ test.describe('Query response view', () => {
     await withRegisteredAccount(page, context, AliceHost)
     await withLoggedInUser(page, context, AliceHost)
     await withConnection(AliceHost, BobHost)
-    await withQueryResponse(AliceHost, BobHost, 20)
   })
 
   test.afterAll(async () => {
@@ -26,6 +25,8 @@ test.describe('Query response view', () => {
   })
 
   test('renders CO2 query response with correct emissions', async () => {
+    await withCarbonQueryResponse(AliceHost, BobHost, 20)
+
     await test.step('visits queries page and clicks on "view response" (Alice)', async () => {
       await page.goto(`${AliceHost}/queries`)
 
@@ -50,6 +51,40 @@ test.describe('Query response view', () => {
     await test.step('returns to queries page', async () => {
       expect(page.url()).toContain(`${AliceHost}/queries`)
       expect(page.getByText('Total Carbon Embodiment')).toBeVisible()
+      expect(page.getByText('View Response')).not.toBeDisabled()
+    })
+  })
+
+  test('renders BAV query response with correct bank details', async () => {
+    const bic = 'AAAABBCC123'
+    const countryCode = 'GB'
+    await withBavQueryResponse(AliceHost, BobHost, bic, countryCode)
+
+    await test.step('visits queries page and clicks on "view response" (Alice)', async () => {
+      await page.goto(`${AliceHost}/queries`)
+
+      expect(page.getByText('OFFSHORE RENEWABLE ENERGY CATAPULT')).toBeVisible()
+      expect(page.getByText('Beneficiary Account Validation')).toBeVisible()
+      expect(page.getByText('View Response')).not.toBeDisabled()
+      await page.getByText('View Response').click({ delay: 500 })
+    })
+
+    await test.step('render correct bank details', async () => {
+      expect(page.url()).toContain(`${AliceHost}/queries`)
+      const table = page.getByRole('table')
+
+      await expect(table.locator('tr', { hasText: 'Bank Identifier Code' })).toContainText(bic)
+      await expect(table.locator('tr', { hasText: 'Country Code' })).toContainText(countryCode)
+      expect(page.getByRole('heading', { name: 'Query Information' })).toBeVisible()
+      const button = page.getByText('Back To Queries')
+      await expect(button).not.toBeDisabled()
+      await expect(button).toBeVisible()
+      await button.click({ delay: 500 })
+    })
+
+    await test.step('returns to queries page', async () => {
+      expect(page.url()).toContain(`${AliceHost}/queries`)
+      expect(page.getByText('Beneficiary Account Validation')).toBeVisible()
       expect(page.getByText('View Response')).not.toBeDisabled()
     })
   })

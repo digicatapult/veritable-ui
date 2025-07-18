@@ -8,9 +8,7 @@ import VeritableCloudagent from '../../../models/veritableCloudagent/index.js'
 import QueriesTemplates from '../../../views/queries/queries.js'
 import QueryListTemplates from '../../../views/queries/queriesList.js'
 import QueryRequestTemplates from '../../../views/queries/queryRequest.js'
-import CarbonEmbodimentResponseTemplates, {
-  CarbonEmbodimentFormProps,
-} from '../../../views/queries/responseCo2embodiment.js'
+import QueryResponseTemplates, { ResponseFormProps } from '../../../views/queries/queryResponse.js'
 
 type QueryStatus = 'resolved' | 'pending_your_input' | 'pending_their_input' | 'forwarded'
 
@@ -138,7 +136,7 @@ const defaultOptions: QueryMockOptions = {
   },
 }
 
-function templateFake(templateName: string, props?: CarbonEmbodimentFormProps) {
+function templateFake(templateName: string, props?: ResponseFormProps) {
   if (props?.partial) return Promise.resolve(`${templateName}_template-${JSON.stringify(props)}`)
   if (props?.formStage) return Promise.resolve(`${templateName}_${props.formStage}_template`)
   return Promise.resolve(`${templateName}_template`)
@@ -152,14 +150,13 @@ export const withQueriesMocks = (testOptions: Partial<QueryMockOptions> = {}) =>
     ...testOptions,
   }
 
-  const queryFormTemplateMock = {
+  const queryRequestTemplateMock = {
     newQueryRequestPage: (props: { formStage: string }) => templateListFake('queryForm', props.formStage),
   } as unknown as QueryRequestTemplates
 
-  const carbonEmbodimentResponseTemplateMock = {
-    newCarbonEmbodimentResponseFormPage: (props: CarbonEmbodimentFormProps) => templateFake('queriesResponse', props),
-    view: () => templateListFake('carbonEmbodimentResponse'),
-  } as unknown as CarbonEmbodimentResponseTemplates
+  const queryResponseTemplateMock = {
+    queryResponsePage: (props: ResponseFormProps) => templateFake('queriesResponse', props),
+  } as unknown as QueryResponseTemplates
   const queryTemplateMock = {
     chooseQueryPage: () => templateFake('queries'),
   } as QueriesTemplates
@@ -184,15 +181,15 @@ export const withQueriesMocks = (testOptions: Partial<QueryMockOptions> = {}) =>
   }
 
   return {
-    queryFormTemplateMock,
-    carbonEmbodimentResponseTemplateMock,
+    queryRequestTemplateMock,
+    queryResponseTemplateMock,
     queryListTemplateMock,
     queryTemplateMock,
     dbMock,
     cloudagentMock,
     args: [
-      queryFormTemplateMock,
-      carbonEmbodimentResponseTemplateMock,
+      queryRequestTemplateMock,
+      queryResponseTemplateMock,
       queryTemplateMock,
       queryListTemplateMock,
       cloudagentMock as unknown as VeritableCloudagent,

@@ -1,5 +1,5 @@
 import { expect, Page, test } from '@playwright/test'
-import { withQueryRequest } from '../helpers/query.js'
+import { withBavQueryRequest, withCarbonQueryRequest } from '../helpers/query.js'
 import { cleanup, CustomBrowserContext, withLoggedInUser, withRegisteredAccount } from '../helpers/registerLogIn.js'
 import { withConnection } from '../helpers/setupConnection.js'
 
@@ -17,7 +17,6 @@ test.describe('New query response', () => {
     await withRegisteredAccount(page, context, AliceHost)
     await withLoggedInUser(page, context, AliceHost)
     await withConnection(AliceHost, BobHost)
-    await withQueryRequest(AliceHost)
   })
 
   test.afterAll(async () => {
@@ -26,19 +25,15 @@ test.describe('New query response', () => {
   })
 
   test('responds to a total carbon embodiment (CO2) query (Bob)', async () => {
+    await withCarbonQueryRequest(AliceHost)
     await test.step('visits queries page and clicks on "respond to query" (Bob)', async () => {
       await page.goto(`${BobHost}/queries`)
       await page.getByText('Respond to query').click()
 
-      const topHeading = page.getByRole('heading', { name: 'Select' })
-      const formHeading = page.getByRole('heading', { name: 'Total' })
-      await expect(topHeading).toContainText('Select Company To Send Your Query To')
-      await expect(formHeading).toContainText('Total Carbon Embodiment')
-      expect(page.url()).toContain(`${BobHost}/queries/carbon-embodiment`)
+      await expect(page.getByRole('heading', { name: 'Total Carbon Embodiment Query' })).toBeVisible()
     })
 
     await test.step('enters emissions and submits a query response', async () => {
-      await expect(page.getByRole('heading', { name: 'Carbon' })).toContainText('Total Carbon Embodiment')
       await page.fill('#co2-embodiment-input', '200')
       await expect(page.getByRole('button', { name: 'Submit Response' })).toBeVisible()
       await expect(page.getByRole('button', { name: 'Submit Response' })).not.toBeDisabled()
@@ -68,6 +63,34 @@ test.describe('New query response', () => {
 
       await expect(page.getByRole('heading', { name: 'Credentials' })).toBeVisible()
       await expect(page.getByRole('heading', { name: 'Credentials' })).not.toBeDisabled()
+    })
+  })
+
+  test('responds to a Beneficiary Account Validation (BAV) query (Bob)', async () => {
+    await withBavQueryRequest(AliceHost)
+    await test.step('visits queries page and clicks on "respond to query" (Bob)', async () => {
+      await page.goto(`${BobHost}/queries`)
+      await page.getByText('Respond to query').click()
+
+      await expect(page.getByRole('heading', { name: 'Beneficiary Account Validation Query' })).toBeVisible()
+    })
+
+    await test.step('enters emissions and submits a query response', async () => {
+      await page.fill('#bav-bic-input', 'AAAABBCC123')
+      await page.selectOption('#country-select', { label: 'United Kingdom' })
+      await expect(page.getByRole('button', { name: 'Submit Response' })).toBeVisible()
+      await expect(page.getByRole('button', { name: 'Submit Response' })).not.toBeDisabled()
+      await page.getByRole('button', { name: 'Submit Response' }).click()
+    })
+
+    await test.step('updates query status to be resolved', async () => {
+      const button = page.getByText('Back to Home')
+      await expect(page.getByRole('heading', { name: 'Thank you for your response' })).toBeVisible()
+      await expect(button).toBeVisible()
+      await expect(button).not.toBeDisabled()
+      await expect(page.getByText('Once all supplier responses are received')).toBeVisible()
+      await expect(page.getByText('You can check the status')).toBeVisible()
+      await button.click({ delay: 500 })
     })
   })
 })

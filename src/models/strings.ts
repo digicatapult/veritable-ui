@@ -1,3 +1,5 @@
+import en from 'i18n-iso-countries/langs/en.json' with { type: 'json' }
+
 /**
  * Stringified UUIDv4.
  * @pattern [0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-4[0-9A-Fa-f]{3}-[89ABab][0-9A-Fa-f]{3}-[0-9A-Fa-f]{12}
@@ -56,3 +58,16 @@ export const companyNumberRegex =
  */
 export type BASE_64_URL = string
 export const base64UrlRegex = /^[a-zA-Z0-9_-]+$/
+
+/**
+ * Bank Identifier Code (BIC)
+ * @pattern ^[A-Z]{4}[A-Z]{2}[A-Z0-9]{2}([A-Z0-9]{3})?$
+ * @minLength 8
+ * @maxLength 11
+ * @example DEUTDEFF500
+ */
+export type BIC = string
+export const bicRegex = /^[A-Z]{4}[A-Z]{2}[A-Z0-9]{2}([A-Z0-9]{3})?$/
+
+export type CountryCode = keyof typeof en.countries
+export const countryCodes = Object.keys(en.countries) as [CountryCode]
