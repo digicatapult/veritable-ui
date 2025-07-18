@@ -472,7 +472,7 @@ export default class VeritableCloudagentInt<Config extends CloudagentConfig = De
   }
 
   private buildParser =
-    <I, O>(parser: z.ZodType<O, z.ZodTypeDef, I>) =>
+    <O>(parser: z.ZodType<O>) =>
     async (response: Response) => {
       const asJson = await response.json()
       return parser.parse(asJson)
