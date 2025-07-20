@@ -113,14 +113,14 @@ describe('NewConnectionController', () => {
 
       const invites = await context.localDatabase.get('connection_invite', { connection_id: connectionRows[0].id })
       expect(invites.length).to.equal(2)
-      const oobInvitation1 = invites[0].oob_invite_id
-      const oobInvitation2 = invites[1].oob_invite_id
+      const oobInvitation0 = invites[0].oob_invite_id
+      const oobInvitation1 = invites[1].oob_invite_id
 
-      const result1 = await context.localCloudagent.getOutOfBandInvite(oobInvitation2)
-      expect(result1).to.deep.contain({ id: oobInvitation2 })
+      const result1 = await context.localCloudagent.getOutOfBandInvite(oobInvitation1)
+      expect(result1).to.deep.contain({ id: oobInvitation1 })
 
-      await expect(context.localCloudagent.getOutOfBandInvite(oobInvitation1)).to.be.rejectedWith(
-        `Unexpected error calling GET /v1/oob/${oobInvitation1}: Not Found`
+      await expect(context.localCloudagent.getOutOfBandInvite(oobInvitation0)).to.be.rejectedWith(
+        `Unexpected error calling GET /v1/oob/${oobInvitation0}: Not Found`
       )
     })
   })
