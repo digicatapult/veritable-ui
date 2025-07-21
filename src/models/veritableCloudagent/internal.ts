@@ -1,11 +1,11 @@
 import { z } from 'zod'
 
-import { RegistryCountryCode } from '../../controllers/connection/strings.js'
 import { type PartialEnv } from '../../env/index.js'
 import { InternalError } from '../../errors.js'
 import { type ILogger } from '../../logger.js'
 import { MapDiscriminatedUnion } from '../../utils/types.js'
 import { DrpcQueryRequest, DrpcQueryResponse } from '../drpc.js'
+import { CountryCode } from '../strings.js'
 
 const oobParser = z.object({
   invitationUrl: z.string(),
@@ -197,7 +197,7 @@ export default class VeritableCloudagentInt<Config extends CloudagentConfig = De
 
   public async createOutOfBandInvite(params: {
     companyName: string
-    registryCountryCode: RegistryCountryCode
+    registryCountryCode: CountryCode
   }): Promise<OutOfBandInvite> {
     return this.postRequest(
       '/v1/oob/create-invitation',

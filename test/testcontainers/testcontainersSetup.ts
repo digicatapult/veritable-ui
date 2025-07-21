@@ -25,7 +25,7 @@ export async function bringUpVeritableUIContainer(
   name: string,
   hostPort: number,
   invitationFromCompanyNumber: string,
-  localRegistryToUse: string = 'UK'
+  localRegistryToUse: string = 'GB'
 ) {
   const base = await GenericContainer.fromDockerfile('./').build()
 

@@ -7,7 +7,7 @@ const env: Env = container.resolve(Env)
 export async function insertCompanyHouseRegistry() {
   const db = container.resolve(Database)
   await db.insert('organisation_registries', {
-    country_code: 'UK',
+    country_code: 'GB',
     registry_name: 'Company House',
     registry_key: 'company_house',
     url: env.get('COMPANY_HOUSE_API_URL'),
@@ -18,7 +18,7 @@ export async function insertCompanyHouseRegistry() {
 export async function insertSocrataRegistry() {
   const db = container.resolve(Database)
   await db.insert('organisation_registries', {
-    country_code: 'NY',
+    country_code: 'US',
     registry_name: 'Socrata',
     registry_key: 'socrata',
     url: env.get('SOCRATA_API_URL'),

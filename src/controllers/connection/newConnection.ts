@@ -14,10 +14,12 @@ import OrganisationRegistry, { SharedOrganisationInfo } from '../../models/orgRe
 import {
   base64UrlRegex,
   companyNumberRegex,
+  countryCodes,
   SOCRATA_NUMBER,
   socrataRegex,
   type BASE_64_URL,
   type COMPANY_NUMBER,
+  type CountryCode,
   type EMAIL,
 } from '../../models/strings.js'
 import VeritableCloudagent from '../../models/veritableCloudagent/index.js'
@@ -26,7 +28,6 @@ import { FromInviteTemplates } from '../../views/newConnection/fromInvite.js'
 import { NewInviteFormStage, NewInviteTemplates } from '../../views/newConnection/newInvite.js'
 import { PinSubmissionTemplates } from '../../views/newConnection/pinSubmission.js'
 import { HTML, HTMLController } from '../HTMLController.js'
-import { RegistryCountryCode } from './strings.js'
 
 const submitToFormStage = {
   back: 'form',
@@ -36,7 +37,7 @@ const submitToFormStage = {
 
 const inviteParser = z.object({
   companyNumber: z.string(),
-  goalCode: z.nativeEnum(RegistryCountryCode),
+  goalCode: z.enum(countryCodes),
   inviteUrl: z.string(),
 })
 type Invite = z.infer<typeof inviteParser>
@@ -94,11 +95,11 @@ export class NewConnectionController extends HTMLController {
   public async verifyCompanyForm(
     @Request() req: express.Request,
     @Query() companyNumber: COMPANY_NUMBER | string,
-    @Query() registryCountryCode: RegistryCountryCode
+    @Query() registryCountryCode: CountryCode
   ): Promise<HTML> {
     req.log.debug('verifying %s company number for country %s', companyNumber, registryCountryCode)
 
-    if (registryCountryCode === RegistryCountryCode.UK && !companyNumber.match(companyNumberRegex)) {
+    if (registryCountryCode === 'GB' && !companyNumber.match(companyNumberRegex)) {
       req.log.info('company %s number did not match %s regex', companyNumber, companyNumberRegex)
       return this.newConnectionForm(req)
     }
@@ -134,12 +135,12 @@ export class NewConnectionController extends HTMLController {
   @Get('/update-pattern')
   public async updatePattern(
     @Request() req: express.Request,
-    @Query() registryCountryCode: RegistryCountryCode
+    @Query() registryCountryCode: CountryCode
   ): Promise<HTML> {
     req.log.debug('updating pattern for country %s', registryCountryCode)
-    const pattern = registryCountryCode === RegistryCountryCode.UK ? companyNumberRegex.source : socrataRegex.source
-    const minLength = registryCountryCode === RegistryCountryCode.UK ? 8 : 7
-    const maxLength = registryCountryCode === RegistryCountryCode.UK ? 8 : 7
+    const pattern = registryCountryCode === 'GB' ? companyNumberRegex.source : socrataRegex.source
+    const minLength = registryCountryCode === 'GB' ? 8 : 7
+    const maxLength = registryCountryCode === 'GB' ? 8 : 7
 
     return this.html(
       this.newInvite.newInviteFormPage({
@@ -198,7 +199,7 @@ export class NewConnectionController extends HTMLController {
       companyNumber: COMPANY_NUMBER | SOCRATA_NUMBER
       email: EMAIL
       action: 'back' | 'continue' | 'submit'
-      registryCountryCode: RegistryCountryCode
+      registryCountryCode: CountryCode
     }
   ): Promise<HTML> {
     /*
@@ -347,11 +348,7 @@ export class NewConnectionController extends HTMLController {
       }
     }
 
-    if (
-      !wrappedInvite.companyNumber.match(
-        wrappedInvite.goalCode === RegistryCountryCode.UK ? companyNumberRegex : socrataRegex
-      )
-    ) {
+    if (!wrappedInvite.companyNumber.match(wrappedInvite.goalCode === 'GB' ? companyNumberRegex : socrataRegex)) {
       logger.info('company number did not match a %s regex', companyNumberRegex)
       return {
         type: 'error',
@@ -375,7 +372,7 @@ export class NewConnectionController extends HTMLController {
   private async lookupCompany(
     logger: pino.Logger,
     companyNumber: COMPANY_NUMBER,
-    registryCountryCode: RegistryCountryCode
+    registryCountryCode: CountryCode
   ): Promise<{ type: 'success'; company: SharedOrganisationInfo } | { type: 'error'; message: string }> {
     const companySearch = await this.organisationRegistry.getOrganisationProfileByOrganisationNumber(
       companyNumber,

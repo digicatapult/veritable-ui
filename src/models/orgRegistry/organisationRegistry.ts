@@ -1,11 +1,11 @@
 import { inject, injectable, singleton } from 'tsyringe'
 import z from 'zod'
-import { RegistryCountryCode } from '../../controllers/connection/strings.js'
 import { Env } from '../../env/index.js'
 import { InternalError } from '../../errors.js'
 import { type ILogger, Logger } from '../../logger.js'
 import Database from '../db/index.js'
 import { OrganisationRegistriesRow } from '../db/types.js'
+import { CountryCode } from '../strings.js'
 import { companyHouseProfileSchema } from './registrySchemas/companyHouseSchema.js'
 import { dosEntitySchema } from './registrySchemas/socrataSchema.js'
 
@@ -16,7 +16,7 @@ export type SharedOrganisationInfo = {
   address: string
   status: string
   number: string
-  registryCountryCode: string
+  registryCountryCode: CountryCode
   registeredOfficeIsInDispute: boolean
 }
 export type OrganisationProfile =
@@ -97,7 +97,7 @@ export default class OrganisationRegistry {
 
   async getOrganisationProfileByOrganisationNumber(
     companyNumber: string,
-    registryCountryCode: RegistryCountryCode
+    registryCountryCode: CountryCode
   ): Promise<OrganisationProfile> {
     this.logger.info(`Retrieving organisation profile for ${companyNumber} in ${registryCountryCode}`)
     const registry = await this.resolveOrganisationRegistry(registryCountryCode)
@@ -105,9 +105,9 @@ export default class OrganisationRegistry {
       throw new InternalError(`Registry for ${registryCountryCode} not set`)
     }
     switch (registryCountryCode) {
-      case RegistryCountryCode.UK:
+      case 'GB':
         return this.formatCompanyHouseResults(await this.getCompanyHouseProfileByCompanyNumber(companyNumber, registry))
-      case RegistryCountryCode.NY:
+      case 'US':
         return this.formatSocrataResults(await this.getSocrataProfileByCompanyNumber(companyNumber, registry))
       default:
         throw new InternalError(`Registry ${registry} not set`)
@@ -165,7 +165,7 @@ export default class OrganisationRegistry {
           .join(', '),
         number: socrataResults.company[0].dos_id,
         status: 'active', // presume active if org is found
-        registryCountryCode: RegistryCountryCode.NY, // TODO: is it ok if this is hardcoded?
+        registryCountryCode: 'US' as CountryCode,
         registeredOfficeIsInDispute: false, // presume no if no dispute info
       },
       type: 'found',
@@ -199,7 +199,7 @@ export default class OrganisationRegistry {
           .join(', '),
         number: companyHouseResults.company.company_number,
         status: companyHouseResults.company.company_status,
-        registryCountryCode: RegistryCountryCode.UK, // TODO: is it ok if this is hardcoded?
+        registryCountryCode: 'GB' as CountryCode,
         registeredOfficeIsInDispute: companyHouseResults.company.registered_office_is_in_dispute ?? false,
       },
       type: 'found',

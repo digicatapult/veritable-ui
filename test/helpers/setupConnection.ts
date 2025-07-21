@@ -1,6 +1,6 @@
 import 'reflect-metadata'
 
-import { RegistryCountryCode } from '../../src/controllers/connection/strings.js'
+import { CountryCode } from '../../src/models/strings.js'
 import { fetchGet, fetchPost } from './routeHelper.js'
 import { checkEmails, extractInvite, extractPin } from './smtpEmails.js'
 import { delay } from './util.js'
@@ -11,7 +11,7 @@ export async function withConnection(inviterUrl: string, receiverUrl: string) {
     companyNumber: '04659351',
     email: 'alice@testmail.com',
     action: 'submit',
-    registryCountryCode: RegistryCountryCode.UK,
+    registryCountryCode: 'GB' as CountryCode,
   })
 
   // Get pin and invite for the new holder

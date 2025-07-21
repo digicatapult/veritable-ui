@@ -1,5 +1,5 @@
-import { RegistryCountryCode } from '../../../controllers/connection/strings.js'
 import { SharedOrganisationInfo } from '../../../models/orgRegistry/organisationRegistry.js'
+import { CountryCode } from '../../../models/strings.js'
 import { FormFeedback } from '../base.js'
 
 export const successResponse: SharedOrganisationInfo = {
@@ -7,7 +7,8 @@ export const successResponse: SharedOrganisationInfo = {
   address: 'Level 9, 101 Euston Road, London, NW1 2RA',
   status: 'active',
   number: '07964699',
-  registryCountryCode: RegistryCountryCode.UK,
+  registryCountryCode: 'GB' as CountryCode,
+  registeredOfficeIsInDispute: false,
 }
 
 export const testErrorTargetBox: FormFeedback = {

@@ -8,6 +8,7 @@ import Database from '../../../models/db/index.js'
 import { ConnectionRow } from '../../../models/db/types.js'
 import EmailService from '../../../models/emailService/index.js'
 import OrganisationRegistry from '../../../models/orgRegistry/organisationRegistry.js'
+import { CountryCode } from '../../../models/strings.js'
 import VeritableCloudagent from '../../../models/veritableCloudagent/index.js'
 import ConnectionTemplates from '../../../views/connection/connection.js'
 import { FormFeedback } from '../../../views/newConnection/base.js'
@@ -66,7 +67,7 @@ export const withConnectionMocks = (
       Promise.resolve({
         number: 'COMPANY_NUMBER',
         name: 'COMPANY_NAME',
-        registryCountryCode: 'UK',
+        registryCountryCode: 'GB' as CountryCode,
         status: 'active',
         address: 'ADDRESS',
       }),
@@ -146,7 +147,7 @@ export const withNewConnectionMocks = () => {
     localOrganisationProfile: sinon.stub().resolves({
       number: 'COMPANY_NUMBER',
       name: 'COMPANY_NAME',
-      registryCountryCode: 'UK',
+      registryCountryCode: 'GB' as CountryCode,
       status: 'active',
       address: 'ADDRESS',
     }),
@@ -216,7 +217,7 @@ export const withNewConnectionMocks = () => {
         case 'INVITATION_FROM_COMPANY_NUMBER':
           return '07964699'
         case 'LOCAL_REGISTRY_TO_USE':
-          return 'UK'
+          return 'GB'
         default:
           throw new Error()
       }

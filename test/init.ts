@@ -26,7 +26,7 @@ before(async function () {
   charlieDepsContainers = await bringUpDependenciesContainers('charlie', 5434, 3102)
   // Pass in ('name', host port for UI, 'company number')
   bobUIContainer = await bringUpVeritableUIContainer('bob', 3001, '04659351')
-  charlieUIContainer = await bringUpVeritableUIContainer('charlie', 3002, '3211809', 'NY')
+  charlieUIContainer = await bringUpVeritableUIContainer('charlie', 3002, '3211809', 'US')
 
   const database = knex(aliceDbConfig)
   await database.migrate.latest()

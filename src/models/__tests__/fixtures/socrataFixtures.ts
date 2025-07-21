@@ -1,5 +1,5 @@
-import { RegistryCountryCode } from '../../../controllers/connection/strings'
 import { SharedOrganisationInfo, SocrataProfile } from '../../orgRegistry/organisationRegistry'
+import { CountryCode } from '../../strings'
 export const validCompanyNumber = '3211809'
 export const secondaryCompanyNumber = '11111111'
 export const invalidCompanyNumber = '079646992'
@@ -25,6 +25,6 @@ export const finalSuccessResponse: SharedOrganisationInfo = {
   address: '656 UNION STREET, APT. 2, BROOKLYN, NY, 11215',
   status: 'active',
   number: '3211809',
-  registryCountryCode: RegistryCountryCode.NY,
+  registryCountryCode: 'US' as CountryCode,
   registeredOfficeIsInDispute: false,
 }

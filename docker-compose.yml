@@ -69,7 +69,7 @@ services:
       - COMPANY_HOUSE_API_URL=https://api.company-information.service.gov.uk
       - DEMO_MODE=true
       - SMTP_SECURE=false
-      - LOCAL_REGISTRY_TO_USE=UK
+      - LOCAL_REGISTRY_TO_USE=GB
       - SOCRATA_API_URL=https://data.ny.gov/resource/p66s-i79p.json
       - COMPANY_PROFILE_API_KEY=${COMPANY_PROFILE_API_KEY}
   postgres-veritable-ui-alice:
@@ -160,7 +160,7 @@ services:
       - SMTP_USER=username
       - EMAIL_TRANSPORT=SMTP_EMAIL
       - SMTP_SECURE=false
-      - LOCAL_REGISTRY_TO_USE=UK
+      - LOCAL_REGISTRY_TO_USE=GB
       - SOCRATA_API_URL=https://data.ny.gov/resource/p66s-i79p.json
       - COMPANY_PROFILE_API_KEY=${COMPANY_PROFILE_API_KEY}
 

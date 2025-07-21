@@ -1,15 +1,15 @@
 import { expect } from 'chai'
 import { afterEach, beforeEach, describe, it } from 'mocha'
 import sinon from 'sinon'
-import { RegistryCountryCode } from '../../src/controllers/connection/strings.js'
+import { CountryCode } from '../../src/models/strings.js'
 import { cleanupCloudagent, cleanupDatabase } from '../helpers/cleanup.js'
 import { setupTwoPartyContext, TwoPartyContext } from '../helpers/connection.js'
 import { alice, socrataCompany } from '../helpers/fixtures.js'
 import { cleanupRegistries, insertCompanyHouseRegistry, insertSocrataRegistry } from '../helpers/registries.js'
 import { post } from '../helpers/routeHelper.js'
 import { delay } from '../helpers/util.js'
-const ukRegistryCountryCode = RegistryCountryCode.UK
-const nyRegistryCountryCode = RegistryCountryCode.NY
+const ukRegistryCountryCode = 'GB' as CountryCode
+const nyRegistryCountryCode = 'US' as CountryCode
 describe('NewConnectionController', () => {
   const context: TwoPartyContext = {} as TwoPartyContext
 
@@ -63,6 +63,7 @@ describe('NewConnectionController', () => {
         companyNumber: alice.company_number,
         email: 'alice@testmail.com',
         action: 'submit',
+        registryCountryCode: ukRegistryCountryCode,
       })
       const connectionRows = await context.localDatabase.get('connection')
       expect(connectionRows.length).to.equal(1)
@@ -81,6 +82,7 @@ describe('NewConnectionController', () => {
         companyNumber: alice.company_number,
         email: 'alice@testmail.com',
         action: 'submit',
+        registryCountryCode: ukRegistryCountryCode,
       })
       const connectionRows = await context.localDatabase.get('connection')
       expect(connectionRows.length).to.equal(1)

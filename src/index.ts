@@ -5,7 +5,6 @@ import { container } from 'tsyringe'
 import { Env } from './env/index.js'
 import Server from './server.js'
 
-import { RegistryCountryCode } from './controllers/connection/strings.js'
 import { Logger, type ILogger } from './logger.js'
 import { CredentialSchema } from './models/credentialSchema.js'
 import Database from './models/db/index.js'
@@ -48,7 +47,7 @@ async function initializeSettings(logger: ILogger, env: Env, db: Database) {
     },
     {
       setting_key: 'local_registry_to_use',
-      setting_value: env.get('LOCAL_REGISTRY_TO_USE') || RegistryCountryCode.UK,
+      setting_value: env.get('LOCAL_REGISTRY_TO_USE') || 'GB',
     },
   ]
 
@@ -74,14 +73,14 @@ async function initializeOrganisationRegistries(logger: ILogger, env: Env, db: D
 
   const organisationRegistries = [
     {
-      country_code: 'UK',
+      country_code: 'GB',
       registry_name: 'Company House',
       registry_key: 'company_house',
       url: env.get('COMPANY_HOUSE_API_URL') || 'https://api.company-information.service.gov.uk',
       api_key: '',
     },
     {
-      country_code: 'NY',
+      country_code: 'US',
       registry_name: 'Socrata',
       registry_key: 'socrata',
       url: env.get('SOCRATA_API_URL') || 'https://data.ny.gov/resource/p66s-i79p.json',

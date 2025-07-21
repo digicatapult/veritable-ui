@@ -40,8 +40,8 @@ test.describe('Connection to Socrata', () => {
 
       await page.waitForSelector('text=Invite New Connection')
       await page.click('a.button[href="connection/new"]')
-      await page.selectOption('#new-invite-country-select', 'NY')
-      await expect(page.locator('#new-invite-country-select')).toHaveValue('NY')
+      await page.selectOption('#new-invite-country-select', 'US')
+      await expect(page.locator('#new-invite-country-select')).toHaveValue('US')
 
       await page.fill('#new-invite-company-number-input', '3211809')
       await page.fill('#new-invite-email-input', 'alice@testmail.com')

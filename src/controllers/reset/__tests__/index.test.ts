@@ -33,7 +33,7 @@ const fixtures = {
   organisation_registries: [
     {
       id: 'some-organisation-registry-id-1',
-      country_code: 'UK',
+      country_code: 'GB',
       registry_key: 'company_house',
       url: 'https://api.company-information.service.gov.uk',
       api_key: '',

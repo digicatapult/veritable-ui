@@ -14,8 +14,8 @@ import {
 } from './fixtures/cloudagentFixtures.js'
 import { withCloudagentMock } from './helpers/mockCloudagent.js'
 
-import { RegistryCountryCode } from '../../../controllers/connection/strings.js'
 import { InternalError } from '../../../errors.js'
+import { CountryCode } from '../../strings.js'
 import VeritableCloudagent from '../index.js'
 
 describe('veritableCloudagent', () => {
@@ -33,7 +33,7 @@ describe('veritableCloudagent', () => {
         const cloudagent = new VeritableCloudagent(environment, mockLogger)
         const response = await cloudagent.createOutOfBandInvite({
           companyName: 'Digital Catapult',
-          registryCountryCode: RegistryCountryCode.UK,
+          registryCountryCode: 'GB' as CountryCode,
         })
         expect(response).deep.equal(createInviteSuccessResponse)
       })
@@ -50,7 +50,7 @@ describe('veritableCloudagent', () => {
         try {
           await cloudagent.createOutOfBandInvite({
             companyName: 'Digital Catapult',
-            registryCountryCode: RegistryCountryCode.UK,
+            registryCountryCode: 'GB' as CountryCode,
           })
         } catch (err) {
           error = err
@@ -70,7 +70,7 @@ describe('veritableCloudagent', () => {
         try {
           await cloudagent.createOutOfBandInvite({
             companyName: 'Digital Catapult',
-            registryCountryCode: RegistryCountryCode.UK,
+            registryCountryCode: 'GB' as CountryCode,
           })
         } catch (err) {
           error = err

@@ -80,8 +80,8 @@ export class NewInviteTemplates extends NewConnectionTemplates {
           hx-swap="outerHTML"
           hx-include="this"
         >
-          <option value="UK">United Kingdom</option>
-          <option value="NY">New York</option>
+          <option value="GB">United Kingdom</option>
+          <option value="US">New York</option>
         </select>
         <input
           id="new-invite-company-number-input"

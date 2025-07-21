@@ -2,6 +2,7 @@ import { expect } from 'chai'
 import { describe } from 'mocha'
 import { mockIds } from '../../../controllers/queries/__tests__/helpers.js'
 import { ConnectionRow, QueryRow } from '../../../models/db/types.js'
+import { CountryCode } from '../../../models/strings.js'
 import QueryResponseTemplates from '../queryResponse.js'
 
 const templates = new QueryResponseTemplates()
@@ -16,7 +17,7 @@ const connectionsExample: ConnectionRow[] = [{}, {}, {}, {}].map((_, i) => ({
   pin_tries_remaining_count: null,
   created_at: sampleDate,
   updated_at: sampleDate,
-  registry_country_code: 'UK',
+  registry_country_code: 'GB' as CountryCode,
 }))
 
 const queryExample: QueryRow = {
@@ -54,7 +55,7 @@ describe('Partial Query', () => {
           pin_attempt_count: 0,
           created_at: new Date(),
           updated_at: new Date(),
-          registry_country_code: 'UK',
+          registry_country_code: 'GB' as CountryCode,
         },
         type: 'total_carbon_embodiment',
         query: queryExample,
@@ -79,7 +80,7 @@ describe('Partial Query', () => {
         pin_attempt_count: 0,
         created_at: new Date(),
         updated_at: new Date(),
-        registry_country_code: 'UK',
+        registry_country_code: 'GB' as CountryCode,
       },
       type: 'total_carbon_embodiment',
       query: queryExample,

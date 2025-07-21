@@ -3,8 +3,8 @@ import express from 'express'
 import { describe, it } from 'mocha'
 
 import http from 'http'
-import { RegistryCountryCode } from '../../src/controllers/connection/strings.js'
 import { resetContainer } from '../../src/ioc.js'
+import { CountryCode } from '../../src/models/strings.js'
 import createHttpServer from '../../src/server.js'
 import VeritableCloudagentEvents from '../../src/services/veritableCloudagentEvents.js'
 import { alice } from '../helpers/fixtures.js'
@@ -23,7 +23,7 @@ describe('SMTP email', () => {
         companyNumber: alice.company_number,
         email: 'alice@testmail.com',
         action: 'submit',
-        registryCountryCode: RegistryCountryCode.UK,
+        registryCountryCode: 'GB' as CountryCode,
       })
     })
 

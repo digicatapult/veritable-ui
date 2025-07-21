@@ -2,10 +2,10 @@ import { expect } from 'chai'
 import { describe, it } from 'mocha'
 import { pino } from 'pino'
 import { container } from 'tsyringe'
-import { RegistryCountryCode } from '../../controllers/connection/strings.js'
 import { Env } from '../../env/index.js'
 import type { ILogger } from '../../logger.js'
 import OrganisationRegistry from '../orgRegistry/organisationRegistry.js'
+import { CountryCode } from '../strings.js'
 import {
   finalSuccessResponse,
   invalidCompanyNumber,
@@ -15,7 +15,7 @@ import {
 import { mockDb } from './helpers/dbMock.js'
 import { withSocrataMock } from './helpers/mockSocrata.js'
 const mockLogger: ILogger = pino({ level: 'silent' })
-const nyRegistryCountryCode = RegistryCountryCode.NY
+const nyRegistryCountryCode = 'US' as CountryCode
 
 describe('organisationRegistry with socrata as registry', () => {
   withSocrataMock()

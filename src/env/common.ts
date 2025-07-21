@@ -2,7 +2,7 @@ import dotenv from 'dotenv'
 import envalid from 'envalid'
 
 import { container } from 'tsyringe'
-import { RegistryCountryCode } from '../controllers/connection/strings.js'
+import { countryCodes } from '../models/strings.js'
 import {
   emailTransportValidator,
   issuanceRecordValidator,
@@ -57,9 +57,9 @@ export const defaultConfig = {
   DEMO_MODE: envalid.bool({ devDefault: true, default: false }),
   SOCRATA_API_URL: envalid.str({ default: 'https://data.ny.gov/resource/p66s-i79p.json' }),
   LOCAL_REGISTRY_TO_USE: envalid.str({
-    default: RegistryCountryCode.UK,
-    devDefault: RegistryCountryCode.UK,
-    choices: [RegistryCountryCode.UK, RegistryCountryCode.NY],
+    default: 'GB',
+    devDefault: 'GB',
+    choices: countryCodes,
   }),
 }
 

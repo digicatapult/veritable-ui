@@ -5,6 +5,7 @@ import sinon from 'sinon'
 import { toHTMLString, withNewConnectionMocks } from './helpers.js'
 
 import { Request } from 'express'
+import { CountryCode } from '../../../models/strings.js'
 import { mockLogger } from '../../__tests__/helpers.js'
 import { NewConnectionController } from '../newConnection.js'
 import {
@@ -16,7 +17,6 @@ import {
   notFoundCompanyNumber,
   notFoundCompanyNumberInvite,
   tooManyDisconnectedCompanyNumber,
-  ukRegistryCountryCode,
   usedPendingCompanyNumber,
   usedUnverifiedCompanyNumber,
   usedVerifiedThemCompanyNumber,
@@ -31,6 +31,7 @@ import {
   validPendingCompanyNumber,
   verifiedBothCompanyNumber,
 } from './fixtures.js'
+const gbRegistryCountryCode = 'GB' as CountryCode
 
 describe('NewConnectionController', () => {
   const req = { log: mockLogger } as unknown as Request
@@ -60,7 +61,7 @@ describe('NewConnectionController', () => {
       const { args } = withNewConnectionMocks()
       const controller = new NewConnectionController(...args)
       const result = await controller
-        .verifyCompanyForm(req, invalidCompanyNumber, ukRegistryCountryCode)
+        .verifyCompanyForm(req, invalidCompanyNumber, gbRegistryCountryCode)
         .then(toHTMLString)
       expect(result).to.equal('newInvitePage_message_newInvitePage')
     })
@@ -70,7 +71,7 @@ describe('NewConnectionController', () => {
       const controller = new NewConnectionController(...args)
 
       const result = await controller
-        .verifyCompanyForm(req, notFoundCompanyNumber, ukRegistryCountryCode)
+        .verifyCompanyForm(req, notFoundCompanyNumber, gbRegistryCountryCode)
         .then(toHTMLString)
       expect(result).to.equal('companyFormInput_error--Company number does not exist-form--00000000_companyFormInput')
     })
@@ -79,7 +80,7 @@ describe('NewConnectionController', () => {
       const { args } = withNewConnectionMocks()
       const controller = new NewConnectionController(...args)
       const result = await controller
-        .verifyCompanyForm(req, validCompanyNumberInDispute, ukRegistryCountryCode)
+        .verifyCompanyForm(req, validCompanyNumberInDispute, gbRegistryCountryCode)
         .then(toHTMLString)
       expect(result).to.equal(
         'companyFormInput_error--Cannot validate company NAME3 as address is currently in dispute-form--00000003_companyFormInput'
@@ -90,7 +91,7 @@ describe('NewConnectionController', () => {
       const { args } = withNewConnectionMocks()
       const controller = new NewConnectionController(...args)
       const result = await controller
-        .verifyCompanyForm(req, validCompanyNumberInactive, ukRegistryCountryCode)
+        .verifyCompanyForm(req, validCompanyNumberInactive, gbRegistryCountryCode)
         .then(toHTMLString)
       expect(result).to.equal('companyFormInput_error--Company NAME4 is not active-form--00000004_companyFormInput')
     })
@@ -99,7 +100,7 @@ describe('NewConnectionController', () => {
       const { args } = withNewConnectionMocks()
       const controller = new NewConnectionController(...args)
       const result = await controller
-        .verifyCompanyForm(req, validCompanyNumber, ukRegistryCountryCode)
+        .verifyCompanyForm(req, validCompanyNumber, gbRegistryCountryCode)
         .then(toHTMLString)
       expect(result).to.equal('companyFormInput_companyFound-NAME--form--00000001_companyFormInput')
     })
@@ -176,7 +177,7 @@ describe('NewConnectionController', () => {
           companyNumber: notFoundCompanyNumber,
           email: 'alice@example.com',
           action: 'continue',
-          registryCountryCode: ukRegistryCountryCode,
+          registryCountryCode: gbRegistryCountryCode,
         })
         .then(toHTMLString)
       expect(result).to.equal(
@@ -192,7 +193,7 @@ describe('NewConnectionController', () => {
           companyNumber: validCompanyNumberInDispute,
           email: 'alice@example.com',
           action: 'continue',
-          registryCountryCode: ukRegistryCountryCode,
+          registryCountryCode: gbRegistryCountryCode,
         })
         .then(toHTMLString)
       expect(result).to.equal(
@@ -208,7 +209,7 @@ describe('NewConnectionController', () => {
           companyNumber: validCompanyNumberInactive,
           email: 'alice@example.com',
           action: 'continue',
-          registryCountryCode: ukRegistryCountryCode,
+          registryCountryCode: gbRegistryCountryCode,
         })
         .then(toHTMLString)
       expect(result).to.equal(
@@ -224,7 +225,7 @@ describe('NewConnectionController', () => {
           companyNumber: validCompanyNumber,
           email: 'alice@example.com',
           action: 'continue',
-          registryCountryCode: ukRegistryCountryCode,
+          registryCountryCode: gbRegistryCountryCode,
         })
         .then(toHTMLString)
       expect(result).to.equal(
@@ -245,7 +246,7 @@ describe('NewConnectionController', () => {
           companyNumber: validCompanyNumber,
           email: 'alice@example.com',
           action: 'submit',
-          registryCountryCode: ukRegistryCountryCode,
+          registryCountryCode: gbRegistryCountryCode,
         })
         .then(toHTMLString)
       expect(result).to.equal(
@@ -264,7 +265,7 @@ describe('NewConnectionController', () => {
           companyNumber: validCompanyNumber,
           email: 'alice@example.com',
           action: 'submit',
-          registryCountryCode: ukRegistryCountryCode,
+          registryCountryCode: gbRegistryCountryCode,
         })
         .then(toHTMLString)
 
@@ -289,7 +290,7 @@ describe('NewConnectionController', () => {
           companyNumber: validCompanyNumber,
           email: 'alice@example.com',
           action: 'submit',
-          registryCountryCode: ukRegistryCountryCode,
+          registryCountryCode: gbRegistryCountryCode,
         })
 
         clock.restore()
@@ -320,7 +321,7 @@ describe('NewConnectionController', () => {
             agent_connection_id: null,
             pin_attempt_count: 0,
             pin_tries_remaining_count: null,
-            registry_country_code: 'UK',
+            registry_country_code: 'GB',
           },
         ])
       })
@@ -342,7 +343,7 @@ describe('NewConnectionController', () => {
       })
 
       it('should send first email to recipient', () => {
-        const expectedInvite = { companyNumber: '07964699', goalCode: 'UK', inviteUrl: 'url-NAME' }
+        const expectedInvite = { companyNumber: '07964699', goalCode: 'GB', inviteUrl: 'url-NAME' }
         const expectedInviteBase64 = Buffer.from(JSON.stringify(expectedInvite), 'utf8').toString('base64url')
         expect(emailSpy.firstCall.args).deep.equal([
           'connection_invite',
@@ -381,7 +382,7 @@ describe('NewConnectionController', () => {
             companyNumber: noExistingInviteCompanyNumber,
             email: 'alice@example.com',
             action: 'continue',
-            registryCountryCode: ukRegistryCountryCode,
+            registryCountryCode: gbRegistryCountryCode,
           })
           .then(toHTMLString)
         expect(result).to.equal(
@@ -397,7 +398,7 @@ describe('NewConnectionController', () => {
             companyNumber: verifiedBothCompanyNumber,
             email: 'alice@example.com',
             action: 'continue',
-            registryCountryCode: ukRegistryCountryCode,
+            registryCountryCode: gbRegistryCountryCode,
           })
           .then(toHTMLString)
         expect(result).to.equal(
@@ -413,7 +414,7 @@ describe('NewConnectionController', () => {
             companyNumber: usedPendingCompanyNumber,
             email: 'alice@example.com',
             action: 'continue',
-            registryCountryCode: ukRegistryCountryCode,
+            registryCountryCode: gbRegistryCountryCode,
           })
           .then(toHTMLString)
         expect(result).to.equal(
@@ -429,7 +430,7 @@ describe('NewConnectionController', () => {
             companyNumber: tooManyDisconnectedCompanyNumber,
             email: 'alice@example.com',
             action: 'continue',
-            registryCountryCode: ukRegistryCountryCode,
+            registryCountryCode: gbRegistryCountryCode,
           })
           .then(toHTMLString)
         expect(result).to.equal(
@@ -445,7 +446,7 @@ describe('NewConnectionController', () => {
             companyNumber: validDisconnectedCompanyNumber,
             email: 'alice@example.com',
             action: 'continue',
-            registryCountryCode: ukRegistryCountryCode,
+            registryCountryCode: gbRegistryCountryCode,
           })
           .then(toHTMLString)
         expect(result).to.equal(
@@ -461,7 +462,7 @@ describe('NewConnectionController', () => {
             companyNumber: usedVerifiedThemCompanyNumber,
             email: 'alice@example.com',
             action: 'continue',
-            registryCountryCode: ukRegistryCountryCode,
+            registryCountryCode: gbRegistryCountryCode,
           })
           .then(toHTMLString)
         expect(result).to.equal(
@@ -477,7 +478,7 @@ describe('NewConnectionController', () => {
             companyNumber: usedVerifiedThemCompanyNumber,
             email: 'alice@example.com',
             action: 'continue',
-            registryCountryCode: ukRegistryCountryCode,
+            registryCountryCode: gbRegistryCountryCode,
           })
           .then(toHTMLString)
         expect(result).to.equal(
@@ -494,7 +495,7 @@ describe('NewConnectionController', () => {
               companyNumber: validPendingCompanyNumber,
               email: 'alice@example.com',
               action: 'continue',
-              registryCountryCode: ukRegistryCountryCode,
+              registryCountryCode: gbRegistryCountryCode,
             })
             .then(toHTMLString)
           expect(result).to.equal(
@@ -510,7 +511,7 @@ describe('NewConnectionController', () => {
               companyNumber: usedUnverifiedCompanyNumber,
               email: 'alice@example.com',
               action: 'continue',
-              registryCountryCode: ukRegistryCountryCode,
+              registryCountryCode: gbRegistryCountryCode,
             })
             .then(toHTMLString)
           expect(result).to.equal(
@@ -526,7 +527,7 @@ describe('NewConnectionController', () => {
               companyNumber: usedVerifiedUsCompanyNumber,
               email: 'alice@example.com',
               action: 'continue',
-              registryCountryCode: ukRegistryCountryCode,
+              registryCountryCode: gbRegistryCountryCode,
             })
             .then(toHTMLString)
           expect(result).to.equal(
@@ -685,7 +686,7 @@ describe('NewConnectionController', () => {
             agent_connection_id: 'oob-connection',
             pin_attempt_count: 0,
             pin_tries_remaining_count: null,
-            registry_country_code: 'UK',
+            registry_country_code: 'GB',
           },
         ])
       })

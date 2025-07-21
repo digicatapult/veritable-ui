@@ -1,5 +1,5 @@
-import { RegistryCountryCode } from '../../../controllers/connection/strings.js'
 import { CompanyHouseProfile, SharedOrganisationInfo } from '../../orgRegistry/organisationRegistry.js'
+import { CountryCode } from '../../strings.js'
 
 export const validCompanyNumber = '07964699'
 export const secondaryCompanyNumber = '11111111'
@@ -22,7 +22,7 @@ export const finalSuccessResponse: SharedOrganisationInfo = {
   address: 'DIGITAL CATAPULT, Level 9, 101 Euston Road, London, NW1 2RA',
   status: 'active',
   number: '07964699',
-  registryCountryCode: RegistryCountryCode.UK,
+  registryCountryCode: 'GB' as CountryCode,
   registeredOfficeIsInDispute: false,
 }
 
@@ -31,6 +31,6 @@ export const successResponse2: SharedOrganisationInfo = {
   address: 'CARE ONUS LTD, Flat 3 Nelmes Court, Nelmes Way, Nelmes Way, Hornchurch, RM11 2QL',
   status: 'active',
   number: '11111111',
-  registryCountryCode: RegistryCountryCode.UK,
+  registryCountryCode: 'GB' as CountryCode,
   registeredOfficeIsInDispute: false,
 }
