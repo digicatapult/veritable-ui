@@ -518,6 +518,10 @@ main {
   padding-bottom: 10px;
 }
 
+#query-response-view td:first-child {
+  width: 10rem;
+}
+
 .row {
   display: flex;
   align-items: center;
