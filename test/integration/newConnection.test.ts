@@ -1,4 +1,5 @@
-import { expect } from 'chai'
+import * as chai from 'chai'
+import chaiAsPromised from 'chai-as-promised'
 import { afterEach, beforeEach, describe, it } from 'mocha'
 import sinon from 'sinon'
 import { cleanupCloudagent, cleanupDatabase } from '../helpers/cleanup.js'
@@ -6,6 +7,9 @@ import { setupTwoPartyContext, TwoPartyContext } from '../helpers/connection.js'
 import { alice } from '../helpers/fixtures.js'
 import { post } from '../helpers/routeHelper.js'
 import { delay } from '../helpers/util.js'
+
+chai.use(chaiAsPromised)
+const expect = chai.expect
 
 describe('NewConnectionController', () => {
   const context: TwoPartyContext = {} as TwoPartyContext
@@ -91,6 +95,33 @@ describe('NewConnectionController', () => {
       expect(invites[1]).to.deep.contain({
         validity: 'valid',
       })
+    })
+
+    it('should delete the old OOB invitation from the cloudagent', async () => {
+      await post(context.app, '/connection/new/create-invitation', {
+        companyNumber: alice.company_number,
+        email: 'alice@testmail.com',
+        action: 'submit',
+      })
+      const connectionRows = await context.localDatabase.get('connection')
+      expect(connectionRows.length).to.equal(1)
+      expect(connectionRows[0]).to.deep.contain({
+        company_name: alice.company_name,
+        company_number: alice.company_number,
+        status: 'pending',
+      })
+
+      const invites = await context.localDatabase.get('connection_invite', { connection_id: connectionRows[0].id })
+      expect(invites.length).to.equal(2)
+      const oobInvitation0 = invites[0].oob_invite_id
+      const oobInvitation1 = invites[1].oob_invite_id
+
+      const result1 = await context.localCloudagent.getOutOfBandInvite(oobInvitation1)
+      expect(result1).to.deep.contain({ id: oobInvitation1 })
+
+      await expect(context.localCloudagent.getOutOfBandInvite(oobInvitation0)).to.be.rejectedWith(
+        `/v1/oob/${oobInvitation0} - not found`
+      )
     })
   })
 

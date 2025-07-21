@@ -7,6 +7,7 @@ import { injectable } from 'tsyringe'
 import { z } from 'zod'
 
 import { Env } from '../../env/index.js'
+import { NotFoundError } from '../../errors.js'
 import Database from '../../models/db/index.js'
 import EmailService from '../../models/emailService/index.js'
 import OrganisationRegistry, { OrganisationProfile } from '../../models/organisationRegistry.js'
@@ -206,7 +207,7 @@ export class NewConnectionController extends HTMLController {
     req.log.info(`invite created, applying '${allowInvitation.state}' %j`, { company, pinHash, invite })
     const dbResult =
       allowInvitation.state === 'update_existing'
-        ? await this.updateExistingConnection(company, pinHash, invite.outOfBandRecord.id)
+        ? await this.updateExistingConnection(req.log, company, pinHash, invite.outOfBandRecord.id)
         : await this.insertNewConnection(company, pinHash, invite.outOfBandRecord.id, null)
     if (dbResult.type === 'error') {
       req.log.warn(`unable to apply '${allowInvitation.state}' %j`, dbResult)
@@ -413,6 +414,7 @@ export class NewConnectionController extends HTMLController {
   }
 
   private async updateExistingConnection(
+    logger: pino.Logger,
     company: OrganisationProfile,
     pinHash: string,
     invitationId: string
@@ -420,9 +422,42 @@ export class NewConnectionController extends HTMLController {
     try {
       // logic in allowNewInvitation ensures only one entry exists for connectionRecord
       const [connectionRecord] = await this.db.get('connection', { company_number: company.company_number })
-      const connectionId = connectionRecord.id // to return the connectionId
-      // reset pin count and invite status to 'pending'
+      // to return the connectionId
+      const connectionId = connectionRecord.id
+      // get invitations array
+      // NB we haven't inserted the new invitation into the ui db yet so its OOB invite won't be deleted
+      const invitations = await this.db.get('connection_invite', { connection_id: connectionId })
+      // delete all existing OOB invitations from the cloudagent
+      for (const invite of invitations) {
+        const exists = await this.cloudagent.getOutOfBandInvite(invite.oob_invite_id).catch((error) => {
+          if (error instanceof NotFoundError) {
+            logger.debug('OOB invitation already deleted %s', invite.oob_invite_id)
+          } else {
+            throw error
+          }
+        })
+        // Make sure we're only deleting invitations we've sent
+        if (exists && exists.role === 'sender') {
+          await this.cloudagent.deleteOutOfBandInvite(invite.oob_invite_id)
+          logger.debug('OOB invitation deleted %s', invite.oob_invite_id)
+        }
+      }
+      // database transactions
       await this.db.withTransaction(async (db) => {
+        // leave 'expired' as expired, leave 'too_many_attempts' as too_many_attempts
+        // expire existing invitations if they're 'valid' (condition verified_both && valid already aborted in allowNewInvitation)
+        await db.update(
+          'connection_invite',
+          { connection_id: connectionId, validity: 'valid' },
+          { expires_at: new Date(), validity: 'expired' }
+        )
+        // expire existing invitations if they're 'used' (condition verified_them && used, and verified_both && used already aborted in allowNewInvitation)
+        await db.update(
+          'connection_invite',
+          { connection_id: connectionId, validity: 'used' },
+          { expires_at: new Date(), validity: 'expired' }
+        )
+        // reset pin count and invite status to 'pending'
         await db.update(
           'connection',
           { company_number: company.company_number },
@@ -432,29 +467,15 @@ export class NewConnectionController extends HTMLController {
             pin_tries_remaining_count: null,
           }
         )
-        // leave 'expired' as expired, leave 'too_many_attempts' as too_many_attempts
-        // expire existing invitations if they're 'valid' (condition verified_both && valid already aborted in allowNewInvitation)
-        await db.update(
-          'connection_invite',
-          { connection_id: connectionRecord.id, validity: 'valid' },
-          { expires_at: new Date(), validity: 'expired' }
-        )
-        // expire existing invitations if they're 'used' (condition verified_them && used, and verified_both && used already aborted in allowNewInvitation)
-        await db.update(
-          'connection_invite',
-          { connection_id: connectionRecord.id, validity: 'used' },
-          { expires_at: new Date(), validity: 'expired' }
-        )
         // create the new invitation record
         await db.insert('connection_invite', {
-          connection_id: connectionRecord.id,
+          connection_id: connectionId,
           oob_invite_id: invitationId,
           pin_hash: pinHash,
           expires_at: new Date(new Date().getTime() + 14 * 24 * 60 * 60 * 1000),
           validity: 'valid',
         })
       })
-
       return { type: 'success', connectionId }
     } catch (err) {
       if (
@@ -465,11 +486,12 @@ export class NewConnectionController extends HTMLController {
           type: 'error',
           error: `Connection already exists with ${company.company_name}`,
         }
-      } else
+      } else {
         return {
           type: 'error',
           error: `database errors when expiring invitation records or creating new invitation entry ${err}`,
         }
+      }
     }
   }
 

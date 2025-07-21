@@ -353,7 +353,7 @@ describe('NewConnectionController', () => {
     })
 
     describe('sending a second invitation', function () {
-      it('should return rendered error when connection has no invitation in db', async () => {
+      it('should return rendered error when a connection table entry has no invitations in the connection_invites db table', async () => {
         const { args } = withNewConnectionMocks()
         const controller = new NewConnectionController(...args)
         const result = await controller
