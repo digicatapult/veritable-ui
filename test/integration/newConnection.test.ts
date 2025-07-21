@@ -57,6 +57,48 @@ describe('NewConnectionController', () => {
       const invites = await context.localDatabase.get('connection_invite', { connection_id: connectionRows[0].id })
       expect(invites.length).to.equal(1)
     })
+
+    it('should allow a second invitation to be submitted', async () => {
+      await post(context.app, '/connection/new/create-invitation', {
+        companyNumber: alice.company_number,
+        email: 'alice@testmail.com',
+        action: 'submit',
+      })
+      const connectionRows = await context.localDatabase.get('connection')
+      expect(connectionRows.length).to.equal(1)
+      expect(connectionRows[0]).to.deep.contain({
+        company_name: alice.company_name,
+        company_number: alice.company_number,
+        status: 'pending',
+      })
+
+      const invites = await context.localDatabase.get('connection_invite', { connection_id: connectionRows[0].id })
+      expect(invites.length).to.equal(2)
+    })
+
+    it('should expire the first invitation', async () => {
+      await post(context.app, '/connection/new/create-invitation', {
+        companyNumber: alice.company_number,
+        email: 'alice@testmail.com',
+        action: 'submit',
+      })
+      const connectionRows = await context.localDatabase.get('connection')
+      expect(connectionRows.length).to.equal(1)
+      expect(connectionRows[0]).to.deep.contain({
+        company_name: alice.company_name,
+        company_number: alice.company_number,
+        status: 'pending',
+      })
+
+      const invites = await context.localDatabase.get('connection_invite', { connection_id: connectionRows[0].id })
+      expect(invites.length).to.equal(2)
+      expect(invites[0]).to.deep.contain({
+        validity: 'expired',
+      })
+      expect(invites[1]).to.deep.contain({
+        validity: 'valid',
+      })
+    })
   })
 
   describe('receive invitation (happy path)', function () {

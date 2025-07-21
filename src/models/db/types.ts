@@ -1,6 +1,6 @@
 import { Knex } from 'knex'
 import { z } from 'zod'
-import { carbonEmbodimentRequestData, carbonEmbodimentResponseData } from '../drpc.js'
+import { bavResponseData, carbonEmbodimentResponseData, subjectIdParser } from '../drpc.js'
 
 export const tablesList = [
   'connection',
@@ -43,21 +43,26 @@ const insertConnectionInvite = z.object({
   validity: z.union([z.literal('valid'), z.literal('expired'), z.literal('too_many_attempts'), z.literal('used')]),
 })
 
-const insertQueryShared = z.object({
+export const carbonQueryType = z.literal('total_carbon_embodiment')
+export const bavQueryType = z.literal('beneficiary_account_validation')
+
+export const queryType = z.union([carbonQueryType, bavQueryType])
+export type QueryType = z.infer<typeof queryType>
+
+const insertQuery = z.object({
   connection_id: z.string(),
   parent_id: z.string().nullable().optional(),
-  type: z.literal('total_carbon_embodiment'),
+  type: queryType,
   status: z.enum(['resolved', 'pending_your_input', 'pending_their_input', 'errored', 'forwarded']),
   response_id: z.string().nullable(),
   role: z.enum(['requester', 'responder']),
   expires_at: z.date(),
+  details: z.object({
+    subjectId: subjectIdParser,
+  }),
+
+  response: z.union([carbonEmbodimentResponseData, bavResponseData]).nullable(),
 })
-const totalCarbonEmbodimentQuery = z.object({
-  type: z.literal('total_carbon_embodiment'),
-  details: carbonEmbodimentRequestData,
-  response: carbonEmbodimentResponseData.nullable(),
-})
-const insertQuery = z.discriminatedUnion('type', [totalCarbonEmbodimentQuery.merge(insertQueryShared)])
 
 const defaultFields = z.object({
   id: z.string(),
@@ -70,8 +75,8 @@ const insertQueryRpc = z.object({
   agent_rpc_id: z.string(),
   role: z.union([z.literal('client'), z.literal('server')]),
   method: z.union([z.literal('submit_query_request'), z.literal('submit_query_response')]),
-  result: z.union([z.record(z.any()), z.null()]).optional(),
-  error: z.union([z.record(z.any()), z.null()]).optional(),
+  result: z.union([z.record(z.any(), z.any()), z.null()]).optional(),
+  error: z.union([z.record(z.any(), z.any()), z.null()]).optional(),
 })
 const insertSettings = z.object({
   setting_key: z.string(),
@@ -89,7 +94,7 @@ const Zod = {
   },
   query: {
     insert: insertQuery,
-    get: z.discriminatedUnion('type', [totalCarbonEmbodimentQuery.merge(insertQueryShared).merge(defaultFields)]),
+    get: insertQuery.merge(defaultFields),
   },
   query_rpc: {
     insert: insertQueryRpc,

@@ -15,11 +15,11 @@ import { FromInviteTemplates } from '../../../views/newConnection/fromInvite.js'
 import { NewInviteTemplates } from '../../../views/newConnection/newInvite.js'
 import { PinSubmissionTemplates } from '../../../views/newConnection/pinSubmission.js'
 import {
+  companyNumberToConnectionMap,
+  inviteValidityMap,
   notFoundCompanyNumber,
   validCompanyMap,
-  validCompanyNumber,
   validConnection,
-  validExistingCompanyNumber,
 } from './fixtures.js'
 
 function templateFake(templateName: string, ...args: unknown[]) {
@@ -106,23 +106,28 @@ export const withConnectionMocks = (
 }
 
 export const withNewConnectionMocks = () => {
-  const mockTransactionDb = {
+  const mockWithTransaction = {
     insert: () => Promise.resolve([{ id: '42' }]),
     get: () => Promise.resolve([validConnection]),
     update: () => Promise.resolve(),
   }
   const mockDb = {
     get: (tableName: string, where?: Record<string, string>) => {
-      if (tableName !== 'connection') throw new Error('Invalid table')
-      if (where?.company_number === validCompanyNumber) return []
-      if (where?.company_number === validExistingCompanyNumber) return [validConnection]
-      if (where?.id === '4a5d4085-5924-43c6-b60d-754440332e3d') return [validConnection]
-      return []
+      if (tableName === 'connection') {
+        if (where?.id === '4a5d4085-5924-43c6-b60d-754440332e3d') return [validConnection]
+        if (where?.company_number) return companyNumberToConnectionMap[where?.company_number]
+        return []
+      }
+      if (tableName === 'connection_invite') {
+        if (where?.connection_id) return inviteValidityMap[where?.connection_id]
+        return []
+      }
     },
     withTransaction: (fn: (arg: unknown) => unknown) => {
-      return Promise.resolve(fn(mockTransactionDb))
+      return Promise.resolve(fn(mockWithTransaction))
     },
   } as unknown as Database
+
   const mockCompanyHouseEntity = {
     getOrganisationProfileByOrganisationNumber: async (companyNumber: string) => {
       if (companyNumber === notFoundCompanyNumber) {
@@ -165,6 +170,7 @@ export const withNewConnectionMocks = () => {
       }
     },
   } as unknown as VeritableCloudagent
+
   const mockEmail = {
     sendMail: () => Promise.resolve(),
   } as unknown as EmailService
@@ -182,6 +188,7 @@ export const withNewConnectionMocks = () => {
         companyNumber
       ),
   } as unknown as NewInviteTemplates
+
   const mockFromInvite = {
     fromInviteFormPage: (feedback: FormFeedback) => templateFake('fromInvitePage', feedback.type),
     // eslint-disable-next-line  @typescript-eslint/no-explicit-any
@@ -193,6 +200,7 @@ export const withNewConnectionMocks = () => {
         feedback.message || feedback.error || ''
       ),
   } as unknown as FromInviteTemplates
+
   const mockPinForm = {
     renderPinForm: (props: { connectionId: string; pin?: string; continuationFromInvite: boolean }) =>
       templateFake('renderPinForm', props.connectionId, props.pin, props.continuationFromInvite),
@@ -217,7 +225,7 @@ export const withNewConnectionMocks = () => {
   const mockLogger: ILogger = pino({ level: 'silent' })
 
   return {
-    mockTransactionDb,
+    mockWithTransaction,
     mockDb,
     mockCompanyHouseEntity,
     mockCloudagent,

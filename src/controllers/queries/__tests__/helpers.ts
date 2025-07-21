@@ -7,7 +7,7 @@ import { UUID } from '../../../models/strings.js'
 import VeritableCloudagent from '../../../models/veritableCloudagent/index.js'
 import QueriesTemplates from '../../../views/queries/queries.js'
 import QueryListTemplates from '../../../views/queries/queriesList.js'
-import CarbonEmbodimentTemplates from '../../../views/queries/requestCo2embodiment.js'
+import QueryRequestTemplates from '../../../views/queries/queryRequest.js'
 import CarbonEmbodimentResponseTemplates, {
   CarbonEmbodimentFormProps,
 } from '../../../views/queries/responseCo2embodiment.js'
@@ -152,10 +152,9 @@ export const withQueriesMocks = (testOptions: Partial<QueryMockOptions> = {}) =>
     ...testOptions,
   }
 
-  const carbonEmbodimentTemplateMock = {
-    newCarbonEmbodimentFormPage: (props: { formStage: string }) =>
-      templateListFake('carbonEmbodiment', props.formStage),
-  } as unknown as CarbonEmbodimentTemplates
+  const queryFormTemplateMock = {
+    newQueryRequestPage: (props: { formStage: string }) => templateListFake('queryForm', props.formStage),
+  } as unknown as QueryRequestTemplates
 
   const carbonEmbodimentResponseTemplateMock = {
     newCarbonEmbodimentResponseFormPage: (props: CarbonEmbodimentFormProps) => templateFake('queriesResponse', props),
@@ -185,14 +184,14 @@ export const withQueriesMocks = (testOptions: Partial<QueryMockOptions> = {}) =>
   }
 
   return {
-    carbonEmbodimentTemplateMock,
+    queryFormTemplateMock,
     carbonEmbodimentResponseTemplateMock,
     queryListTemplateMock,
     queryTemplateMock,
     dbMock,
     cloudagentMock,
     args: [
-      carbonEmbodimentTemplateMock,
+      queryFormTemplateMock,
       carbonEmbodimentResponseTemplateMock,
       queryTemplateMock,
       queryListTemplateMock,
