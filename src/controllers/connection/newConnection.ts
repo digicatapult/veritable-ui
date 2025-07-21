@@ -7,6 +7,7 @@ import { injectable } from 'tsyringe'
 import { z } from 'zod'
 
 import { Env } from '../../env/index.js'
+import { NotFoundError } from '../../errors.js'
 import Database from '../../models/db/index.js'
 import EmailService from '../../models/emailService/index.js'
 import OrganisationRegistry, { OrganisationProfile } from '../../models/organisationRegistry.js'
@@ -429,8 +430,10 @@ export class NewConnectionController extends HTMLController {
       // delete all existing OOB invitations from the cloudagent
       for (const invite of invitations) {
         const exists = await this.cloudagent.getOutOfBandInvite(invite.oob_invite_id).catch((error) => {
-          if (error instanceof Error && error.message.endsWith('Not Found')) {
+          if (error instanceof NotFoundError) {
             logger.debug('OOB invitation already deleted %s', invite.oob_invite_id)
+          } else {
+            throw error
           }
         })
         // Make sure we're only deleting invitations we've sent
