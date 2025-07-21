@@ -3,7 +3,7 @@ import { singleton } from 'tsyringe'
 import { ConnectionRow, QueryType } from '../../models/db/types.js'
 import { FormButton, LinkButton, Page } from '../common.js'
 
-const typeMap: Record<QueryType, { name: string; urlSegment: string }> = {
+export const typeMap: Record<QueryType, { name: string; urlSegment: string }> = {
   total_carbon_embodiment: {
     name: 'Total Carbon Embodiment',
     urlSegment: 'carbon-embodiment',
@@ -14,25 +14,18 @@ const typeMap: Record<QueryType, { name: string; urlSegment: string }> = {
   },
 }
 
-export type FormStage = 'companySelect' | 'carbonEmbodiment' | 'bav' | 'success' | 'error'
 type SelectProps = {
   formStage: 'companySelect'
   type: QueryType
   connections: ConnectionRow[]
   search: string
 }
-type CarbonEmbodimentFormProps = {
-  formStage: 'carbonEmbodiment'
-  type: QueryType
-  connectionId: string
-  productId?: string
-  quantity?: number
-}
-type BavFormProps = {
-  formStage: 'bav'
+type FormProps = {
+  formStage: 'form'
   type: QueryType
   connection: ConnectionRow
 }
+
 type SuccessProps = {
   formStage: 'success'
   type: QueryType
@@ -44,7 +37,7 @@ type ErrorProps = {
   company: { companyName?: string }
 }
 
-type QueryProps = SelectProps | CarbonEmbodimentFormProps | BavFormProps | SuccessProps | ErrorProps
+type QueryProps = SelectProps | FormProps | SuccessProps | ErrorProps
 
 @singleton()
 export default class QueryRequestTemplates {
@@ -55,32 +48,39 @@ export default class QueryRequestTemplates {
       <Page
         title={`Veritable - New ${typeMap[props.type].name} Query`}
         activePage="queries"
-        heading="Select Company To Send Your Query To"
+        heading={`${typeMap[props.type].name} Query`}
         headerLinks={[
           { name: 'Query Management', url: '/queries' },
-          { name: 'New', url: '/queries/new' },
+          { name: 'New', url: `/queries/new/${typeMap[props.type].urlSegment}` },
           { name: typeMap[props.type].name, url: `/queries/new/${typeMap[props.type].urlSegment}` },
         ]}
       >
         <div class="connections header"></div>
         <div class="card-body">
-          <this.newQueryForm {...props} />
+          <this.Body {...props} />
         </div>
       </Page>
     )
   }
-  private newQueryForm = (props: QueryProps): JSX.Element => {
+  private Body = (props: QueryProps): JSX.Element => {
     switch (props.formStage) {
       case 'companySelect':
         return <this.listPage {...props}></this.listPage>
-      case 'carbonEmbodiment':
-        return <this.carbonEmbodimentFormPage {...props}></this.carbonEmbodimentFormPage>
-      case 'bav':
-        return <this.bavFormPage {...props}></this.bavFormPage>
+      case 'form':
+        return this.Form(props)
       case 'success':
         return <this.newQuerySuccess {...props}></this.newQuerySuccess>
       case 'error':
         return <this.newQueryError {...props}></this.newQueryError>
+    }
+  }
+
+  private Form = (props: FormProps) => {
+    switch (props.type) {
+      case 'total_carbon_embodiment':
+        return <this.carbonEmbodimentFormPage {...props} />
+      case 'beneficiary_account_validation':
+        return <this.bavFormPage {...props} />
     }
   }
 
@@ -98,7 +98,7 @@ export default class QueryRequestTemplates {
                 name="search"
                 value={Html.escapeHtml(props.search)}
                 placeholder="Search"
-                hx-get={`/queries/new/${typeMap[props.type].urlSegment}`}
+                hx-get={`/queries/new?type=${props.type}`}
                 hx-trigger="input changed delay:50ms, search"
                 hx-target="#search-results"
                 hx-select="#search-results"
@@ -107,7 +107,7 @@ export default class QueryRequestTemplates {
             </div>
             <form
               id="company-form"
-              hx-get={`/queries/new/${typeMap[props.type].urlSegment}`}
+              hx-get={`/queries/new?type=${props.type}`}
               hx-select="main > *"
               hx-target="main"
               hx-swap="innerHTML"
@@ -156,7 +156,7 @@ export default class QueryRequestTemplates {
     )
   }
 
-  private carbonEmbodimentFormPage = (props: CarbonEmbodimentFormProps) => {
+  private carbonEmbodimentFormPage = (props: FormProps) => {
     return (
       <div>
         <div class="container-query-form">
@@ -173,12 +173,12 @@ export default class QueryRequestTemplates {
             </p>
             <form
               id="carbon-embodiment"
-              hx-post="/queries/new/carbon-embodiment"
+              hx-post="/queries/carbon-embodiment"
               hx-select="main > *"
               hx-target="main"
               hx-swap="innerHTML"
             >
-              <input type="hidden" name="connectionId" value={props.connectionId} />
+              <input type="hidden" name="connectionId" value={props.connection.id} />
               <div class="input-container">
                 <label for="productId-input" class="input-label">
                   Product ID
@@ -191,7 +191,6 @@ export default class QueryRequestTemplates {
                   class="input-with-label"
                   type="text"
                   required
-                  value={props.productId}
                 ></input>
                 <p class="additional-input-label">Product ID</p>
               </div>
@@ -206,7 +205,6 @@ export default class QueryRequestTemplates {
                   placeholder="123"
                   pattern="^\d+$"
                   required
-                  value={props?.quantity?.toString()}
                   class="input-with-label"
                 ></input>
                 <p class="additional-input-label">Quantity of product</p>
@@ -219,7 +217,7 @@ export default class QueryRequestTemplates {
     )
   }
 
-  private bavFormPage = (props: BavFormProps) => {
+  private bavFormPage = (props: FormProps) => {
     return (
       <div class="container-query-form">
         <div class="query-form-left">
@@ -228,7 +226,7 @@ export default class QueryRequestTemplates {
         </div>
         <div class="query-form-right">
           <p>Request financial details from {Html.escapeHtml(props.connection.company_name)}</p>
-          <form id="bav" hx-post="/queries/new/bav" hx-select="main > *" hx-target="main" hx-swap="innerHTML">
+          <form id="bav" hx-post="/queries/bav" hx-select="main > *" hx-target="main" hx-swap="innerHTML">
             <input type="hidden" name="connectionId" value={props.connection.id} />
             <FormButton text="Submit Query" style="filled" />
           </form>

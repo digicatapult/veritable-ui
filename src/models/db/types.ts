@@ -43,16 +43,15 @@ const insertConnectionInvite = z.object({
   validity: z.union([z.literal('valid'), z.literal('expired'), z.literal('too_many_attempts'), z.literal('used')]),
 })
 
-export const carbonQueryType = z.literal('total_carbon_embodiment')
-export const bavQueryType = z.literal('beneficiary_account_validation')
+const queryTypes = ['total_carbon_embodiment', 'beneficiary_account_validation'] as const
+export const queryTypeParser = z.enum(queryTypes)
 
-export const queryType = z.union([carbonQueryType, bavQueryType])
-export type QueryType = z.infer<typeof queryType>
+export type QueryType = (typeof queryTypes)[number]
 
 const insertQuery = z.object({
   connection_id: z.string(),
   parent_id: z.string().nullable().optional(),
-  type: queryType,
+  type: queryTypeParser,
   status: z.enum(['resolved', 'pending_your_input', 'pending_their_input', 'errored', 'forwarded']),
   response_id: z.string().nullable(),
   role: z.enum(['requester', 'responder']),

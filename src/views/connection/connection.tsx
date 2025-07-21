@@ -39,7 +39,7 @@ const statusToAction = (
     case 'verified_both':
       return {
         disabled: false,
-        href: `/queries/new?connectionId=${connectionId}`,
+        href: `/queries/choose?connectionId=${connectionId}`,
         text: 'Send Query',
       }
   }
