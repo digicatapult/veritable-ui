@@ -56,62 +56,62 @@ export const validCompanyInactive = {
 
 export const verifiedBothCompany = {
   ...validCompany,
-  company_number: verifiedBothCompanyNumber,
-  company_name: 'VERIFIED_BOTH',
+  number: verifiedBothCompanyNumber,
+  name: 'VERIFIED_BOTH',
 }
 
 export const noInviteCompany = {
   ...validCompany,
-  company_number: noExistingInviteCompanyNumber,
-  company_name: 'NO_INVITE',
+  number: noExistingInviteCompanyNumber,
+  name: 'NO_INVITE',
 }
 
 export const usedPendingCompany = {
   ...validCompany,
-  company_number: usedPendingCompanyNumber,
-  company_name: 'USED_PENDING',
+  number: usedPendingCompanyNumber,
+  name: 'USED_PENDING',
 }
 
 export const tooManyDisconnectCompany = {
   ...validCompany,
-  company_number: tooManyDisconnectedCompanyNumber,
-  company_name: 'TOO_MANY_DISCONNECTED',
+  number: tooManyDisconnectedCompanyNumber,
+  name: 'TOO_MANY_DISCONNECTED',
 }
 
 export const validDisconnectedCompany = {
   ...validCompany,
-  company_number: validDisconnectedCompanyNumber,
-  company_name: 'VALID_DISCONNECTED',
+  number: validDisconnectedCompanyNumber,
+  name: 'VALID_DISCONNECTED',
 }
 
 export const usedUnVerifiedCompany = {
   ...validCompany,
-  company_number: usedUnverifiedCompanyNumber,
-  company_name: 'USED_UNVERIFIED',
+  number: usedUnverifiedCompanyNumber,
+  name: 'USED_UNVERIFIED',
 }
 
 export const usedVerifiedThemCompany = {
   ...validCompany,
-  company_number: usedVerifiedThemCompanyNumber,
-  company_name: 'USED_VER_THEM',
+  number: usedVerifiedThemCompanyNumber,
+  name: 'USED_VER_THEM',
 }
 
 export const usedVerifiedUsCompany = {
   ...validCompany,
-  company_number: usedVerifiedUsCompanyNumber,
-  company_name: 'USED_VER_US',
+  number: usedVerifiedUsCompanyNumber,
+  name: 'USED_VER_US',
 }
 
 export const usedDisconnectedCompany = {
   ...validCompany,
-  company_number: usedDisconnectedCompanyNumber,
-  company_name: 'USED_DISCONNECTED',
+  number: usedDisconnectedCompanyNumber,
+  name: 'USED_DISCONNECTED',
 }
 
 export const validPendingCompany = {
   ...validCompany,
-  company_number: validPendingCompanyNumber,
-  company_name: 'ALLOW_NEW',
+  number: validPendingCompanyNumber,
+  name: 'ALLOW_NEW',
 }
 
 export const validConnection: ConnectionRow = {

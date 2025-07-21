@@ -391,15 +391,6 @@ export class NewConnectionController extends HTMLController {
     const company = companySearch.company
     logger.info('company by %s number was found %j', companyNumber, company)
 
-    const existingConnections = await this.db.get('connection', { company_number: companyNumber })
-    if (existingConnections.length !== 0) {
-      logger.info('connection already exists %j', existingConnections)
-      return {
-        type: 'error',
-        message: `Connection already exists with ${company.name}`,
-      }
-    }
-
     // TODO: check if company is in dispute
 
     // if (company.registered_office_is_in_dispute) {
