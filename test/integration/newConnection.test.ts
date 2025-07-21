@@ -120,7 +120,7 @@ describe('NewConnectionController', () => {
       expect(result1).to.deep.contain({ id: oobInvitation1 })
 
       await expect(context.localCloudagent.getOutOfBandInvite(oobInvitation0)).to.be.rejectedWith(
-        `Unexpected error calling GET /v1/oob/${oobInvitation0}: Not Found`
+        `/v1/oob/${oobInvitation0} - not found`
       )
     })
   })
