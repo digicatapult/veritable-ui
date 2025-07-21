@@ -112,6 +112,7 @@ describe('NewConnectionController', () => {
         companyNumber: alice.company_number,
         email: 'alice@testmail.com',
         action: 'submit',
+        registryCountryCode: ukRegistryCountryCode,
       })
       const connectionRows = await context.localDatabase.get('connection')
       expect(connectionRows.length).to.equal(1)
