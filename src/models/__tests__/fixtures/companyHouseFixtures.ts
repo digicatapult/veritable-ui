@@ -23,6 +23,7 @@ export const finalSuccessResponse: SharedOrganisationInfo = {
   status: 'active',
   number: '07964699',
   registryCountryCode: RegistryCountryCode.UK,
+  registeredOfficeIsInDispute: false,
 }
 
 export const successResponse2: SharedOrganisationInfo = {
@@ -31,4 +32,5 @@ export const successResponse2: SharedOrganisationInfo = {
   status: 'active',
   number: '11111111',
   registryCountryCode: RegistryCountryCode.UK,
+  registeredOfficeIsInDispute: false,
 }

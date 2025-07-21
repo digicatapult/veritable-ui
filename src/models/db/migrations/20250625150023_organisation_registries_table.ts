@@ -9,7 +9,7 @@ export async function up(knex: Knex): Promise<void> {
     def.string('registry_key').notNullable()
     def.string('registry_name').notNullable()
     def.string('url')
-    def.string('api_key') // TODO: this seems like a silly place to keep it
+    def.string('api_key')
     def.datetime('created_at').notNullable().defaultTo(now())
     def.datetime('updated_at').notNullable().defaultTo(now())
   })

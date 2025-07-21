@@ -26,4 +26,5 @@ export const finalSuccessResponse: SharedOrganisationInfo = {
   status: 'active',
   number: '3211809',
   registryCountryCode: RegistryCountryCode.NY,
+  registeredOfficeIsInDispute: false,
 }

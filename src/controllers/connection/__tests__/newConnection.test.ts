@@ -75,16 +75,16 @@ describe('NewConnectionController', () => {
       expect(result).to.equal('companyFormInput_error--Company number does not exist-form--00000000_companyFormInput')
     })
 
-    // TODO: ADD THIS TEST
-
-    // it('should return rendered error when company registered office in dispute', async () => {
-    //   const { args } = withNewConnectionMocks()
-    //   const controller = new NewConnectionController(...args)
-    //   const result = await controller.verifyCompanyForm(req, validCompanyNumberInDispute, ukRegistryCountryCode).then(toHTMLString)
-    //   expect(result).to.equal(
-    //     'companyFormInput_error--Cannot validate company NAME3 as address is currently in dispute-form--00000003_companyFormInput'
-    //   )
-    // })
+    it('should return rendered error when company registered office in dispute', async () => {
+      const { args } = withNewConnectionMocks()
+      const controller = new NewConnectionController(...args)
+      const result = await controller
+        .verifyCompanyForm(req, validCompanyNumberInDispute, ukRegistryCountryCode)
+        .then(toHTMLString)
+      expect(result).to.equal(
+        'companyFormInput_error--Cannot validate company NAME3 as address is currently in dispute-form--00000003_companyFormInput'
+      )
+    })
 
     it('should return rendered error when company not active', async () => {
       const { args } = withNewConnectionMocks()
@@ -143,15 +143,14 @@ describe('NewConnectionController', () => {
       expect(result).to.equal('fromInviteForm_error--Company number does not exist_fromInviteForm')
     })
 
-    // TODO: ADD THIS TEST
-    // it('should return rendered error when company registered office in dispute', async () => {
-    //   const { args } = withNewConnectionMocks()
-    //   const controller = new NewConnectionController(...args)
-    //   const result = await controller.verifyInviteForm(req, validCompanyNumberInDisputeInvite).then(toHTMLString)
-    //   expect(result).to.equal(
-    //     'fromInviteForm_error--Cannot validate company NAME3 as address is currently in dispute_fromInviteForm'
-    //   )
-    // })
+    it('should return rendered error when company registered office in dispute', async () => {
+      const { args } = withNewConnectionMocks()
+      const controller = new NewConnectionController(...args)
+      const result = await controller.verifyInviteForm(req, validCompanyNumberInDisputeInvite).then(toHTMLString)
+      expect(result).to.equal(
+        'fromInviteForm_error--Cannot validate company NAME3 as address is currently in dispute_fromInviteForm'
+      )
+    })
 
     it('should return rendered error when company not active', async () => {
       const { args } = withNewConnectionMocks()
@@ -185,8 +184,7 @@ describe('NewConnectionController', () => {
       )
     })
 
-    // TODO: ADD THIS TEST
-    it.skip('should return rendered error when company registered office in dispute', async () => {
+    it('should return rendered error when company registered office in dispute', async () => {
       const { args } = withNewConnectionMocks()
       const controller = new NewConnectionController(...args)
       const result = await controller
@@ -589,7 +587,7 @@ describe('NewConnectionController', () => {
       expect(result).to.equal('fromInviteForm_error--Company number does not exist_fromInviteForm')
     })
 
-    it.skip('should return rendered error when company registered office in dispute', async () => {
+    it('should return rendered error when company registered office in dispute', async () => {
       const { args } = withNewConnectionMocks()
       const controller = new NewConnectionController(...args)
       const result = await controller

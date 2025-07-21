@@ -391,15 +391,13 @@ export class NewConnectionController extends HTMLController {
     const company = companySearch.company
     logger.info('company by %s number was found %j', companyNumber, company)
 
-    // TODO: check if company is in dispute
-
-    // if (company.registered_office_is_in_dispute) {
-    //   logger.info("company's is in dispute %o", company)
-    //   return {
-    //     type: 'error',
-    //     message: `Cannot validate company ${company.company_name} as address is currently in dispute`,
-    //   }
-    // }
+    if (company.registeredOfficeIsInDispute) {
+      logger.info("company's is in dispute %o", company)
+      return {
+        type: 'error',
+        message: `Cannot validate company ${company.name} as address is currently in dispute`,
+      }
+    }
 
     if (company.status !== 'active') {
       logger.info('company is not active %j', company)

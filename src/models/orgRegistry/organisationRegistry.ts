@@ -9,7 +9,7 @@ import { OrganisationRegistriesRow } from '../db/types.js'
 import { companyHouseProfileSchema } from './registrySchemas/companyHouseSchema.js'
 import { dosEntitySchema } from './registrySchemas/socrataSchema.js'
 
-export type CompanyHouseProfile = z.infer<typeof companyHouseProfileSchema> // TODO: Organisation profile likely different for different types of registries
+export type CompanyHouseProfile = z.infer<typeof companyHouseProfileSchema>
 export type SocrataProfile = z.infer<typeof dosEntitySchema>
 export type SharedOrganisationInfo = {
   name: string
@@ -17,6 +17,7 @@ export type SharedOrganisationInfo = {
   status: string
   number: string
   registryCountryCode: string
+  registeredOfficeIsInDispute: boolean
 }
 export type OrganisationProfile =
   | {
@@ -133,7 +134,7 @@ export default class OrganisationRegistry {
     registry: OrganisationRegistriesRow
   ): Promise<BaseProfileSearchResult<SocrataProfile>> {
     this.logger.info(`Getting socrata profile for ${companyNumber}`)
-    // TODO: 3211809 <-- comp no to test with
+    // NOTE: 3211809 <-- comp no to test socrata with
     const endpoint = `${registry.url}?dos_id=${companyNumber}`
 
     const companyProfile = await this.makeSocrataRequest(endpoint)
@@ -165,6 +166,7 @@ export default class OrganisationRegistry {
         number: socrataResults.company[0].dos_id,
         status: 'active', // presume active if org is found
         registryCountryCode: RegistryCountryCode.NY, // TODO: is it ok if this is hardcoded?
+        registeredOfficeIsInDispute: false, // presume no if no dispute info
       },
       type: 'found',
     }
@@ -198,6 +200,7 @@ export default class OrganisationRegistry {
         number: companyHouseResults.company.company_number,
         status: companyHouseResults.company.company_status,
         registryCountryCode: RegistryCountryCode.UK, // TODO: is it ok if this is hardcoded?
+        registeredOfficeIsInDispute: companyHouseResults.company.registered_office_is_in_dispute ?? false,
       },
       type: 'found',
     }

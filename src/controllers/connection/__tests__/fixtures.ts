@@ -44,7 +44,7 @@ export const validCompanyInDispute = {
   ...validCompany,
   number: validCompanyNumberInDispute,
   name: 'NAME3',
-  // registered_office_is_in_dispute: true, // TODO: add this??
+  registeredOfficeIsInDispute: true,
 }
 
 export const validCompanyInactive = {
