@@ -1,6 +1,6 @@
 {
   "name": "veritable-ui",
-  "version": "0.18.0",
+  "version": "0.18.1",
   "description": "UI for Veritable",
   "main": "src/index.ts",
   "type": "module",
@@ -90,13 +90,8 @@
     "eslint-plugin-prettier": "^5.5.3",
     "globals": "^16.3.0",
     "mocha": "^11.7.1",
-<<<<<<< HEAD
     "pino-pretty": "^13.0.0",
-    "playwright": "^1.53.1",
-=======
-    "pino-colada": "^2.2.2",
     "playwright": "^1.54.1",
->>>>>>> main
     "playwright-ctrf-json-reporter": "^0.0.21",
     "prettier": "^3.6.2",
     "prettier-plugin-organize-imports": "^4.1.0",
