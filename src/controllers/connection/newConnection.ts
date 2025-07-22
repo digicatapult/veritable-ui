@@ -68,7 +68,11 @@ export class NewConnectionController extends HTMLController {
    */
   @SuccessResponse(200)
   @Get('/')
-  public async newConnectionForm(@Request() req: express.Request, @Query() fromInvite: boolean = false): Promise<HTML> {
+  public async newConnectionForm(
+    @Request() req: express.Request,
+    @Query() fromInvite: boolean = false,
+    @Query() registryCountryCode: CountryCode = 'GB'
+  ): Promise<HTML> {
     if (fromInvite) {
       req.log.trace('rendering new connection receiver form')
       return this.html(
@@ -80,10 +84,18 @@ export class NewConnectionController extends HTMLController {
     }
 
     req.log.trace('rendering new connection requester form')
+    req.log.debug('updating pattern for country %s', registryCountryCode)
+    const pattern = registryCountryCode === 'GB' ? companyNumberRegex.source : socrataRegex.source
+    const minLength = registryCountryCode === 'GB' ? 8 : 7
+    const maxLength = registryCountryCode === 'GB' ? 8 : 7
+
     return this.html(
       this.newInvite.newInviteFormPage({
         type: 'message',
         message: 'Please type in a valid company number to populate information',
+        regex: pattern,
+        minlength: minLength,
+        maxlength: maxLength,
       })
     )
   }
@@ -99,6 +111,7 @@ export class NewConnectionController extends HTMLController {
     @Query() registryCountryCode: CountryCode
   ): Promise<HTML> {
     req.log.debug('verifying %s company number for country %s', companyNumber, registryCountryCode)
+    console.log(registryCountryCode, companyNumber)
 
     if (registryCountryCode === 'GB' && !companyNumber.match(companyNumberRegex)) {
       req.log.info('company %s number did not match %s regex', companyNumber, companyNumberRegex)
@@ -125,31 +138,6 @@ export class NewConnectionController extends HTMLController {
         formStage: 'form',
         companyNumber,
         registryCountryCode,
-      })
-    )
-  }
-
-  /**
-   * Updates the company number input pattern based on selected country
-   */
-  @SuccessResponse(200)
-  @Get('/update-pattern')
-  public async updatePattern(
-    @Request() req: express.Request,
-    @Query() registryCountryCode: CountryCode
-  ): Promise<HTML> {
-    req.log.debug('updating pattern for country %s', registryCountryCode)
-    const pattern = registryCountryCode === 'GB' ? companyNumberRegex.source : socrataRegex.source
-    const minLength = registryCountryCode === 'GB' ? 8 : 7
-    const maxLength = registryCountryCode === 'GB' ? 8 : 7
-
-    return this.html(
-      this.newInvite.newInviteFormPage({
-        type: 'message',
-        message: 'Please type in a valid company number to populate information',
-        regex: pattern,
-        minlength: minLength,
-        maxlength: maxLength,
       })
     )
   }

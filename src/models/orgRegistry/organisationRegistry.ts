@@ -179,7 +179,6 @@ export default class OrganisationRegistry {
       return companyHouseResults
     }
 
-    // should I be using formatAddress instead??
     return {
       company: {
         name: companyHouseResults.company.company_name,

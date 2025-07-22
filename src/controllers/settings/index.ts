@@ -119,29 +119,4 @@ export class SettingsController extends HTMLController {
       return acc
     }, {} as SettingsDict)
   }
-  // private async formatAddress(registeredOfficeAddress: {
-  //   address_line_1?: string
-  //   address_line_2?: string
-  //   care_of?: string
-  //   country?: string
-  //   locality?: string
-  //   po_box?: string
-  //   postal_code?: string
-  //   premises?: string
-  //   region?: string
-  // }): Promise<string> {
-  //   return [
-  //     registeredOfficeAddress.care_of,
-  //     registeredOfficeAddress.premises,
-  //     registeredOfficeAddress.address_line_1,
-  //     registeredOfficeAddress.address_line_2,
-  //     registeredOfficeAddress.po_box,
-  //     registeredOfficeAddress.locality,
-  //     registeredOfficeAddress.region,
-  //     registeredOfficeAddress.postal_code,
-  //     registeredOfficeAddress.country,
-  //   ]
-  //     .filter(Boolean)
-  //     .join(', ')
-  // }
 }

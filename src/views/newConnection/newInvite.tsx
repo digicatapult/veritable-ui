@@ -73,7 +73,7 @@ export class NewInviteTemplates extends NewConnectionTemplates {
           name="registryCountryCode"
           required
           value={props.registryCountryCode}
-          hx-get="/connection/new/update-pattern"
+          hx-get="/connection/new"
           hx-trigger="change"
           hx-target="#new-invite-company-number-input"
           hx-select="#new-invite-company-number-input"
@@ -81,7 +81,7 @@ export class NewInviteTemplates extends NewConnectionTemplates {
           hx-include="this"
         >
           <option value="GB">United Kingdom</option>
-          <option value="US">New York</option>
+          <option value="US">US</option>
         </select>
         <input
           id="new-invite-company-number-input"
