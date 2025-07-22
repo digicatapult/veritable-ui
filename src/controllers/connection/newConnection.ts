@@ -3,18 +3,24 @@ import express from 'express'
 import { randomInt } from 'node:crypto'
 import { pino } from 'pino'
 import { Body, Get, Post, Produces, Query, Request, Route, Security, SuccessResponse } from 'tsoa'
-import { injectable } from 'tsyringe'
+import { inject, injectable } from 'tsyringe'
 import { z } from 'zod'
 
 import { Env } from '../../env/index.js'
+import { NotFoundError } from '../../errors.js'
+import { Logger, type ILogger } from '../../logger.js'
 import Database from '../../models/db/index.js'
 import EmailService from '../../models/emailService/index.js'
-import OrganisationRegistry, { OrganisationProfile } from '../../models/organisationRegistry.js'
+import OrganisationRegistry, { SharedOrganisationInfo } from '../../models/orgRegistry/organisationRegistry.js'
 import {
   base64UrlRegex,
   companyNumberRegex,
+  countryCodes,
+  SOCRATA_NUMBER,
+  socrataRegex,
   type BASE_64_URL,
   type COMPANY_NUMBER,
+  type CountryCode,
   type EMAIL,
 } from '../../models/strings.js'
 import VeritableCloudagent from '../../models/veritableCloudagent/index.js'
@@ -32,6 +38,7 @@ const submitToFormStage = {
 
 const inviteParser = z.object({
   companyNumber: z.string(),
+  goalCode: z.enum(countryCodes),
   inviteUrl: z.string(),
 })
 type Invite = z.infer<typeof inviteParser>
@@ -49,7 +56,8 @@ export class NewConnectionController extends HTMLController {
     private newInvite: NewInviteTemplates,
     private fromInvite: FromInviteTemplates,
     private pinSubmission: PinSubmissionTemplates,
-    private env: Env
+    private env: Env,
+    @inject(Logger) private logger: ILogger
   ) {
     super()
   }
@@ -60,7 +68,11 @@ export class NewConnectionController extends HTMLController {
    */
   @SuccessResponse(200)
   @Get('/')
-  public async newConnectionForm(@Request() req: express.Request, @Query() fromInvite: boolean = false): Promise<HTML> {
+  public async newConnectionForm(
+    @Request() req: express.Request,
+    @Query() fromInvite: boolean = false,
+    @Query() registryCountryCode: CountryCode = 'GB'
+  ): Promise<HTML> {
     if (fromInvite) {
       req.log.trace('rendering new connection receiver form')
       return this.html(
@@ -72,10 +84,18 @@ export class NewConnectionController extends HTMLController {
     }
 
     req.log.trace('rendering new connection requester form')
+    req.log.debug('updating pattern for country %s', registryCountryCode)
+    const pattern = registryCountryCode === 'GB' ? companyNumberRegex.source : socrataRegex.source
+    const minLength = registryCountryCode === 'GB' ? 8 : 7
+    const maxLength = registryCountryCode === 'GB' ? 8 : 7
+
     return this.html(
       this.newInvite.newInviteFormPage({
         type: 'message',
         message: 'Please type in a valid company number to populate information',
+        regex: pattern,
+        minlength: minLength,
+        maxlength: maxLength,
       })
     )
   }
@@ -87,21 +107,26 @@ export class NewConnectionController extends HTMLController {
   @Get('/verify-company')
   public async verifyCompanyForm(
     @Request() req: express.Request,
-    @Query() companyNumber: COMPANY_NUMBER | string
+    @Query() companyNumber: COMPANY_NUMBER | string,
+    @Query() registryCountryCode: CountryCode
   ): Promise<HTML> {
-    req.log.debug('verifying %s company number', companyNumber)
+    req.log.debug('verifying %s company number for country %s', companyNumber, registryCountryCode)
 
-    if (!companyNumber.match(companyNumberRegex)) {
+    if (registryCountryCode === 'GB' && !companyNumber.match(companyNumberRegex)) {
       req.log.info('company %s number did not match %s regex', companyNumber, companyNumberRegex)
       return this.newConnectionForm(req)
     }
 
-    const companyOrError = await this.lookupCompany(req.log, companyNumber)
+    const companyOrError = await this.lookupCompany(req.log, companyNumber, registryCountryCode)
     if (companyOrError.type === 'error') {
-      req.log.warn('Error occured while looking up the company %j', { companyNumber, err: companyOrError })
+      req.log.warn('Error occured while looking up the company %j', {
+        companyNumber,
+        registryCountryCode,
+        err: companyOrError,
+      })
       return this.newInviteErrorHtml(companyOrError.message, undefined, companyNumber)
     }
-    req.log.debug('comapny found, rendering next stage %j', companyOrError)
+    req.log.debug('company found, rendering next stage %j', companyOrError)
 
     return this.html(
       this.newInvite.newInviteForm({
@@ -111,6 +136,7 @@ export class NewConnectionController extends HTMLController {
         },
         formStage: 'form',
         companyNumber,
+        registryCountryCode,
       })
     )
   }
@@ -137,7 +163,7 @@ export class NewConnectionController extends HTMLController {
       return this.receiveInviteErrorHtml(inviteOrError.message)
     }
 
-    req.log.debug('invite successfully decoded %s', inviteOrError)
+    req.log.debug('invite successfully decoded %j', inviteOrError)
 
     return this.html(
       this.fromInvite.fromInviteForm({
@@ -158,60 +184,85 @@ export class NewConnectionController extends HTMLController {
     @Request() req: express.Request,
     @Body()
     body: {
-      companyNumber: COMPANY_NUMBER
+      companyNumber: COMPANY_NUMBER | SOCRATA_NUMBER
       email: EMAIL
       action: 'back' | 'continue' | 'submit'
+      registryCountryCode: CountryCode
     }
   ): Promise<HTML> {
+    /*
+    1. Check if company is valid
+    2. Check if we can issue an invitation (i.e. no existing record or we can expire an old one)
+    3. Expire the old one
+    4. Create new connection record if one doesn't exist
+    5. Send a new invitation
+    */
+
     // lookup company by number
-    const companyOrError = await this.lookupCompany(req.log, body.companyNumber)
+    const companyOrError = await this.lookupCompany(req.log, body.companyNumber, body.registryCountryCode)
     if (companyOrError.type === 'error') {
-      req.log.warn('unable to retrieve company details %j', body)
+      req.log.warn('error creating invitation to company %j', body)
       return this.newInviteErrorHtml(companyOrError.message, body.email, body.companyNumber)
     }
     const company = companyOrError.company
 
+    req.log.debug('company details valid, progressing connection with %j', { company })
+
+    const allowInvitation = await this.allowNewInvitation(req.log, company)
+    if (allowInvitation.type === 'error') {
+      req.log.warn('error creating new invitation to company %j', body)
+      return this.newInviteErrorHtml(allowInvitation.message, body.email, body.companyNumber)
+    }
+
+    req.log.debug('new invitation allowed, progressing invitation to %j', { company })
+
     // if we're not at the final submission return next stage
     const formStage: NewInviteFormStage = submitToFormStage[body.action]
     if (formStage !== 'success') {
-      req.log.info('rendering a final stage [%s] of new connection', formStage)
+      req.log.info('rendering stage [%s] of new connection', formStage)
       return this.newInviteSuccessHtml(formStage, company, body.email)
     }
 
-    req.log.info('new connection details %s (%s)', company.company_name, company.company_number)
+    req.log.info('new connection details %s (%s)', company.name, company.number)
 
     // otherwise we're doing final submit. Generate pin and oob invitation
     const pin = randomInt(1e6).toString(10).padStart(6, '0')
     const [pinHash, invite] = await Promise.all([
       argon2.hash(pin, { secret: this.env.get('INVITATION_PIN_SECRET') }),
-      this.cloudagent.createOutOfBandInvite({ companyName: company.company_name }),
+      this.cloudagent.createOutOfBandInvite({
+        companyName: company.name,
+        registryCountryCode: body.registryCountryCode,
+      }),
     ])
 
-    req.log.info('invite created, inserting new connection %j', { company, pinHash, invite })
-    // insert the connection
-    const dbResult = await this.insertNewConnection(company, pinHash, invite.outOfBandRecord.id, null)
+    req.log.info(`invite created, applying '${allowInvitation.state}' %j`, { company, pinHash, invite })
+    const dbResult =
+      allowInvitation.state === 'update_existing'
+        ? await this.updateExistingConnection(req.log, company, pinHash, invite.outOfBandRecord.id)
+        : await this.insertNewConnection(company, pinHash, invite.outOfBandRecord.id, null, body.registryCountryCode)
     if (dbResult.type === 'error') {
-      req.log.warn('unable to insert a new connection %j', dbResult)
-      return this.newInviteErrorHtml(dbResult.error, body.email, company.company_number)
+      req.log.warn(`unable to apply '${allowInvitation.state}' %j`, dbResult)
+      return this.newInviteErrorHtml(dbResult.error, body.email, company.number)
     }
 
     const wrappedInvitation: Invite = {
       companyNumber: this.env.get('INVITATION_FROM_COMPANY_NUMBER'),
+      goalCode: this.env.get('LOCAL_REGISTRY_TO_USE'), // 'search for me in this registry' --> allows the company we're issuing the invite to add the registry if needed
       inviteUrl: invite.invitationUrl,
     }
 
-    req.log.info('sending connection_invite email to %s (%s) %j', body.email, company.company_name, wrappedInvitation)
-    await this.sendNewConnectionEmail(body.email, company.company_name, wrappedInvitation)
+    req.log.info('sending connection_invite email to %s (%s) %j', body.email, company.name, wrappedInvitation)
+    await this.sendNewConnectionEmail(body.email, company.name, wrappedInvitation)
     req.log.info('sending connection_invite_admin email %j', { company, pin })
     await this.sendAdminEmail(company, pin)
 
     // return the success response
-    req.log.info('new connection, is complete: %s', dbResult.connectionId)
+    req.log.info('invitation sent successfully to %s', company.name)
     return this.newInviteSuccessHtml(formStage, company, body.email)
   }
 
   /**
-   * submits the company number for
+   * submits the invitation for decoding and connection insertion
    */
   @SuccessResponse(200)
   @Post('/receive-invitation')
@@ -235,18 +286,14 @@ export class NewConnectionController extends HTMLController {
       return this.receiveInviteErrorHtml(inviteOrError.message)
     }
 
-    req.log.info(
-      'new connection: details %s (%s)',
-      inviteOrError.company.company_name,
-      inviteOrError.company.company_number
-    )
+    req.log.info('new connection: details %s (%s)', inviteOrError.company.name, inviteOrError.company.number)
 
     // otherwise we're doing final submit. Generate pin and oob invitation
     const pin = randomInt(1e6).toString(10).padStart(6, '0')
     const [pinHash, invite] = await Promise.all([
       argon2.hash(pin, { secret: this.env.get('INVITATION_PIN_SECRET') }),
       this.cloudagent.receiveOutOfBandInvite({
-        companyName: inviteOrError.company.company_name,
+        companyName: inviteOrError.company.name,
         invitationUrl: inviteOrError.inviteUrl,
       }),
     ])
@@ -256,7 +303,8 @@ export class NewConnectionController extends HTMLController {
       inviteOrError.company,
       pinHash,
       invite.outOfBandRecord.id,
-      invite.connectionRecord.id
+      invite.connectionRecord.id,
+      inviteOrError.registryCountryCode
     )
     if (dbResult.type === 'error') {
       req.log.warn('unable to insert a new connection %j', dbResult)
@@ -274,7 +322,8 @@ export class NewConnectionController extends HTMLController {
     logger: pino.Logger,
     invite: BASE_64_URL
   ): Promise<
-    { type: 'success'; inviteUrl: string; company: OrganisationProfile } | { type: 'error'; message: string }
+    | { type: 'success'; inviteUrl: string; company: SharedOrganisationInfo; registryCountryCode: string }
+    | { type: 'error'; message: string }
   > {
     let wrappedInvite: Invite
     try {
@@ -283,27 +332,40 @@ export class NewConnectionController extends HTMLController {
       logger.info('unknown error occured %j', err)
       return {
         type: 'error',
+        message: 'Invitation is not valid, the invite is not in the correct format',
+      }
+    }
+
+    if (!wrappedInvite.companyNumber.match(wrappedInvite.goalCode === 'GB' ? companyNumberRegex : socrataRegex)) {
+      logger.info('company number did not match a %s regex', companyNumberRegex)
+      return {
+        type: 'error',
         message: 'Invitation is not valid',
       }
     }
 
-    if (!wrappedInvite.companyNumber.match(companyNumberRegex)) {
-      logger.info('company number did not match a %s regex', companyNumberRegex)
-      return { type: 'error', message: 'Invitation is not valid' }
-    }
-
-    const companyOrError = await this.lookupCompany(logger, wrappedInvite.companyNumber)
+    const companyOrError = await this.lookupCompany(logger, wrappedInvite.companyNumber, wrappedInvite.goalCode)
     if (companyOrError.type === 'error') {
+      logger.info('companyOrError')
       return companyOrError
     }
-    return { type: 'success', inviteUrl: wrappedInvite.inviteUrl, company: companyOrError.company }
+    return {
+      type: 'success',
+      inviteUrl: wrappedInvite.inviteUrl,
+      company: companyOrError.company,
+      registryCountryCode: wrappedInvite.goalCode,
+    }
   }
 
   private async lookupCompany(
     logger: pino.Logger,
-    companyNumber: COMPANY_NUMBER
-  ): Promise<{ type: 'success'; company: OrganisationProfile } | { type: 'error'; message: string }> {
-    const companySearch = await this.organisationRegistry.getOrganisationProfileByOrganisationNumber(companyNumber)
+    companyNumber: COMPANY_NUMBER,
+    registryCountryCode: CountryCode
+  ): Promise<{ type: 'success'; company: SharedOrganisationInfo } | { type: 'error'; message: string }> {
+    const companySearch = await this.organisationRegistry.getOrganisationProfileByOrganisationNumber(
+      companyNumber,
+      registryCountryCode
+    )
     if (companySearch.type === 'notFound') {
       logger.info('%s company not found', companySearch)
       return {
@@ -314,53 +376,184 @@ export class NewConnectionController extends HTMLController {
     const company = companySearch.company
     logger.info('company by %s number was found %j', companyNumber, company)
 
-    const existingConnections = await this.db.get('connection', { company_number: companyNumber })
-    if (existingConnections.length !== 0) {
-      logger.info('connection already exists %j', existingConnections)
-      return {
-        type: 'error',
-        message: `Connection already exists with ${company.company_name}`,
-      }
-    }
-
-    if (company.registered_office_is_in_dispute) {
+    if (company.registeredOfficeIsInDispute) {
       logger.info("company's is in dispute %o", company)
       return {
         type: 'error',
-        message: `Cannot validate company ${company.company_name} as address is currently in dispute`,
+        message: `Cannot validate company ${company.name} as address is currently in dispute`,
       }
     }
 
-    if (company.company_status !== 'active') {
+    if (company.status !== 'active') {
       logger.info('company is not active %j', company)
       return {
         type: 'error',
-        message: `Company ${company.company_name} is not active`,
+        message: `Company ${company.name} is not active`,
       }
     }
 
-    return {
-      type: 'success',
-      company,
+    return { type: 'success', company }
+  }
+
+  private async allowNewInvitation(
+    logger: pino.Logger,
+    companyData: SharedOrganisationInfo
+  ): Promise<{ type: 'success'; state: 'new_connection' | 'update_existing' } | { type: 'error'; message: string }> {
+    const existingConnections = await this.db.get('connection', { company_number: companyData.number })
+    // allow to progress if no connection record exists
+    if (existingConnections.length === 0) {
+      logger.info('returning success - new connection')
+      return { type: 'success', state: 'new_connection' }
+    }
+    // or test whether we're allowed to send a new invitation
+    for await (const connection of existingConnections) {
+      // error early if verified_both
+      if (connection.status === 'verified_both') {
+        logger.info('verified connection already exists %s', connection.id)
+        return {
+          type: 'error',
+          message: `Verified connection already exists with organisation ${companyData.name}`,
+        }
+      }
+      // now get invitation records for the connection
+      const existingInvitations = await this.db.get('connection_invite', { connection_id: connection.id })
+      // error if connection record exists without an invitation record
+      if (existingInvitations.length === 0) {
+        logger.info('no invitation found for connection record %s', connection.id)
+        return {
+          type: 'error',
+          message: `No invitation found for connection record ${connection.id}`,
+        }
+      }
+      // now check each invitation status
+      for (const invitation of existingInvitations) {
+        // catch the case where they have verified our invite but we've not verified theirs
+        if (connection.status === 'verified_them' && invitation.validity === 'used') {
+          logger.info('other party verified, request new pin instead %s', connection.id)
+          return {
+            type: 'error',
+            message: `Other party has already verified, request new pin instead from ${companyData.name}`,
+          }
+        }
+        // now catch rare forbidden states: disconnected & valid, disconnected & too_many_attempts, pending & used
+        if (
+          (connection.status === 'disconnected' && invitation.validity === 'valid') ||
+          (connection.status === 'disconnected' && invitation.validity === 'too_many_attempts') ||
+          (connection.status === 'pending' && invitation.validity === 'used')
+        ) {
+          logger.info('edge case database state detected, aborting %s', connection.id)
+          return {
+            type: 'error',
+            message: `Edge case database state detected for connection ${connection.id}, aborting`,
+          }
+        }
+      }
+    }
+    // otherwise allowed to submit a new invitation to existing connection
+    logger.info('returning success - update existing')
+    return { type: 'success', state: 'update_existing' }
+  }
+
+  private async updateExistingConnection(
+    logger: pino.Logger,
+    company: SharedOrganisationInfo,
+    pinHash: string,
+    invitationId: string
+  ): Promise<{ type: 'success'; connectionId: string } | { type: 'error'; error: string }> {
+    try {
+      // logic in allowNewInvitation ensures only one entry exists for connectionRecord
+      const [connectionRecord] = await this.db.get('connection', { company_number: company.number })
+      // to return the connectionId
+      const connectionId = connectionRecord.id
+      // get invitations array
+      // NB we haven't inserted the new invitation into the ui db yet so its OOB invite won't be deleted
+      const invitations = await this.db.get('connection_invite', { connection_id: connectionId })
+      // delete all existing OOB invitations from the cloudagent
+      for (const invite of invitations) {
+        const exists = await this.cloudagent.getOutOfBandInvite(invite.oob_invite_id).catch((error) => {
+          if (error instanceof NotFoundError) {
+            logger.debug('OOB invitation already deleted %s', invite.oob_invite_id)
+          } else {
+            throw error
+          }
+        })
+        // Make sure we're only deleting invitations we've sent
+        if (exists && exists.role === 'sender') {
+          await this.cloudagent.deleteOutOfBandInvite(invite.oob_invite_id)
+          logger.debug('OOB invitation deleted %s', invite.oob_invite_id)
+        }
+      }
+      // database transactions
+      await this.db.withTransaction(async (db) => {
+        // leave 'expired' as expired, leave 'too_many_attempts' as too_many_attempts
+        // expire existing invitations if they're 'valid' (condition verified_both && valid already aborted in allowNewInvitation)
+        await db.update(
+          'connection_invite',
+          { connection_id: connectionId, validity: 'valid' },
+          { expires_at: new Date(), validity: 'expired' }
+        )
+        // expire existing invitations if they're 'used' (condition verified_them && used, and verified_both && used already aborted in allowNewInvitation)
+        await db.update(
+          'connection_invite',
+          { connection_id: connectionId, validity: 'used' },
+          { expires_at: new Date(), validity: 'expired' }
+        )
+        // reset pin count and invite status to 'pending'
+        await db.update(
+          'connection',
+          { company_number: company.number },
+          {
+            status: 'pending',
+            pin_attempt_count: 0,
+            pin_tries_remaining_count: null,
+          }
+        )
+        // create the new invitation record
+        await db.insert('connection_invite', {
+          connection_id: connectionId,
+          oob_invite_id: invitationId,
+          pin_hash: pinHash,
+          expires_at: new Date(new Date().getTime() + 14 * 24 * 60 * 60 * 1000),
+          validity: 'valid',
+        })
+      })
+      return { type: 'success', connectionId }
+    } catch (err) {
+      if (
+        err instanceof Error &&
+        err.message.endsWith('duplicate key value violates unique constraint "unq_connection_company_number"')
+      ) {
+        return {
+          type: 'error',
+          error: `Connection already exists with ${company.name}`,
+        }
+      } else {
+        return {
+          type: 'error',
+          error: `database errors when expiring invitation records or creating new invitation entry ${err}`,
+        }
+      }
     }
   }
 
   private async insertNewConnection(
-    company: OrganisationProfile,
+    company: SharedOrganisationInfo,
     pinHash: string,
     invitationId: string,
-    agentConnectionId: string | null
+    agentConnectionId: string | null,
+    registryCountryCode: string
   ): Promise<{ type: 'success'; connectionId: string } | { type: 'error'; error: string }> {
     try {
       let connectionId: string = ''
       await this.db.withTransaction(async (db) => {
         const [record] = await db.insert('connection', {
-          company_name: company.company_name,
-          company_number: company.company_number,
+          company_name: company.name,
+          company_number: company.number,
           agent_connection_id: agentConnectionId,
           status: 'pending',
           pin_attempt_count: 0,
           pin_tries_remaining_count: null,
+          registry_country_code: registryCountryCode,
         })
 
         await db.insert('connection_invite', {
@@ -381,18 +574,14 @@ export class NewConnectionController extends HTMLController {
       ) {
         return {
           type: 'error',
-          error: `Connection already exists with ${company.company_name}`,
+          error: `Connection already exists with ${company.name}`,
         }
       }
       throw err
     }
   }
 
-  private async sendNewConnectionEmail(
-    email: string,
-    toCompanyName: string,
-    invite: { companyNumber: string; inviteUrl: string }
-  ) {
+  private async sendNewConnectionEmail(email: string, toCompanyName: string, invite: Invite) {
     const fromCompany = await this.organisationRegistry.localOrganisationProfile()
     const inviteBase64 = Buffer.from(JSON.stringify(invite), 'utf8').toString('base64url')
 
@@ -401,35 +590,22 @@ export class NewConnectionController extends HTMLController {
         to: email,
         invite: inviteBase64,
         toCompanyName,
-        fromCompanyName: fromCompany.company_name,
+        fromCompanyName: fromCompany.name,
       })
     )
   }
 
-  private async sendAdminEmail(company: OrganisationProfile, pin: string) {
+  private async sendAdminEmail(company: SharedOrganisationInfo, pin: string) {
     await neverFail(
-      this.email.sendMail('connection_invite_admin', {
-        receiver: company.company_name,
-        address: [
-          company.company_name,
-          company.registered_office_address.address_line_1,
-          company.registered_office_address.address_line_2,
-          company.registered_office_address.care_of,
-          company.registered_office_address.locality,
-          company.registered_office_address.po_box,
-          company.registered_office_address.postal_code,
-          company.registered_office_address.country,
-          company.registered_office_address.premises,
-          company.registered_office_address.region,
-        ]
-          .filter((x) => !!x)
-          .join(', '),
+      this.email.sendMail('connection_invite_admin', this.db, this.logger, {
+        receiver: company.name,
+        address: company.address,
         pin,
       })
     )
   }
 
-  private newInviteSuccessHtml(formStage: NewInviteFormStage, company: OrganisationProfile, email: string) {
+  private newInviteSuccessHtml(formStage: NewInviteFormStage, company: SharedOrganisationInfo, email: string) {
     return this.html(
       this.newInvite.newInviteForm({
         feedback: {
@@ -438,7 +614,7 @@ export class NewConnectionController extends HTMLController {
         },
         formStage: formStage,
         email: email,
-        companyNumber: company.company_number,
+        companyNumber: company.number,
       })
     )
   }

@@ -24,7 +24,8 @@ describe('NewInviteTemplates', () => {
         feedback: testSuccessTargetBox,
         formStage: 'confirmation',
         email: '123@123.com',
-        companyNumber: successResponse.company_number,
+        companyNumber: successResponse.number,
+        registryCountryCode: successResponse.registryCountryCode,
       })
       expect(rendered).to.matchSnapshot()
     })

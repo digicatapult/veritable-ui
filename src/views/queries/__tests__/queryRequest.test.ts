@@ -1,13 +1,15 @@
 import { expect } from 'chai'
 import { describe, test } from 'mocha'
 import { ConnectionRow } from '../../../models/db/types.js'
-import CarbonEmbodimentTemplates from '../requestCo2embodiment.js'
+import QueryRequestTemplates from '../queryRequest.js'
 
-describe('CarbonEmbodimentTemplates', () => {
-  describe('newCarbonEmbodimentFormPage', () => {
+const connection = { id: 'connection-id', company_name: 'company-name' } as ConnectionRow
+
+describe('QueryRequestTemplates', () => {
+  describe('newQueryRequestPage', () => {
     test('companySelect with companies', async () => {
-      const templates = new CarbonEmbodimentTemplates()
-      const rendered = await templates.newCarbonEmbodimentFormPage({
+      const templates = new QueryRequestTemplates()
+      const rendered = await templates.newQueryRequestPage({
         formStage: 'companySelect',
         connections: [
           {
@@ -22,59 +24,62 @@ describe('CarbonEmbodimentTemplates', () => {
           },
         ] as ConnectionRow[],
         search: 'search-text',
+        type: 'total_carbon_embodiment',
       })
       expect(rendered).to.matchSnapshot()
     })
 
     test('companySelect with no companies', async () => {
-      const templates = new CarbonEmbodimentTemplates()
-      const rendered = await templates.newCarbonEmbodimentFormPage({
+      const templates = new QueryRequestTemplates()
+      const rendered = await templates.newQueryRequestPage({
         formStage: 'companySelect',
         connections: [],
         search: 'search-text',
+        type: 'total_carbon_embodiment',
       })
       expect(rendered).to.matchSnapshot()
     })
 
-    test('form without product and quantity inputs', async () => {
-      const templates = new CarbonEmbodimentTemplates()
-      const rendered = await templates.newCarbonEmbodimentFormPage({
+    test('carbon embodiment form without product and quantity inputs', async () => {
+      const templates = new QueryRequestTemplates()
+      const rendered = await templates.newQueryRequestPage({
         formStage: 'form',
-        connectionId: 'connection-id',
+        connection,
+        type: 'total_carbon_embodiment',
       })
       expect(rendered).to.matchSnapshot()
     })
 
-    test('form with product and quantity inputs', async () => {
-      const templates = new CarbonEmbodimentTemplates()
-      const rendered = await templates.newCarbonEmbodimentFormPage({
+    test('bav form', async () => {
+      const templates = new QueryRequestTemplates()
+      const rendered = await templates.newQueryRequestPage({
         formStage: 'form',
-        connectionId: 'connection-id',
-        productId: 'product-id',
-        quantity: 123,
+        connection,
+        type: 'beneficiary_account_validation',
       })
       expect(rendered).to.matchSnapshot()
     })
 
     test('success', async () => {
-      const templates = new CarbonEmbodimentTemplates()
-      const rendered = await templates.newCarbonEmbodimentFormPage({
+      const templates = new QueryRequestTemplates()
+      const rendered = await templates.newQueryRequestPage({
         formStage: 'success',
         company: {
           companyName: 'company1',
         },
+        type: 'total_carbon_embodiment',
       })
       expect(rendered).to.matchSnapshot()
     })
 
     test('error', async () => {
-      const templates = new CarbonEmbodimentTemplates()
-      const rendered = await templates.newCarbonEmbodimentFormPage({
+      const templates = new QueryRequestTemplates()
+      const rendered = await templates.newQueryRequestPage({
         formStage: 'error',
         company: {
           companyName: 'company1',
-          companyNumber: '111111111',
         },
+        type: 'total_carbon_embodiment',
       })
       expect(rendered).to.matchSnapshot()
     })

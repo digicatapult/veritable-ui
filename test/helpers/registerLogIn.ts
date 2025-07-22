@@ -8,8 +8,16 @@ export interface CustomBrowserContext extends BrowserContext {
 }
 
 export async function cleanup(urls: string[]) {
-  const results = await Promise.all(urls.map((url) => fetchDel(url)))
-  if (!results.every((res) => res.ok)) {
+  const results = await Promise.allSettled(urls.map((url) => fetchDel(url)))
+
+  const fulfilled = results.filter((r) => r.status === 'fulfilled').map((r) => r.value)
+  const rejected = results.filter((r) => r.status === 'rejected').map((r) => (r as PromiseRejectedResult).reason)
+
+  if (rejected.length > 0) {
+    throw new Error(`${rejected.length} Cleanup URLs were rejected with Error: ${rejected[0]}`)
+  }
+
+  if (!fulfilled.every((res) => res.ok)) {
     throw new Error('Error resetting application or deleting emails from smtp4dev')
   }
 }

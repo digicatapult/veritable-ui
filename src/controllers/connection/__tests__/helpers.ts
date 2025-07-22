@@ -7,7 +7,8 @@ import { ILogger } from '../../../logger.js'
 import Database from '../../../models/db/index.js'
 import { ConnectionRow } from '../../../models/db/types.js'
 import EmailService from '../../../models/emailService/index.js'
-import OrganisationRegistry from '../../../models/organisationRegistry.js'
+import OrganisationRegistry from '../../../models/orgRegistry/organisationRegistry.js'
+import { CountryCode } from '../../../models/strings.js'
 import VeritableCloudagent from '../../../models/veritableCloudagent/index.js'
 import ConnectionTemplates from '../../../views/connection/connection.js'
 import { FormFeedback } from '../../../views/newConnection/base.js'
@@ -15,11 +16,11 @@ import { FromInviteTemplates } from '../../../views/newConnection/fromInvite.js'
 import { NewInviteTemplates } from '../../../views/newConnection/newInvite.js'
 import { PinSubmissionTemplates } from '../../../views/newConnection/pinSubmission.js'
 import {
+  companyNumberToConnectionMap,
+  inviteValidityMap,
   notFoundCompanyNumber,
   validCompanyMap,
-  validCompanyNumber,
   validConnection,
-  validExistingCompanyNumber,
 } from './fixtures.js'
 
 function templateFake(templateName: string, ...args: unknown[]) {
@@ -64,8 +65,11 @@ export const withConnectionMocks = (
   const organisationRegistry = {
     localOrganisationProfile: () =>
       Promise.resolve({
-        company_number: 'COMPANY_NUMBER',
-        company_name: 'COMPANY_NAME',
+        number: 'COMPANY_NUMBER',
+        name: 'COMPANY_NAME',
+        registryCountryCode: 'GB' as CountryCode,
+        status: 'active',
+        address: 'ADDRESS',
       }),
   }
   const pinSubmission = {
@@ -103,23 +107,28 @@ export const withConnectionMocks = (
 }
 
 export const withNewConnectionMocks = () => {
-  const mockTransactionDb = {
+  const mockWithTransaction = {
     insert: () => Promise.resolve([{ id: '42' }]),
     get: () => Promise.resolve([validConnection]),
     update: () => Promise.resolve(),
   }
   const mockDb = {
     get: (tableName: string, where?: Record<string, string>) => {
-      if (tableName !== 'connection') throw new Error('Invalid table')
-      if (where?.company_number === validCompanyNumber) return []
-      if (where?.company_number === validExistingCompanyNumber) return [{}]
-      if (where?.id === '4a5d4085-5924-43c6-b60d-754440332e3d') return [validConnection]
-      return []
+      if (tableName === 'connection') {
+        if (where?.id === '4a5d4085-5924-43c6-b60d-754440332e3d') return [validConnection]
+        if (where?.company_number) return companyNumberToConnectionMap[where?.company_number]
+        return []
+      }
+      if (tableName === 'connection_invite') {
+        if (where?.connection_id) return inviteValidityMap[where?.connection_id]
+        return []
+      }
     },
     withTransaction: (fn: (arg: unknown) => unknown) => {
-      return Promise.resolve(fn(mockTransactionDb))
+      return Promise.resolve(fn(mockWithTransaction))
     },
   } as unknown as Database
+
   const mockCompanyHouseEntity = {
     getOrganisationProfileByOrganisationNumber: async (companyNumber: string) => {
       if (companyNumber === notFoundCompanyNumber) {
@@ -136,8 +145,11 @@ export const withNewConnectionMocks = () => {
       throw new Error('Invalid number')
     },
     localOrganisationProfile: sinon.stub().resolves({
-      company_number: 'COMPANY_NUMBER',
-      company_name: 'COMPANY_NAME',
+      number: 'COMPANY_NUMBER',
+      name: 'COMPANY_NAME',
+      registryCountryCode: 'GB' as CountryCode,
+      status: 'active',
+      address: 'ADDRESS',
     }),
   } as unknown as OrganisationRegistry
 
@@ -159,6 +171,7 @@ export const withNewConnectionMocks = () => {
       }
     },
   } as unknown as VeritableCloudagent
+
   const mockEmail = {
     sendMail: () => Promise.resolve(),
   } as unknown as EmailService
@@ -169,13 +182,14 @@ export const withNewConnectionMocks = () => {
       templateFake(
         'companyFormInput',
         feedback.type,
-        feedback.company?.company_name || '',
+        feedback.company?.name || '',
         feedback.message || feedback.error || '',
         formStage,
         email,
         companyNumber
       ),
   } as unknown as NewInviteTemplates
+
   const mockFromInvite = {
     fromInviteFormPage: (feedback: FormFeedback) => templateFake('fromInvitePage', feedback.type),
     // eslint-disable-next-line  @typescript-eslint/no-explicit-any
@@ -183,10 +197,11 @@ export const withNewConnectionMocks = () => {
       templateFake(
         'fromInviteForm',
         feedback.type,
-        feedback.company?.company_name || '',
+        feedback.company?.name || '',
         feedback.message || feedback.error || ''
       ),
   } as unknown as FromInviteTemplates
+
   const mockPinForm = {
     renderPinForm: (props: { connectionId: string; pin?: string; continuationFromInvite: boolean }) =>
       templateFake('renderPinForm', props.connectionId, props.pin, props.continuationFromInvite),
@@ -201,14 +216,17 @@ export const withNewConnectionMocks = () => {
           return Buffer.from('secret', 'utf8')
         case 'INVITATION_FROM_COMPANY_NUMBER':
           return '07964699'
+        case 'LOCAL_REGISTRY_TO_USE':
+          return 'GB'
         default:
           throw new Error()
       }
     },
   } as unknown as Env
+  const mockLogger: ILogger = pino({ level: 'silent' })
 
   return {
-    mockTransactionDb,
+    mockWithTransaction,
     mockDb,
     mockCompanyHouseEntity,
     mockCloudagent,
@@ -217,6 +235,7 @@ export const withNewConnectionMocks = () => {
     mockFromInvite,
     mockPinForm,
     mockEnv,
+    mockLogger,
     args: [
       mockDb,
       mockCompanyHouseEntity,
@@ -226,6 +245,7 @@ export const withNewConnectionMocks = () => {
       mockFromInvite,
       mockPinForm,
       mockEnv,
+      mockLogger,
     ] as const,
   }
 }

@@ -1,22 +1,23 @@
 import 'reflect-metadata'
 
+import { CountryCode } from '../../src/models/strings.js'
 import { fetchGet, fetchPost } from './routeHelper.js'
 import { checkEmails, extractInvite, extractPin } from './smtpEmails.js'
 import { delay } from './util.js'
-
-export async function withConnection(invitatorUrl: string, receiverUrl: string) {
+export async function withConnection(inviterUrl: string, receiverUrl: string) {
   const uuidRegex = /[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-4[0-9a-fA-F]{3}-[89ab][0-9a-fA-F]{3}-[0-9a-fA-F]{12}/g
 
-  await fetchPost(`${invitatorUrl}/connection/new/create-invitation`, {
+  await fetchPost(`${inviterUrl}/connection/new/create-invitation`, {
     companyNumber: '04659351',
     email: 'alice@testmail.com',
     action: 'submit',
+    registryCountryCode: 'GB' as CountryCode,
   })
 
   // Get pin and invite for the new holder
   const adminEmail = await checkEmails('admin@veritable.com')
-  const invitatorPin = await extractPin(adminEmail.id)
-  if (!invitatorPin) throw new Error(`PIN for ${receiverUrl} was not found.`)
+  const inviterPin = await extractPin(adminEmail.id)
+  if (!inviterPin) throw new Error(`PIN for ${receiverUrl} was not found.`)
 
   const inviteEmail = await checkEmails('alice@testmail.com')
   const inviteBase64 = await extractInvite(inviteEmail.id)
@@ -47,20 +48,20 @@ export async function withConnection(invitatorUrl: string, receiverUrl: string) 
 
   await fetchPost(`${receiverUrl}/connection/${holderConnectionId}/pin-submission`, {
     action: 'submitPinCode',
-    pin: invitatorPin,
+    pin: inviterPin,
     stepCount: '3',
   })
 
   const receiverEmail = await checkEmails('admin@veritable.com')
   const receiverPin = await extractPin(receiverEmail.id)
 
-  const connections = await fetchGet(`${invitatorUrl}/connection?search=OFFSHORE`)
-  const [invitatorConnectionId] = (await connections.text()).match(uuidRegex) || []
-  if (!receiverPin || !invitatorConnectionId) {
-    throw new Error(`PIN ${receiverPin} or Connection ID ${invitatorConnectionId} not found`)
+  const connections = await fetchGet(`${inviterUrl}/connection?search=OFFSHORE`)
+  const [inviterConnectionId] = (await connections.text()).match(uuidRegex) || []
+  if (!receiverPin || !inviterConnectionId) {
+    throw new Error(`PIN ${receiverPin} or Connection ID ${inviterConnectionId} not found`)
   }
 
-  await fetchPost(`${invitatorUrl}/connection/${invitatorConnectionId}/pin-submission`, {
+  await fetchPost(`${inviterUrl}/connection/${inviterConnectionId}/pin-submission`, {
     action: 'submitPinCode',
     pin: receiverPin,
     stepCount: '2',
@@ -69,11 +70,11 @@ export async function withConnection(invitatorUrl: string, receiverUrl: string) 
   retries = 30
   while (retries) {
     await delay(500)
-    const invitatorConnection = await fetchGet(`${invitatorUrl}/connection?search=OFFSHORE`)
-    const [invitatorConnectionStatus] = (await invitatorConnection.text()).match('Send Query') || []
-    if (invitatorConnectionStatus) {
+    const inviterConnection = await fetchGet(`${inviterUrl}/connection?search=OFFSHORE`)
+    const [inviterConnectionStatus] = (await inviterConnection.text()).match('Send Query') || []
+    if (inviterConnectionStatus) {
       retries = 0
-    } else if (retries === 1 && !invitatorConnectionStatus) {
+    } else if (retries === 1 && !inviterConnectionStatus) {
       throw new Error('timeout')
     } else {
       retries--

@@ -1,16 +1,24 @@
 import { z } from 'zod'
 
 import { type PartialEnv } from '../../env/index.js'
-import { InternalError } from '../../errors.js'
+import { InternalError, NotFoundError } from '../../errors.js'
 import { type ILogger } from '../../logger.js'
 import { MapDiscriminatedUnion } from '../../utils/types.js'
 import { DrpcQueryRequest, DrpcQueryResponse } from '../drpc.js'
+import { CountryCode } from '../strings.js'
 
 const oobParser = z.object({
   invitationUrl: z.string(),
   outOfBandRecord: z.object({ id: z.string() }),
 })
 type OutOfBandInvite = z.infer<typeof oobParser>
+
+const oobInviteParser = z.object({
+  id: z.string().uuid(),
+  role: z.enum(['sender', 'receiver']),
+})
+
+type OutOfBandRecord = z.infer<typeof oobInviteParser>
 
 const receiveUrlParser = z.object({
   outOfBandRecord: z.object({
@@ -194,11 +202,15 @@ export default class VeritableCloudagentInt<Config extends CloudagentConfig = De
     protected logger: ILogger
   ) {}
 
-  public async createOutOfBandInvite(params: { companyName: string }): Promise<OutOfBandInvite> {
+  public async createOutOfBandInvite(params: {
+    companyName: string
+    registryCountryCode: CountryCode
+  }): Promise<OutOfBandInvite> {
     return this.postRequest(
       '/v1/oob/create-invitation',
       {
         alias: params.companyName,
+        goalCode: params.registryCountryCode,
         handshake: true,
         multiUseInvitation: false,
         autoAcceptConnection: true,
@@ -222,6 +234,14 @@ export default class VeritableCloudagentInt<Config extends CloudagentConfig = De
       },
       this.buildParser(receiveUrlParser)
     )
+  }
+
+  public async getOutOfBandInvite(id: string): Promise<OutOfBandRecord> {
+    return this.getRequest(`/v1/oob/${id}`, this.buildParser(oobInviteParser))
+  }
+
+  public async deleteOutOfBandInvite(id: string): Promise<void> {
+    return this.deleteRequest(`/v1/oob/${id}`, () => {})
   }
 
   public async getConnections(): Promise<Connection[]> {
@@ -404,6 +424,9 @@ export default class VeritableCloudagentInt<Config extends CloudagentConfig = De
     })
 
     if (!response.ok) {
+      if (response.status === 404) {
+        throw new NotFoundError(`${path}`)
+      }
       throw new InternalError(`Unexpected error calling GET ${path}: ${response.statusText}`)
     }
 
@@ -452,7 +475,7 @@ export default class VeritableCloudagentInt<Config extends CloudagentConfig = De
   }
 
   private buildParser =
-    <I, O>(parser: z.ZodType<O, z.ZodTypeDef, I>) =>
+    <O>(parser: z.ZodType<O>) =>
     async (response: Response) => {
       const asJson = await response.json()
       return parser.parse(asJson)

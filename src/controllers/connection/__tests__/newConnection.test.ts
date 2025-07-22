@@ -5,6 +5,7 @@ import sinon from 'sinon'
 import { toHTMLString, withNewConnectionMocks } from './helpers.js'
 
 import { Request } from 'express'
+import { CountryCode } from '../../../models/strings.js'
 import { mockLogger } from '../../__tests__/helpers.js'
 import { NewConnectionController } from '../newConnection.js'
 import {
@@ -12,17 +13,25 @@ import {
   invalidCompanyNumber,
   invalidCompanyNumberInvite,
   invalidInvite,
+  noExistingInviteCompanyNumber,
   notFoundCompanyNumber,
   notFoundCompanyNumberInvite,
+  tooManyDisconnectedCompanyNumber,
+  usedPendingCompanyNumber,
+  usedUnverifiedCompanyNumber,
+  usedVerifiedThemCompanyNumber,
+  usedVerifiedUsCompanyNumber,
   validCompanyNumber,
-  validCompanyNumberInDispute,
-  validCompanyNumberInDisputeInvite,
   validCompanyNumberInactive,
   validCompanyNumberInactiveInvite,
+  validCompanyNumberInDispute,
+  validCompanyNumberInDisputeInvite,
   validCompanyNumberInvite,
-  validExistingCompanyNumber,
-  validExistingCompanyNumberInvite,
+  validDisconnectedCompanyNumber,
+  validPendingCompanyNumber,
+  verifiedBothCompanyNumber,
 } from './fixtures.js'
+const gbRegistryCountryCode = 'GB' as CountryCode
 
 describe('NewConnectionController', () => {
   const req = { log: mockLogger } as unknown as Request
@@ -51,7 +60,9 @@ describe('NewConnectionController', () => {
     it('should return form page when company number invalid', async () => {
       const { args } = withNewConnectionMocks()
       const controller = new NewConnectionController(...args)
-      const result = await controller.verifyCompanyForm(req, invalidCompanyNumber).then(toHTMLString)
+      const result = await controller
+        .verifyCompanyForm(req, invalidCompanyNumber, gbRegistryCountryCode)
+        .then(toHTMLString)
       expect(result).to.equal('newInvitePage_message_newInvitePage')
     })
 
@@ -59,23 +70,18 @@ describe('NewConnectionController', () => {
       const { args } = withNewConnectionMocks()
       const controller = new NewConnectionController(...args)
 
-      const result = await controller.verifyCompanyForm(req, notFoundCompanyNumber).then(toHTMLString)
+      const result = await controller
+        .verifyCompanyForm(req, notFoundCompanyNumber, gbRegistryCountryCode)
+        .then(toHTMLString)
       expect(result).to.equal('companyFormInput_error--Company number does not exist-form--00000000_companyFormInput')
-    })
-
-    it('should return rendered error when company already connected', async () => {
-      const { args } = withNewConnectionMocks()
-      const controller = new NewConnectionController(...args)
-      const result = await controller.verifyCompanyForm(req, validExistingCompanyNumber).then(toHTMLString)
-      expect(result).to.equal(
-        'companyFormInput_error--Connection already exists with NAME2-form--00000002_companyFormInput'
-      )
     })
 
     it('should return rendered error when company registered office in dispute', async () => {
       const { args } = withNewConnectionMocks()
       const controller = new NewConnectionController(...args)
-      const result = await controller.verifyCompanyForm(req, validCompanyNumberInDispute).then(toHTMLString)
+      const result = await controller
+        .verifyCompanyForm(req, validCompanyNumberInDispute, gbRegistryCountryCode)
+        .then(toHTMLString)
       expect(result).to.equal(
         'companyFormInput_error--Cannot validate company NAME3 as address is currently in dispute-form--00000003_companyFormInput'
       )
@@ -84,14 +90,18 @@ describe('NewConnectionController', () => {
     it('should return rendered error when company not active', async () => {
       const { args } = withNewConnectionMocks()
       const controller = new NewConnectionController(...args)
-      const result = await controller.verifyCompanyForm(req, validCompanyNumberInactive).then(toHTMLString)
+      const result = await controller
+        .verifyCompanyForm(req, validCompanyNumberInactive, gbRegistryCountryCode)
+        .then(toHTMLString)
       expect(result).to.equal('companyFormInput_error--Company NAME4 is not active-form--00000004_companyFormInput')
     })
 
     it('should return success form', async () => {
       const { args } = withNewConnectionMocks()
       const controller = new NewConnectionController(...args)
-      const result = await controller.verifyCompanyForm(req, validCompanyNumber).then(toHTMLString)
+      const result = await controller
+        .verifyCompanyForm(req, validCompanyNumber, gbRegistryCountryCode)
+        .then(toHTMLString)
       expect(result).to.equal('companyFormInput_companyFound-NAME--form--00000001_companyFormInput')
     })
   })
@@ -115,7 +125,9 @@ describe('NewConnectionController', () => {
       const { args } = withNewConnectionMocks()
       const controller = new NewConnectionController(...args)
       const result = await controller.verifyInviteForm(req, invalidInvite).then(toHTMLString)
-      expect(result).to.equal('fromInviteForm_error--Invitation is not valid_fromInviteForm')
+      expect(result).to.equal(
+        'fromInviteForm_error--Invitation is not valid, the invite is not in the correct format_fromInviteForm'
+      )
     })
 
     it('should rendered error when company number invalid', async () => {
@@ -130,13 +142,6 @@ describe('NewConnectionController', () => {
       const controller = new NewConnectionController(...args)
       const result = await controller.verifyInviteForm(req, notFoundCompanyNumberInvite).then(toHTMLString)
       expect(result).to.equal('fromInviteForm_error--Company number does not exist_fromInviteForm')
-    })
-
-    it('should return rendered error when company already connected', async () => {
-      const { args } = withNewConnectionMocks()
-      const controller = new NewConnectionController(...args)
-      const result = await controller.verifyInviteForm(req, validExistingCompanyNumberInvite).then(toHTMLString)
-      expect(result).to.equal('fromInviteForm_error--Connection already exists with NAME2_fromInviteForm')
     })
 
     it('should return rendered error when company registered office in dispute', async () => {
@@ -172,25 +177,11 @@ describe('NewConnectionController', () => {
           companyNumber: notFoundCompanyNumber,
           email: 'alice@example.com',
           action: 'continue',
+          registryCountryCode: gbRegistryCountryCode,
         })
         .then(toHTMLString)
       expect(result).to.equal(
         'companyFormInput_error--Company number does not exist-form-alice@example.com-00000000_companyFormInput'
-      )
-    })
-
-    it('should return rendered error when company already connected', async () => {
-      const { args } = withNewConnectionMocks()
-      const controller = new NewConnectionController(...args)
-      const result = await controller
-        .submitNewInvite(req, {
-          companyNumber: validExistingCompanyNumber,
-          email: 'alice@example.com',
-          action: 'continue',
-        })
-        .then(toHTMLString)
-      expect(result).to.equal(
-        'companyFormInput_error--Connection already exists with NAME2-form-alice@example.com-00000002_companyFormInput'
       )
     })
 
@@ -202,6 +193,7 @@ describe('NewConnectionController', () => {
           companyNumber: validCompanyNumberInDispute,
           email: 'alice@example.com',
           action: 'continue',
+          registryCountryCode: gbRegistryCountryCode,
         })
         .then(toHTMLString)
       expect(result).to.equal(
@@ -217,6 +209,7 @@ describe('NewConnectionController', () => {
           companyNumber: validCompanyNumberInactive,
           email: 'alice@example.com',
           action: 'continue',
+          registryCountryCode: gbRegistryCountryCode,
         })
         .then(toHTMLString)
       expect(result).to.equal(
@@ -232,6 +225,7 @@ describe('NewConnectionController', () => {
           companyNumber: validCompanyNumber,
           email: 'alice@example.com',
           action: 'continue',
+          registryCountryCode: gbRegistryCountryCode,
         })
         .then(toHTMLString)
       expect(result).to.equal(
@@ -240,10 +234,10 @@ describe('NewConnectionController', () => {
     })
 
     it('should return rendered error when unique constraint is violated', async () => {
-      const { mockTransactionDb, args } = withNewConnectionMocks()
+      const { mockWithTransaction, args } = withNewConnectionMocks()
 
       sinon
-        .stub(mockTransactionDb, 'insert')
+        .stub(mockWithTransaction, 'insert')
         .rejects(new Error('details - duplicate key value violates unique constraint "unq_connection_company_number"'))
 
       const controller = new NewConnectionController(...args)
@@ -252,9 +246,9 @@ describe('NewConnectionController', () => {
           companyNumber: validCompanyNumber,
           email: 'alice@example.com',
           action: 'submit',
+          registryCountryCode: gbRegistryCountryCode,
         })
         .then(toHTMLString)
-
       expect(result).to.equal(
         'companyFormInput_error--Connection already exists with NAME-form-alice@example.com-00000001_companyFormInput'
       )
@@ -271,6 +265,7 @@ describe('NewConnectionController', () => {
           companyNumber: validCompanyNumber,
           email: 'alice@example.com',
           action: 'submit',
+          registryCountryCode: gbRegistryCountryCode,
         })
         .then(toHTMLString)
 
@@ -284,9 +279,9 @@ describe('NewConnectionController', () => {
       let result: string
 
       beforeEach(async () => {
-        const { mockTransactionDb, mockEmail, args } = withNewConnectionMocks()
+        const { mockWithTransaction, mockEmail, args } = withNewConnectionMocks()
 
-        insertSpy = sinon.spy(mockTransactionDb, 'insert')
+        insertSpy = sinon.spy(mockWithTransaction, 'insert')
         emailSpy = sinon.spy(mockEmail, 'sendMail')
         clock = sinon.useFakeTimers(100)
 
@@ -295,6 +290,7 @@ describe('NewConnectionController', () => {
           companyNumber: validCompanyNumber,
           email: 'alice@example.com',
           action: 'submit',
+          registryCountryCode: gbRegistryCountryCode,
         })
 
         clock.restore()
@@ -311,7 +307,7 @@ describe('NewConnectionController', () => {
         )
       })
 
-      it('should insert two row', () => {
+      it('should insert two rows', () => {
         expect(insertSpy.callCount).to.equal(2)
       })
 
@@ -325,6 +321,7 @@ describe('NewConnectionController', () => {
             agent_connection_id: null,
             pin_attempt_count: 0,
             pin_tries_remaining_count: null,
+            registry_country_code: 'GB',
           },
         ])
       })
@@ -346,7 +343,7 @@ describe('NewConnectionController', () => {
       })
 
       it('should send first email to recipient', () => {
-        const expectedInvite = { companyNumber: '07964699', inviteUrl: 'url-NAME' }
+        const expectedInvite = { companyNumber: '07964699', goalCode: 'GB', inviteUrl: 'url-NAME' }
         const expectedInviteBase64 = Buffer.from(JSON.stringify(expectedInvite), 'utf8').toString('base64url')
         expect(emailSpy.firstCall.args).deep.equal([
           'connection_invite',
@@ -367,11 +364,174 @@ describe('NewConnectionController', () => {
           toCompanyName: 'NAME',
           fromCompanyName: 'COMPANY_NAME',
         })
-        expect(emailSpy.secondCall.args[1]?.pin).match(/[0-9]{6}/)
-        expect(emailSpy.secondCall.args[1]).to.deep.contain({
+        expect(emailSpy.secondCall.args[3]?.pin).match(/[0-9]{6}/)
+        expect(emailSpy.secondCall.args[3]).to.deep.contain({
           receiver: 'NAME',
-          address:
-            'NAME, ADDRESS_LINE_1, ADDRESS_LINE_2, CARE_OF, LOCALITY, PO_BOX, POSTAL_CODE, COUNTRY, PREMISES, REGION',
+          address: 'ADDRESS_LINE_1, ADDRESS_LINE_2, COUNTRY, LOCALITY, PO_BOX, POSTAL_CODE, REGION',
+        })
+      })
+    })
+
+    describe('sending a second invitation', function () {
+      it('should return rendered error when a connection table entry has no invitations in the connection_invites db table', async () => {
+        const { args } = withNewConnectionMocks()
+        const controller = new NewConnectionController(...args)
+        const result = await controller
+          .submitNewInvite(req, {
+            companyNumber: noExistingInviteCompanyNumber,
+            email: 'alice@example.com',
+            action: 'continue',
+            registryCountryCode: gbRegistryCountryCode,
+          })
+          .then(toHTMLString)
+        expect(result).to.equal(
+          'companyFormInput_error--No invitation found for connection record undefined-form-alice@example.com-00000011_companyFormInput'
+        )
+      })
+
+      it('should return rendered error when company already connected and verified_both', async () => {
+        const { args } = withNewConnectionMocks()
+        const controller = new NewConnectionController(...args)
+        const result = await controller
+          .submitNewInvite(req, {
+            companyNumber: verifiedBothCompanyNumber,
+            email: 'alice@example.com',
+            action: 'continue',
+            registryCountryCode: gbRegistryCountryCode,
+          })
+          .then(toHTMLString)
+        expect(result).to.equal(
+          'companyFormInput_error--Verified connection already exists with organisation VERIFIED_BOTH-form-alice@example.com-00000010_companyFormInput'
+        )
+      })
+
+      it('should return rendered error for edge case when invite used but connection pending', async () => {
+        const { args } = withNewConnectionMocks()
+        const controller = new NewConnectionController(...args)
+        const result = await controller
+          .submitNewInvite(req, {
+            companyNumber: usedPendingCompanyNumber,
+            email: 'alice@example.com',
+            action: 'continue',
+            registryCountryCode: gbRegistryCountryCode,
+          })
+          .then(toHTMLString)
+        expect(result).to.equal(
+          'companyFormInput_error--Edge case database state detected for connection dddd, aborting-form-alice@example.com-00000012_companyFormInput'
+        )
+      })
+
+      it('should return rendered error of edge case when invite too_many_attempts and disconnected', async () => {
+        const { args } = withNewConnectionMocks()
+        const controller = new NewConnectionController(...args)
+        const result = await controller
+          .submitNewInvite(req, {
+            companyNumber: tooManyDisconnectedCompanyNumber,
+            email: 'alice@example.com',
+            action: 'continue',
+            registryCountryCode: gbRegistryCountryCode,
+          })
+          .then(toHTMLString)
+        expect(result).to.equal(
+          'companyFormInput_error--Edge case database state detected for connection cccc, aborting-form-alice@example.com-00000013_companyFormInput'
+        )
+      })
+
+      it('should return rendered error of edge case when invite valid and disconnected', async () => {
+        const { args } = withNewConnectionMocks()
+        const controller = new NewConnectionController(...args)
+        const result = await controller
+          .submitNewInvite(req, {
+            companyNumber: validDisconnectedCompanyNumber,
+            email: 'alice@example.com',
+            action: 'continue',
+            registryCountryCode: gbRegistryCountryCode,
+          })
+          .then(toHTMLString)
+        expect(result).to.equal(
+          'companyFormInput_error--Edge case database state detected for connection aaaa, aborting-form-alice@example.com-00000014_companyFormInput'
+        )
+      })
+
+      it('should say to request new pin when invite used and verified_them', async () => {
+        const { args } = withNewConnectionMocks()
+        const controller = new NewConnectionController(...args)
+        const result = await controller
+          .submitNewInvite(req, {
+            companyNumber: usedVerifiedThemCompanyNumber,
+            email: 'alice@example.com',
+            action: 'continue',
+            registryCountryCode: gbRegistryCountryCode,
+          })
+          .then(toHTMLString)
+        expect(result).to.equal(
+          'companyFormInput_error--Other party has already verified, request new pin instead from USED_VER_THEM-form-alice@example.com-00000015_companyFormInput'
+        )
+      })
+
+      it('should say to request new pin when invite used and verified_them', async () => {
+        const { args } = withNewConnectionMocks()
+        const controller = new NewConnectionController(...args)
+        const result = await controller
+          .submitNewInvite(req, {
+            companyNumber: usedVerifiedThemCompanyNumber,
+            email: 'alice@example.com',
+            action: 'continue',
+            registryCountryCode: gbRegistryCountryCode,
+          })
+          .then(toHTMLString)
+        expect(result).to.equal(
+          'companyFormInput_error--Other party has already verified, request new pin instead from USED_VER_THEM-form-alice@example.com-00000015_companyFormInput'
+        )
+      })
+
+      describe('happy path resending invitation', function () {
+        it('should allow resubmission with a previous valid invitation and pending connection', async () => {
+          const { args } = withNewConnectionMocks()
+          const controller = new NewConnectionController(...args)
+          const result = await controller
+            .submitNewInvite(req, {
+              companyNumber: validPendingCompanyNumber,
+              email: 'alice@example.com',
+              action: 'continue',
+              registryCountryCode: gbRegistryCountryCode,
+            })
+            .then(toHTMLString)
+          expect(result).to.equal(
+            'companyFormInput_companyFound-ALLOW_NEW--confirmation-alice@example.com-00000019_companyFormInput'
+          )
+        })
+
+        it('should allow resubmission with a previous used invitation but unverified connection', async () => {
+          const { args } = withNewConnectionMocks()
+          const controller = new NewConnectionController(...args)
+          const result = await controller
+            .submitNewInvite(req, {
+              companyNumber: usedUnverifiedCompanyNumber,
+              email: 'alice@example.com',
+              action: 'continue',
+              registryCountryCode: gbRegistryCountryCode,
+            })
+            .then(toHTMLString)
+          expect(result).to.equal(
+            'companyFormInput_companyFound-USED_UNVERIFIED--confirmation-alice@example.com-00000016_companyFormInput'
+          )
+        })
+
+        it('should allow resubmission with a previous used invitation and verified_us', async () => {
+          const { args } = withNewConnectionMocks()
+          const controller = new NewConnectionController(...args)
+          const result = await controller
+            .submitNewInvite(req, {
+              companyNumber: usedVerifiedUsCompanyNumber,
+              email: 'alice@example.com',
+              action: 'continue',
+              registryCountryCode: gbRegistryCountryCode,
+            })
+            .then(toHTMLString)
+          expect(result).to.equal(
+            'companyFormInput_companyFound-USED_VER_US--confirmation-alice@example.com-00000017_companyFormInput'
+          )
         })
       })
     })
@@ -384,7 +544,9 @@ describe('NewConnectionController', () => {
       const result = await controller
         .submitFromInvite(req, { invite: '', action: 'createConnection' })
         .then(toHTMLString)
-      expect(result).to.equal('fromInviteForm_error--Invitation is not valid_fromInviteForm')
+      expect(result).to.equal(
+        'fromInviteForm_error--Invitation is not valid, the invite is not in the correct format_fromInviteForm'
+      )
     })
 
     it('should rendered error when invite invalid base64', async () => {
@@ -402,7 +564,9 @@ describe('NewConnectionController', () => {
       const result = await controller
         .submitFromInvite(req, { invite: invalidInvite, action: 'createConnection' })
         .then(toHTMLString)
-      expect(result).to.equal('fromInviteForm_error--Invitation is not valid_fromInviteForm')
+      expect(result).to.equal(
+        'fromInviteForm_error--Invitation is not valid, the invite is not in the correct format_fromInviteForm'
+      )
     })
 
     it('should rendered error when company number invalid', async () => {
@@ -421,15 +585,6 @@ describe('NewConnectionController', () => {
         .submitFromInvite(req, { invite: notFoundCompanyNumberInvite, action: 'createConnection' })
         .then(toHTMLString)
       expect(result).to.equal('fromInviteForm_error--Company number does not exist_fromInviteForm')
-    })
-
-    it('should return rendered error when company already connected', async () => {
-      const { args } = withNewConnectionMocks()
-      const controller = new NewConnectionController(...args)
-      const result = await controller
-        .submitFromInvite(req, { invite: validExistingCompanyNumberInvite, action: 'createConnection' })
-        .then(toHTMLString)
-      expect(result).to.equal('fromInviteForm_error--Connection already exists with NAME2_fromInviteForm')
     })
 
     it('should return rendered error when company registered office in dispute', async () => {
@@ -453,10 +608,10 @@ describe('NewConnectionController', () => {
     })
 
     it('should return rendered error when unique constraint is violated', async () => {
-      const { mockTransactionDb, args } = withNewConnectionMocks()
+      const { mockWithTransaction, args } = withNewConnectionMocks()
 
       sinon
-        .stub(mockTransactionDb, 'insert')
+        .stub(mockWithTransaction, 'insert')
         .rejects(new Error('details - duplicate key value violates unique constraint "unq_connection_company_number"'))
 
       const controller = new NewConnectionController(...args)
@@ -466,7 +621,6 @@ describe('NewConnectionController', () => {
           action: 'createConnection',
         })
         .then(toHTMLString)
-
       expect(result).to.equal('fromInviteForm_error--Connection already exists with NAME_fromInviteForm')
     })
 
@@ -493,9 +647,9 @@ describe('NewConnectionController', () => {
       let result: string
 
       beforeEach(async () => {
-        const { mockTransactionDb, mockEmail, args } = withNewConnectionMocks()
+        const { mockWithTransaction, mockEmail, args } = withNewConnectionMocks()
 
-        insertSpy = sinon.spy(mockTransactionDb, 'insert')
+        insertSpy = sinon.spy(mockWithTransaction, 'insert')
         emailSpy = sinon.spy(mockEmail, 'sendMail')
         clock = sinon.useFakeTimers(100)
 
@@ -517,7 +671,7 @@ describe('NewConnectionController', () => {
         expect(result).to.equal('renderPinForm_42--true_renderPinForm')
       })
 
-      it('should insert two row', () => {
+      it('should insert two rows', () => {
         expect(insertSpy.callCount).to.equal(2)
       })
 
@@ -531,6 +685,7 @@ describe('NewConnectionController', () => {
             agent_connection_id: 'oob-connection',
             pin_attempt_count: 0,
             pin_tries_remaining_count: null,
+            registry_country_code: 'GB',
           },
         ])
       })
@@ -553,11 +708,10 @@ describe('NewConnectionController', () => {
 
       it('should send email to admin', () => {
         expect(emailSpy.firstCall.args[0]).equal('connection_invite_admin')
-        expect(emailSpy.firstCall.args[1]?.pin).match(/[0-9]{6}/)
-        expect(emailSpy.firstCall.args[1]).to.deep.contain({
+        expect(emailSpy.firstCall.args[3]?.pin).match(/[0-9]{6}/)
+        expect(emailSpy.firstCall.args[3]).to.deep.contain({
           receiver: 'NAME',
-          address:
-            'NAME, ADDRESS_LINE_1, ADDRESS_LINE_2, CARE_OF, LOCALITY, PO_BOX, POSTAL_CODE, COUNTRY, PREMISES, REGION',
+          address: 'ADDRESS_LINE_1, ADDRESS_LINE_2, COUNTRY, LOCALITY, PO_BOX, POSTAL_CODE, REGION',
         })
       })
     })

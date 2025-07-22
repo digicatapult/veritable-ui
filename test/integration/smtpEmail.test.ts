@@ -3,54 +3,34 @@ import express from 'express'
 import { describe, it } from 'mocha'
 
 import http from 'http'
-import { z } from 'zod'
 import { resetContainer } from '../../src/ioc.js'
+import { CountryCode } from '../../src/models/strings.js'
 import createHttpServer from '../../src/server.js'
 import VeritableCloudagentEvents from '../../src/services/veritableCloudagentEvents.js'
-import { cleanupCloudagent } from '../helpers/cloudagent.js'
-import { cleanup } from '../helpers/db.js'
-import { validCompanyName, validCompanyNumber } from '../helpers/fixtures.js'
+import { alice } from '../helpers/fixtures.js'
+import { cleanupRegistries, insertCompanyHouseRegistry } from '../helpers/registries.js'
 import { post } from '../helpers/routeHelper.js'
-
-const ToSchema = z.array(z.string())
-
-const EmailItemSchema = z.object({
-  isRelayed: z.boolean(),
-  deliveredTo: z.string().email(),
-  id: z.string().uuid(),
-  from: z.string().email(),
-  to: ToSchema,
-  receivedDate: z.string().datetime(),
-  subject: z.string(),
-  attachmentCount: z.number().int(),
-  isUnread: z.boolean(),
-})
-
-const EmailResponseSchema = z.object({
-  results: z.array(EmailItemSchema),
-})
-
+import { clearSmtp4devMessages, EmailResponseSchema } from '../helpers/smtpEmails.js'
 describe('SMTP email', () => {
   let server: { app: express.Express; cloudagentEvents: VeritableCloudagentEvents }
 
   describe('create invitation and check it has been registered in the email server (happy path)', function () {
     setupSmtpTestEnvironment()
     beforeEach(async () => {
-      await cleanup()
-      await cleanupCloudagent()
       server = await createHttpServer()
+      await insertCompanyHouseRegistry()
       await post(server.app, '/connection/new/create-invitation', {
-        companyNumber: validCompanyNumber,
-        email: 'alice@example.com',
+        companyNumber: alice.company_number,
+        email: 'alice@testmail.com',
         action: 'submit',
+        registryCountryCode: 'GB' as CountryCode,
       })
     })
 
     afterEach(async () => {
-      await cleanup()
-      await clearSmtp4devMessages()
-      await cleanupCloudagent()
       server.cloudagentEvents.stop()
+      await clearSmtp4devMessages()
+      await cleanupRegistries()
     })
 
     it('should send an email via SMTP', async () => {
@@ -78,15 +58,16 @@ describe('SMTP email', () => {
 
               // Invite email assertions
               const inviteEmail = results.find(
-                (msg) => msg.subject === `${validCompanyName} invites you to a secure, verified connection on Veritable`
+                (msg) =>
+                  msg.subject === `${alice.company_name} invites you to a secure, verified connection on Veritable`
               )
               if (inviteEmail) {
                 expect(inviteEmail.to).to.have.lengthOf(1)
                 expect(inviteEmail).to.deep.contain({
                   isRelayed: false,
-                  deliveredTo: 'alice@example.com',
+                  deliveredTo: 'alice@testmail.com',
                   from: 'hello@veritable.com',
-                  to: ['alice@example.com'],
+                  to: ['alice@testmail.com'],
                   subject: 'DIGITAL CATAPULT invites you to a secure, verified connection on Veritable',
                   attachmentCount: 0,
                   isUnread: true,
@@ -148,29 +129,5 @@ function setupSmtpTestEnvironment() {
     process.env.SMTP_USER = username
     process.env.SMTP_PASS = password
     resetContainer()
-  })
-}
-
-async function clearSmtp4devMessages() {
-  return new Promise((resolve, reject) => {
-    const options = {
-      hostname: 'localhost',
-      port: 5001,
-      path: '/api/messages/*', // Delete all messages
-      method: 'DELETE',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    }
-
-    const req = http.request(options, (res) => {
-      if (res.statusCode === 200) {
-        resolve(true)
-      } else {
-        reject(new Error(`Failed to clear messages, status code: ${res.statusCode}`))
-      }
-    })
-    req.on('error', (error) => reject(error))
-    req.end()
   })
 }

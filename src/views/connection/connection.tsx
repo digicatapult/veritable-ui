@@ -1,5 +1,5 @@
 import Html from '@kitajs/html'
-import { singleton } from 'tsyringe'
+import { injectable, singleton } from 'tsyringe'
 import { ConnectionRow } from '../../models/db/types.js'
 import { connectionStatusToClass, LinkButton, Page } from '../common.js'
 
@@ -39,13 +39,14 @@ const statusToAction = (
     case 'verified_both':
       return {
         disabled: false,
-        href: `/queries/new/carbon-embodiment?connectionId=${connectionId}`,
+        href: `/queries/choose?connectionId=${connectionId}`,
         text: 'Send Query',
       }
   }
 }
 
 @singleton()
+@injectable()
 export default class ConnectionTemplates {
   constructor() {}
 

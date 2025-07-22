@@ -578,6 +578,7 @@ describe('DrpcEvents', function () {
       const parentQuery = [
         {
           id: 'query-id',
+          type: 'total_carbon_embodiment',
           details: {
             subjectId: {
               idType: 'product_and_quantity',
@@ -593,11 +594,13 @@ describe('DrpcEvents', function () {
           },
           status: 'forwarded',
           connection_id: 'parent-connection-id',
+          response_id: 'parent-response-id',
         },
       ]
       const allChildQuery = [
         {
           id: 'child-query-id',
+          type: 'total_carbon_embodiment',
           response: {
             subjectId: {
               idType: 'product_and_quantity',
@@ -608,6 +611,7 @@ describe('DrpcEvents', function () {
             },
             mass: 42,
             unit: 'kg',
+            partialResponses: [],
           },
           parent_id: 'query-id',
           status: 'resolved',
@@ -688,9 +692,10 @@ describe('DrpcEvents', function () {
                       idType: 'product_and_quantity',
                       content: { productId: 'child-product-id', quantity: 42 },
                     },
+                    partialResponses: [],
                   },
                   id: 'child-query-id',
-                  type: 'https://github.com/digicatapult/veritable-documentation/tree/main/schemas/veritable_messaging/query_types/undefined/response/0.1',
+                  type: 'https://github.com/digicatapult/veritable-documentation/tree/main/schemas/veritable_messaging/query_types/total_carbon_embodiment/response/0.1',
                 },
               ],
               subjectId: {

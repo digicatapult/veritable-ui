@@ -20,7 +20,6 @@ veritable-ui depends on a few external services:
 - [IPFS](https://ipfs.tech) - a distributed file server for storing credential schemas
 - [Keycloak](https://www.keycloak.org) - runs as a docker image for each node that handles authentication and users.
 
-
 ### Development & Testing
 
 - [smtp4dev](https://github.com/rnwood/smtp4dev) - runs as a docker image for exchanging emails during onboarding workflows
@@ -28,16 +27,16 @@ veritable-ui depends on a few external services:
 
 ### Prerequisites
 
-> :warning: last updated: 18/07/2025
+> :warning: last updated: 08/07/2025
 
-- docker v28.1.1+
+- docker v28.1.1 (later versions currently have [issues](https://github.com/docker/for-mac/issues/7693))
 - npm 11.0.0+
 - node 22.0.0+
 - postgresql 17.5+
 
 ## Getting started
 
-Ensure you're running the correct version of npm, then install dependencies using:
+Install dependencies using:
 
 ```sh
 npm install
@@ -49,39 +48,43 @@ After all packages have been installed run the below command which will create t
 npm run build
 ```
 
-> :memo: Note that this is just the service on itself without other dependencies like keycloak or database, for local development please refer to the section below
+The service requires a Companies House API key:
 
-## Development mode
+- Register a [developer account](https://developer.company-information.service.gov.uk/).
+- Create [an application](https://developer.company-information.service.gov.uk/manage-applications/add) set to `Live` environment.
+- Within the new application create a `REST` API key.
+- Add an `.env` file at the root of the project containing `COMPANY_PROFILE_API_KEY=apikey`.
 
-Before reading this please make sure that you have executed all the tasks from **Getting Started** section (installation and build), should have a directory `/build` and make sure there is at a minimum an empty `.env` at the root of project containing the below:
-
-```sh
-VERITABLE_COMPANY_PROFILE_API_KEY=apikey
-```
-
-After creating `.env` file in your root you can execute `docker` which will bring all the nodes and required services for local development
+Bring up all the required services for local development:
 
 ```sh
-docker compose --env-file .env up -d --build
+docker compose up -d --build
 ```
 
-> :memo: If doing this for the first it might take some time to pull all the images
-
-Followed by the database migrations
+Database migration for Alice.
 
 ```sh
 npm run db:migrate
 ```
 
-> :memo: Optional: you can seed some mock data for rendering some items in tables and etc. run: `npm run db:seed`
+Assert the presence of issuance records (DID, schema and credential definition) via the Alice cloudagent. Specifically, the script asserts any valid DID, the `COMPANY_DETAILS` schema and a credential definition based on that schema.
 
-Also, we need to create some credential definitions along with `veritable-cloudagent` instance
+```json
+{
+  "COMPANY_DETAILS": {
+    "version": "1.0.0",
+    "attrNames": ["company_number", "company_name"]
+  }
+}
+```
+
+These issuance records are required to form connections between personas. Behaviour of `init` depends on configuration of `ISSUANCE_` envs, which default to use existing records or create new records if none exist.
 
 ```sh
 npm run dev:init
 ```
 
-Finally, start the service and enjoy local development
+Finally, start the service and enjoy local development:
 
 ```sh
 npm run dev
@@ -94,41 +97,41 @@ npm run dev
 
 This is the list of all environment variables including brief description
 
-| variable name                     | required | default                                                        | description                                                                                                                                                                    |
-| --------------------------------- | -------- | -------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| PORT                              | y        | 3000                                                           | Port number of the service                                                                                                                                                     |
-| LOG_LEVEL                         | n        | info                                                           | Logging level. Valid values are [ trace , debug , info , warn , error , fatal ]                                                                                                |
-| DB_HOST                           | y        | localhost                                                      | The database hostname / host                                                                                                                                                   |
-| DB_NAME                           | y        | veritable-ui                                                   | The port for the database                                                                                                                                                      |
-| DB_USERNAME                       | y        | postgres                                                       | The database username                                                                                                                                                          |
-| DB_PASSWORD                       | y        | postgres                                                       | The database password                                                                                                                                                          |
-| DB_PORT                           | y        | 5432                                                           | The database port number                                                                                                                                                       |
-| COOKIE_SESSION_KEYS               | y        | ['secret']                                                     | Session cookies                                                                                                                                                                |
-| PUBLIC_URL                        | y        | http://localhost:3000                                          | URL that UI can be accessed                                                                                                                                                    |
-| API_SWAGGER_BG_COLOR              | n        | #fafafa                                                        | Swagger background color                                                                                                                                                       |
-| API_SWAGGER_TITLE                 | n        | Veritable                                                      | Title for swagger interface                                                                                                                                                    |
-| API_SWAGGER_HEADING               | n        | Veritable                                                      | Heading for swagger interface                                                                                                                                                  |
-| IDP_CLIENT_ID                     | y        | veritable-ui                                                   | Client ID required for Keycloak                                                                                                                                                |
-| IDP_PUBLIC_URL_PREFIX             | y        | http://localhost:3080/realms/veritable/protocol/openid-connect | Public authentication URL                                                                                                                                                      |
-| IDP_INTERNAL_URL_PREFIX           | y        | http://localhost:3080/realms/veritable/protocol/openid-connect | Internal authentication URL                                                                                                                                                    |
-| IDP_AUTH_PATH                     | y        | /auth                                                          | Auth path for keycloak                                                                                                                                                         |
-| IDP_TOKEN_PATH                    | y        | /token                                                         | Tokens path for keycloak                                                                                                                                                       |
-| IDP_JWKS_PATH                     | y        | /certs                                                         | Certificates path for keycloak                                                                                                                                                 |
-| COMPANY_HOUSE_API_URL             | y        | https://api.company-information.service.gov.uk                 | An external service that contain list of all UK companies, look ups                                                                                                            |
-| VERITABLE_COMPANY_PROFILE_API_KEY | y        | -                                                              | An API KEY required to access the company-information service                                                                                                                  |
-| EMAIL_TRANSPORT                   | y        | STREAM                                                         | Nodemailer transport for sending emails which can be `STREAM` or `SMTP_EMAIL`. If `SMTP_EMAIL` additional configuration of the transport will be needed and is described below |
-| EMAIL_FROM_ADDRESS                | y        | hello@veritable.com                                            | Email address that will appear "send from" in an automated emails                                                                                                              |
-| EMAIL_ADMIN_ADDRESS               | y        | admin@veritable.com                                            | Admin's email address that will receive a copy of all comms                                                                                                                    |
-| CLOUDAGENT_ADMIN_ORIGIN           | y        | http://localhost:3100                                          | veritabler-cloudagent url                                                                                                                                                      |
-| CLOUDAGENT_ADMIN_WS_ORIGIN        | y        | ws://localhost:3100                                            | veritable-cloudagent web socker address/url                                                                                                                                    |
-| CLOUDAGENT_ADMIN_PING_TIMEOUT_MS  | n        | 30000                                                          | Timeout waiting for the next ping from the websocket server                                                                                                                    |
-| INVITATION_PIN_SECRET             | y        | Buffer.from('secret', 'utf8')                                  | an encoded array of utf-8 format                                                                                                                                               |
-| INVITATION_PIN_ATTEMPT_LIMIT      | y        | 5                                                              | number of allowed pin validation attempts                                                                                                                                      |
-| INVITATION_FROM_COMPANY_NUMBER    | n        | 07964699                                                       | default company number, currently is us                                                                                                                                        |
-| ISSUANCE_DID_POLICY               | y        | EXISTING_OR_NEW                                                | DID and either create or use existing: [CREATE_NEW, FIND_EXIStING, EXISTING_OR_NEW, did:somedid]                                                                               |
-| ISSUANCE_SCHEMA_POLICY            | y        | EXISTING_OR_NEW                                                | Same as above but for credential schema                                                                                                                                        |
-| ISSUANCE_CRED_DEF_POLICY          | y        | EXISTING_OR_NEW                                                | Same as above but this is for credential definitions                                                                                                                           |
-| DEMO_MODE                         | y        | true                                                           | Enables or disables the `/reset` endpoint                                                                                                                                      |
+| variable name                    | required | default                                                        | description                                                                                                                                                                    |
+| -------------------------------- | -------- | -------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| PORT                             | y        | 3000                                                           | Port number of the service                                                                                                                                                     |
+| LOG_LEVEL                        | n        | info                                                           | Logging level. Valid values are [ trace , debug , info , warn , error , fatal ]                                                                                                |
+| DB_HOST                          | y        | localhost                                                      | The database hostname / host                                                                                                                                                   |
+| DB_NAME                          | y        | veritable-ui                                                   | The port for the database                                                                                                                                                      |
+| DB_USERNAME                      | y        | postgres                                                       | The database username                                                                                                                                                          |
+| DB_PASSWORD                      | y        | postgres                                                       | The database password                                                                                                                                                          |
+| DB_PORT                          | y        | 5432                                                           | The database port number                                                                                                                                                       |
+| COOKIE_SESSION_KEYS              | y        | ['secret']                                                     | Session cookies                                                                                                                                                                |
+| PUBLIC_URL                       | y        | http://localhost:3000                                          | URL that UI can be accessed                                                                                                                                                    |
+| API_SWAGGER_BG_COLOR             | n        | #fafafa                                                        | Swagger background color                                                                                                                                                       |
+| API_SWAGGER_TITLE                | n        | Veritable                                                      | Title for swagger interface                                                                                                                                                    |
+| API_SWAGGER_HEADING              | n        | Veritable                                                      | Heading for swagger interface                                                                                                                                                  |
+| IDP_CLIENT_ID                    | y        | veritable-ui                                                   | Client ID required for Keycloak                                                                                                                                                |
+| IDP_PUBLIC_URL_PREFIX            | y        | http://localhost:3080/realms/veritable/protocol/openid-connect | Public authentication URL                                                                                                                                                      |
+| IDP_INTERNAL_URL_PREFIX          | y        | http://localhost:3080/realms/veritable/protocol/openid-connect | Internal authentication URL                                                                                                                                                    |
+| IDP_AUTH_PATH                    | y        | /auth                                                          | Auth path for keycloak                                                                                                                                                         |
+| IDP_TOKEN_PATH                   | y        | /token                                                         | Tokens path for keycloak                                                                                                                                                       |
+| IDP_JWKS_PATH                    | y        | /certs                                                         | Certificates path for keycloak                                                                                                                                                 |
+| COMPANY_HOUSE_API_URL            | y        | https://api.company-information.service.gov.uk                 | An external service that contain list of all UK companies, look ups                                                                                                            |
+| COMPANY_PROFILE_API_KEY          | y        | -                                                              | An API KEY required to access the company-information service                                                                                                                  |
+| EMAIL_TRANSPORT                  | y        | STREAM                                                         | Nodemailer transport for sending emails which can be `STREAM` or `SMTP_EMAIL`. If `SMTP_EMAIL` additional configuration of the transport will be needed and is described below |
+| EMAIL_FROM_ADDRESS               | y        | hello@veritable.com                                            | Email address that will appear "send from" in an automated emails                                                                                                              |
+| EMAIL_ADMIN_ADDRESS              | y        | admin@veritable.com                                            | Admin's email address that will receive a copy of all comms                                                                                                                    |
+| CLOUDAGENT_ADMIN_ORIGIN          | y        | http://localhost:3100                                          | veritabler-cloudagent url                                                                                                                                                      |
+| CLOUDAGENT_ADMIN_WS_ORIGIN       | y        | ws://localhost:3100                                            | veritable-cloudagent web socker address/url                                                                                                                                    |
+| CLOUDAGENT_ADMIN_PING_TIMEOUT_MS | n        | 30000                                                          | Timeout waiting for the next ping from the websocket server                                                                                                                    |
+| INVITATION_PIN_SECRET            | y        | Buffer.from('secret', 'utf8')                                  | an encoded array of utf-8 format                                                                                                                                               |
+| INVITATION_PIN_ATTEMPT_LIMIT     | y        | 5                                                              | number of allowed pin validation attempts                                                                                                                                      |
+| INVITATION_FROM_COMPANY_NUMBER   | n        | 07964699                                                       | default company number, currently is us                                                                                                                                        |
+| ISSUANCE_DID_POLICY              | y        | EXISTING_OR_NEW                                                | DID and either create or use existing: [CREATE_NEW, FIND_EXIStING, EXISTING_OR_NEW, did:somedid]                                                                               |
+| ISSUANCE_SCHEMA_POLICY           | y        | EXISTING_OR_NEW                                                | Same as above but for credential schema                                                                                                                                        |
+| ISSUANCE_CRED_DEF_POLICY         | y        | EXISTING_OR_NEW                                                | Same as above but this is for credential definitions                                                                                                                           |
+| DEMO_MODE                        | y        | true                                                           | Enables or disables the `/reset` endpoint                                                                                                                                      |
 
 ### SMTP transport configuration
 
@@ -144,11 +147,11 @@ If using the `SMTP_EMAIL` value for `EMAIL_TRANSPORT` the following additional c
 
 ## Testing
 
-Currently this repository consist of two test types: [**integration**, **unit**] and we are using a combination of `mocha`, `chai` and `sinon` frameworks
+This repository consists of three test types: [**unit**, **integration**, **e2e**], using a combination of `mocha`, `chai`, `sinon` and `playwright` frameworks.
 
 ### Unit Testing
 
-Unit tests in this repository are done per service/module or class, and follow the bellow pattern. In **tests** directories collated with the units they test.
+Unit tests in this repository are done per service/module or class, and follow the below pattern. In **tests** directories collated with the units they test.
 
 ```sh
 # example
@@ -168,9 +171,9 @@ npm run test:unit
 
 ### Integration Testing
 
-Integration tests are placed at the root level of a repository and can be found at the root level `test/` folder along with mock services and helpers and a test environment variables that will be in `test/test.env`.
+Integration tests are located in [`test/integration`](test/integration/) along with mock services and helpers and a test environment variables in `./test/test.env`.
 
-Integration tests can be run locally using Testcontainers by executing the below command (it is recommended to add debugging so you can follow the logs in the console, refer to [testcontainers section](#testcontainers))
+Integration tests can be run locally using Testcontainers (it is recommended to add debugging so you can follow the logs in the console, refer to [testcontainers section](#testcontainers))
 
 ```sh
 npm run test:integration
@@ -178,7 +181,7 @@ npm run test:integration
 
 ### e2e Testing
 
-End-to-end tests are placed at root level in the `test/` directory. They run by default in a Testcontainers environment.
+End-to-end tests are located in [`test/e2e`](test/e2e/). They run by default in a Testcontainers environment.
 
 Install dependencies for playwright with:
 
@@ -192,7 +195,7 @@ Then run:
 npm run test:e2e
 ```
 
-This will run the tests without the ui. It is recommended to add debugging so you can follow the logs in the console, refer to [testcontainers section](#testcontainers)
+This will run the tests without the ui. It is recommended to add debugging so you can follow the logs in the console, refer to [testcontainers section](#testcontainers).
 
 Alternatively you can run:
 
@@ -206,7 +209,7 @@ Then you'll find the test results in directory `playwright-report` at root level
 
 ### Testcontainers
 
-so see logs from a container e.g. if it is dying on startup add:
+See logs from a container e.g. if it is dying on startup add:
 
 ```
 .withLogConsumer((stream) => {
@@ -236,11 +239,11 @@ await container.stop({ remove: false })
 
 ## Database
 
-This service is dependant on postgreSQL which will sync up across all nodes and will update cloudagent when needed. We use `knex` wrapper for wrapping [create, read, write, update] database quries. We also have different models for inserting and returning data which gives us a control of sensitive data or data we do not want to get along the record. We also use **zod** for enchanted validation. It's currently used in `src/models/db/types.ts` file.
+`veritable-ui` and cloudagent are each dependent on their own instances of PostgreSQL. `knex` wrapper is used for database queries. To ensure database integrity, **zod** is used to validate types of inserted and returned data at runtime. Configured in [`src/models/db/types.ts`](src/models/db/types.ts).
 
-Main configuration file can be found in at the root level of a repo `knexfile.js` other files such as migrations can be found in `src/models/db` directory.
+Main `knex` configuration file is [`knexfile.js`](knexfile.js), other files such as migrations can be found in [`src/models/db`](src/models/db).
 
-> Migrations, do not update an existing file, please create a new one using knex. New migrations will appear in `src/models/db/migrations/` directory.
+> For migrations, do not update an existing file, always create a new one using `knex`. New migrations will appear in `src/models/db/migrations/` directory.
 
 ```sh
 # creating a new migration
@@ -250,21 +253,13 @@ npm run db:cmd -- migrate:make migration_name -x ts
 npm run db:migrate
 ```
 
-> Seeds, currently seeds are at the root level of a repository `seeds/`.
-
-```sh
-npm run db:seed
-```
-
-## Service Specifics
-
-We do have a `init.ts` file that sets up veritable-cloudagent and credential definition along with schema. Covered in `Development Mode`
-Note: If you have changed what will be rendered in different components, it is likely you will have to update snapshots for tests to pass. Refer to `chai-jest-snapshot` documentation to do that.
-
 ## Establishing connection
 
-Bring up as per above (docker compose, run migrations and seed, then npm run dev).
-You can find Bob's UI on `localhost:3001` and Alice's on `localhost:3000`.
-On Bob's UI go to `Connections > Invite New Connection` and enter a valid Company House Number (for testing purposes we have been using Digital Catapult's). Enter an email and submit your invite. Then in the list of Bob's connections you should see a new connection in 'Pending' state. Then go to Docker -> container called `Bob` in it's logs you will find a generated invite and also a pin code.
-You will enter the invitation and pin into Alice's UI in `Connections > Add From Invitation`.
-NOTE: you will need to format the Invitation Text. You need to remove any datetime stamps from the logs, remove spaces and equal signs and make sure that there are no leading ot trailing spaces when pasted to the form.
+- Bring up as per [getting started](#getting-started) (docker compose, run migrations and init, then `npm run dev`) to start Alice's UI.
+- Alice: http://localhost:3000.
+- Bob: http://localhost:3001.
+- Go to Bob's [Invite New Connection](http://localhost:3001/connection/new) and enter `07964699` (default Company House Number for Alice) for the `Company House Number`. Enter any valid email and submit. The list of Bob's connections now contains a new connection with `Invite Sent` state.
+- Go to the dev [email server](http://localhost:5001/) and copy the invitation text from bottom of the email sent to the email address entered in the previous step.
+- Paste the invitation text into Alice's [Add from Invitation](http://localhost:3000/connection/new?fromInvite=true). The right hand box should update to show Bob's registered address (set by the `INVITATION_FROM_COMPANY_NUMBER` env). Submit.
+- Search `Verification Code: ` in the logs of the terminal for the running Alice server. Copy this code. Select `Complete Verification` on [Bob's side](http://localhost:3001/connection) of the connection, paste the code and continue.
+- The connection will now show as `Connected` for both personas, and queries can be sent.

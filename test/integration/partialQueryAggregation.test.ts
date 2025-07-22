@@ -1,77 +1,33 @@
 import { expect } from 'chai'
-import type express from 'express'
 import { afterEach, beforeEach, describe } from 'mocha'
-
-import Database from '../../src/models/db/index.js'
-import VeritableCloudagent from '../../src/models/veritableCloudagent/index.js'
-import { cleanupCloudagent } from '../helpers/cloudagent.js'
-import { cleanup } from '../helpers/db.js'
-
-import { container } from 'tsyringe'
-import { ConnectionRow } from '../../src/models/db/types.js'
-import createHttpServer from '../../src/server.js'
-import VeritableCloudagentEvents from '../../src/services/veritableCloudagentEvents.js'
-import { withBobAndCharlie } from '../helpers/connection.js'
+import { carbonEmbodimentResponseData } from '../../src/models/drpc.js'
+import { cleanupCloudagent, cleanupDatabase } from '../helpers/cleanup.js'
+import { setupThreePartyContext, ThreePartyContext, withBobAndCharlie } from '../helpers/connection.js'
+import { cleanupRegistries, insertCompanyHouseRegistry } from '../helpers/registries.js'
 import { fetchPost, post } from '../helpers/routeHelper.js'
-
-export type Context = {
-  app: express.Express
-  agent: {
-    alice: VeritableCloudagent
-    bob: VeritableCloudagent
-    charlie: VeritableCloudagent
-  }
-  cloudagentEvents: VeritableCloudagentEvents
-  db: {
-    alice: Database
-    bob: Database
-    charlie: Database
-  }
-  aliceConnectionId: string
-  charliesConnections: {
-    withBob: ConnectionRow
-  }
-  bobsConnections: {
-    withCharlie: ConnectionRow
-    withAlice: ConnectionRow
-  }
-  response: Awaited<ReturnType<typeof post>>
-}
-
 describe('partial query aggregation', function () {
-  this.timeout(30000)
+  const context: ThreePartyContext = {} as ThreePartyContext
+  let response: Awaited<ReturnType<typeof post>>
+
+  beforeEach(async function () {
+    await setupThreePartyContext(context)
+
+    await cleanupCloudagent([context.agent.alice, context.agent.bob, context.agent.charlie])
+    await cleanupDatabase([context.db.alice, context.db.bob, context.db.charlie])
+    await insertCompanyHouseRegistry()
+  })
+
   afterEach(async () => {
-    await cleanup()
+    context.cloudagentEvents.stop()
+    await cleanupCloudagent([context.agent.alice, context.agent.bob, context.agent.charlie])
+    await cleanupDatabase([context.db.alice, context.db.bob, context.db.charlie])
+    await cleanupRegistries()
   })
 
   describe('with established connections: Alice -> Bob -> Charlie', function () {
-    const context: Context = {
-      db: {
-        alice: container.resolve(Database),
-      },
-      agent: {},
-      bobsConnections: {},
-      charliesConnections: {},
-    } as unknown as Context
-
     beforeEach(async function () {
-      await cleanup()
-      await cleanupCloudagent()
-      const server = await createHttpServer(true)
-      Object.assign(context, {
-        ...server,
-      })
-    })
-
-    afterEach(async function () {
-      context.cloudagentEvents.stop()
-      await cleanup()
-    })
-
-    withBobAndCharlie(context)
-
-    beforeEach(async function () {
-      context.response = await post(context.app, `/queries/new/carbon-embodiment`, {
+      await withBobAndCharlie(context)
+      response = await post(context.app, `/queries/carbon-embodiment`, {
         connectionId: context.aliceConnectionId,
         productId: 'toaster-001(AliceReq)',
         quantity: 1,
@@ -80,9 +36,8 @@ describe('partial query aggregation', function () {
       const queryId = await context.db.bob.get('query').then((res) => res[0].id)
       const { withAlice, withCharlie } = context.bobsConnections
 
-      await fetchPost(`http://localhost:3001/queries/carbon-embodiment/${queryId}/response`, {
+      await fetchPost(`http://localhost:3001/queries/${queryId}/response/carbon-embodiment`, {
         companyId: withAlice.id,
-        action: 'success',
         emissions: '200',
         partialQuery: ['on'],
         partialSelect: ['on'],
@@ -95,7 +50,7 @@ describe('partial query aggregation', function () {
     it('Alice sends a query request for co2 emissions to Bob', async function () {
       const [query] = await context.db.alice.get('query')
 
-      expect(context.response.statusCode).to.equal(200)
+      expect(response.statusCode).to.equal(200)
       expect(query).to.deep.contain({
         connection_id: context.aliceConnectionId,
         parent_id: null,
@@ -199,9 +154,8 @@ describe('partial query aggregation', function () {
       beforeEach(async () => {
         const queryId = await context.db.charlie.get('query').then((res) => res[0].id)
 
-        await fetchPost(`http://localhost:3002/queries/carbon-embodiment/${queryId}/response`, {
+        await fetchPost(`http://localhost:3002/queries/${queryId}/response/carbon-embodiment`, {
           companyId: context.charliesConnections.withBob.id,
-          action: 'success',
           emissions: '500',
         })
       })
@@ -210,6 +164,7 @@ describe('partial query aggregation', function () {
         const { withAlice, withCharlie } = context.bobsConnections
         const [bobQuery] = await context.db.bob.get('query', { connection_id: withAlice.id })
         const [bobPartialQuery] = await context.db.bob.get('query', { connection_id: withCharlie.id })
+        const response = carbonEmbodimentResponseData.parse(bobQuery.response)
 
         expect(bobQuery.status).to.be.equal('resolved')
         expect(bobQuery).to.deep.contain({
@@ -230,7 +185,7 @@ describe('partial query aggregation', function () {
             unit: 'kg',
             partialResponses: [
               {
-                id: `${bobQuery.response?.partialResponses[0].id}`,
+                id: `${response.partialResponses[0].id}`,
                 data: {
                   mass: 500,
                   unit: 'kg',
@@ -291,6 +246,7 @@ describe('partial query aggregation', function () {
 
       it('also updates Alice query as resolved with a total of Bob and Charlie co2 emissions', async () => {
         const [query] = await context.db.alice.get('query')
+        const response = carbonEmbodimentResponseData.parse(query.response)
 
         expect(query).to.deep.contain({
           parent_id: null,
@@ -318,7 +274,7 @@ describe('partial query aggregation', function () {
             },
             partialResponses: [
               {
-                id: `${query.response?.partialResponses[0].id}`,
+                id: `${response.partialResponses[0].id}`,
                 type: 'https://github.com/digicatapult/veritable-documentation/tree/main/schemas/veritable_messaging/query_types/total_carbon_embodiment/response/0.1',
                 data: {
                   mass: 500,

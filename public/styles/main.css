@@ -477,7 +477,7 @@ main {
   padding: 5px;
 }
 
-.container-carbon-embodiment {
+.container-query-form {
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
@@ -485,7 +485,7 @@ main {
   min-height: 33em;
 }
 
-.co2-embodiment-left {
+.query-form-left {
   display: flex;
   flex: 1;
   flex-direction: column;
@@ -495,14 +495,14 @@ main {
   padding-right: 20px;
 }
 
-.co2-embodiment-right {
+.query-form-right {
   display: flex;
   padding-top: 5px;
   flex: 1;
   flex-direction: column;
 }
 
-.co2-embodiment-left #co2-embodiment-heading {
+.query-form-left #co2-embodiment-heading {
   margin-bottom: 150px;
 }
 
@@ -516,6 +516,10 @@ main {
   font-size: 0.75rem;
   line-height: 1rem;
   padding-bottom: 10px;
+}
+
+#query-response-view td:first-child {
+  width: 10rem;
 }
 
 .row {
@@ -558,7 +562,7 @@ main {
   transition: all 0.3s ease-out;
 }
 
-.query-text-carbon-embodiment {
+.query-form-text {
   font-size: 1rem;
   text-align: left;
 }
@@ -748,19 +752,19 @@ input[type='radio']:checked::after {
     height: 100%;
   }
   .query-item,
-  .co2-embodiment-left {
+  .query-form-left {
     min-height: 250px;
   }
-  .query-text-carbon-embodiment {
+  .query-text {
     max-width: 100%;
     position: relative;
     top: 0;
   }
-  .co2-embodiment-left #co2-embodiment-heading {
+  .query-form-left #co2-embodiment-heading {
     text-align: center;
     margin-bottom: 0;
   }
-  .co2-embodiment-left {
+  .query-form-left {
     flex: 1;
   }
   .max-height-table {
