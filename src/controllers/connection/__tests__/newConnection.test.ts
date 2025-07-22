@@ -356,7 +356,6 @@ describe('NewConnectionController', () => {
         ])
       })
 
-      // TODO: changed 1->3 positional arg in the array ...why did this change?
       it('should send second email to admin', () => {
         expect(emailSpy.firstCall.args[0]).equal('connection_invite')
         expect(emailSpy.secondCall.args[0]).equal('connection_invite_admin')

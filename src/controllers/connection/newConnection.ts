@@ -169,7 +169,7 @@ export class NewConnectionController extends HTMLController {
       this.fromInvite.fromInviteForm({
         feedback: {
           type: 'companyFound',
-          company: inviteOrError.company, //TODO: show which registry the company wants you to search for it
+          company: inviteOrError.company,
         },
       })
     )
@@ -244,7 +244,7 @@ export class NewConnectionController extends HTMLController {
       req.log.warn(`unable to apply '${allowInvitation.state}' %j`, dbResult)
       return this.newInviteErrorHtml(dbResult.error, body.email, company.number)
     }
-    // TODO: goalCode is now one registry, but could be a list of registries our company's info can be found in
+
     const wrappedInvitation: Invite = {
       companyNumber: this.env.get('INVITATION_FROM_COMPANY_NUMBER'),
       goalCode: this.env.get('LOCAL_REGISTRY_TO_USE'), // 'search for me in this registry' --> allows the company we're issuing the invite to add the registry if needed
