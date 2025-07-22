@@ -998,7 +998,7 @@ describe('companyDetailsV1', function () {
       expect(stub.firstCall.args).to.deep.equal(['connection', { id: `connection-id` }, { status: 'verified_them' }])
       expect(stub.secondCall.args).to.deep.equal([
         'connection_invite',
-        { connection_id: `connection-id` },
+        { connection_id: `connection-id`, validity: 'valid' },
         { validity: 'used' },
       ])
     })
@@ -1045,7 +1045,7 @@ describe('companyDetailsV1', function () {
       expect(stub.firstCall.args).to.deep.equal(['connection', { id: `connection-id` }, { status: 'verified_both' }])
       expect(stub.secondCall.args).to.deep.equal([
         'connection_invite',
-        { connection_id: `connection-id` },
+        { connection_id: `connection-id`, validity: 'valid' },
         { validity: 'used' },
       ])
     })

@@ -3,19 +3,29 @@ import { Body, Get, Path, Post, Produces, Query, Request, Route, Security, Succe
 import { injectable } from 'tsyringe'
 
 import { Logger } from 'pino'
-import { InvalidInputError, NotFoundError } from '../../errors.js'
+import { InvalidInputError } from '../../errors.js'
 import { PartialQueryPayload } from '../../models/arrays.js'
 import Database from '../../models/db/index.js'
-import { ConnectionRow, QueryRow, Where } from '../../models/db/types.js'
-import { drpcQueryAck, DrpcQueryRequest, DrpcQueryResponse, SubmitQueryRequest } from '../../models/drpc.js'
+import { ConnectionRow, QueryRow, type QueryType, Where } from '../../models/db/types.js'
+import {
+  BavRes,
+  CarbonEmbodimentRes,
+  drpcQueryAck,
+  DrpcQueryRequest,
+  DrpcQueryResponse,
+  schemaToTypeMap,
+  SubmitQueryRequest,
+  SubmitQueryResponseRpcParams,
+  submitQueryRpcParams,
+} from '../../models/drpc.js'
 import { UInt } from '../../models/numbers.js'
-import { type UUID } from '../../models/strings.js'
+import { BIC, CountryCode, type UUID } from '../../models/strings.js'
 import VeritableCloudagent from '../../models/veritableCloudagent/index.js'
 import { JsonRpcError } from '../../models/veritableCloudagent/internal.js'
 import QueriesTemplates from '../../views/queries/queries.js'
 import QueryListTemplates from '../../views/queries/queriesList.js'
-import CarbonEmbodimentTemplates from '../../views/queries/requestCo2embodiment.js'
-import CarbonEmbodimentResponseTemplates from '../../views/queries/responseCo2embodiment.js'
+import QueryRequestTemplates from '../../views/queries/queryRequest.js'
+import QueryResponseTemplates from '../../views/queries/queryResponse.js'
 import { HTML, HTMLController } from '../HTMLController.js'
 
 @injectable()
@@ -24,8 +34,8 @@ import { HTML, HTMLController } from '../HTMLController.js'
 @Produces('text/html')
 export class QueriesController extends HTMLController {
   constructor(
-    private carbonEmbodimentTemplates: CarbonEmbodimentTemplates,
-    private carbonEmbodimentResponseTemplates: CarbonEmbodimentResponseTemplates,
+    private requestTemplates: QueryRequestTemplates,
+    private responseTemplates: QueryResponseTemplates,
     private queriesTemplates: QueriesTemplates,
     private queryManagementTemplates: QueryListTemplates,
     private cloudagent: VeritableCloudagent,
@@ -35,12 +45,12 @@ export class QueriesController extends HTMLController {
   }
 
   /**
-   * Retrieves the query page
+   * Choose query page
    */
   @SuccessResponse(200)
-  @Get('/new')
-  public async queries(): Promise<HTML> {
-    return this.html(this.queriesTemplates.chooseQueryPage())
+  @Get('/choose')
+  public async queries(@Query() connectionId?: UUID): Promise<HTML> {
+    return this.html(this.queriesTemplates.chooseQueryPage(connectionId))
   }
   /**
    * Retrieves the queries page
@@ -65,20 +75,24 @@ export class QueriesController extends HTMLController {
   }
 
   /**
-   * Retrieves the query page
+   * Retrieves new query page
    */
   @SuccessResponse(200)
-  @Get('/new/carbon-embodiment')
-  public async carbonEmbodiment(
+  @Get('/new')
+  public async new(
     @Request() req: express.Request,
+    @Query() type: QueryType,
     @Query() search?: string,
     @Query() connectionId?: UUID
   ): Promise<HTML> {
     if (connectionId) {
+      const connection = await this.getConnection(connectionId)
+
       return this.html(
-        this.carbonEmbodimentTemplates.newCarbonEmbodimentFormPage({
+        this.requestTemplates.newQueryRequestPage({
           formStage: 'form',
-          connectionId: connectionId,
+          connection: connection,
+          type,
         })
       )
     }
@@ -90,17 +104,18 @@ export class QueriesController extends HTMLController {
     }
 
     const connections = await this.db.get('connection', query, [['updated_at', 'desc']])
-    req.log.info('carbon-embodiment requested')
+    req.log.info(`${type} requested`)
     this.setHeader(
       'HX-Replace-Url',
-      search ? `/queries/new/carbon-embodiment?search=${encodeURIComponent(search)}` : `/queries/new/carbon-embodiment`
+      search ? `/queries/new?type=${type}&search=${encodeURIComponent(search)}` : `/queries/new?type=${type}`
     )
 
     return this.html(
-      this.carbonEmbodimentTemplates.newCarbonEmbodimentFormPage({
+      this.requestTemplates.newQueryRequestPage({
         formStage: 'companySelect',
         connections,
         search: search ?? '',
+        type,
       })
     )
   }
@@ -109,7 +124,7 @@ export class QueriesController extends HTMLController {
    * Submits a new total carbon embodiment query
    */
   @SuccessResponse(200)
-  @Post('/new/carbon-embodiment')
+  @Post('/carbon-embodiment')
   public async carbonEmbodimentSubmit(
     @Request() req: express.Request,
     @Body()
@@ -119,22 +134,7 @@ export class QueriesController extends HTMLController {
       quantity: number
     }
   ) {
-    const [connection] = await this.db.get('connection', { id: body.connectionId, status: 'verified_both' }, [
-      ['updated_at', 'desc'],
-    ])
-    if (!connection) {
-      req.log.warn('connection [%s] is not found', body.connectionId)
-      throw new InvalidInputError(`Invalid connection ${body.connectionId}`)
-    }
-    if (!connection.agent_connection_id || connection.status !== 'verified_both') {
-      req.log.warn(
-        'connection agent id is %s or invalid status - %s',
-        connection.agent_connection_id,
-        connection.status
-      )
-      throw new InvalidInputError(`Cannot query unverified connection`)
-    }
-
+    const connection = await this.verifyConnection(req.log, body.connectionId)
     const expiresTime = new Date(new Date().getTime() + 7 * 24 * 60 * 60 * 1000) // add a week to now
 
     return await this.handleQueryRequest(
@@ -158,31 +158,57 @@ export class QueriesController extends HTMLController {
   }
 
   /**
-   * Retrieves the query response page
+   * Submits a new bav query
    */
   @SuccessResponse(200)
-  @Get('/carbon-embodiment/{queryId}/response')
-  public async carbonEmbodimentResponse(@Request() req: express.Request, @Path() queryId: UUID): Promise<HTML> {
+  @Post('/bav')
+  public async bavSubmit(
+    @Request() req: express.Request,
+    @Body()
+    body: {
+      connectionId: UUID
+    }
+  ) {
+    const connection = await this.verifyConnection(req.log, body.connectionId)
+    const expiresTime = new Date(new Date().getTime() + 7 * 24 * 60 * 60 * 1000) // add a week to now
+
+    return await this.handleQueryRequest(
+      req.log,
+      connection.id,
+      null,
+      {
+        type: 'https://github.com/digicatapult/veritable-documentation/tree/main/schemas/veritable_messaging/query_types/beneficiary_account_validation/request/0.1',
+        data: {
+          subjectId: {
+            idType: 'bav',
+          },
+        },
+      },
+      expiresTime
+    )
+  }
+
+  /**
+   * Retrieves query response page
+   */
+  @SuccessResponse(200)
+  @Get('/{queryId}/response')
+  public async response(@Request() req: express.Request, @Path() queryId: UUID): Promise<HTML> {
     req.log.info('query response page requested %j', { queryId })
-    const [query] = await this.db.get('query', { id: queryId })
+    const query = await this.getQuery(queryId)
+    const connection = await this.getConnection(query.connection_id)
 
-    if (!query) {
-      req.log.warn('query [%s] was not found', queryId)
-      throw new NotFoundError(`There has been an issue retrieving the query.`)
+    if (query.status === 'resolved' && query.role === 'requester') {
+      return this.html(
+        this.responseTemplates.queryResponsePage({ formStage: 'view', connection, query, type: query.type })
+      )
     }
-
-    const [connection] = await this.db.get('connection', { id: query.connection_id })
-    if (!connection) {
-      req.log.warn('connection using query.connection_id [%s] was not found', query.connection_id)
-      throw new InvalidInputError(`There has been an issue retrieving the connection.`)
-    }
-
-    req.log.info('rendering co2 embodiment form %j', connection)
 
     return this.html(
-      this.carbonEmbodimentResponseTemplates.newCarbonEmbodimentResponseFormPage({
+      this.responseTemplates.queryResponsePage({
         formStage: 'form',
-        company: connection,
+        type: query.type,
+        connection,
         query,
       })
     )
@@ -204,26 +230,21 @@ export class QueriesController extends HTMLController {
     @Query() partialQuery?: 'on'
   ): Promise<HTML> {
     req.log.info('partial query response requested %s', queryId)
-    const [query]: QueryRow[] = await this.db.get('query', { id: queryId })
-    if (!query) throw new NotFoundError('query not found')
+    const query = await this.getQuery(queryId)
+    const connection = await this.getConnection(query.connection_id)
 
-    const [company]: ConnectionRow[] = await this.db.get('connection', { id: query.connection_id })
-    if (!company) throw new NotFoundError('company connection not found')
-
-    req.log.info('query and connection - are found %j', { company, query })
     const connections: ConnectionRow[] = await this.db.get('connection', { status: 'verified_both' })
 
-    // due to very long names, re-assigning to a shorter variable (render)
-    const render = this.carbonEmbodimentResponseTemplates.newCarbonEmbodimentResponseFormPage
     req.log.info('rendering partial query %j', query.details)
 
     return this.html(
-      render({
-        company,
+      this.responseTemplates.queryResponsePage({
+        connection,
         query,
         partial: partialQuery === 'on' ? true : false,
         connections: connections.filter(({ id }: ConnectionRow) => id !== query.connection_id),
         formStage: 'form',
+        type: query.type,
       })
     )
   }
@@ -233,7 +254,7 @@ export class QueriesController extends HTMLController {
    * @param query.partialSelect:'on' - if it's selected by checkbox, then it would add 'on' as a the query string
    * to the URL: (http://localhost:3000/form?<checkbox_name>=on)
    *
-   * @returns - a tabe row for partial query
+   * @returns - a table row for partial query
    */
   @SuccessResponse(200)
   @Get('/partial-select/{connectionId}')
@@ -243,36 +264,33 @@ export class QueriesController extends HTMLController {
     @Query() partialSelect?: 'on'
   ): Promise<HTML> {
     req.log.info('partial select %s', connectionId)
-    const [company]: ConnectionRow[] = await this.db.get('connection', { id: connectionId })
-    if (!company) throw new NotFoundError('connection not found')
+    const connection = await this.getConnection(connectionId)
 
     const checked: boolean = partialSelect === 'on' || false
-    req.log.info('selected: %s returning an updated table row %j', connectionId, company)
 
     return this.html(
-      this.carbonEmbodimentResponseTemplates.tableRow({
+      this.responseTemplates.tableRow({
         id: connectionId,
         checked,
-        company_name: company.company_name,
-        company_number: company.company_number,
+        company_name: connection.company_name,
+        company_number: connection.company_number,
       })
     )
   }
 
   /**
-   * Submits the query response page
+   * Submit carbon embodiment query response page
    * @param connections - since table contains only 3 cells this data will need to be
    * devided into chunks of size 3
    */
   @SuccessResponse(200)
-  @Post('/carbon-embodiment/{queryId}/response')
+  @Post('/{queryId}/response/carbon-embodiment')
   public async carbonEmbodimentResponseSubmit(
     @Request() req: express.Request,
     @Path() queryId: UUID,
     @Body()
     body: {
       companyId: UUID
-      action: 'success'
       emissions: number
       partialQuery?: 'on'[] // TODO: remove
       partialSelect?: 'on'[] // TODO: remove
@@ -281,32 +299,28 @@ export class QueriesController extends HTMLController {
       quantities?: UInt[]
     }
   ): Promise<HTML> {
-    const { action, companyId, emissions, partialQuery, partialSelect, ...partial } = body
+    const { companyId, emissions, partialQuery, partialSelect, ...partial } = body
     req.log.info('query page requested %j', { body })
 
-    const [connection]: ConnectionRow[] = await this.db.get('connection', { id: companyId, status: 'verified_both' }, [
-      ['updated_at', 'desc'],
-    ])
-    if (!connection) {
-      req.log.warn('invalid input error %j', { companyId, action })
-      throw new InvalidInputError(`Invalid connection ${companyId}`)
-    }
-    if (!connection.agent_connection_id || connection.status !== 'verified_both') {
-      req.log.warn('invalid input error %j', { companyId, action, emissions })
-      throw new InvalidInputError(`Cannot query unverified connection`)
-    }
-    const [queryRow]: QueryRow[] = await this.db.get('query', { id: queryId })
-    if (!queryRow) {
-      req.log.warn('invalid input error %j', { queryId })
-      throw new InvalidInputError(`Invalid query id.`)
-    }
+    const connection = await this.verifyConnection(req.log, companyId)
+    const queryRow = await this.getQuery(queryId)
     if (!queryRow.response_id) {
       req.log.warn('missing DRPC response_id to respond to %j', queryRow)
       throw new InvalidInputError(`Missing response_id to respond to.`)
     }
 
     if (!partialQuery) {
-      return this.handleQueryResponse(req.log, connection, queryRow, emissions)
+      const response: CarbonEmbodimentRes = {
+        id: queryRow.response_id,
+        type: 'https://github.com/digicatapult/veritable-documentation/tree/main/schemas/veritable_messaging/query_types/total_carbon_embodiment/response/0.1',
+        data: {
+          subjectId: queryRow.details.subjectId,
+          mass: emissions,
+          unit: 'kg',
+          partialResponses: [],
+        },
+      }
+      return this.handleQueryResponse(req.log, connection, queryRow, response)
     }
 
     if (!partial.connectionIds || !partial.productIds || !partial.quantities) {
@@ -358,35 +372,51 @@ export class QueriesController extends HTMLController {
     )
 
     return this.html(
-      this.carbonEmbodimentResponseTemplates.newCarbonEmbodimentResponseFormPage({
+      this.responseTemplates.queryResponsePage({
+        type: 'total_carbon_embodiment',
         formStage: 'success',
-        company: connection,
+        connection,
         query: queryRow,
       })
     )
   }
 
   /**
-   * Retrieves the response to a query asked
+   * Submit bav response page
+   * devided into chunks of size 3
    */
   @SuccessResponse(200)
-  @Get('/carbon-embodiment/{queryId}/view-response')
-  public async carbonEmbodimentViewResponse(@Request() req: express.Request, @Path() queryId: UUID): Promise<HTML> {
-    req.log.debug('gathering data for [%s] query response page', queryId)
-    const [query]: QueryRow[] = await this.db.get('query', { id: queryId })
+  @Post('/{queryId}/response/bav')
+  public async bavResponseSubmit(
+    @Request() req: express.Request,
+    @Path() queryId: UUID,
+    @Body()
+    body: {
+      companyId: UUID
+      bic: BIC
+      countryCode: CountryCode
+    }
+  ): Promise<HTML> {
+    const { companyId, bic, countryCode } = body
+    req.log.info('query page requested %j', { body })
 
-    if (!query) throw new NotFoundError(`There has been an issue retrieving the query.`)
-    if (query.response === null) throw new InvalidInputError(`This query does not seem to have a response yet.`)
-
-    const [connection] = await this.db.get('connection', { id: query.connection_id })
-    if (!connection) {
-      req.log.warn('invalid input, unable to retrieve a %s connection', query.connection_id)
-      throw new InvalidInputError(`There has been an issue retrieving the connection.`)
+    const connection = await this.verifyConnection(req.log, companyId)
+    const queryRow = await this.getQuery(queryId)
+    if (!queryRow.response_id) {
+      req.log.warn('missing DRPC response_id to respond to %j', queryRow)
+      throw new InvalidInputError(`Missing response_id to respond to.`)
     }
 
-    req.log.info('connection and query has been found %j', { query, connection })
-
-    return this.html(this.carbonEmbodimentResponseTemplates.view(connection, query))
+    const response: BavRes = {
+      id: queryRow.response_id,
+      type: 'https://github.com/digicatapult/veritable-documentation/tree/main/schemas/veritable_messaging/query_types/beneficiary_account_validation/response/0.1',
+      data: {
+        subjectId: queryRow.details.subjectId,
+        bic,
+        countryCode,
+      },
+    }
+    return this.handleQueryResponse(req.log, connection, queryRow, response)
   }
 
   private validatePartialQuery({ connectionIds: a, productIds: b, quantities: c }: PartialQueryPayload): number {
@@ -403,7 +433,7 @@ export class QueriesController extends HTMLController {
     connectionId: UUID,
     parentId: UUID | null,
     params: Omit<SubmitQueryRequest['params'], 'id' | 'createdTime' | 'expiresTime'>,
-    expiresAt: Date
+    expiresTime: Date
   ) {
     const [connection]: ConnectionRow[] = await this.db.get(
       'connection',
@@ -414,25 +444,27 @@ export class QueriesController extends HTMLController {
 
     const [query] = await this.db.insert('query', {
       connection_id: connectionId,
-      type: 'total_carbon_embodiment',
+      type: schemaToTypeMap[params.type],
       status: 'pending_their_input',
       details: params.data,
       response_id: null,
       response: null,
       role: 'requester',
       parent_id: parentId,
-      expires_at: expiresAt,
+      expires_at: expiresTime,
     })
 
     try {
+      const fullParams = {
+        id: query.id,
+        createdTime: Math.floor(query.created_at.getTime() / 1000),
+        expiresTime: Math.floor(query.expires_at.getTime() / 1000),
+        ...params,
+      }
+      const safeParams = submitQueryRpcParams.parse(fullParams)
       await this.submitDrpcQueryAndStoreResult(log, connection.agent_connection_id, query, {
         method: 'submit_query_request',
-        params: {
-          id: query.id,
-          createdTime: Math.floor(query.created_at.getTime() / 1000),
-          expiresTime: Math.floor(query.expires_at.getTime() / 1000),
-          ...params,
-        },
+        params: safeParams,
       })
     } catch (err) {
       if (err instanceof Error) {
@@ -444,27 +476,33 @@ export class QueriesController extends HTMLController {
       await this.db.update('query', { id: query?.id }, { status: 'errored' })
 
       return this.html(
-        this.carbonEmbodimentTemplates.newCarbonEmbodimentFormPage({
+        this.requestTemplates.newQueryRequestPage({
           formStage: 'error',
           company: {
-            companyNumber: connection.company_number,
             companyName: connection.company_name,
           },
+          type: query.type,
         })
       )
     }
 
     return this.html(
-      this.carbonEmbodimentTemplates.newCarbonEmbodimentFormPage({
+      this.requestTemplates.newQueryRequestPage({
         formStage: 'success',
         company: {
           companyName: connection.company_name,
         },
+        type: query.type,
       })
     )
   }
 
-  private async handleQueryResponse(log: Logger, connection: ConnectionRow, query: QueryRow, emissions?: number) {
+  private async handleQueryResponse(
+    log: Logger,
+    connection: ConnectionRow,
+    query: QueryRow,
+    response: SubmitQueryResponseRpcParams
+  ) {
     if (query.response) {
       log.warn('Attempted to respond to already completed query %j', query)
       throw new InvalidInputError(`Query with id ${query.id} has already been responded to`)
@@ -473,7 +511,7 @@ export class QueriesController extends HTMLController {
       log.warn('Cannot respond to query without a response_id %j', query)
       throw new InvalidInputError(`Query from self with id ${query.id} cannot be responded to`)
     }
-    if (emissions === undefined) {
+    if (response === undefined) {
       log.warn('Attempt to respond to query without response %j', query)
       throw new InvalidInputError(`Must provide response to respond to query`)
     }
@@ -486,16 +524,9 @@ export class QueriesController extends HTMLController {
       await this.submitDrpcQueryAndStoreResult(log, connection.agent_connection_id, query, {
         method: 'submit_query_response',
         params: {
-          id: query.response_id,
+          ...response,
           createdTime: Math.floor(query.created_at.getTime() / 1000),
           expiresTime: Math.floor(query.expires_at.getTime() / 1000),
-          type: 'https://github.com/digicatapult/veritable-documentation/tree/main/schemas/veritable_messaging/query_types/total_carbon_embodiment/response/0.1',
-          data: {
-            subjectId: query.details.subjectId,
-            mass: emissions,
-            unit: 'kg',
-            partialResponses: [],
-          },
         },
       })
 
@@ -504,7 +535,7 @@ export class QueriesController extends HTMLController {
         { id: query.id },
         {
           status: 'resolved',
-          response: { mass: emissions, unit: 'kg', partialResponses: [], subjectId: query.details.subjectId },
+          response: response.data,
         }
       )
     } catch (err) {
@@ -517,19 +548,21 @@ export class QueriesController extends HTMLController {
       await this.db.update('query', { id: query.id }, { status: 'errored' })
 
       return this.html(
-        this.carbonEmbodimentResponseTemplates.newCarbonEmbodimentResponseFormPage({
+        this.responseTemplates.queryResponsePage({
           formStage: 'error',
-          company: connection,
+          connection,
           query,
+          type: query.type,
         })
       )
     }
 
     return this.html(
-      this.carbonEmbodimentResponseTemplates.newCarbonEmbodimentResponseFormPage({
+      this.responseTemplates.queryResponsePage({
         formStage: 'success',
-        company: connection,
+        connection,
         query,
+        type: query.type,
       })
     )
   }
@@ -568,6 +601,35 @@ export class QueriesController extends HTMLController {
       log.warn('error happened with query rpc %j', { rpcResponse })
       throw new Error(`Error occurred submitting response to query ${query.response_id}`)
     }
+  }
+
+  private async getConnection(connectionId: UUID, status?: ConnectionRow['status']): Promise<ConnectionRow> {
+    const [connection] = await this.db.get(
+      'connection',
+      { id: connectionId, ...(status !== undefined && { status }) },
+      [['updated_at', 'desc']]
+    )
+    if (!connection) {
+      throw new InvalidInputError(`Invalid connection ${connectionId}`)
+    }
+    return connection
+  }
+
+  private async verifyConnection(log: Logger, connectionId: UUID): Promise<ConnectionRow> {
+    const connection = await this.getConnection(connectionId, 'verified_both')
+    if (!connection.agent_connection_id || connection.status !== 'verified_both') {
+      log.warn('connection agent id is %s or invalid status - %s', connection.agent_connection_id, connection.status)
+      throw new InvalidInputError(`Cannot query unverified connection`)
+    }
+    return connection
+  }
+
+  private async getQuery(queryId: UUID): Promise<QueryRow> {
+    const [queryRow]: QueryRow[] = await this.db.get('query', { id: queryId })
+    if (!queryRow) {
+      throw new InvalidInputError(`Invalid query id.`)
+    }
+    return queryRow
   }
 }
 

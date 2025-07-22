@@ -13,7 +13,7 @@ import { MapDiscriminatedUnion } from '../utils/types.js'
 const drpcRequestParser = z.object({
   jsonrpc: z.string(),
   method: z.string(),
-  params: z.record(z.any()).optional(),
+  params: z.record(z.any(), z.any()).optional(),
   id: z.string(),
 })
 const eventParser = z.discriminatedUnion('type', [

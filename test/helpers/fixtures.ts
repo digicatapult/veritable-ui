@@ -29,7 +29,7 @@ export const bob = {
 
 export const charlie = {
   company_number: '10016023',
-  company_name: 'OFFSHORE RENEWABLE ENERGY CATAPULT',
+  company_name: 'CELL AND GENE THERAPY CATAPULT',
   registered_office_address: {
     address_line_1: "12th Floor Tower Wing Guy's Hospital",
     address_line_2: 'Great Maze Pond',

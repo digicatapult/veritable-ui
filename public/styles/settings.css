@@ -104,6 +104,14 @@
   height: auto;
 }
 
+#version-id {
+  position: fixed;
+  bottom: 10px;
+  right: 10px;
+  color: #666;
+  font-size: 0.85rem;
+}
+
 @media (max-width: 767px) {
   .save-button-container {
     margin-left: 5px;
