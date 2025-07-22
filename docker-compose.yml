@@ -69,6 +69,8 @@ services:
       - COMPANY_HOUSE_API_URL=https://api.company-information.service.gov.uk
       - DEMO_MODE=true
       - SMTP_SECURE=false
+      - LOCAL_REGISTRY_TO_USE=GB
+      - SOCRATA_API_URL=https://data.ny.gov/resource/p66s-i79p.json
       - COMPANY_PROFILE_API_KEY=${COMPANY_PROFILE_API_KEY}
   postgres-veritable-ui-alice:
     image: postgres:17.5-alpine
@@ -158,6 +160,8 @@ services:
       - SMTP_USER=username
       - EMAIL_TRANSPORT=SMTP_EMAIL
       - SMTP_SECURE=false
+      - LOCAL_REGISTRY_TO_USE=GB
+      - SOCRATA_API_URL=https://data.ny.gov/resource/p66s-i79p.json
       - COMPANY_PROFILE_API_KEY=${COMPANY_PROFILE_API_KEY}
 
   postgres-veritable-ui-bob:
@@ -212,6 +216,8 @@ services:
         condition: service_healthy
     ports:
       - 3002:3000
+    # env_file:
+    #   - .env
     command: >
       sh -c "
         npm i -g pino-colada
@@ -234,8 +240,8 @@ services:
       - IDP_CLIENT_ID=veritable-ui
       - IDP_PUBLIC_URL_PREFIX=http://localhost:3080/realms/veritable/protocol/openid-connect
       - IDP_INTERNAL_URL_PREFIX=http://keycloak:8080/realms/veritable/protocol/openid-connect
-      - INVITATION_FROM_COMPANY_NUMBER=10016023
       - INVITATION_PIN_SECRET=secret
+      - INVITATION_FROM_COMPANY_NUMBER=10016023
       - ISSUANCE_DID_POLICY=EXISTING_OR_NEW
       - ISSUANCE_SCHEMA_POLICY=EXISTING_OR_NEW
       - ISSUANCE_CRED_DEF_POLICY=EXISTING_OR_NEW
@@ -247,6 +253,8 @@ services:
       - EMAIL_TRANSPORT=SMTP_EMAIL
       - SMTP_SECURE=false
       - COMPANY_PROFILE_API_KEY=${COMPANY_PROFILE_API_KEY}
+      - LOCAL_REGISTRY_TO_USE=GB
+      - SOCRATA_API_URL=https://data.ny.gov/resource/p66s-i79p.json
 
   postgres-veritable-ui-charlie:
     image: postgres:17.5-alpine
@@ -297,15 +305,25 @@ services:
 
   # -------------------- wiremock ----------------------------#
 
-  wiremock:
+  wiremock-companies-house:
     image: wiremock/wiremock:3.13.1
-    container_name: wiremock
+    container_name: wiremock-companies-house
     scale: 0
     ports:
       - '8443:8080' # Port for accessing wiremock
     restart: always
     volumes:
-      - ./test/wiremock/:/home/wiremock/mappings/
+      - ./test/wiremock/company-house/:/home/wiremock/mappings/
+
+  wiremock-socrata:
+    image: wiremock/wiremock:3.13.1
+    container_name: wiremock-socrata
+    scale: 0
+    ports:
+      - '8444:8080' # Port for accessing wiremock
+    restart: always
+    volumes:
+      - ./test/wiremock/socrata/:/home/wiremock/mappings/
 
 volumes:
   ipfs:

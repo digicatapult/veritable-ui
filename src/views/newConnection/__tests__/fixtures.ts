@@ -1,16 +1,14 @@
-import { OrganisationProfile } from '../../../models/organisationRegistry.js'
+import { SharedOrganisationInfo } from '../../../models/orgRegistry/organisationRegistry.js'
+import { CountryCode } from '../../../models/strings.js'
 import { FormFeedback } from '../base.js'
 
-export const successResponse: OrganisationProfile = {
-  registered_office_address: {
-    address_line_1: 'Level 9, 101 Euston Road',
-    postal_code: 'NW1 2RA',
-    locality: 'London',
-  },
-  company_status: 'active',
-  registered_office_is_in_dispute: false,
-  company_name: 'DIGITAL CATAPULT',
-  company_number: '07964699',
+export const successResponse: SharedOrganisationInfo = {
+  name: 'DIGITAL CATAPULT',
+  address: 'Level 9, 101 Euston Road, London, NW1 2RA',
+  status: 'active',
+  number: '07964699',
+  registryCountryCode: 'GB' as CountryCode,
+  registeredOfficeIsInDispute: false,
 }
 
 export const testErrorTargetBox: FormFeedback = {

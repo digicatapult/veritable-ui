@@ -30,6 +30,15 @@ const fixtures = {
   agent_connections: [{ id: 'some-agent-id-1' }, { id: 'some-agent-id-2' }, { id: 'some-agent-id-3' }],
   agent_credentials: [{ id: 'some-agent-credential-id-1' }, { id: 'some-agent-credential-id-2' }],
   settings: [],
+  organisation_registries: [
+    {
+      id: 'some-organisation-registry-id-1',
+      country_code: 'GB',
+      registry_key: 'company_house',
+      url: 'https://api.company-information.service.gov.uk',
+      api_key: '',
+    },
+  ],
 }
 
 const dbMock = {

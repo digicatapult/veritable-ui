@@ -11,37 +11,34 @@ import {
   invalidCompanyNumber,
   noCompanyNumber,
   validCompanyNumber,
-} from './fixtures/companyHouseFixtures.js'
+} from './fixtures/socrataFixtures.js'
 import { mockDb } from './helpers/dbMock.js'
-import { withCompanyHouseMock } from './helpers/mockCompanyHouse.js'
-
+import { withSocrataMock } from './helpers/mockSocrata.js'
 const mockLogger: ILogger = pino({ level: 'silent' })
-const ukRegistryCountryCode = 'GB' as CountryCode
+const nyRegistryCountryCode = 'US' as CountryCode
 
-describe('organisationRegistry with company house as registry', () => {
-  withCompanyHouseMock()
-
+describe('organisationRegistry with socrata as registry', () => {
+  withSocrataMock()
   describe('getOrganisationProfileByOrganisationNumber', () => {
     it('should return company found if valid company', async () => {
       const environment = container.resolve(Env)
+
       const organisationRegistryObject = new OrganisationRegistry(environment, mockDb, mockLogger)
       const response = await organisationRegistryObject.getOrganisationProfileByOrganisationNumber(
         validCompanyNumber,
-        ukRegistryCountryCode
+        nyRegistryCountryCode
       )
       expect(response).deep.equal({ type: 'found', company: finalSuccessResponse })
     })
-
-    it('should return notFound for 404', async () => {
+    it('should return notFound if company notFound', async () => {
       const environment = new Env()
       const organisationRegistryObject = new OrganisationRegistry(environment, mockDb, mockLogger)
       const response = await organisationRegistryObject.getOrganisationProfileByOrganisationNumber(
         noCompanyNumber,
-        ukRegistryCountryCode
+        nyRegistryCountryCode
       )
       expect(response).deep.equal({ type: 'notFound' })
     })
-
     it('should propagate other errors', async () => {
       const environment = new Env()
       const organisationRegistryObject = new OrganisationRegistry(environment, mockDb, mockLogger)
@@ -49,24 +46,18 @@ describe('organisationRegistry with company house as registry', () => {
       try {
         await organisationRegistryObject.getOrganisationProfileByOrganisationNumber(
           invalidCompanyNumber,
-          ukRegistryCountryCode
+          nyRegistryCountryCode
         )
       } catch (err) {
         errorMessage = err
       }
 
       expect(errorMessage).instanceOf(Error)
-      expect((errorMessage as Error).message).equals(`Error calling CompanyHouse API`)
+      expect((errorMessage as Error).message).equals(`Error calling Socrata API`)
     })
   })
-
-  describe('localOrganisationProfile', () => {
-    it('should return company found', async () => {
-      const environment = new Env()
-      const organisationRegistryObject = new OrganisationRegistry(environment, mockDb, mockLogger)
-      const response = await organisationRegistryObject.localOrganisationProfile()
-
-      expect(response).deep.equal(finalSuccessResponse)
-    })
-  })
+  // TODO:
+  // Add tests for localOrganisationProfile
+  // for Socrata being used as local registry
+  // this may entail rewriting the env
 })

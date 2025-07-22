@@ -5,6 +5,7 @@ import { InternalError, NotFoundError } from '../../errors.js'
 import { type ILogger } from '../../logger.js'
 import { MapDiscriminatedUnion } from '../../utils/types.js'
 import { DrpcQueryRequest, DrpcQueryResponse } from '../drpc.js'
+import { CountryCode } from '../strings.js'
 
 const oobParser = z.object({
   invitationUrl: z.string(),
@@ -201,11 +202,15 @@ export default class VeritableCloudagentInt<Config extends CloudagentConfig = De
     protected logger: ILogger
   ) {}
 
-  public async createOutOfBandInvite(params: { companyName: string }): Promise<OutOfBandInvite> {
+  public async createOutOfBandInvite(params: {
+    companyName: string
+    registryCountryCode: CountryCode
+  }): Promise<OutOfBandInvite> {
     return this.postRequest(
       '/v1/oob/create-invitation',
       {
         alias: params.companyName,
+        goalCode: params.registryCountryCode,
         handshake: true,
         multiUseInvitation: false,
         autoAcceptConnection: true,

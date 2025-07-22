@@ -7,7 +7,8 @@ import { ILogger } from '../../../logger.js'
 import Database from '../../../models/db/index.js'
 import { ConnectionRow } from '../../../models/db/types.js'
 import EmailService from '../../../models/emailService/index.js'
-import OrganisationRegistry from '../../../models/organisationRegistry.js'
+import OrganisationRegistry from '../../../models/orgRegistry/organisationRegistry.js'
+import { CountryCode } from '../../../models/strings.js'
 import VeritableCloudagent from '../../../models/veritableCloudagent/index.js'
 import ConnectionTemplates from '../../../views/connection/connection.js'
 import { FormFeedback } from '../../../views/newConnection/base.js'
@@ -64,8 +65,11 @@ export const withConnectionMocks = (
   const organisationRegistry = {
     localOrganisationProfile: () =>
       Promise.resolve({
-        company_number: 'COMPANY_NUMBER',
-        company_name: 'COMPANY_NAME',
+        number: 'COMPANY_NUMBER',
+        name: 'COMPANY_NAME',
+        registryCountryCode: 'GB' as CountryCode,
+        status: 'active',
+        address: 'ADDRESS',
       }),
   }
   const pinSubmission = {
@@ -141,8 +145,11 @@ export const withNewConnectionMocks = () => {
       throw new Error('Invalid number')
     },
     localOrganisationProfile: sinon.stub().resolves({
-      company_number: 'COMPANY_NUMBER',
-      company_name: 'COMPANY_NAME',
+      number: 'COMPANY_NUMBER',
+      name: 'COMPANY_NAME',
+      registryCountryCode: 'GB' as CountryCode,
+      status: 'active',
+      address: 'ADDRESS',
     }),
   } as unknown as OrganisationRegistry
 
@@ -175,7 +182,7 @@ export const withNewConnectionMocks = () => {
       templateFake(
         'companyFormInput',
         feedback.type,
-        feedback.company?.company_name || '',
+        feedback.company?.name || '',
         feedback.message || feedback.error || '',
         formStage,
         email,
@@ -190,7 +197,7 @@ export const withNewConnectionMocks = () => {
       templateFake(
         'fromInviteForm',
         feedback.type,
-        feedback.company?.company_name || '',
+        feedback.company?.name || '',
         feedback.message || feedback.error || ''
       ),
   } as unknown as FromInviteTemplates
@@ -209,11 +216,14 @@ export const withNewConnectionMocks = () => {
           return Buffer.from('secret', 'utf8')
         case 'INVITATION_FROM_COMPANY_NUMBER':
           return '07964699'
+        case 'LOCAL_REGISTRY_TO_USE':
+          return 'GB'
         default:
           throw new Error()
       }
     },
   } as unknown as Env
+  const mockLogger: ILogger = pino({ level: 'silent' })
 
   return {
     mockWithTransaction,
@@ -225,6 +235,7 @@ export const withNewConnectionMocks = () => {
     mockFromInvite,
     mockPinForm,
     mockEnv,
+    mockLogger,
     args: [
       mockDb,
       mockCompanyHouseEntity,
@@ -234,6 +245,7 @@ export const withNewConnectionMocks = () => {
       mockFromInvite,
       mockPinForm,
       mockEnv,
+      mockLogger,
     ] as const,
   }
 }

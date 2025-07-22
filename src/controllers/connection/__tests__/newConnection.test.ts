@@ -5,6 +5,7 @@ import sinon from 'sinon'
 import { toHTMLString, withNewConnectionMocks } from './helpers.js'
 
 import { Request } from 'express'
+import { CountryCode } from '../../../models/strings.js'
 import { mockLogger } from '../../__tests__/helpers.js'
 import { NewConnectionController } from '../newConnection.js'
 import {
@@ -21,15 +22,16 @@ import {
   usedVerifiedThemCompanyNumber,
   usedVerifiedUsCompanyNumber,
   validCompanyNumber,
-  validCompanyNumberInDispute,
-  validCompanyNumberInDisputeInvite,
   validCompanyNumberInactive,
   validCompanyNumberInactiveInvite,
+  validCompanyNumberInDispute,
+  validCompanyNumberInDisputeInvite,
   validCompanyNumberInvite,
   validDisconnectedCompanyNumber,
   validPendingCompanyNumber,
   verifiedBothCompanyNumber,
 } from './fixtures.js'
+const gbRegistryCountryCode = 'GB' as CountryCode
 
 describe('NewConnectionController', () => {
   const req = { log: mockLogger } as unknown as Request
@@ -58,7 +60,9 @@ describe('NewConnectionController', () => {
     it('should return form page when company number invalid', async () => {
       const { args } = withNewConnectionMocks()
       const controller = new NewConnectionController(...args)
-      const result = await controller.verifyCompanyForm(req, invalidCompanyNumber).then(toHTMLString)
+      const result = await controller
+        .verifyCompanyForm(req, invalidCompanyNumber, gbRegistryCountryCode)
+        .then(toHTMLString)
       expect(result).to.equal('newInvitePage_message_newInvitePage')
     })
 
@@ -66,14 +70,18 @@ describe('NewConnectionController', () => {
       const { args } = withNewConnectionMocks()
       const controller = new NewConnectionController(...args)
 
-      const result = await controller.verifyCompanyForm(req, notFoundCompanyNumber).then(toHTMLString)
+      const result = await controller
+        .verifyCompanyForm(req, notFoundCompanyNumber, gbRegistryCountryCode)
+        .then(toHTMLString)
       expect(result).to.equal('companyFormInput_error--Company number does not exist-form--00000000_companyFormInput')
     })
 
     it('should return rendered error when company registered office in dispute', async () => {
       const { args } = withNewConnectionMocks()
       const controller = new NewConnectionController(...args)
-      const result = await controller.verifyCompanyForm(req, validCompanyNumberInDispute).then(toHTMLString)
+      const result = await controller
+        .verifyCompanyForm(req, validCompanyNumberInDispute, gbRegistryCountryCode)
+        .then(toHTMLString)
       expect(result).to.equal(
         'companyFormInput_error--Cannot validate company NAME3 as address is currently in dispute-form--00000003_companyFormInput'
       )
@@ -82,14 +90,18 @@ describe('NewConnectionController', () => {
     it('should return rendered error when company not active', async () => {
       const { args } = withNewConnectionMocks()
       const controller = new NewConnectionController(...args)
-      const result = await controller.verifyCompanyForm(req, validCompanyNumberInactive).then(toHTMLString)
+      const result = await controller
+        .verifyCompanyForm(req, validCompanyNumberInactive, gbRegistryCountryCode)
+        .then(toHTMLString)
       expect(result).to.equal('companyFormInput_error--Company NAME4 is not active-form--00000004_companyFormInput')
     })
 
     it('should return success form', async () => {
       const { args } = withNewConnectionMocks()
       const controller = new NewConnectionController(...args)
-      const result = await controller.verifyCompanyForm(req, validCompanyNumber).then(toHTMLString)
+      const result = await controller
+        .verifyCompanyForm(req, validCompanyNumber, gbRegistryCountryCode)
+        .then(toHTMLString)
       expect(result).to.equal('companyFormInput_companyFound-NAME--form--00000001_companyFormInput')
     })
   })
@@ -113,7 +125,9 @@ describe('NewConnectionController', () => {
       const { args } = withNewConnectionMocks()
       const controller = new NewConnectionController(...args)
       const result = await controller.verifyInviteForm(req, invalidInvite).then(toHTMLString)
-      expect(result).to.equal('fromInviteForm_error--Invitation is not valid_fromInviteForm')
+      expect(result).to.equal(
+        'fromInviteForm_error--Invitation is not valid, the invite is not in the correct format_fromInviteForm'
+      )
     })
 
     it('should rendered error when company number invalid', async () => {
@@ -163,6 +177,7 @@ describe('NewConnectionController', () => {
           companyNumber: notFoundCompanyNumber,
           email: 'alice@example.com',
           action: 'continue',
+          registryCountryCode: gbRegistryCountryCode,
         })
         .then(toHTMLString)
       expect(result).to.equal(
@@ -178,6 +193,7 @@ describe('NewConnectionController', () => {
           companyNumber: validCompanyNumberInDispute,
           email: 'alice@example.com',
           action: 'continue',
+          registryCountryCode: gbRegistryCountryCode,
         })
         .then(toHTMLString)
       expect(result).to.equal(
@@ -193,6 +209,7 @@ describe('NewConnectionController', () => {
           companyNumber: validCompanyNumberInactive,
           email: 'alice@example.com',
           action: 'continue',
+          registryCountryCode: gbRegistryCountryCode,
         })
         .then(toHTMLString)
       expect(result).to.equal(
@@ -208,6 +225,7 @@ describe('NewConnectionController', () => {
           companyNumber: validCompanyNumber,
           email: 'alice@example.com',
           action: 'continue',
+          registryCountryCode: gbRegistryCountryCode,
         })
         .then(toHTMLString)
       expect(result).to.equal(
@@ -228,9 +246,9 @@ describe('NewConnectionController', () => {
           companyNumber: validCompanyNumber,
           email: 'alice@example.com',
           action: 'submit',
+          registryCountryCode: gbRegistryCountryCode,
         })
         .then(toHTMLString)
-
       expect(result).to.equal(
         'companyFormInput_error--Connection already exists with NAME-form-alice@example.com-00000001_companyFormInput'
       )
@@ -247,6 +265,7 @@ describe('NewConnectionController', () => {
           companyNumber: validCompanyNumber,
           email: 'alice@example.com',
           action: 'submit',
+          registryCountryCode: gbRegistryCountryCode,
         })
         .then(toHTMLString)
 
@@ -271,6 +290,7 @@ describe('NewConnectionController', () => {
           companyNumber: validCompanyNumber,
           email: 'alice@example.com',
           action: 'submit',
+          registryCountryCode: gbRegistryCountryCode,
         })
 
         clock.restore()
@@ -301,6 +321,7 @@ describe('NewConnectionController', () => {
             agent_connection_id: null,
             pin_attempt_count: 0,
             pin_tries_remaining_count: null,
+            registry_country_code: 'GB',
           },
         ])
       })
@@ -322,7 +343,7 @@ describe('NewConnectionController', () => {
       })
 
       it('should send first email to recipient', () => {
-        const expectedInvite = { companyNumber: '07964699', inviteUrl: 'url-NAME' }
+        const expectedInvite = { companyNumber: '07964699', goalCode: 'GB', inviteUrl: 'url-NAME' }
         const expectedInviteBase64 = Buffer.from(JSON.stringify(expectedInvite), 'utf8').toString('base64url')
         expect(emailSpy.firstCall.args).deep.equal([
           'connection_invite',
@@ -343,11 +364,10 @@ describe('NewConnectionController', () => {
           toCompanyName: 'NAME',
           fromCompanyName: 'COMPANY_NAME',
         })
-        expect(emailSpy.secondCall.args[1]?.pin).match(/[0-9]{6}/)
-        expect(emailSpy.secondCall.args[1]).to.deep.contain({
+        expect(emailSpy.secondCall.args[3]?.pin).match(/[0-9]{6}/)
+        expect(emailSpy.secondCall.args[3]).to.deep.contain({
           receiver: 'NAME',
-          address:
-            'NAME, ADDRESS_LINE_1, ADDRESS_LINE_2, CARE_OF, LOCALITY, PO_BOX, POSTAL_CODE, COUNTRY, PREMISES, REGION',
+          address: 'ADDRESS_LINE_1, ADDRESS_LINE_2, COUNTRY, LOCALITY, PO_BOX, POSTAL_CODE, REGION',
         })
       })
     })
@@ -361,6 +381,7 @@ describe('NewConnectionController', () => {
             companyNumber: noExistingInviteCompanyNumber,
             email: 'alice@example.com',
             action: 'continue',
+            registryCountryCode: gbRegistryCountryCode,
           })
           .then(toHTMLString)
         expect(result).to.equal(
@@ -376,6 +397,7 @@ describe('NewConnectionController', () => {
             companyNumber: verifiedBothCompanyNumber,
             email: 'alice@example.com',
             action: 'continue',
+            registryCountryCode: gbRegistryCountryCode,
           })
           .then(toHTMLString)
         expect(result).to.equal(
@@ -391,6 +413,7 @@ describe('NewConnectionController', () => {
             companyNumber: usedPendingCompanyNumber,
             email: 'alice@example.com',
             action: 'continue',
+            registryCountryCode: gbRegistryCountryCode,
           })
           .then(toHTMLString)
         expect(result).to.equal(
@@ -406,6 +429,7 @@ describe('NewConnectionController', () => {
             companyNumber: tooManyDisconnectedCompanyNumber,
             email: 'alice@example.com',
             action: 'continue',
+            registryCountryCode: gbRegistryCountryCode,
           })
           .then(toHTMLString)
         expect(result).to.equal(
@@ -421,6 +445,7 @@ describe('NewConnectionController', () => {
             companyNumber: validDisconnectedCompanyNumber,
             email: 'alice@example.com',
             action: 'continue',
+            registryCountryCode: gbRegistryCountryCode,
           })
           .then(toHTMLString)
         expect(result).to.equal(
@@ -436,6 +461,7 @@ describe('NewConnectionController', () => {
             companyNumber: usedVerifiedThemCompanyNumber,
             email: 'alice@example.com',
             action: 'continue',
+            registryCountryCode: gbRegistryCountryCode,
           })
           .then(toHTMLString)
         expect(result).to.equal(
@@ -451,6 +477,7 @@ describe('NewConnectionController', () => {
             companyNumber: usedVerifiedThemCompanyNumber,
             email: 'alice@example.com',
             action: 'continue',
+            registryCountryCode: gbRegistryCountryCode,
           })
           .then(toHTMLString)
         expect(result).to.equal(
@@ -467,6 +494,7 @@ describe('NewConnectionController', () => {
               companyNumber: validPendingCompanyNumber,
               email: 'alice@example.com',
               action: 'continue',
+              registryCountryCode: gbRegistryCountryCode,
             })
             .then(toHTMLString)
           expect(result).to.equal(
@@ -482,6 +510,7 @@ describe('NewConnectionController', () => {
               companyNumber: usedUnverifiedCompanyNumber,
               email: 'alice@example.com',
               action: 'continue',
+              registryCountryCode: gbRegistryCountryCode,
             })
             .then(toHTMLString)
           expect(result).to.equal(
@@ -497,6 +526,7 @@ describe('NewConnectionController', () => {
               companyNumber: usedVerifiedUsCompanyNumber,
               email: 'alice@example.com',
               action: 'continue',
+              registryCountryCode: gbRegistryCountryCode,
             })
             .then(toHTMLString)
           expect(result).to.equal(
@@ -514,7 +544,9 @@ describe('NewConnectionController', () => {
       const result = await controller
         .submitFromInvite(req, { invite: '', action: 'createConnection' })
         .then(toHTMLString)
-      expect(result).to.equal('fromInviteForm_error--Invitation is not valid_fromInviteForm')
+      expect(result).to.equal(
+        'fromInviteForm_error--Invitation is not valid, the invite is not in the correct format_fromInviteForm'
+      )
     })
 
     it('should rendered error when invite invalid base64', async () => {
@@ -532,7 +564,9 @@ describe('NewConnectionController', () => {
       const result = await controller
         .submitFromInvite(req, { invite: invalidInvite, action: 'createConnection' })
         .then(toHTMLString)
-      expect(result).to.equal('fromInviteForm_error--Invitation is not valid_fromInviteForm')
+      expect(result).to.equal(
+        'fromInviteForm_error--Invitation is not valid, the invite is not in the correct format_fromInviteForm'
+      )
     })
 
     it('should rendered error when company number invalid', async () => {
@@ -651,6 +685,7 @@ describe('NewConnectionController', () => {
             agent_connection_id: 'oob-connection',
             pin_attempt_count: 0,
             pin_tries_remaining_count: null,
+            registry_country_code: 'GB',
           },
         ])
       })
@@ -673,11 +708,10 @@ describe('NewConnectionController', () => {
 
       it('should send email to admin', () => {
         expect(emailSpy.firstCall.args[0]).equal('connection_invite_admin')
-        expect(emailSpy.firstCall.args[1]?.pin).match(/[0-9]{6}/)
-        expect(emailSpy.firstCall.args[1]).to.deep.contain({
+        expect(emailSpy.firstCall.args[3]?.pin).match(/[0-9]{6}/)
+        expect(emailSpy.firstCall.args[3]).to.deep.contain({
           receiver: 'NAME',
-          address:
-            'NAME, ADDRESS_LINE_1, ADDRESS_LINE_2, CARE_OF, LOCALITY, PO_BOX, POSTAL_CODE, COUNTRY, PREMISES, REGION',
+          address: 'ADDRESS_LINE_1, ADDRESS_LINE_2, COUNTRY, LOCALITY, PO_BOX, POSTAL_CODE, REGION',
         })
       })
     })

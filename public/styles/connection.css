@@ -103,6 +103,19 @@
   margin-top: var(--form-element-vert-spacing);
 }
 
+#new-connection-form select {
+  border: 1px solid var(--border-black);
+  box-shadow: none;
+  width: 100%;
+  min-width: 32ch;
+  max-width: 40.5ch;
+  padding: 16px;
+  border-radius: 0.5em;
+  margin-top: var(--form-element-vert-spacing);
+  color: var(--text-color);
+  font-size: 1rem;
+}
+
 #new-connection-form .address-line {
   display: inline-block;
 }
