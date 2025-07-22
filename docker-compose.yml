@@ -253,7 +253,7 @@ services:
       - EMAIL_TRANSPORT=SMTP_EMAIL
       - SMTP_SECURE=false
       - COMPANY_PROFILE_API_KEY=${COMPANY_PROFILE_API_KEY}
-      - LOCAL_REGISTRY_TO_USE=NY
+      - LOCAL_REGISTRY_TO_USE=GB
       - SOCRATA_API_URL=https://data.ny.gov/resource/p66s-i79p.json
 
   postgres-veritable-ui-charlie:
