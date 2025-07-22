@@ -111,7 +111,6 @@ export class NewConnectionController extends HTMLController {
     @Query() registryCountryCode: CountryCode
   ): Promise<HTML> {
     req.log.debug('verifying %s company number for country %s', companyNumber, registryCountryCode)
-    console.log(registryCountryCode, companyNumber)
 
     if (registryCountryCode === 'GB' && !companyNumber.match(companyNumberRegex)) {
       req.log.info('company %s number did not match %s regex', companyNumber, companyNumberRegex)
