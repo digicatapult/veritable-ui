@@ -36,7 +36,7 @@ services:
       sh -c "
         npm i -g pino-pretty
         node ./node_modules/.bin/knex migrate:latest
-        npm start | pino-pretty -c"
+        npm start | pino-pretty -c -l -o -s"
     # env_file:
     #   - .env
     environment:
@@ -128,7 +128,7 @@ services:
       sh -c "
         npm i -g pino-pretty
         node ./node_modules/.bin/knex migrate:latest
-        npm start | pino-pretty -c"
+        npm start | pino-pretty -c -l -o -s"
     # env_file:
     #   - .env
     environment:
@@ -222,7 +222,7 @@ services:
       sh -c "
         npm i -g pino-pretty
         node ./node_modules/.bin/knex migrate:latest
-        npm start | pino-pretty -c"
+        npm start | pino-pretty -c -l -o -s"
     environment:
       - NODE_ENV=production
       - LOG_LEVEL=debug
