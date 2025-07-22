@@ -305,9 +305,9 @@ services:
 
   # -------------------- wiremock ----------------------------#
 
-  wiremock:
+  wiremock-companies-house:
     image: wiremock/wiremock:3.13.1
-    container_name: wiremock
+    container_name: wiremock-companies-house
     scale: 0
     ports:
       - '8443:8080' # Port for accessing wiremock

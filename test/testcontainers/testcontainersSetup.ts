@@ -17,7 +17,7 @@ const postgresVersion = parsed.services['postgres-veritable-ui-alice'].image
 const cloudagentVersion = parsed.services['veritable-cloudagent-alice'].image
 const kuboVersion = parsed.services.ipfs.image
 const smtp4devVersion = parsed.services.smtp4dev.image
-const wireMockVersion = parsed.services.wiremock.image
+const wireMockVersion = parsed.services['wiremock-companies-house'].image
 
 //============ Veritable UI Container ============
 
@@ -60,7 +60,7 @@ export async function bringUpVeritableUIContainer(
       SMTP_PORT: '25',
       SMTP_USER: '',
       EMAIL_TRANSPORT: 'SMTP_EMAIL',
-      COMPANY_HOUSE_API_URL: 'http://wiremock:8080',
+      COMPANY_HOUSE_API_URL: 'http://wiremock-companies-house:8080',
       DEMO_MODE: 'true',
       SMTP_SECURE: 'false',
       COMPANY_PROFILE_API_KEY: 'API_KEY',
@@ -216,7 +216,7 @@ export async function composeSmtp4dev(): Promise<StartedTestContainer> {
 export async function wireMockContainer(): Promise<StartedTestContainer> {
   const mappings = fs.readFileSync('./test/wiremock/company-house/mappings.json', 'utf-8')
   const container = await new GenericContainer(wireMockVersion)
-    .withName('wiremock')
+    .withName('wiremock-companies-house')
     .withExposedPorts({
       container: 8080,
       host: 8443,
