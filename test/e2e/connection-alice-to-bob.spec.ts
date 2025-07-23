@@ -57,7 +57,7 @@ test.describe('Connection from Alice to Bob', () => {
       expect(confirmationElement).not.toBeNull()
       const confirmationText = await confirmationElement?.textContent()
       expect(confirmationText).toContain('Please confirm the details of the connection before sending')
-      expect(confirmationText).toContain('Company House Number: 04659351')
+      expect(confirmationText).toContain('Company Number: 04659351')
       expect(confirmationText).toContain('Email Address: alice@testmail.com')
 
       await page.click('button[type="submit"][name="action"][value="submit"]')
