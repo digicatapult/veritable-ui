@@ -86,7 +86,7 @@ export class NewInviteTemplates extends NewConnectionTemplates {
         <input
           id="new-invite-company-number-input"
           name="companyNumber"
-          placeholder="Company House Number"
+          placeholder="Company Number"
           required
           hx-get="/connection/new/verify-company"
           hx-trigger="keyup changed delay:200ms, change, load"
@@ -153,7 +153,7 @@ export class NewInviteTemplates extends NewConnectionTemplates {
           </p>
           <p>
             {Html.escapeHtml(
-              `Company House Number: ${props.feedback.type === 'companyFound' && props.feedback.company.number}`
+              `Company Number: ${props.feedback.type === 'companyFound' && props.feedback.company.number}`
             )}
           </p>
           <p>{Html.escapeHtml(`Email Address: ${props.feedback.type === 'companyFound' && props.email}`)}</p>
