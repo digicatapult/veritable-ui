@@ -66,6 +66,9 @@ export async function bringUpVeritableUIContainer(
       COMPANY_PROFILE_API_KEY: 'API_KEY',
       SOCRATA_API_URL: 'http://wiremock-socrata:8080',
       LOCAL_REGISTRY_TO_USE: localRegistryToUse,
+      IPID_API_URL: 'http://wiremock-ipid:8080',
+      IPID_API_KEY: 'API_KEY',
+      IPID_CUSTOMER_ID: 'ipid-customer-id',
     })
     .withCommand([
       'sh',
@@ -159,7 +162,8 @@ export async function bringUpSharedContainers() {
   const smtp4dev = await composeSmtp4dev()
   const wiremockContainer = await wireMockContainer()
   const wiremockSocrataContainerInstance = await wireMockSocrataContainer()
-  return [keycloakContainer, ipfsContainer, smtp4dev, wiremockContainer, wiremockSocrataContainerInstance]
+  const wiremockIpid = await wireMockIpid()
+  return [keycloakContainer, ipfsContainer, smtp4dev, wiremockContainer, wiremockSocrataContainerInstance, wiremockIpid]
 }
 
 export async function composeKeycloakContainer(): Promise<StartedTestContainer> {
@@ -245,6 +249,25 @@ export async function wireMockSocrataContainer(): Promise<StartedTestContainer> 
       {
         content: mappings,
         target: '/home/wiremock/mappings/mappings.json',
+      },
+    ])
+    .withWaitStrategy(Wait.forLogMessage('response-template,webhook'))
+    .withNetwork(network)
+    .start()
+  return container
+}
+
+export async function wireMockIpid(): Promise<StartedTestContainer> {
+  const container = await new GenericContainer(wireMockVersion)
+    .withName('wiremock-ipid')
+    .withExposedPorts({
+      container: 8080,
+      host: 8445,
+    })
+    .withCopyDirectoriesToContainer([
+      {
+        source: './test/wiremock/ipid',
+        target: '/home/wiremock/mappings/',
       },
     ])
     .withWaitStrategy(Wait.forLogMessage('response-template,webhook'))

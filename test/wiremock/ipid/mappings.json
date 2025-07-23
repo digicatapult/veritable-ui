@@ -1,0 +1,54 @@
+{
+  "mappings": [
+    {
+      "request": {
+        "method": "GET",
+        "url": "/validation/api/v1/public-key"
+      },
+      "response": {
+        "status": 200,
+        "jsonBody": {
+          "response_code": 2000,
+          "response_message": "Success",
+          "data": {
+            "node_id": "test-node-01",
+            "node_public_key": "-----BEGIN PGP PUBLIC KEY BLOCK-----\nFAKEKEY123ABC==\n-----END PGP PUBLIC KEY BLOCK-----",
+            "node_public_key_rsa": "-----BEGIN RSA PUBLIC KEY-----\nFAKERSAKEY456XYZ==\n-----END RSA PUBLIC KEY-----"
+          }
+        }
+      }
+    },
+    {
+      "request": {
+        "method": "POST",
+        "url": "/utility/encrypt-payload"
+      },
+      "response": {
+        "status": 200,
+        "body": "-----BEGIN PGP MESSAGE-----\nENCRYPTED123PAYLOAD==\n-----END PGP MESSAGE-----"
+      }
+    },
+    {
+      "request": {
+        "method": "POST",
+        "url": "/validation/api/v1/bank-account/validate"
+      },
+      "response": {
+        "status": 200,
+        "jsonBody": {
+          "response_code": 2000,
+          "response_message": "ValidationSucceeded",
+          "data": {
+            "encrypted_payload": "-----BEGIN PGP MESSAGE-----\nVALIDATED456DATA==\n-----END PGP MESSAGE-----",
+            "match_score": 1,
+            "match_score_description": "Strong Match",
+            "public_key_hint": {
+              "start": "FAKEK",
+              "end": "=XYZ=="
+            }
+          }
+        }
+      }
+    }
+  ]
+}

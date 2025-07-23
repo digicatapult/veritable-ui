@@ -1,14 +1,17 @@
 import express from 'express'
 import { Body, Get, Path, Post, Produces, Query, Request, Route, Security, SuccessResponse } from 'tsoa'
-import { injectable } from 'tsyringe'
+import { inject, injectable } from 'tsyringe'
 
 import { Logger } from 'pino'
 import { InvalidInputError } from '../../errors.js'
 import { PartialQueryPayload } from '../../models/arrays.js'
+import { Bav, type IBav } from '../../models/bav.js'
 import Database from '../../models/db/index.js'
 import { ConnectionRow, QueryRow, type QueryType, Where } from '../../models/db/types.js'
 import {
   BavRes,
+  BavResFields,
+  bavResponseData,
   CarbonEmbodimentRes,
   drpcQueryAck,
   DrpcQueryRequest,
@@ -19,7 +22,7 @@ import {
   submitQueryRpcParams,
 } from '../../models/drpc.js'
 import { UInt } from '../../models/numbers.js'
-import { BIC, CountryCode, type UUID } from '../../models/strings.js'
+import { type CountryCode, type UUID } from '../../models/strings.js'
 import VeritableCloudagent from '../../models/veritableCloudagent/index.js'
 import { JsonRpcError } from '../../models/veritableCloudagent/internal.js'
 import QueriesTemplates from '../../views/queries/queries.js'
@@ -39,7 +42,8 @@ export class QueriesController extends HTMLController {
     private queriesTemplates: QueriesTemplates,
     private queryManagementTemplates: QueryListTemplates,
     private cloudagent: VeritableCloudagent,
-    private db: Database
+    private db: Database,
+    @inject(Bav) private bavApi: IBav
   ) {
     super()
   }
@@ -198,7 +202,7 @@ export class QueriesController extends HTMLController {
     const query = await this.getQuery(queryId)
     const connection = await this.getConnection(query.connection_id)
 
-    if (query.status === 'resolved' && query.role === 'requester') {
+    if (query.status === 'resolved') {
       return this.html(
         this.responseTemplates.queryResponsePage({ formStage: 'view', connection, query, type: query.type })
       )
@@ -210,6 +214,19 @@ export class QueriesController extends HTMLController {
         type: query.type,
         connection,
         query,
+      })
+    )
+  }
+
+  /**
+   * Retrieves bav response form fields
+   */
+  @SuccessResponse(200)
+  @Get('/bav-response-fields')
+  public async bavResponseFields(@Query() countryCode?: CountryCode): Promise<HTML> {
+    return this.html(
+      this.responseTemplates.bavForm({
+        countryCode,
       })
     )
   }
@@ -383,7 +400,6 @@ export class QueriesController extends HTMLController {
 
   /**
    * Submit bav response page
-   * devided into chunks of size 3
    */
   @SuccessResponse(200)
   @Post('/{queryId}/response/bav')
@@ -392,15 +408,13 @@ export class QueriesController extends HTMLController {
     @Path() queryId: UUID,
     @Body()
     body: {
-      companyId: UUID
-      bic: BIC
-      countryCode: CountryCode
-    }
+      connectionId: UUID
+    } & BavResFields
   ): Promise<HTML> {
-    const { companyId, bic, countryCode } = body
+    const { connectionId, ...bavParams } = body
     req.log.info('query page requested %j', { body })
 
-    const connection = await this.verifyConnection(req.log, companyId)
+    const connection = await this.verifyConnection(req.log, connectionId)
     const queryRow = await this.getQuery(queryId)
     if (!queryRow.response_id) {
       req.log.warn('missing DRPC response_id to respond to %j', queryRow)
@@ -412,11 +426,31 @@ export class QueriesController extends HTMLController {
       type: 'https://github.com/digicatapult/veritable-documentation/tree/main/schemas/veritable_messaging/query_types/beneficiary_account_validation/response/0.1',
       data: {
         subjectId: queryRow.details.subjectId,
-        bic,
-        countryCode,
+        ...bavParams,
       },
     }
     return this.handleQueryResponse(req.log, connection, queryRow, response)
+  }
+
+  /**
+   * Submit bav response verification
+   */
+  @SuccessResponse(200)
+  @Post('/{queryId}/response/bav/verify')
+  public async bavResponseVerify(@Request() req: express.Request, @Path() queryId: UUID) {
+    const query = await this.getQuery(queryId)
+    if (query.type !== 'beneficiary_account_validation' || query.status !== 'resolved') {
+      throw new InvalidInputError(`Only resolved BAV queries can be validated`)
+    }
+
+    const bavResponse = bavResponseData.parse(query.response)
+
+    const { score, description } = await this.bavApi.validate(req.log, bavResponse)
+    await this.db.update('query', { id: query?.id }, { response: { ...bavResponse, score, description } })
+
+    return this.html(
+      this.responseTemplates.bavVerificationResults({ score, description, connectionId: query.connection_id })
+    )
   }
 
   private validatePartialQuery({ connectionIds: a, productIds: b, quantities: c }: PartialQueryPayload): number {

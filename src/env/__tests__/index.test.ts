@@ -23,10 +23,12 @@ const requiredProdEnvs = {
   ISSUANCE_DID_POLICY: 'CREATE_NEW',
   ISSUANCE_SCHEMA_POLICY: 'CREATE_NEW',
   PUBLIC_URL: 'http://localhost:3000',
+  IPID_API_KEY: 'xyz',
 }
 
 const requiredDevEnvs = {
   COMPANY_PROFILE_API_KEY: 'xyz',
+  IPID_API_KEY: 'xyz',
 }
 
 class EnvalidTestReporterError extends Error {
