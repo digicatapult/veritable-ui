@@ -8,12 +8,15 @@ import Server from './server.js'
 import { Logger, type ILogger } from './logger.js'
 import { CredentialSchema } from './models/credentialSchema.js'
 import Database from './models/db/index.js'
+import { loadSchema } from './utils/schemaImporter.js'
 ;(async () => {
   const env = container.resolve(Env)
   const logger = container.resolve<ILogger>(Logger)
   const db = container.resolve(Database)
 
   const schema = container.resolve<CredentialSchema>(CredentialSchema)
+  const schemaDefinition = await loadSchema('./src/models/companyIdentitySchema.json')
+  schema.addSchema('COMPANY_DETAILS', schemaDefinition)
   await schema.assertIssuanceRecords()
 
   try {

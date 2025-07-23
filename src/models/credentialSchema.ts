@@ -1,7 +1,6 @@
 import { inject, injectable, singleton } from 'tsyringe'
 import { Env, type PartialEnv } from '../env/index.js'
 import { Logger, type ILogger } from '../logger.js'
-import { loadSchemas } from '../utils/schemaImporter.js'
 import VeritableCloudagent from './veritableCloudagent/index.js'
 
 export type SchemaDefinition = {
@@ -18,6 +17,7 @@ export class CredentialSchema {
   private issuerId?: string
   private schemaId?: Record<string, string>
   private credentialDefinitionId?: Record<string, string>
+  private schemaMap: Record<string, SchemaDefinition> = {}
 
   constructor(
     @inject(Env) private env: PartialEnv<'ISSUANCE_DID_POLICY' | 'ISSUANCE_SCHEMA_POLICY' | 'ISSUANCE_CRED_DEF_POLICY'>,
@@ -60,11 +60,15 @@ export class CredentialSchema {
       return policy
     }
 
+    const expectedSchemaDef = this.schemaMap[schemaName]
+    if (!expectedSchemaDef) {
+      throw new Error(`Schema definition for ${schemaName} not found`)
+    }
     const expectedSchema = {
       issuerId,
       name: schemaName,
-      version: this.schemaMap[schemaName].version,
-      attrNames: this.schemaMap[schemaName].attrNames,
+      version: expectedSchemaDef.version,
+      attrNames: expectedSchemaDef.attrNames,
     }
 
     if (policy === 'EXISTING_OR_NEW' || policy === 'FIND_EXISTING') {
@@ -145,9 +149,7 @@ export class CredentialSchema {
     return { issuerId: this.issuerId, schemaId: this.schemaId, credentialDefinitionId: this.credentialDefinitionId }
   }
 
-  private schemaMap: SchemaConfig = {}
-
-  public async loadSchemasFromDisk(dir: string) {
-    this.schemaMap = await loadSchemas(dir)
+  public addSchema(name: string, definition: SchemaDefinition) {
+    this.schemaMap[name] = definition
   }
 }

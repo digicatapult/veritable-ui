@@ -1,11 +1,13 @@
 import { expect } from 'chai'
 import { describe, test } from 'mocha'
 
+import { loadSchema } from '../../utils/schemaImporter.js'
 import { CredentialSchema } from '../credentialSchema.js'
 import { makeCredentialSchemaMocks } from './helpers/credentialSchemaMocks.js'
 
 describe('credentialSchema', function () {
-  describe('assertIssuanceRecords', function () {
+  describe('assertIssuanceRecords', async function () {
+    const defaultSchema = await loadSchema('./src/models/companyIdentitySchema.json')
     describe('did assertions', function () {
       test('policy = CREATE_NEW, has existing = false', async function () {
         const {
@@ -13,6 +15,7 @@ describe('credentialSchema', function () {
           mockCloudagent: { createDid, getCreatedDids },
         } = makeCredentialSchemaMocks({ didPolicy: 'CREATE_NEW', hasDids: false })
         const credentialSchema = new CredentialSchema(...args)
+        credentialSchema.addSchema('COMPANY_DETAILS', defaultSchema)
 
         const result = await credentialSchema.assertIssuanceRecords()
 
@@ -36,6 +39,7 @@ describe('credentialSchema', function () {
           mockCloudagent: { createDid, getCreatedDids },
         } = makeCredentialSchemaMocks({ didPolicy: 'CREATE_NEW', hasDids: true })
         const credentialSchema = new CredentialSchema(...args)
+        credentialSchema.addSchema('COMPANY_DETAILS', defaultSchema)
 
         const result = await credentialSchema.assertIssuanceRecords()
 
@@ -59,6 +63,7 @@ describe('credentialSchema', function () {
           mockCloudagent: { createDid, getCreatedDids },
         } = makeCredentialSchemaMocks({ didPolicy: 'FIND_EXISTING', hasDids: false })
         const credentialSchema = new CredentialSchema(...args)
+        credentialSchema.addSchema('COMPANY_DETAILS', defaultSchema)
 
         let error: unknown | null = null
         try {
@@ -79,6 +84,7 @@ describe('credentialSchema', function () {
           mockCloudagent: { createDid, getCreatedDids },
         } = makeCredentialSchemaMocks({ didPolicy: 'FIND_EXISTING', hasDids: true })
         const credentialSchema = new CredentialSchema(...args)
+        credentialSchema.addSchema('COMPANY_DETAILS', defaultSchema)
 
         const result = await credentialSchema.assertIssuanceRecords()
 
@@ -102,6 +108,7 @@ describe('credentialSchema', function () {
           mockCloudagent: { createDid, getCreatedDids },
         } = makeCredentialSchemaMocks({ didPolicy: 'EXISTING_OR_NEW', hasDids: true })
         const credentialSchema = new CredentialSchema(...args)
+        credentialSchema.addSchema('COMPANY_DETAILS', defaultSchema)
 
         const result = await credentialSchema.assertIssuanceRecords()
 
@@ -125,6 +132,7 @@ describe('credentialSchema', function () {
           mockCloudagent: { createDid, getCreatedDids },
         } = makeCredentialSchemaMocks({ didPolicy: 'EXISTING_OR_NEW', hasDids: false })
         const credentialSchema = new CredentialSchema(...args)
+        credentialSchema.addSchema('COMPANY_DETAILS', defaultSchema)
 
         const result = await credentialSchema.assertIssuanceRecords()
 
@@ -151,6 +159,7 @@ describe('credentialSchema', function () {
           mockCloudagent: { createSchema, getCreatedSchemas },
         } = makeCredentialSchemaMocks({ schemaPolicy: 'CREATE_NEW', hasSchema: false })
         const credentialSchema = new CredentialSchema(...args)
+        credentialSchema.addSchema('COMPANY_DETAILS', defaultSchema)
 
         const result = await credentialSchema.assertIssuanceRecords()
 
@@ -179,6 +188,7 @@ describe('credentialSchema', function () {
           mockCloudagent: { createSchema, getCreatedSchemas },
         } = makeCredentialSchemaMocks({ schemaPolicy: 'CREATE_NEW', hasSchema: true })
         const credentialSchema = new CredentialSchema(...args)
+        credentialSchema.addSchema('COMPANY_DETAILS', defaultSchema)
 
         const result = await credentialSchema.assertIssuanceRecords()
 
@@ -207,6 +217,7 @@ describe('credentialSchema', function () {
           mockCloudagent: { createSchema, getCreatedSchemas },
         } = makeCredentialSchemaMocks({ schemaPolicy: 'FIND_EXISTING', hasSchema: false })
         const credentialSchema = new CredentialSchema(...args)
+        credentialSchema.addSchema('COMPANY_DETAILS', defaultSchema)
 
         let error: unknown | null = null
         try {
@@ -233,6 +244,7 @@ describe('credentialSchema', function () {
           mockCloudagent: { createSchema, getCreatedSchemas },
         } = makeCredentialSchemaMocks({ schemaPolicy: 'FIND_EXISTING', hasSchema: true })
         const credentialSchema = new CredentialSchema(...args)
+        credentialSchema.addSchema('COMPANY_DETAILS', defaultSchema)
 
         const result = await credentialSchema.assertIssuanceRecords()
 
@@ -262,6 +274,7 @@ describe('credentialSchema', function () {
           mockCloudagent: { createSchema, getCreatedSchemas },
         } = makeCredentialSchemaMocks({ schemaPolicy: 'EXISTING_OR_NEW', hasSchema: true })
         const credentialSchema = new CredentialSchema(...args)
+        credentialSchema.addSchema('COMPANY_DETAILS', defaultSchema)
 
         const result = await credentialSchema.assertIssuanceRecords()
 
@@ -291,6 +304,7 @@ describe('credentialSchema', function () {
           mockCloudagent: { createSchema, getCreatedSchemas },
         } = makeCredentialSchemaMocks({ schemaPolicy: 'EXISTING_OR_NEW', hasSchema: false })
         const credentialSchema = new CredentialSchema(...args)
+        credentialSchema.addSchema('COMPANY_DETAILS', defaultSchema)
 
         const result = await credentialSchema.assertIssuanceRecords()
 
@@ -328,6 +342,7 @@ describe('credentialSchema', function () {
           mockCloudagent: { createCredentialDefinition, getCreatedCredentialDefinitions },
         } = makeCredentialSchemaMocks({ credDefPolicy: 'CREATE_NEW', hasCredDef: false })
         const credentialSchema = new CredentialSchema(...args)
+        credentialSchema.addSchema('COMPANY_DETAILS', defaultSchema)
 
         const result = await credentialSchema.assertIssuanceRecords()
 
@@ -351,6 +366,7 @@ describe('credentialSchema', function () {
           mockCloudagent: { createCredentialDefinition, getCreatedCredentialDefinitions },
         } = makeCredentialSchemaMocks({ credDefPolicy: 'CREATE_NEW', hasCredDef: true })
         const credentialSchema = new CredentialSchema(...args)
+        credentialSchema.addSchema('COMPANY_DETAILS', defaultSchema)
 
         const result = await credentialSchema.assertIssuanceRecords()
 
@@ -374,6 +390,7 @@ describe('credentialSchema', function () {
           mockCloudagent: { createCredentialDefinition, getCreatedCredentialDefinitions },
         } = makeCredentialSchemaMocks({ credDefPolicy: 'FIND_EXISTING', hasCredDef: false })
         const credentialSchema = new CredentialSchema(...args)
+        credentialSchema.addSchema('COMPANY_DETAILS', defaultSchema)
 
         let error: unknown | null = null
         try {
@@ -399,6 +416,7 @@ describe('credentialSchema', function () {
           mockCloudagent: { createCredentialDefinition, getCreatedCredentialDefinitions },
         } = makeCredentialSchemaMocks({ credDefPolicy: 'FIND_EXISTING', hasCredDef: true })
         const credentialSchema = new CredentialSchema(...args)
+        credentialSchema.addSchema('COMPANY_DETAILS', defaultSchema)
 
         const result = await credentialSchema.assertIssuanceRecords()
 
@@ -427,6 +445,7 @@ describe('credentialSchema', function () {
           mockCloudagent: { createCredentialDefinition, getCreatedCredentialDefinitions },
         } = makeCredentialSchemaMocks({ credDefPolicy: 'EXISTING_OR_NEW', hasCredDef: true })
         const credentialSchema = new CredentialSchema(...args)
+        credentialSchema.addSchema('COMPANY_DETAILS', defaultSchema)
 
         const result = await credentialSchema.assertIssuanceRecords()
 
@@ -455,6 +474,7 @@ describe('credentialSchema', function () {
           mockCloudagent: { createCredentialDefinition, getCreatedCredentialDefinitions },
         } = makeCredentialSchemaMocks({ credDefPolicy: 'EXISTING_OR_NEW', hasCredDef: false })
         const credentialSchema = new CredentialSchema(...args)
+        credentialSchema.addSchema('COMPANY_DETAILS', defaultSchema)
 
         const result = await credentialSchema.assertIssuanceRecords()
 
