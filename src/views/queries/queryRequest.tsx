@@ -3,14 +3,12 @@ import { singleton } from 'tsyringe'
 import { ConnectionRow, QueryType } from '../../models/db/types.js'
 import { FormButton, LinkButton, Page } from '../common.js'
 
-export const typeMap: Record<QueryType, { name: string; urlSegment: string }> = {
+export const typeMap: Record<QueryType, { name: string }> = {
   total_carbon_embodiment: {
     name: 'Total Carbon Embodiment',
-    urlSegment: 'carbon-embodiment',
   },
   beneficiary_account_validation: {
     name: 'Beneficiary Account Validation',
-    urlSegment: 'bav',
   },
 }
 
@@ -51,8 +49,8 @@ export default class QueryRequestTemplates {
         heading={`${typeMap[props.type].name} Query`}
         headerLinks={[
           { name: 'Query Management', url: '/queries' },
-          { name: 'New', url: `/queries/new/${typeMap[props.type].urlSegment}` },
-          { name: typeMap[props.type].name, url: `/queries/new/${typeMap[props.type].urlSegment}` },
+          { name: 'New', url: `/queries/new?type=${props.type}` },
+          { name: typeMap[props.type].name, url: `/queries/new?type=${props.type}` },
         ]}
       >
         <div class="connections header"></div>

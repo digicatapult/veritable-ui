@@ -96,18 +96,34 @@ export const carbonEmbodimentResponse = z.object({
   data: carbonEmbodimentResponseData,
 })
 
+export type BavResFields = {
+  countryCode: CountryCode
+  name: string
+  bic?: BIC
+  iban?: string
+  accountId?: string
+  clearingSystemId?: string
+  registrationId?: string
+}
 export type BavRes = BaseQueryResponse & {
   type: z.infer<typeof bavResponseSchema>
   data: {
     subjectId: SubjectId
-    bic: BIC
-    countryCode: CountryCode
-  }
+    score?: number
+    description?: string
+  } & BavResFields
 }
 export const bavResponseData: z.ZodType<BavRes['data']> = z.object({
   subjectId: subjectIdParser,
-  bic: z.string(),
   countryCode: z.enum(countryCodes),
+  name: z.string(),
+  bic: z.string().optional(),
+  iban: z.string().optional(),
+  accountId: z.string().optional(),
+  clearingSystemId: z.string().optional(),
+  registrationId: z.string().optional(),
+  score: z.number().optional(),
+  description: z.string().optional(),
 })
 export const bavResponse = z.object({
   ...baseQueryResponse.shape,

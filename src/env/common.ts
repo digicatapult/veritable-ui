@@ -12,7 +12,7 @@ import {
 
 export const defaultConfig = {
   PORT: envalid.port({ default: 3000 }),
-  LOG_LEVEL: envalid.str({ default: 'info', devDefault: 'debug' }),
+  LOG_LEVEL: envalid.str({ default: 'info', devDefault: 'warn' }),
   DB_HOST: envalid.host({ devDefault: 'localhost' }),
   DB_NAME: envalid.str({ default: 'veritable-ui' }),
   DB_USERNAME: envalid.str({ devDefault: 'postgres' }),
@@ -61,6 +61,9 @@ export const defaultConfig = {
     devDefault: 'GB',
     choices: countryCodes,
   }),
+  IPID_API_URL: envalid.str({ devDefault: 'https://sandbox.ipid.works' }),
+  IPID_API_KEY: envalid.str(),
+  IPID_CUSTOMER_ID: envalid.str({ devDefault: 'digicatapult-uat' }),
 }
 
 // we mainly separate out the raw environment loading so we can override it safely in tests

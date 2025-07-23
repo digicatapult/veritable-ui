@@ -1,6 +1,7 @@
 import { Readable } from 'node:stream'
 import sinon from 'sinon'
 
+import { IBav } from '../../../models/bav.js'
 import Database from '../../../models/db/index.js'
 import { ConnectionRow, QueryRow } from '../../../models/db/types.js'
 import { UUID } from '../../../models/strings.js'
@@ -179,6 +180,9 @@ export const withQueriesMocks = (testOptions: Partial<QueryMockOptions> = {}) =>
       Promise.resolve()
     }),
   }
+  const bavApi = {
+    validate: () => Promise.resolve({}),
+  }
 
   return {
     queryRequestTemplateMock,
@@ -187,6 +191,7 @@ export const withQueriesMocks = (testOptions: Partial<QueryMockOptions> = {}) =>
     queryTemplateMock,
     dbMock,
     cloudagentMock,
+    bavApi,
     args: [
       queryRequestTemplateMock,
       queryResponseTemplateMock,
@@ -194,6 +199,7 @@ export const withQueriesMocks = (testOptions: Partial<QueryMockOptions> = {}) =>
       queryListTemplateMock,
       cloudagentMock as unknown as VeritableCloudagent,
       dbMock as unknown as Database,
+      bavApi as unknown as IBav,
     ] as const,
   }
 }

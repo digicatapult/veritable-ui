@@ -66,6 +66,9 @@ export async function bringUpVeritableUIContainer(
       COMPANY_PROFILE_API_KEY: 'API_KEY',
       SOCRATA_API_URL: 'http://wiremock-socrata:8080',
       LOCAL_REGISTRY_TO_USE: localRegistryToUse,
+      IPID_API_URL: '',
+      IPID_API_KEY: 'API_KEY',
+      IPID_CUSTOMER_ID: 'ipid-customer-id',
     })
     .withCommand([
       'sh',

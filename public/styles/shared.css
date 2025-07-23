@@ -47,6 +47,12 @@
   color: var(--accent-color);
 }
 
+.button[data-variant='action'] {
+  background-color: var(--positive-accent);
+  border: 1px solid var(--positive-accent);
+  color: #fff;
+}
+
 .button > div:first-child {
   width: 16px;
   height: 16px;
