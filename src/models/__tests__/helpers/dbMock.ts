@@ -1,13 +1,18 @@
+import { container } from 'tsyringe'
+import { Env } from '../../../env/index.js'
 import Database from '../../db/index.js'
 import { OrganisationRegistriesRow } from '../../db/types.js'
 import { CountryCode } from '../../strings.js'
+
+const env: Env = container.resolve(Env)
+
 // Mock data for UK registry (Company House)
 const ukRegistry: OrganisationRegistriesRow = {
   id: 'uk-registry-id',
   country_code: 'GB' as CountryCode,
   registry_name: 'Company House',
   registry_key: 'company_house',
-  url: 'http://localhost:8443',
+  url: env.get('COMPANY_HOUSE_API_URL'),
   api_key: '',
   created_at: new Date(),
   updated_at: new Date(),
@@ -19,7 +24,7 @@ const nyRegistry: OrganisationRegistriesRow = {
   country_code: 'US' as CountryCode,
   registry_name: 'Socrata',
   registry_key: 'socrata',
-  url: 'http://localhost:8444',
+  url: env.get('SOCRATA_API_URL'),
   api_key: '',
   created_at: new Date(),
   updated_at: new Date(),
