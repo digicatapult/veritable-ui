@@ -67,11 +67,7 @@ export async function bringUpVeritableUIContainer(
       SOCRATA_API_URL: 'http://wiremock-organisation-registries:8080',
       LOCAL_REGISTRY_TO_USE: localRegistryToUse,
     })
-    .withCommand([
-      'sh',
-      '-c',
-      'npm i -g pino-colada; node ./node_modules/.bin/knex migrate:latest; npm start | pino-colada',
-    ])
+    .withCommand(['sh', '-c', 'node ./node_modules/.bin/knex migrate:latest; npm start'])
     .withWaitStrategy(Wait.forListeningPorts())
     .withNetwork(network)
     .withReuse()
