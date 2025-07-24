@@ -132,6 +132,8 @@ This is the list of all environment variables including brief description
 | ISSUANCE_SCHEMA_POLICY           | y        | EXISTING_OR_NEW                                                | Same as above but for credential schema                                                                                                                                        |
 | ISSUANCE_CRED_DEF_POLICY         | y        | EXISTING_OR_NEW                                                | Same as above but this is for credential definitions                                                                                                                           |
 | DEMO_MODE                        | y        | true                                                           | Enables or disables the `/reset` endpoint                                                                                                                                      |
+| SOCRATA_API_URL                  | y        | https://data.ny.gov/resource/p66s-i79p.json                    | External service containing list of companies in NY definitions                                                                                                                |
+| LOCAL_REGISTRY_TO_USE            | y        | GB                                                             | Defines which registry to use to look up info about the local instance                                                                                                         |
 
 ### SMTP transport configuration
 
@@ -263,3 +265,11 @@ npm run db:migrate
 - Paste the invitation text into Alice's [Add from Invitation](http://localhost:3000/connection/new?fromInvite=true). The right hand box should update to show Bob's registered address (set by the `INVITATION_FROM_COMPANY_NUMBER` env). Submit.
 - Search `Verification Code: ` in the logs of the terminal for the running Alice server. Copy this code. Select `Complete Verification` on [Bob's side](http://localhost:3001/connection) of the connection, paste the code and continue.
 - The connection will now show as `Connected` for both personas, and queries can be sent.
+
+## Registries
+
+We currently support:
+Company House: which requires an API KEY. (`COMPANY_PROFILE_API_KEY`)
+[Socrata](https://dev.socrata.com/foundry/data.ny.gov/p66s-i79p): which does not require an API KEY. (Requests are rate-limited without an api-key)
+
+- if you want e.g. Charlie to pose as a company registered with Socrata - set `LOCAL_REGISTRY_TO_USE` to `US` and `INVITATION_FROM_COMPANY_NUMBER` to `3211809` (company number we use to test Socrata functionality).

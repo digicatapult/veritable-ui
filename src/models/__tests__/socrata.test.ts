@@ -2,6 +2,7 @@ import { expect } from 'chai'
 import { describe, it } from 'mocha'
 import { pino } from 'pino'
 import { container } from 'tsyringe'
+import { RAW_ENV_TOKEN } from '../../env/common.js'
 import { Env } from '../../env/index.js'
 import type { ILogger } from '../../logger.js'
 import OrganisationRegistry from '../orgRegistry/organisationRegistry.js'
@@ -13,6 +14,7 @@ import {
   validCompanyNumber,
 } from './fixtures/socrataFixtures.js'
 import { mockDb } from './helpers/dbMock.js'
+import { mockRegistryEnv, socrataAsLocalRegistry } from './helpers/mock.js'
 import { withSocrataMock } from './helpers/mockSocrata.js'
 const mockLogger: ILogger = pino({ level: 'silent' })
 const nyRegistryCountryCode = 'US' as CountryCode
@@ -56,8 +58,27 @@ describe('organisationRegistry with socrata as registry', () => {
       expect((errorMessage as Error).message).equals(`Error calling Socrata API`)
     })
   })
-  // TODO:
-  // Add tests for localOrganisationProfile
-  // for Socrata being used as local registry
-  // this may entail rewriting the env
+
+  describe('localOrganisationProfile', () => {
+    withSocrataMock()
+    beforeEach(() => {
+      container.clearInstances()
+      mockRegistryEnv(socrataAsLocalRegistry)
+    })
+    afterEach(() => {
+      container.clearInstances()
+    })
+    it('should return company found', async () => {
+      const environment = container.resolve<Env>(RAW_ENV_TOKEN)
+
+      container.registerInstance<OrganisationRegistry>(
+        OrganisationRegistry,
+        new OrganisationRegistry(environment, mockDb, mockLogger)
+      )
+      const organisationRegistryObject = container.resolve(OrganisationRegistry)
+      const response = await organisationRegistryObject.localOrganisationProfile()
+
+      expect(response).deep.equal(finalSuccessResponse)
+    })
+  })
 })
