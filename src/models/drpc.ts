@@ -86,7 +86,7 @@ export type CarbonEmbodimentRes = BaseQueryResponse & {
 }
 export const carbonEmbodimentResponseData: z.ZodType<CarbonEmbodimentRes['data']> = z.object({
   mass: z.number(),
-  unit: z.union([z.literal('ug'), z.literal('mg'), z.literal('g'), z.literal('kg'), z.literal('tonne')]),
+  unit: z.enum(['ug', 'mg', 'g', 'kg', 'tonne']),
   subjectId: subjectIdParser,
   partialResponses: z.lazy(() => carbonEmbodimentResponse.array()),
 })
@@ -127,8 +127,8 @@ export type DrpcQueryRequest = SubmitQueryRequest | SubmitQueryResponse
 
 export const drpcQueryAck = z.object({
   type: z.literal(`${schemaBaseUrl}/query_ack/0.1`),
-  createdTime: z.number().int().gte(0).optional(),
-  expiresTime: z.number().int().gte(0).optional(),
+  createdTime: z.iso.datetime().optional(),
+  expiresTime: z.iso.datetime().optional(),
 })
 
 export type DrpcQueryResponse = z.infer<typeof drpcQueryAck>

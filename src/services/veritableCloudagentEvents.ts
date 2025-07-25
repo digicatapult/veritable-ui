@@ -38,8 +38,8 @@ const eventParser = z.discriminatedUnion('type', [
       drpcMessageRecord: z.object({
         request: drpcRequestParser.optional(),
         connectionId: z.string(),
-        role: z.union([z.literal('client'), z.literal('server')]),
-        state: z.union([z.literal('request-sent'), z.literal('request-received'), z.literal('completed')]),
+        role: z.enum(['client', 'server']),
+        state: z.enum(['request-sent', 'request-received', 'completed']),
       }),
     }),
   }),

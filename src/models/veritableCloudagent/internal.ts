@@ -14,7 +14,7 @@ const oobParser = z.object({
 type OutOfBandInvite = z.infer<typeof oobParser>
 
 const oobInviteParser = z.object({
-  id: z.string().uuid(),
+  id: z.uuid(),
   role: z.enum(['sender', 'receiver']),
 })
 
@@ -32,16 +32,16 @@ type ReceiveUrlResponse = z.infer<typeof receiveUrlParser>
 
 export const connectionParser = z.object({
   id: z.string(),
-  state: z.union([
-    z.literal('start'),
-    z.literal('invitation-sent'),
-    z.literal('invitation-received'),
-    z.literal('request-sent'),
-    z.literal('request-received'),
-    z.literal('response-sent'),
-    z.literal('response-received'),
-    z.literal('abandoned'),
-    z.literal('completed'),
+  state: z.enum([
+    'start',
+    'invitation-sent',
+    'invitation-received',
+    'request-sent',
+    'request-received',
+    'response-sent',
+    'response-received',
+    'abandoned',
+    'completed',
   ]),
   outOfBandId: z.string(),
 })
@@ -83,19 +83,19 @@ export const credentialParser = z.object({
   connectionId: z.string(),
   protocolVersion: z.string(),
   credentialAttributes: z.array(credentialAttributeParser).optional(),
-  role: z.union([z.literal('issuer'), z.literal('holder')]),
-  state: z.union([
-    z.literal('proposal-sent'),
-    z.literal('proposal-received'),
-    z.literal('offer-sent'),
-    z.literal('offer-received'),
-    z.literal('declined'),
-    z.literal('request-sent'),
-    z.literal('request-received'),
-    z.literal('credential-issued'),
-    z.literal('credential-received'),
-    z.literal('done'),
-    z.literal('abandoned'),
+  role: z.enum(['issuer', 'holder']),
+  state: z.enum([
+    'proposal-sent',
+    'proposal-received',
+    'offer-sent',
+    'offer-received',
+    'declined',
+    'request-sent',
+    'request-received',
+    'credential-issued',
+    'credential-received',
+    'done',
+    'abandoned',
   ]),
   errorMessage: z.string().optional(),
   metadata: z
