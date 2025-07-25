@@ -2,6 +2,7 @@ import express from 'express'
 import { Body, Get, Path, Post, Produces, Query, Request, Route, Security, SuccessResponse } from 'tsoa'
 import { injectable } from 'tsyringe'
 
+import { UUID } from 'crypto'
 import { Logger } from 'pino'
 import { InvalidInputError } from '../../errors.js'
 import { PartialQueryPayload } from '../../models/arrays.js'
@@ -19,7 +20,7 @@ import {
   submitQueryRpcParams,
 } from '../../models/drpc.js'
 import { UInt } from '../../models/numbers.js'
-import { BIC, CountryCode, type UUID } from '../../models/strings.js'
+import { BIC, CountryCode } from '../../models/strings.js'
 import VeritableCloudagent from '../../models/veritableCloudagent/index.js'
 import { JsonRpcError } from '../../models/veritableCloudagent/internal.js'
 import QueriesTemplates from '../../views/queries/queries.js'

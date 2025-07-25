@@ -1,6 +1,7 @@
 import Html from '@kitajs/html'
+import { UUID } from 'crypto'
 import { injectable, singleton } from 'tsyringe'
-import { UUID, pinCodeRegex } from '../../models/strings.js'
+import { pinCodeRegex } from '../../models/strings.js'
 import { Page } from '../common.js'
 import { NewConnectionTemplates } from './base.js'
 

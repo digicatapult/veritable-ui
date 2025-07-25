@@ -1,9 +1,9 @@
 import { Readable } from 'node:stream'
 import sinon from 'sinon'
 
+import { UUID } from 'node:crypto'
 import Database from '../../../models/db/index.js'
 import { ConnectionRow, QueryRow } from '../../../models/db/types.js'
-import { UUID } from '../../../models/strings.js'
 import VeritableCloudagent from '../../../models/veritableCloudagent/index.js'
 import QueriesTemplates from '../../../views/queries/queries.js'
 import QueryListTemplates from '../../../views/queries/queriesList.js'

@@ -1,9 +1,10 @@
+import { UUID } from 'crypto'
 import express from 'express'
 import { pino } from 'pino'
 import { Body, Get, Path, Post, Produces, Query, Request, Route, Security, SuccessResponse } from 'tsoa'
 import { injectable } from 'tsyringe'
 
-import { pinCodeRegex, type PIN_CODE, type UUID } from '../../models/strings.js'
+import { pinCodeRegex, type PIN_CODE } from '../../models/strings.js'
 import ConnectionTemplates from '../../views/connection/connection.js'
 
 import { DatabaseTimeoutError, InternalError, InvalidInputError, NotFoundError } from '../../errors.js'
