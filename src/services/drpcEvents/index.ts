@@ -1,6 +1,5 @@
 import { inject, injectable, singleton } from 'tsyringe'
 
-import { UUID } from 'crypto'
 import { Logger, type ILogger } from '../../logger.js'
 import Database from '../../models/db/index.js'
 import { QueryRow } from '../../models/db/types.js'
@@ -14,6 +13,7 @@ import {
   submitQueryRpcParams,
   typeToResponseSchemaMap,
 } from '../../models/drpc.js'
+import { UUID } from '../../models/strings.js'
 import VeritableCloudagent from '../../models/veritableCloudagent/index.js'
 import { DrpcResponse, JsonRpcError } from '../../models/veritableCloudagent/internal.js'
 
