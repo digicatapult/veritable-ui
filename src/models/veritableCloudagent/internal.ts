@@ -139,14 +139,14 @@ export const jsonRpcError = z.object({
 export const drpcResponseParser = z.union([
   z
     .object({
-      result: z.object({}).passthrough(),
+      result: z.looseObject({}),
     })
-    .merge(responseCommonParser),
+    .extend(responseCommonParser.shape),
   z
     .object({
       error: jsonRpcError,
     })
-    .merge(responseCommonParser),
+    .extend(responseCommonParser.shape),
 ])
 export type JsonRpcError = z.infer<typeof jsonRpcError>
 export type DrpcResponse = z.infer<typeof drpcResponseParser>
