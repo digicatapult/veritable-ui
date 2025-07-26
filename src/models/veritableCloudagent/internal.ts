@@ -14,7 +14,7 @@ const oobParser = z.object({
 type OutOfBandInvite = z.infer<typeof oobParser>
 
 const oobInviteParser = z.object({
-  id: z.uuid(),
+  id: z.string(),
   role: z.enum(['sender', 'receiver']),
 })
 

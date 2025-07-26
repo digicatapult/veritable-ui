@@ -127,8 +127,8 @@ export type DrpcQueryRequest = SubmitQueryRequest | SubmitQueryResponse
 
 export const drpcQueryAck = z.object({
   type: z.literal(`${schemaBaseUrl}/query_ack/0.1`),
-  createdTime: z.iso.datetime().optional(),
-  expiresTime: z.iso.datetime().optional(),
+  createdTime: z.number().int().gte(0).optional(),
+  expiresTime: z.number().int().gte(0).optional(),
 })
 
 export type DrpcQueryResponse = z.infer<typeof drpcQueryAck>
