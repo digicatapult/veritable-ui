@@ -1,7 +1,7 @@
 import http from 'http'
 import { z } from 'zod'
 
-const ToSchema = z.array(z.string())
+const ToSchema = z.array(z.email())
 
 const EmailItemSchema = z.object({
   isRelayed: z.boolean(),

@@ -25,7 +25,7 @@ const insertOrganisationRegistries = z.object({
   country_code: z.string(),
   registry_name: z.string(),
   registry_key: z.string(),
-  url: z.string(),
+  url: z.url(),
   api_key: z.string(),
 })
 const insertConnectionInvite = z.object({
@@ -78,19 +78,19 @@ const insertSettings = z.object({
 const Zod = {
   connection: {
     insert: insertConnection,
-    get: insertConnection.merge(defaultFields),
+    get: insertConnection.extend(defaultFields.shape),
   },
   connection_invite: {
     insert: insertConnectionInvite,
-    get: insertConnectionInvite.merge(defaultFields),
+    get: insertConnectionInvite.extend(defaultFields.shape),
   },
   query: {
     insert: insertQuery,
-    get: insertQuery.merge(defaultFields),
+    get: insertQuery.extend(defaultFields.shape),
   },
   query_rpc: {
     insert: insertQueryRpc,
-    get: insertQueryRpc.merge(defaultFields),
+    get: insertQueryRpc.extend(defaultFields.shape),
   },
   settings: {
     insert: insertSettings,
@@ -106,7 +106,7 @@ const Zod = {
       .extend({
         id: z.string(),
       })
-      .merge(defaultFields),
+      .extend(defaultFields.shape),
   },
 }
 
