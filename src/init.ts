@@ -20,7 +20,7 @@ const logger: ILogger = pino(
   process.stdout
 )
 const cloudagent = new VeritableCloudagent(env, logger)
-const schema = await loadSchema('./src/models/companyIdentitySchema.json')
+const schema = await loadSchema('./schemas/companyIdentitySchema.json')
 const init = new CredentialSchema(env, logger, cloudagent)
 init.addSchema(schema.name, schema)
 const details = await init.assertIssuanceRecords()

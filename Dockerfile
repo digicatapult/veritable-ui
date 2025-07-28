@@ -27,6 +27,7 @@ RUN npm ci --omit=dev
 COPY public ./public
 COPY knexfile.js ./
 COPY --from=builder /veritable-ui/build ./build
+COPY schemas ./schemas
 
 HEALTHCHECK --interval=30s  --timeout=20s \
     CMD curl -f http://localhost:3000/health || exit 1

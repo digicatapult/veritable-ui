@@ -15,7 +15,7 @@ import { loadSchema } from './utils/schemaImporter.js'
   const db = container.resolve(Database)
 
   const schema = container.resolve<CredentialSchema>(CredentialSchema)
-  const schemaDefinition = await loadSchema('./src/models/companyIdentitySchema.json')
+  const schemaDefinition = await loadSchema('./schemas/companyIdentitySchema.json')
   schema.addSchema('COMPANY_DETAILS', schemaDefinition)
   await schema.assertIssuanceRecords()
 
