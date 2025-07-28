@@ -1,6 +1,6 @@
 import Html from '@kitajs/html'
 import { singleton } from 'tsyringe'
-import { COMPANY_NUMBER, EMAIL, companyNumberRegex } from '../../models/strings.js'
+import { COMPANY_NUMBER, companyNumberRegex, EMAIL } from '../../models/strings.js'
 import { Page } from '../common.js'
 import { FormFeedback, NewConnectionTemplates } from './base.js'
 
@@ -38,6 +38,7 @@ export class NewInviteTemplates extends NewConnectionTemplates {
     formStage: NewInviteFormStage
     companyNumber?: COMPANY_NUMBER
     email?: EMAIL
+    registryCountryCode?: string
     feedback: FormFeedback
   }): JSX.Element => {
     switch (props.formStage) {
@@ -53,6 +54,7 @@ export class NewInviteTemplates extends NewConnectionTemplates {
   private newInviteInput = (props: {
     companyNumber?: COMPANY_NUMBER
     email?: EMAIL
+    registryCountryCode?: string
     feedback: FormFeedback
   }): JSX.Element => {
     return (
@@ -66,23 +68,42 @@ export class NewInviteTemplates extends NewConnectionTemplates {
           { type: 'submit', value: 'continue', text: 'Continue' },
         ]}
       >
+        <select
+          id="new-invite-country-select"
+          name="registryCountryCode"
+          required
+          value={props.registryCountryCode}
+          hx-get="/connection/new"
+          hx-trigger="change"
+          hx-target="#new-invite-company-number-input"
+          hx-select="#new-invite-company-number-input"
+          hx-swap="outerHTML"
+          hx-include="this"
+        >
+          <option value="GB">United Kingdom</option>
+          <option value="US">US</option>
+        </select>
         <input
           id="new-invite-company-number-input"
           name="companyNumber"
-          placeholder="Company House Number"
+          placeholder="Company Number"
           required
           hx-get="/connection/new/verify-company"
           hx-trigger="keyup changed delay:200ms, change, load"
           hx-target="#new-connection-feedback"
           hx-select="#new-connection-feedback"
           hx-swap="outerHTML"
-          pattern={companyNumberRegex.source}
-          minlength={8}
-          maxlength={8}
+          hx-include="#new-invite-country-select"
+          pattern={
+            props.feedback.type === 'message' && props.feedback.regex ? props.feedback.regex : companyNumberRegex.source
+          }
+          minlength={props.feedback.type === 'message' && props.feedback.minlength ? props.feedback.minlength : 6}
+          maxlength={props.feedback.type === 'message' && props.feedback.maxlength ? props.feedback.maxlength : 10}
           oninput="this.reportValidity()"
           value={props.companyNumber}
           type="text"
         ></input>
+
         <input
           required
           id="new-invite-email-input"
@@ -118,11 +139,21 @@ export class NewInviteTemplates extends NewConnectionTemplates {
           type="hidden"
         ></input>
         <input id="new-invite-email-input" name="email" value={props.email} type="hidden"></input>
+        <input
+          id="new-invite-country-code-input"
+          name="registryCountryCode"
+          value={props.feedback.type === 'companyFound' ? props.feedback.company.registryCountryCode : ''}
+          type="hidden"
+        ></input>
         <div id="new-connection-confirmation-text">
           <p>Please confirm the details of the connection before sending</p>
           <p>
+            {' '}
+            {Html.escapeHtml(props.feedback.type === 'companyFound' && props.feedback.company.registryCountryCode)}
+          </p>
+          <p>
             {Html.escapeHtml(
-              `Company House Number: ${props.feedback.type === 'companyFound' && props.feedback.company.company_number}`
+              `Company Number: ${props.feedback.type === 'companyFound' && props.feedback.company.number}`
             )}
           </p>
           <p>{Html.escapeHtml(`Email Address: ${props.feedback.type === 'companyFound' && props.email}`)}</p>

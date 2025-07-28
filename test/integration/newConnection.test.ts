@@ -2,11 +2,15 @@ import * as chai from 'chai'
 import chaiAsPromised from 'chai-as-promised'
 import { afterEach, beforeEach, describe, it } from 'mocha'
 import sinon from 'sinon'
+import { CountryCode } from '../../src/models/strings.js'
 import { cleanupCloudagent, cleanupDatabase } from '../helpers/cleanup.js'
 import { setupTwoPartyContext, TwoPartyContext } from '../helpers/connection.js'
-import { alice } from '../helpers/fixtures.js'
+import { alice, socrataCompany } from '../helpers/fixtures.js'
+import { cleanupRegistries, insertCompanyHouseRegistry, insertSocrataRegistry } from '../helpers/registries.js'
 import { post } from '../helpers/routeHelper.js'
 import { delay } from '../helpers/util.js'
+const ukRegistryCountryCode = 'GB' as CountryCode
+const nyRegistryCountryCode = 'US' as CountryCode
 
 chai.use(chaiAsPromised)
 const expect = chai.expect
@@ -19,12 +23,15 @@ describe('NewConnectionController', () => {
 
     await cleanupCloudagent([context.localCloudagent, context.remoteCloudagent])
     await cleanupDatabase([context.localDatabase, context.remoteDatabase])
+    await insertCompanyHouseRegistry()
+    await insertSocrataRegistry()
   })
 
   afterEach(async () => {
     context.cloudagentEvents.stop()
     await cleanupCloudagent([context.localCloudagent, context.remoteCloudagent])
     await cleanupDatabase([context.localDatabase, context.remoteDatabase])
+    await cleanupRegistries()
   })
 
   describe('create invitation (happy path)', function () {
@@ -35,6 +42,7 @@ describe('NewConnectionController', () => {
         companyNumber: alice.company_number,
         email: 'alice@testmail.com',
         action: 'submit',
+        registryCountryCode: ukRegistryCountryCode,
       })
     })
 
@@ -60,6 +68,7 @@ describe('NewConnectionController', () => {
         companyNumber: alice.company_number,
         email: 'alice@testmail.com',
         action: 'submit',
+        registryCountryCode: ukRegistryCountryCode,
       })
       const connectionRows = await context.localDatabase.get('connection')
       expect(connectionRows.length).to.equal(1)
@@ -78,6 +87,7 @@ describe('NewConnectionController', () => {
         companyNumber: alice.company_number,
         email: 'alice@testmail.com',
         action: 'submit',
+        registryCountryCode: ukRegistryCountryCode,
       })
       const connectionRows = await context.localDatabase.get('connection')
       expect(connectionRows.length).to.equal(1)
@@ -102,6 +112,7 @@ describe('NewConnectionController', () => {
         companyNumber: alice.company_number,
         email: 'alice@testmail.com',
         action: 'submit',
+        registryCountryCode: ukRegistryCountryCode,
       })
       const connectionRows = await context.localDatabase.get('connection')
       expect(connectionRows.length).to.equal(1)
@@ -129,11 +140,15 @@ describe('NewConnectionController', () => {
     let response: Awaited<ReturnType<typeof post>>
 
     beforeEach(async () => {
-      const invite = await context.remoteCloudagent.createOutOfBandInvite({ companyName: alice.company_name })
+      const invite = await context.remoteCloudagent.createOutOfBandInvite({
+        companyName: alice.company_name,
+        registryCountryCode: ukRegistryCountryCode,
+      })
       const inviteContent = Buffer.from(
         JSON.stringify({
           companyNumber: alice.company_number,
           inviteUrl: invite.invitationUrl,
+          goalCode: ukRegistryCountryCode,
         }),
         'utf8'
       ).toString('base64url')
@@ -164,11 +179,15 @@ describe('NewConnectionController', () => {
 
   describe('connection complete (receive side)', function () {
     beforeEach(async () => {
-      const invite = await context.remoteCloudagent.createOutOfBandInvite({ companyName: alice.company_name })
+      const invite = await context.remoteCloudagent.createOutOfBandInvite({
+        companyName: alice.company_name,
+        registryCountryCode: ukRegistryCountryCode,
+      })
       const inviteContent = Buffer.from(
         JSON.stringify({
           companyNumber: alice.company_number,
           inviteUrl: invite.invitationUrl,
+          goalCode: ukRegistryCountryCode,
         }),
         'utf8'
       ).toString('base64url')
@@ -199,6 +218,7 @@ describe('NewConnectionController', () => {
         companyNumber: alice.company_number,
         email: 'alice@testmail.com',
         action: 'submit',
+        registryCountryCode: ukRegistryCountryCode,
       })
 
       const invite = (emailSendStub.args.find(([name]) => name === 'connection_invite') || [])[1].invite
@@ -211,6 +231,108 @@ describe('NewConnectionController', () => {
 
       emailSendStub.restore()
 
+      for (let i = 0; i < 100; i++) {
+        const [connection] = await context.localDatabase.get('connection')
+        if (connection.status === 'unverified') {
+          return
+        }
+        await delay(10)
+      }
+      expect.fail('Expected connection to update to state unverified')
+    })
+  })
+
+  describe('create invitation for a NY based company (happy path)', function () {
+    let response: Awaited<ReturnType<typeof post>>
+
+    beforeEach(async () => {
+      response = await post(context.app, '/connection/new/create-invitation', {
+        companyNumber: '3211809',
+        email: 'socrata-company@testmail.com',
+        action: 'submit',
+        registryCountryCode: nyRegistryCountryCode,
+      })
+    })
+
+    it('should return success', async () => {
+      expect(response.status).to.equal(200)
+    })
+
+    it('should insert new connection into db', async () => {
+      const connectionRows = await context.localDatabase.get('connection')
+      expect(connectionRows.length).to.equal(1)
+      expect(connectionRows[0]).to.deep.contain({
+        company_name: socrataCompany.current_entity_name,
+        company_number: socrataCompany.dos_id,
+        status: 'pending',
+      })
+
+      const invites = await context.localDatabase.get('connection_invite', { connection_id: connectionRows[0].id })
+      expect(invites.length).to.equal(1)
+    })
+  })
+  describe('receive invitation for a ny based company (happy path)', function () {
+    let response: Awaited<ReturnType<typeof post>>
+
+    beforeEach(async () => {
+      const invite = await context.remoteCloudagent.createOutOfBandInvite({
+        companyName: socrataCompany.current_entity_name,
+        registryCountryCode: nyRegistryCountryCode,
+      })
+      const inviteContent = Buffer.from(
+        JSON.stringify({
+          companyNumber: socrataCompany.dos_id,
+          inviteUrl: invite.invitationUrl,
+          goalCode: nyRegistryCountryCode,
+        }),
+        'utf8'
+      ).toString('base64url')
+
+      response = await post(context.app, '/connection/new/receive-invitation', {
+        invite: inviteContent,
+        action: 'createConnection',
+      })
+    })
+
+    it('should return success', async () => {
+      expect(response.status).to.equal(200)
+    })
+
+    it('should insert new connection into db', async () => {
+      const connectionRows = await context.localDatabase.get('connection')
+      expect(connectionRows.length).to.equal(1)
+      expect(connectionRows[0]).to.deep.contain({
+        company_name: socrataCompany.current_entity_name,
+        company_number: socrataCompany.dos_id,
+        status: 'pending',
+      })
+
+      const invitations = await context.localDatabase.get('connection_invite', { connection_id: connectionRows[0].id })
+      expect(invitations.length).to.equal(1)
+    })
+  })
+  describe('connection complete for a ny based company (receive side)', function () {
+    beforeEach(async () => {
+      const invite = await context.remoteCloudagent.createOutOfBandInvite({
+        companyName: socrataCompany.current_entity_name,
+        registryCountryCode: nyRegistryCountryCode,
+      })
+      const inviteContent = Buffer.from(
+        JSON.stringify({
+          companyNumber: socrataCompany.dos_id,
+          inviteUrl: invite.invitationUrl,
+          goalCode: nyRegistryCountryCode,
+        }),
+        'utf8'
+      ).toString('base64url')
+
+      await post(context.app, '/connection/new/receive-invitation', {
+        invite: inviteContent,
+        action: 'createConnection',
+      })
+    })
+
+    it('should update connection to unverified once connection is established', async () => {
       for (let i = 0; i < 100; i++) {
         const [connection] = await context.localDatabase.get('connection')
         if (connection.status === 'unverified') {

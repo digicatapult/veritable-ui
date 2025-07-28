@@ -1,15 +1,18 @@
 import Html from '@kitajs/html'
-import { OrganisationProfile } from '../../models/organisationRegistry.js'
+import { SharedOrganisationInfo } from '../../models/orgRegistry/organisationRegistry.js'
 import { FormButton, LinkButton } from '../common.js'
 
 export type FormFeedback =
   | {
       type: 'companyFound'
-      company: OrganisationProfile
+      company: SharedOrganisationInfo
     }
   | {
       type: 'message'
       message: string
+      regex?: string
+      minlength?: number
+      maxlength?: number
     }
   | {
       type: 'error'
@@ -78,20 +81,8 @@ export abstract class NewConnectionTemplates {
     }
   }
 
-  protected feedbackCompanyInfo = ({ company }: { company: OrganisationProfile }): JSX.Element => {
-    const addressLines = [
-      company.company_name,
-      company.registered_office_address.address_line_1,
-      company.registered_office_address.address_line_2,
-      company.registered_office_address.address_line_2,
-      company.registered_office_address.care_of,
-      company.registered_office_address.locality,
-      company.registered_office_address.po_box,
-      company.registered_office_address.postal_code,
-      company.registered_office_address.country,
-      company.registered_office_address.premises,
-      company.registered_office_address.region,
-    ].filter((x) => !!x)
+  protected feedbackCompanyInfo = ({ company }: { company: SharedOrganisationInfo }): JSX.Element => {
+    const addressLines = company.address.split(',')
 
     return (
       <div id="new-connection-feedback" class="accented-container feedback-positive">
@@ -107,7 +98,7 @@ export abstract class NewConnectionTemplates {
 
           <p>
             <span>Company Status</span>
-            {Html.escapeHtml(company.company_status)}
+            {Html.escapeHtml(company.status)}
           </p>
         </div>
         <div>

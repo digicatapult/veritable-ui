@@ -119,3 +119,17 @@ export const mockEnvCharlie = {
     throw new Error('Unexpected env variable request')
   },
 } as Env
+
+export const socrataCompany = {
+  dos_id: '3211809',
+  current_entity_name: '00:02:59 LLC',
+  initial_dos_filing_date: '2005-05-31T00:00:00.000',
+  county: 'Kings',
+  jurisdiction: 'New York',
+  entity_type: 'DOMESTIC LIMITED LIABILITY COMPANY',
+  dos_process_name: '00:02:59 LLC',
+  dos_process_address_1: '656 UNION STREET, APT. 2',
+  dos_process_city: 'BROOKLYN',
+  dos_process_state: 'NY',
+  dos_process_zip: '11215',
+}

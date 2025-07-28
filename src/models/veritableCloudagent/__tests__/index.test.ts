@@ -15,6 +15,7 @@ import {
 import { withCloudagentMock } from './helpers/mockCloudagent.js'
 
 import { InternalError } from '../../../errors.js'
+import { CountryCode } from '../../strings.js'
 import VeritableCloudagent from '../index.js'
 
 describe('veritableCloudagent', () => {
@@ -30,7 +31,10 @@ describe('veritableCloudagent', () => {
       it('should give back out-of-band invite', async () => {
         const environment = new Env()
         const cloudagent = new VeritableCloudagent(environment, mockLogger)
-        const response = await cloudagent.createOutOfBandInvite({ companyName: 'Digital Catapult' })
+        const response = await cloudagent.createOutOfBandInvite({
+          companyName: 'Digital Catapult',
+          registryCountryCode: 'GB' as CountryCode,
+        })
         expect(response).deep.equal(createInviteSuccessResponse)
       })
     })
@@ -44,7 +48,10 @@ describe('veritableCloudagent', () => {
 
         let error: unknown = null
         try {
-          await cloudagent.createOutOfBandInvite({ companyName: 'Digital Catapult' })
+          await cloudagent.createOutOfBandInvite({
+            companyName: 'Digital Catapult',
+            registryCountryCode: 'GB' as CountryCode,
+          })
         } catch (err) {
           error = err
         }
@@ -61,7 +68,10 @@ describe('veritableCloudagent', () => {
 
         let error: unknown = null
         try {
-          await cloudagent.createOutOfBandInvite({ companyName: 'Digital Catapult' })
+          await cloudagent.createOutOfBandInvite({
+            companyName: 'Digital Catapult',
+            registryCountryCode: 'GB' as CountryCode,
+          })
         } catch (err) {
           error = err
         }

@@ -7,6 +7,7 @@ import sinon from 'sinon'
 import Database from '../../src/models/db/index.js'
 import { ConnectionRow } from '../../src/models/db/types.js'
 import EmailService from '../../src/models/emailService/index.js'
+import { CountryCode } from '../../src/models/strings.js'
 import VeritableCloudagent from '../../src/models/veritableCloudagent/index.js'
 import createHttpServer from '../../src/server.js'
 import VeritableCloudagentEvents from '../../src/services/veritableCloudagentEvents.js'
@@ -94,6 +95,7 @@ export const withEstablishedConnectionFromUs = function (context: TwoPartyContex
       companyNumber: alice.company_number,
       email: 'alice@testmail.com',
       action: 'submit',
+      registryCountryCode: 'GB' as CountryCode,
     })
     const invite = (emailSendStub.args.find(([name]) => name === 'connection_invite') || [])[1].invite
     const inviteUrl = JSON.parse(Buffer.from(invite, 'base64url').toString('utf8')).inviteUrl
@@ -115,6 +117,7 @@ export const withEstablishedConnectionFromUs = function (context: TwoPartyContex
       status: 'unverified',
       pin_attempt_count: 0,
       pin_tries_remaining_count: 4,
+      registry_country_code: 'GB' as CountryCode,
     })
 
     await context.remoteDatabase.insert('connection_invite', {
@@ -148,11 +151,15 @@ export const withEstablishedConnectionFromThem = function (context: TwoPartyCont
   let emailSendStub: sinon.SinonStub
 
   beforeEach(async function () {
-    const invite = await context.remoteCloudagent.createOutOfBandInvite({ companyName: alice.company_name })
+    const invite = await context.remoteCloudagent.createOutOfBandInvite({
+      companyName: alice.company_name,
+      registryCountryCode: 'GB' as CountryCode,
+    })
     const inviteContent = Buffer.from(
       JSON.stringify({
         companyNumber: alice.company_number,
         inviteUrl: invite.invitationUrl,
+        goalCode: 'GB' as CountryCode,
       }),
       'utf8'
     ).toString('base64url')
@@ -164,6 +171,7 @@ export const withEstablishedConnectionFromThem = function (context: TwoPartyCont
       status: 'pending',
       pin_attempt_count: 0,
       pin_tries_remaining_count: 4,
+      registry_country_code: 'GB' as CountryCode,
     })
 
     context.remoteConnectionId = remoteConnectionId
@@ -212,6 +220,7 @@ export const withVerifiedConnection = function (context: TwoPartyContext) {
       companyNumber: alice.company_number,
       email: 'alice@testmail.com',
       action: 'submit',
+      registryCountryCode: 'GB' as CountryCode,
     })
     const invite = (emailSendStub.args.find(([name]) => name === 'connection_invite') || [])[1].invite
     const inviteUrl = JSON.parse(Buffer.from(invite, 'base64url').toString('utf8')).inviteUrl
@@ -231,6 +240,7 @@ export const withVerifiedConnection = function (context: TwoPartyContext) {
       status: 'pending',
       pin_attempt_count: 0,
       pin_tries_remaining_count: 4,
+      registry_country_code: 'GB' as CountryCode,
     })
     context.remoteConnectionId = withAlice.id
 
@@ -265,6 +275,7 @@ export async function withBobAndCharlie(context: ThreePartyContext) {
     companyNumber: bob.company_number,
     email: 'alice@testmail.com',
     action: 'submit',
+    registryCountryCode: 'GB' as CountryCode,
   })
   const invite = (emailSendStub.args.find(([name]) => name === 'connection_invite') || [])[1].invite
   const bobsInvite = JSON.parse(Buffer.from(invite, 'base64url').toString('utf8')).inviteUrl
@@ -286,6 +297,7 @@ export async function withBobAndCharlie(context: ThreePartyContext) {
     status: 'pending',
     pin_attempt_count: 0,
     pin_tries_remaining_count: 4,
+    registry_country_code: 'GB' as CountryCode,
   })
 
   await context.db.bob.insert('connection_invite', {
@@ -296,7 +308,10 @@ export async function withBobAndCharlie(context: ThreePartyContext) {
     validity: 'valid',
   })
 
-  const charliesInvite = await context.agent.charlie.createOutOfBandInvite({ companyName: charlie.company_name })
+  const charliesInvite = await context.agent.charlie.createOutOfBandInvite({
+    companyName: charlie.company_name,
+    registryCountryCode: 'GB' as CountryCode,
+  })
   const charlieOOB = await context.agent.bob.receiveOutOfBandInvite({
     companyName: charlie.company_name,
     invitationUrl: charliesInvite.invitationUrl,
@@ -309,6 +324,7 @@ export async function withBobAndCharlie(context: ThreePartyContext) {
     status: 'pending',
     pin_attempt_count: 0,
     pin_tries_remaining_count: 4,
+    registry_country_code: 'GB' as CountryCode,
   })
 
   await context.db.bob.insert('connection_invite', {
@@ -326,6 +342,7 @@ export async function withBobAndCharlie(context: ThreePartyContext) {
     status: 'pending',
     pin_attempt_count: 0,
     pin_tries_remaining_count: 4,
+    registry_country_code: 'GB' as CountryCode,
   })
 
   await context.db.charlie.insert('connection_invite', {

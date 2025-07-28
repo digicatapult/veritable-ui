@@ -2,19 +2,19 @@ import { expect, Page, test } from '@playwright/test'
 import { cleanup, CustomBrowserContext, withLoggedInUser, withRegisteredAccount } from '../helpers/registerLogIn.js'
 import { checkEmails, extractInvite, extractPin } from '../helpers/smtpEmails.js'
 
-test.describe('Connection from Alice to Bob', () => {
+test.describe('Connection to Socrata', () => {
   let context: CustomBrowserContext
   let page: Page
   let invite: string | null
-  let pinForBob: string
+  let pinForCharlie: string
   let pinForAlice: string
 
   const baseUrlAlice = process.env.VERITABLE_ALICE_PUBLIC_URL || 'http://localhost:3000'
-  const baseUrlBob = process.env.VERITABLE_BOB_PUBLIC_URL || 'http://localhost:3001'
+  const baseUrlCharlie = process.env.VERITABLE_CHARLIE_PUBLIC_URL || 'http://localhost:3002'
 
   // Create and share context
   test.beforeAll(async () => {
-    await cleanup([baseUrlAlice, baseUrlBob])
+    await cleanup([baseUrlAlice, baseUrlCharlie])
   })
 
   test.beforeEach(async ({ browser }) => {
@@ -27,29 +27,32 @@ test.describe('Connection from Alice to Bob', () => {
 
   test.afterEach(async () => {
     await page.close()
-    await cleanup([baseUrlAlice, baseUrlBob])
+    await cleanup([baseUrlAlice, baseUrlCharlie])
   })
-  // End-to-end process: Alice registers, invites Bob, Bob submits invite & pin, Alice submits pin
-  test('Connection from Alice to Bob', async () => {
+
+  // End-to-end process: Alice registers, invites Charlie, Charlie submits invite & pin, Alice submits pin
+  test('Connection from Alice to Charlie', async () => {
     test.setTimeout(100000)
 
-    await test.step('Alice invites Bob to connect', async () => {
+    await test.step('Alice invites Charlie to connect', async () => {
       await page.goto(`${baseUrlAlice}`)
       await page.click('a[href="/connection"]')
 
       await page.waitForSelector('text=Invite New Connection')
       await page.click('a.button[href="connection/new"]')
+      await page.selectOption('#new-invite-country-select', 'US')
+      await expect(page.locator('#new-invite-country-select')).toHaveValue('US')
 
-      await page.fill('#new-invite-company-number-input', '04659351')
+      await page.fill('#new-invite-company-number-input', '3211809')
       await page.fill('#new-invite-email-input', 'alice@testmail.com')
 
-      await page.waitForTimeout(3000) // Wait for the Company House API
+      await page.waitForTimeout(3000) // Wait for the Socrata API
 
       const feedbackElement = await page.$('#new-connection-feedback')
       expect(feedbackElement).not.toBeNull()
       const feedbackText = await feedbackElement?.textContent()
-      expect(feedbackText).toContain('OFFSHORE RENEWABLE ENERGY CATAPULT')
-      expect(feedbackText).toContain('Albert Street')
+      expect(feedbackText).toContain('UNION STREET')
+      expect(feedbackText).toContain('BROOKLYN')
       await page.click('button[type="submit"][name="action"][value="continue"]')
 
       await page.waitForSelector('#new-connection-confirmation-text')
@@ -57,7 +60,7 @@ test.describe('Connection from Alice to Bob', () => {
       expect(confirmationElement).not.toBeNull()
       const confirmationText = await confirmationElement?.textContent()
       expect(confirmationText).toContain('Please confirm the details of the connection before sending')
-      expect(confirmationText).toContain('Company Number: 04659351')
+      expect(confirmationText).toContain('Company Number: 3211809')
       expect(confirmationText).toContain('Email Address: alice@testmail.com')
 
       await page.click('button[type="submit"][name="action"][value="submit"]')
@@ -68,30 +71,28 @@ test.describe('Connection from Alice to Bob', () => {
       await page.click('a[href="/connection"]')
       expect(page.url()).toContain('/connection')
     })
-
-    await test.step('Retrieve invite and pin for Bob', async () => {
+    await test.step('Retrieve invite and pin for Charlie', async () => {
       const adminEmail = await checkEmails('admin@veritable.com')
       const inviteEmail = await checkEmails('alice@testmail.com')
 
       const extractedPin = await extractPin(adminEmail.id)
       expect(extractedPin).toHaveLength(6)
-      if (!extractedPin) throw new Error('PIN for Bob was not found.')
-      pinForBob = extractedPin
+      if (!extractedPin) throw new Error('PIN for Charlie was not found.')
+      pinForCharlie = extractedPin
       invite = await extractInvite(inviteEmail.id)
-      if (!invite) throw new Error('Invitation for Bob was not found.')
+      if (!invite) throw new Error('Invitation for Charlie was not found.')
     })
-
-    await test.step('Bob submits invite and pin', async () => {
-      await page.goto(`${baseUrlBob}/connection`)
+    await test.step('Charlie submits invite and pin', async () => {
+      await page.goto(`${baseUrlCharlie}/connection`)
       await page.waitForURL('**/connection')
       expect(page.url()).toContain('/connection')
-      // Submit invite
-      await page.click('text=Add from Invitation')
 
       // Fill in invite without last character, then enter last character to simulate typing
-      if (!invite) throw new Error('Invitation for Bob was not found.')
+      if (!invite) throw new Error('Invitation for Charlie was not found.')
       const contentWithoutLastChar = invite.slice(0, -1)
       const lastChar = invite.slice(-1)
+      // Submit invite
+      await page.click('text=Add from Invitation')
       await page.fill('textarea[name="invite"]', contentWithoutLastChar)
       await page.locator('textarea[name="invite"]').press(lastChar)
 
@@ -108,8 +109,7 @@ test.describe('Connection from Alice to Bob', () => {
       await page.click('button[type="submit"][name="action"][value="createConnection"]')
 
       // Submit pin
-
-      await page.fill('#new-connection-invite-input-pin', pinForBob)
+      await page.fill('#new-connection-invite-input-pin', pinForCharlie)
       await page.click('button[type="submit"][name="action"][value="submitPinCode"]')
 
       await page.waitForSelector('#new-connection-invite-input')
