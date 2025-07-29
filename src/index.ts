@@ -5,18 +5,32 @@ import { container } from 'tsyringe'
 import { Env } from './env/index.js'
 import Server from './server.js'
 
+import { Command } from 'commander'
 import { Logger, type ILogger } from './logger.js'
 import { CredentialSchema } from './models/credentialSchema.js'
 import Database from './models/db/index.js'
 import { loadSchema } from './utils/schemaImporter.js'
+import version from './utils/version.js'
+
+const program = new Command()
+program
+  .name('veritable-ui')
+  .description('Veritable UI CLI')
+  .version(version, '-v, --version', 'output the current version')
+  .option('--add-schema <path>', 'Add a schema from a JSON file')
+  .parse(process.argv)
+
+const options = program.opts()
+const filePath = options.addSchema || './schemas/companyIdentitySchema.json'
+
 ;(async () => {
   const env = container.resolve(Env)
   const logger = container.resolve<ILogger>(Logger)
   const db = container.resolve(Database)
 
   const schema = container.resolve<CredentialSchema>(CredentialSchema)
-  const schemaDefinition = await loadSchema('./schemas/companyIdentitySchema.json')
-  schema.addSchema('COMPANY_DETAILS', schemaDefinition)
+  const schemaDefinition = await loadSchema(filePath)
+  schema.addSchema(schemaDefinition.name, schemaDefinition)
   await schema.assertIssuanceRecords()
 
   try {
