@@ -67,7 +67,7 @@ Database migration for Alice.
 npm run db:migrate
 ```
 
-Assert the presence of issuance records (DID, schema and credential definition) via the Alice cloudagent. Specifically, the script asserts any valid DID, the `COMPANY_DETAILS` schema and a credential definition based on that schema.
+Assert the presence of issuance records (DID, schema and credential definition) via the Alice cloudagent. Specifically, the script asserts any valid DID, the `COMPANY_DETAILS` schema and a credential definition based on that schema. The default schema is below 
 
 ```json
 {
@@ -88,6 +88,21 @@ Finally, start the service and enjoy local development:
 
 ```sh
 npm run dev
+```
+
+##### CLI Arguments
+
+The `dev` and `dev:init` scripts support the following command-line arguments via the CLI:
+
+| Argument              | Description                                      |
+|-----------------------|--------------------------------------------------|
+| `--add-schema <path>` | Path to a JSON file containing a schema to add. |
+| `-v`, `--version`     | Output the current version of the CLI tool.     |
+
+##### Example usage
+
+```sh
+npm run dev:init -- --add-schema=./schemas/myCustomSchema.json
 ```
 
 > :bulb: When service is running, it can be accessed on `http://localhost:3000/`. Api Docs are available on `http://localhost:3000/api-docs` and swagger `http://localhost:3000/swagger/`.
