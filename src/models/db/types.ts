@@ -29,8 +29,8 @@ const insertOrganisationRegistries = z.object({
   api_key: z.string(),
 })
 const insertConnectionInvite = z.object({
-  connection_id: z.string(),
-  oob_invite_id: z.string(),
+  connection_id: z.uuid(),
+  oob_invite_id: z.uuid(),
   pin_hash: z.string(),
   expires_at: z.date(),
   validity: z.enum(['valid', 'expired', 'too_many_attempts', 'used']),
@@ -42,11 +42,11 @@ export const queryTypeParser = z.enum(queryTypes)
 export type QueryType = (typeof queryTypes)[number]
 
 const insertQuery = z.object({
-  connection_id: z.string(),
-  parent_id: z.string().nullable().optional(),
+  connection_id: z.uuid(),
+  parent_id: z.uuid().nullable().optional(),
   type: queryTypeParser,
   status: z.enum(['resolved', 'pending_your_input', 'pending_their_input', 'errored', 'forwarded']),
-  response_id: z.string().nullable(),
+  response_id: z.uuid().nullable(),
   role: z.enum(['requester', 'responder']),
   expires_at: z.date(),
   details: z.object({
@@ -57,13 +57,13 @@ const insertQuery = z.object({
 })
 
 const defaultFields = z.object({
-  id: z.string(),
+  id: z.uuid(),
   created_at: z.date(),
   updated_at: z.date(),
 })
 
 const insertQueryRpc = z.object({
-  query_id: z.string(),
+  query_id: z.uuid(),
   agent_rpc_id: z.string(),
   role: z.enum(['client', 'server']),
   method: z.enum(['submit_query_request', 'submit_query_response']),
