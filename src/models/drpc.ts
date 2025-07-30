@@ -86,7 +86,7 @@ export type CarbonEmbodimentRes = BaseQueryResponse & {
 }
 export const carbonEmbodimentResponseData: z.ZodType<CarbonEmbodimentRes['data']> = z.object({
   mass: z.number(),
-  unit: z.union([z.literal('ug'), z.literal('mg'), z.literal('g'), z.literal('kg'), z.literal('tonne')]),
+  unit: z.enum(['ug', 'mg', 'g', 'kg', 'tonne']),
   subjectId: subjectIdParser,
   partialResponses: z.lazy(() => carbonEmbodimentResponse.array()),
 })
