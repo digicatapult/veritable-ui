@@ -1,15 +1,15 @@
 import http from 'http'
 import { z } from 'zod'
 
-const ToSchema = z.array(z.string())
+const ToSchema = z.array(z.email())
 
 const EmailItemSchema = z.object({
   isRelayed: z.boolean(),
-  deliveredTo: z.string().email(),
-  id: z.string().uuid(),
-  from: z.string().email(),
+  deliveredTo: z.email(),
+  id: z.uuid(),
+  from: z.email(),
   to: ToSchema,
-  receivedDate: z.string().datetime(),
+  receivedDate: z.iso.datetime(),
   subject: z.string(),
   attachmentCount: z.number().int(),
   isUnread: z.boolean(),
