@@ -198,7 +198,7 @@ describe('QueriesController', () => {
             if (!(err instanceof InvalidInputError)) {
               expect.fail('expected InvalidInputError')
             }
-            expect(err.toString()).to.be.equal('Error: missing a property in the request body')
+            expect((err as Error).toString()).to.be.equal('Error: missing a property in the request body')
           }
         })
 
@@ -218,7 +218,7 @@ describe('QueriesController', () => {
             if (!(err instanceof InvalidInputError)) {
               expect.fail('expected InvalidInputError')
             }
-            expect(err.toString()).to.be.equal('Error: missing a property in the request body')
+            expect((err as Error).toString()).to.be.equal('Error: missing a property in the request body')
           }
         })
 
@@ -237,7 +237,7 @@ describe('QueriesController', () => {
             if (!(err instanceof InvalidInputError)) {
               expect.fail('expected InvalidInputError')
             }
-            expect(err.toString()).to.be.equal('Error: missing a property in the request body')
+            expect((err as Error).toString()).to.be.equal('Error: missing a property in the request body')
           }
         })
 
@@ -258,7 +258,7 @@ describe('QueriesController', () => {
             if (!(err instanceof InvalidInputError)) {
               expect.fail('expected InvalidInputError')
             }
-            expect(err.toString()).to.be.equal('Error: partial query validation failed, invalid data')
+            expect((err as Error).toString()).to.be.equal('Error: partial query validation failed, invalid data')
           }
         })
       })

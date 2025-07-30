@@ -621,7 +621,7 @@ export default class QueryResponseTemplates {
 
     return (
       <tr>
-        <td>{heading}:</td>
+        <td>{Html.escapeHtml(heading)}:</td>
         <td class="query-results-left-padding-table">{Html.escapeHtml(value)}</td>
       </tr>
     )

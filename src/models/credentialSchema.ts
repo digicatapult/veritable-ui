@@ -5,6 +5,9 @@ import VeritableCloudagent from './veritableCloudagent/index.js'
 
 export const schemaMap = {
   COMPANY_DETAILS: { version: '1.0.0', attrNames: ['company_number', 'company_name'] },
+  COMPANY_DETAILS: { version: '1.0.0', attrNames: ['company_number', 'company_name'] },
+  COMPANY_DETAILS: { version: '1.0.0', attrNames: ['company_number', 'company_name'] },
+  COMPANY_DETAILS: { version: '1.0.0', attrNames: ['company_number', 'company_name'] },
 } as const
 
 type SCHEMA_NAMES = keyof typeof schemaMap

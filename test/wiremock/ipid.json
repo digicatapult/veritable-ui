@@ -3,7 +3,7 @@
     {
       "request": {
         "method": "GET",
-        "url": "/validation/api/v1/public-key"
+        "url": "/validation/api/v1/public-key?country_code=GB"
       },
       "response": {
         "status": 200,
@@ -12,8 +12,7 @@
           "response_message": "Success",
           "data": {
             "node_id": "test-node-01",
-            "node_public_key": "-----BEGIN PGP PUBLIC KEY BLOCK-----\nFAKEKEY123ABC==\n-----END PGP PUBLIC KEY BLOCK-----",
-            "node_public_key_rsa": "-----BEGIN RSA PUBLIC KEY-----\nFAKERSAKEY456XYZ==\n-----END RSA PUBLIC KEY-----"
+            "node_public_key": "-----BEGIN PGP PUBLIC KEY BLOCK-----\nFAKEKEY123ABC==\n-----END PGP PUBLIC KEY BLOCK-----"
           }
         }
       }
@@ -39,13 +38,8 @@
           "response_code": 2000,
           "response_message": "ValidationSucceeded",
           "data": {
-            "encrypted_payload": "-----BEGIN PGP MESSAGE-----\nVALIDATED456DATA==\n-----END PGP MESSAGE-----",
-            "match_score": 1,
-            "match_score_description": "Strong Match",
-            "public_key_hint": {
-              "start": "FAKEK",
-              "end": "=XYZ=="
-            }
+            "match_score": 0.9217778,
+            "match_score_description": "Partial Match"
           }
         }
       }
