@@ -1,6 +1,6 @@
 import { randomUUID } from 'crypto'
 import type { ConnectionRow } from '../../../models/db/types.js'
-import { CountryCode } from '../../../models/strings.js'
+import { COMPANY_NUMBER, CountryCode, SOCRATA_NUMBER } from '../../../models/strings.js'
 export const notFoundCompanyNumber = '00000000'
 export const invalidCompanyNumber = 'XXXXXXXX'
 export const validCompanyNumber = '00000001'
@@ -163,7 +163,7 @@ export const inviteValidityMap: Record<string, [{ validity: string }]> = {
   [usedInvite]: [{ validity: 'used' }],
 }
 
-const buildBase64Invite = (companyNumber: string) =>
+const buildBase64Invite = (companyNumber: COMPANY_NUMBER | SOCRATA_NUMBER) =>
   Buffer.from(
     JSON.stringify({
       companyNumber,

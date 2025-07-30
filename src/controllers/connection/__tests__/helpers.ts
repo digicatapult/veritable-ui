@@ -8,7 +8,7 @@ import Database from '../../../models/db/index.js'
 import { ConnectionRow } from '../../../models/db/types.js'
 import EmailService from '../../../models/emailService/index.js'
 import OrganisationRegistry from '../../../models/orgRegistry/organisationRegistry.js'
-import { CountryCode } from '../../../models/strings.js'
+import { COMPANY_NUMBER, CountryCode, SOCRATA_NUMBER } from '../../../models/strings.js'
 import VeritableCloudagent from '../../../models/veritableCloudagent/index.js'
 import ConnectionTemplates from '../../../views/connection/connection.js'
 import { FormFeedback } from '../../../views/newConnection/base.js'
@@ -130,7 +130,7 @@ export const withNewConnectionMocks = () => {
   } as unknown as Database
 
   const mockCompanyHouseEntity = {
-    getOrganisationProfileByOrganisationNumber: async (companyNumber: string) => {
+    getOrganisationProfileByOrganisationNumber: async (companyNumber: COMPANY_NUMBER | SOCRATA_NUMBER) => {
       if (companyNumber === notFoundCompanyNumber) {
         return {
           type: 'notFound',
