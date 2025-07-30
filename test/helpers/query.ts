@@ -2,6 +2,7 @@ import 'reflect-metadata'
 
 import { fetchGet, fetchPost } from './routeHelper.js'
 import { delay } from './util.js'
+import { CountryCode } from '../../src/models/strings.js'
 
 export const co2QueryContent = {
   productId: 'E2E-DC001',
@@ -42,7 +43,7 @@ export async function withBavQueryResponse(
   requesterUrl: string,
   responderUrl: string,
   bic: string,
-  countryCode: string
+  countryCode: CountryCode
 ) {
   await withBavQueryRequest(requesterUrl)
   const connectionId = await getConnectionId(responderUrl)

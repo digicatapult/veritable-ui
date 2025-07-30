@@ -1,6 +1,6 @@
 import { randomUUID } from 'crypto'
 import type { ConnectionRow } from '../../../models/db/types.js'
-import { COMPANY_NUMBER, CountryCode, SOCRATA_NUMBER } from '../../../models/strings.js'
+import { COMPANY_NUMBER, CountryCode, SOCRATA_NUMBER, UUID } from '../../../models/strings.js'
 export const notFoundCompanyNumber = '00000000'
 export const invalidCompanyNumber = 'XXXXXXXX'
 export const validCompanyNumber = '00000001'
@@ -142,7 +142,7 @@ export const validCompanyMap: Record<string, typeof validCompany> = {
   [validPendingCompanyNumber]: validPendingCompany,
 }
 
-export const companyNumberToConnectionMap: Record<string, [{ id: string; status: string }] | object> = {
+export const companyNumberToConnectionMap: Record<string, [{ id: UUID; status: string }] | object> = {
   [validCompanyNumber]: [],
   [noExistingInviteCompanyNumber]: [{}],
   [verifiedBothCompanyNumber]: [{ id: usedInvite, status: 'verified_both' }],

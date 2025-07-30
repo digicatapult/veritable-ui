@@ -41,7 +41,7 @@ export const typeToResponseSchemaMap: Record<QueryType, ResponseSchema> = {
 } as const
 
 const baseQueryRequest = {
-  id: z.string(),
+  id: z.uuid(),
   createdTime: z.number().int().gte(0),
   expiresTime: z.number().int().gte(0),
 }
@@ -68,7 +68,7 @@ export type SubmitQueryRequest = {
 }
 
 const baseQueryResponse = z.object({
-  id: z.string(),
+  id: z.uuid(),
   createdTime: z.number().int().gte(0).optional(),
   expiresTime: z.number().int().gte(0).optional(),
 })
