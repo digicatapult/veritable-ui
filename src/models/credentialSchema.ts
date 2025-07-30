@@ -3,18 +3,21 @@ import { Env, type PartialEnv } from '../env/index.js'
 import { Logger, type ILogger } from '../logger.js'
 import VeritableCloudagent from './veritableCloudagent/index.js'
 
-export const schemaMap = {
-  COMPANY_DETAILS: { version: '1.0.0', attrNames: ['company_number', 'company_name'] },
-} as const
+export type SchemaDefinition = {
+  name: string
+  version: string
+  attrNames: string[]
+}
 
-type SCHEMA_NAMES = keyof typeof schemaMap
+export type SchemaConfig = Record<string, SchemaDefinition>
 
 @singleton()
 @injectable()
 export class CredentialSchema {
   private issuerId?: string
-  private schemaId?: Record<SCHEMA_NAMES, string>
-  private credentialDefinitionId?: Record<SCHEMA_NAMES, string>
+  private schemaId?: Record<string, string>
+  private credentialDefinitionId?: Record<string, string>
+  private schemaMap: Record<string, SchemaDefinition> = {}
 
   constructor(
     @inject(Env) private env: PartialEnv<'ISSUANCE_DID_POLICY' | 'ISSUANCE_SCHEMA_POLICY' | 'ISSUANCE_CRED_DEF_POLICY'>,
@@ -47,7 +50,7 @@ export class CredentialSchema {
     throw new Error('Could not find existing DiD to use for issuing credentials')
   }
 
-  private async assertSchema(issuerId: string, schemaName: SCHEMA_NAMES): Promise<string> {
+  private async assertSchema(issuerId: string, schemaName: string): Promise<string> {
     if (this.schemaId) {
       return this.schemaId[schemaName]
     }
@@ -57,11 +60,15 @@ export class CredentialSchema {
       return policy
     }
 
+    const expectedSchemaDef = this.schemaMap[schemaName]
+    if (!expectedSchemaDef) {
+      throw new Error(`Schema definition for ${schemaName} not found`)
+    }
     const expectedSchema = {
       issuerId,
       name: schemaName,
-      version: schemaMap[schemaName].version,
-      attrNames: schemaMap[schemaName].attrNames,
+      version: expectedSchemaDef.version,
+      attrNames: expectedSchemaDef.attrNames,
     }
 
     if (policy === 'EXISTING_OR_NEW' || policy === 'FIND_EXISTING') {
@@ -88,11 +95,7 @@ export class CredentialSchema {
     throw new Error(`Could not assert schema that matched schema policy ${policy}`)
   }
 
-  private async assertCredentialDefinition(
-    issuerId: string,
-    schemaId: string,
-    schemaName: SCHEMA_NAMES
-  ): Promise<string> {
+  private async assertCredentialDefinition(issuerId: string, schemaId: string, schemaName: string): Promise<string> {
     if (this.credentialDefinitionId) {
       return this.credentialDefinitionId[schemaName]
     }
@@ -144,5 +147,9 @@ export class CredentialSchema {
       throw new Error('Credential Schema records have not been initialised')
     }
     return { issuerId: this.issuerId, schemaId: this.schemaId, credentialDefinitionId: this.credentialDefinitionId }
+  }
+
+  public addSchema(name: string, definition: SchemaDefinition) {
+    this.schemaMap[name] = definition
   }
 }

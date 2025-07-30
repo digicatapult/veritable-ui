@@ -1,0 +1,5 @@
+{
+  "name": "COMPANY_DETAILS",
+  "version": "1.0.0",
+  "attrNames": ["company_number", "company_name"]
+}
