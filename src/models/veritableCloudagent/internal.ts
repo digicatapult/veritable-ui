@@ -62,14 +62,14 @@ export const didCreateParser = z.object({
 })
 export const didListParser = z.array(didCreateParser)
 
-export const schemaParser = z.object({
+export const credentialSchemaParser = z.object({
   id: z.string(),
   issuerId: z.string(),
   name: z.string(),
   version: z.string(),
   attrNames: z.array(z.string()),
 })
-export type Schema = z.infer<typeof schemaParser>
+export type CredentialSchema = z.infer<typeof credentialSchemaParser>
 
 export const credentialDefinitionParser = z.object({
   id: z.string(),
@@ -273,13 +273,13 @@ export default class VeritableCloudagentInt<Config extends CloudagentConfig = De
     )
   }
 
-  public async createSchema(issuerId: string, name: string, version: string, attrNames: string[]): Promise<Schema> {
+  public async createSchema(issuerId: string, name: string, version: string, attrNames: string[]): Promise<CredentialSchema> {
     return this.postRequest('/v1/schemas', { issuerId, name, version, attrNames }, this.buildParser(schemaParser))
   }
 
   public async getCreatedSchemas(
     filters: Partial<{ issuerId: string; schemaName: string; schemaVersion: string }> = {}
-  ): Promise<Schema[]> {
+  ): Promise<CredentialSchema[]> {
     const params = new URLSearchParams({
       createdLocally: 'true',
       ...filters,
@@ -288,7 +288,7 @@ export default class VeritableCloudagentInt<Config extends CloudagentConfig = De
     return this.getRequest(`/v1/schemas?${params}`, this.buildParser(schemaListParser))
   }
 
-  public async getSchemaById(schemaId: string): Promise<Schema> {
+  public async getSchemaById(schemaId: string): Promise<CredentialSchema> {
     return this.getRequest(`/v1/schemas/${encodeURIComponent(schemaId)}`, this.buildParser(schemaParser))
   }
 

@@ -23,10 +23,10 @@ export const carbonResponseSchema = z.literal(`${schemaBaseUrl}/query_types/tota
 export const bavRequestSchema = z.literal(`${schemaBaseUrl}/query_types/beneficiary_account_validation/request/0.1`)
 export const bavResponseSchema = z.literal(`${schemaBaseUrl}/query_types/beneficiary_account_validation/response/0.1`)
 
-export const schema = z.union([carbonRequestSchema, carbonResponseSchema, bavRequestSchema, bavResponseSchema])
-export type Schema = z.infer<typeof schema>
+export const querySchema = z.union([carbonRequestSchema, carbonResponseSchema, bavRequestSchema, bavResponseSchema])
+export type QuerySchema = z.infer<typeof querySchema>
 
-export const schemaToTypeMap: Record<Schema, QueryType> = {
+export const schemaToTypeMap: Record<QuerySchema, QueryType> = {
   [carbonRequestSchema.value]: 'total_carbon_embodiment',
   [carbonResponseSchema.value]: 'total_carbon_embodiment',
   [bavRequestSchema.value]: 'beneficiary_account_validation',
