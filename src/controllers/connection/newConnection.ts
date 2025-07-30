@@ -41,7 +41,7 @@ const submitToFormStage = {
 const inviteParser = z.object({
   companyNumber: z.string(),
   goalCode: z.enum(countryCodes),
-  inviteUrl: z.base64url(),
+  inviteUrl: z.url(),
 })
 type Invite = z.infer<typeof inviteParser>
 
@@ -148,7 +148,7 @@ export class NewConnectionController extends HTMLController {
    */
   @SuccessResponse(200)
   @Get('/verify-invite')
-  public async verifyInviteForm(@Request() req: express.Request, @Query() invite: BASE_64_URL | string): Promise<HTML> {
+  public async verifyInviteForm(@Request() req: express.Request, @Query() invite: BASE_64_URL): Promise<HTML> {
     if (invite === '') {
       return this.newConnectionForm(req, true)
     }
@@ -327,9 +327,9 @@ export class NewConnectionController extends HTMLController {
     | { type: 'success'; inviteUrl: string; company: SharedOrganisationInfo; registryCountryCode: string }
     | { type: 'error'; message: string }
   > {
-    let wrappedInvite: Invite
+    let decodedInvite: Invite
     try {
-      wrappedInvite = inviteParser.parse(JSON.parse(Buffer.from(invite, 'base64url').toString('utf8')))
+      decodedInvite = inviteParser.parse(JSON.parse(Buffer.from(invite, 'base64url').toString('utf8')))
     } catch (err) {
       logger.info('unknown error occured %j', err)
       return {
@@ -338,7 +338,7 @@ export class NewConnectionController extends HTMLController {
       }
     }
 
-    if (!wrappedInvite.companyNumber.match(wrappedInvite.goalCode === 'GB' ? companyNumberRegex : socrataRegex)) {
+    if (!decodedInvite.companyNumber.match(decodedInvite.goalCode === 'GB' ? companyNumberRegex : socrataRegex)) {
       logger.info('company number did not match a %s regex', companyNumberRegex)
       return {
         type: 'error',
@@ -346,16 +346,16 @@ export class NewConnectionController extends HTMLController {
       }
     }
 
-    const companyOrError = await this.lookupCompany(logger, wrappedInvite.companyNumber, wrappedInvite.goalCode)
+    const companyOrError = await this.lookupCompany(logger, decodedInvite.companyNumber, decodedInvite.goalCode)
     if (companyOrError.type === 'error') {
       logger.info('companyOrError')
       return companyOrError
     }
     return {
       type: 'success',
-      inviteUrl: wrappedInvite.inviteUrl,
+      inviteUrl: decodedInvite.inviteUrl,
       company: companyOrError.company,
-      registryCountryCode: wrappedInvite.goalCode,
+      registryCountryCode: decodedInvite.goalCode,
     }
   }
 
