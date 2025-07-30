@@ -15,7 +15,7 @@ const insertConnection = z.object({
   company_name: z.string(),
   company_number: z.string(),
   status: z.enum(['pending', 'unverified', 'verified_them', 'verified_us', 'verified_both', 'disconnected']),
-  agent_connection_id: z.union([z.string(), z.null()]),
+  agent_connection_id: z.union([z.uuid(), z.null()]),
   pin_attempt_count: z.number().int().gte(0).lte(255),
   pin_tries_remaining_count: z.number().int().gte(0).lte(255).nullable(),
   registry_country_code: z.string(),
@@ -64,7 +64,7 @@ const defaultFields = z.object({
 
 const insertQueryRpc = z.object({
   query_id: z.uuid(),
-  agent_rpc_id: z.string(),
+  agent_rpc_id: z.uuid(),
   role: z.enum(['client', 'server']),
   method: z.enum(['submit_query_request', 'submit_query_response']),
   result: z.union([z.record(z.any(), z.any()), z.null()]).optional(),
@@ -95,7 +95,7 @@ const Zod = {
   settings: {
     insert: insertSettings,
     get: insertSettings.extend({
-      id: z.string(),
+      id: z.uuid(),
       created_at: z.date(),
       updated_at: z.date(),
     }),
