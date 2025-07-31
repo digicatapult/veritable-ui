@@ -306,7 +306,7 @@ export default class QueryResponseTemplates {
         {countryCode && (
           <div class="input-container">
             <label for="bav-name-input" class="input-label">
-              Company Name
+              Account Name
             </label>
             <input id="bav-name-input" name="name" class="input-with-label" type="text" required />
           </div>
@@ -397,7 +397,7 @@ export default class QueryResponseTemplates {
           <br />
           <table class="query-response-view">
             <tr>
-              <td>Company name:</td>
+              <td>Account name:</td>
               <td class="query-results-left-padding-table">{Html.escapeHtml(connection.company_name)}</td>
             </tr>
             <tr>

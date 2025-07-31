@@ -446,7 +446,7 @@ export class QueriesController extends HTMLController {
     const bavResponse = bavResponseData.parse(query.response)
 
     const { score, description } = await this.bavApi.validate(req.log, bavResponse)
-    await this.db.update('query', { id: query?.id }, { response: { ...bavResponse, score, description } })
+    await this.db.update('query', { id: query?.id }, { response: { ...bavResponse, score, description } }, false)
 
     return this.html(
       this.responseTemplates.bavVerificationResults({ score, description, connectionId: query.connection_id })

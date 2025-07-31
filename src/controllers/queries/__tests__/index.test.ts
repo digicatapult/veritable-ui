@@ -636,6 +636,7 @@ describe('QueriesController', () => {
         'query',
         { id: mockIds.queryId },
         { response: { ...bavResponse, score: 1, description: 'Strong match' } },
+        false,
       ])
       expect(result).to.equal(`bavVerificationResults_1-Strong match-${mockIds.companyId}_bavVerificationResults`)
     })
