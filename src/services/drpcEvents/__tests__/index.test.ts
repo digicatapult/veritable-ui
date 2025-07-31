@@ -2,65 +2,9 @@ import { expect } from 'chai'
 import { beforeEach, describe, it } from 'mocha'
 import sinon from 'sinon'
 
-import { DrpcRequest } from '../../veritableCloudagentEvents.js'
 import DrpcEvents from '../index.js'
+import { goodRequest, goodResponse, goodResponseChild } from './fixtures.js'
 import { withDrpcEventMocks } from './helpers.js'
-
-const goodRequest: DrpcRequest = {
-  id: 'request-id',
-  jsonrpc: '2.0',
-  method: 'submit_query_request',
-  params: {
-    id: 'fb45f64a-7c2b-43e8-85c2-da66a6899446',
-    data: {
-      subjectId: {
-        idType: 'product_and_quantity',
-        content: { productId: 'product-id', quantity: 42 },
-      },
-    },
-    type: 'https://github.com/digicatapult/veritable-documentation/tree/main/schemas/veritable_messaging/query_types/total_carbon_embodiment/request/0.1',
-    createdTime: 0,
-    expiresTime: 1,
-  },
-}
-
-const goodResponse: DrpcRequest = {
-  id: 'request-id',
-  jsonrpc: '2.0',
-  method: 'submit_query_response',
-  params: {
-    id: 'query-id',
-    type: 'https://github.com/digicatapult/veritable-documentation/tree/main/schemas/veritable_messaging/query_types/total_carbon_embodiment/response/0.1',
-    data: {
-      mass: 3456,
-      unit: 'kg',
-      subjectId: {
-        idType: 'product_and_quantity',
-        content: { productId: 'product-id', quantity: 42 },
-      },
-      partialResponses: [],
-    },
-  },
-}
-
-const goodResponseChild = {
-  id: 'request-id-2',
-  jsonrpc: '2.0',
-  method: 'submit_query_response',
-  params: {
-    id: 'child-query-id',
-    type: 'https://github.com/digicatapult/veritable-documentation/tree/main/schemas/veritable_messaging/query_types/total_carbon_embodiment/response/0.1',
-    data: {
-      mass: 200,
-      unit: 'kg',
-      subjectId: {
-        idType: 'product_and_quantity',
-        content: { productId: 'partial-product-id', quantity: 42 },
-      },
-      partialResponses: [],
-    },
-  },
-}
 
 describe('DrpcEvents', function () {
   let clock: sinon.SinonFakeTimers
