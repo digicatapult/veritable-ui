@@ -72,6 +72,9 @@ services:
       - LOCAL_REGISTRY_TO_USE=GB
       - SOCRATA_API_URL=https://data.ny.gov/resource/p66s-i79p.json
       - COMPANY_PROFILE_API_KEY=${COMPANY_PROFILE_API_KEY}
+      - IPID_API_URL=https://sandbox.ipid.works
+      - IPID_API_KEY=${IPID_API_KEY}
+      - IPID_CUSTOMER_ID=digicatapult-uat
   postgres-veritable-ui-alice:
     image: postgres:17.5-alpine
     container_name: postgres-veritable-ui-alice
@@ -163,6 +166,9 @@ services:
       - LOCAL_REGISTRY_TO_USE=GB
       - SOCRATA_API_URL=https://data.ny.gov/resource/p66s-i79p.json
       - COMPANY_PROFILE_API_KEY=${COMPANY_PROFILE_API_KEY}
+      - IPID_API_URL=https://sandbox.ipid.works
+      - IPID_API_KEY=${IPID_API_KEY}
+      - IPID_CUSTOMER_ID=digicatapult-uat
 
   postgres-veritable-ui-bob:
     image: postgres:17.5-alpine
@@ -255,6 +261,9 @@ services:
       - COMPANY_PROFILE_API_KEY=${COMPANY_PROFILE_API_KEY}
       - LOCAL_REGISTRY_TO_USE=GB
       - SOCRATA_API_URL=https://data.ny.gov/resource/p66s-i79p.json
+      - IPID_API_URL=https://sandbox.ipid.works
+      - IPID_API_KEY=${IPID_API_KEY}
+      - IPID_CUSTOMER_ID=digicatapult-uat
 
   postgres-veritable-ui-charlie:
     image: postgres:17.5-alpine
@@ -305,9 +314,9 @@ services:
 
   # -------------------- wiremock ----------------------------#
 
-  wiremock-organisation-registries:
+  wiremock:
     image: wiremock/wiremock:3.13.1
-    container_name: wiremock-organisation-registries
+    container_name: wiremock
     scale: 0
     ports:
       - '8443:8080' # Port for accessing wiremock

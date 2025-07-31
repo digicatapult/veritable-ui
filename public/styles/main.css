@@ -54,6 +54,10 @@ body {
   min-height: 100vh;
 }
 
+.invisible {
+  visibility: none;
+}
+
 #side-bar {
   width: var(--side-bar-width);
   min-height: 100vh;
@@ -311,12 +315,38 @@ main {
   margin: 1rem;
 }
 
-.spinner {
+.htmx-request #spinner {
+  display: inline-block;
+  opacity: 1;
+  z-index: 1;
+}
+
+.htmx-request #bav-verification-results-details {
+  visibility: hidden;
+}
+
+#bav-verification-results-details {
+  display: flex;
+  align-content: center;
+  align-items: center;
+}
+
+#spinner {
+  display: none;
   position: absolute;
-  left: 0px;
-  top: 0px;
-  height: 100%;
-  width: 100%;
+  aspect-ratio: 1;
+  height: 50%;
+  border: 3px solid #e3e3e4;
+  border-radius: 50%;
+  border-top-color: #fff;
+  animation: spin 1s ease-in-out infinite;
+  justify-self: center;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .url-separator {
@@ -498,7 +528,6 @@ main {
 .query-form-right {
   display: flex;
   padding-top: 5px;
-  flex: 1;
   flex-direction: column;
 }
 
@@ -506,19 +535,19 @@ main {
   margin-bottom: 150px;
 }
 
-#query-response-view {
+.query-response-view {
   border-collapse: collapse;
   padding: 10px;
   margin-bottom: 2rem;
 }
 
-#query-response-view tr {
+.query-response-view tr {
   font-size: 0.75rem;
   line-height: 1rem;
   padding-bottom: 10px;
 }
 
-#query-response-view td:first-child {
+.query-response-view td:first-child {
   width: 10rem;
 }
 
@@ -532,6 +561,47 @@ main {
 .query-results-left-padding-table {
   padding-left: 30px;
 }
+
+#bav-verification-results {
+  position: relative;
+  display: grid;
+}
+
+#bav-verification-results tr {
+  font-size: 0.75rem;
+  line-height: 1rem;  
+}
+
+#bav-verify-button {
+  margin-left: 2.25rem;
+}
+
+.bav-verify-icon {
+  background-repeat: no-repeat;
+  background-position: center;
+  display: inline-flex;
+  border-radius: 4px;
+  margin: 0 2rem 0 0.5rem;
+  padding: 0.5rem;
+  vertical-align: middle;
+  background-size: 70%;
+}
+
+.tick {
+  background-color: var(--positive-accent);
+  background-image: url('/public/images/tick-white.svg');
+}
+
+.tilde {
+  background-color: var(--warning-accent);
+  background-image: url('/public/images/tilde-white.svg');
+}
+
+.cross {
+  background-color: var(--negative-accent);
+  background-image: url('/public/images/cross-white.svg');
+}
+
 
 #carbon-embodiment {
   display: flex;

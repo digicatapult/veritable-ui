@@ -59,11 +59,12 @@ export default class Database {
   update = async <M extends TABLE>(
     model: M,
     where: Where<M>,
-    updates: Update<M>
+    updates: Update<M>,
+    autoUpdatedAt: boolean = true
   ): Promise<Models[typeof model]['get'][]> => {
     let query = this.db[model]().update({
       ...updates,
-      updated_at: this.client.fn.now(),
+      ...(autoUpdatedAt ? { updated_at: this.client.fn.now() } : {}),
     })
     query = reduceWhere(query, where)
 

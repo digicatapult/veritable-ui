@@ -75,10 +75,12 @@ test.describe('New query response', () => {
       await expect(page.getByRole('heading', { name: 'Beneficiary Account Validation Query' })).toBeVisible()
     })
 
-    await test.step('enters emissions and submits a query response', async () => {
-      await page.fill('#bav-bic-input', 'AAAABBCC123')
+    await test.step('enters bank details and submits a query response', async () => {
       await page.selectOption('#country-select', { label: 'United Kingdom' })
-      await expect(page.getByRole('button', { name: 'Submit Response' })).toBeVisible()
+
+      await page.fill('#bav-name-input', 'Company Name')
+      await page.fill('#bav-account-id-input', '12345678')
+      await page.fill('#bav-clearing-system-id-input', '123456')
       await expect(page.getByRole('button', { name: 'Submit Response' })).not.toBeDisabled()
       await page.getByRole('button', { name: 'Submit Response' }).click()
     })

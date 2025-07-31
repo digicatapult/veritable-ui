@@ -56,9 +56,11 @@ test.describe('Query response view', () => {
   })
 
   test('renders BAV query response with correct bank details', async () => {
-    const bic = 'AAAABBCC123'
     const countryCode = 'GB'
-    await withBavQueryResponse(AliceHost, BobHost, bic, countryCode)
+    const name = 'Company name'
+    const accountId = '12345678'
+    const clearingSystemId = '123456'
+    await withBavQueryResponse(AliceHost, BobHost, countryCode, name, accountId, clearingSystemId)
 
     await test.step('visits queries page and clicks on "view response" (Alice)', async () => {
       await page.goto(`${AliceHost}/queries`)
@@ -73,16 +75,30 @@ test.describe('Query response view', () => {
       expect(page.url()).toContain(`${AliceHost}/queries`)
       const table = page.getByRole('table')
 
-      await expect(table.locator('tr', { hasText: 'Bank Identifier Code' })).toContainText(bic)
-      await expect(table.locator('tr', { hasText: 'Country Code' })).toContainText(countryCode)
+      await expect(table.locator('tr', { hasText: 'Country' })).toContainText('United Kingdom')
+      await expect(table.locator('tr', { hasText: /^Name:/ })).toContainText(name)
+      await expect(table.locator('tr', { hasText: 'Account ID' })).toContainText(accountId)
+      await expect(table.locator('tr', { hasText: 'Clearing System ID' })).toContainText(clearingSystemId)
       expect(page.getByRole('heading', { name: 'Query Information' })).toBeVisible()
+    })
+
+    await test.step('verify bank details', async () => {
+      const table = page.getByRole('table')
+      await expect(table.locator('tr', { hasText: 'Description' })).toContainText('Awaiting request')
+
+      const verifyButton = page.locator('#bav-verify-button')
+      await expect(verifyButton).toBeVisible()
+      await verifyButton.click()
+
+      await expect(table.locator('tr', { hasText: 'Description' })).toContainText('Partial Match')
+      expect(page.getByText('Send new query')).toBeVisible()
+    })
+
+    await test.step('returns to queries page', async () => {
       const button = page.getByText('Back To Queries')
       await expect(button).not.toBeDisabled()
       await expect(button).toBeVisible()
       await button.click({ delay: 500 })
-    })
-
-    await test.step('returns to queries page', async () => {
       expect(page.url()).toContain(`${AliceHost}/queries`)
       expect(page.getByText('Beneficiary Account Validation')).toBeVisible()
       expect(page.getByText('View Response')).not.toBeDisabled()
