@@ -1,7 +1,17 @@
 import { DrpcRequest } from '../../veritableCloudagentEvents.js'
 
+export const connectionId = '00000000-0000-0000-0000-000000000000'
+export const agentConnectionId = '00000000-0000-0000-0000-000000000001'
+export const queryId = '00000000-0000-0000-0000-000000000002'
+export const childQueryId = '00000000-0000-0000-0000-000000000003'
+export const drpcId = '00000000-0000-0000-0000-000000000004'
+
+export const goodRequestId = '00000000-0000-0000-0000-100000000000'
+export const goodResponseId = '00000000-0000-0000-0000-100000000001'
+export const goodResponseChildId = '00000000-0000-0000-0000-100000000002'
+
 export const goodRequest: DrpcRequest = {
-  id: '00000000-0000-0000-0000-a2f8feb52944',
+  id: goodRequestId,
   jsonrpc: '2.0',
   method: 'submit_query_request',
   params: {
@@ -19,11 +29,11 @@ export const goodRequest: DrpcRequest = {
 }
 
 export const goodResponse: DrpcRequest = {
-  id: '10000000-0000-0000-0000-a2f8feb52944',
+  id: goodResponseId,
   jsonrpc: '2.0',
   method: 'submit_query_response',
   params: {
-    id: 'query-id',
+    id: queryId,
     type: 'https://github.com/digicatapult/veritable-documentation/tree/main/schemas/veritable_messaging/query_types/total_carbon_embodiment/response/0.1',
     data: {
       mass: 3456,
@@ -38,11 +48,11 @@ export const goodResponse: DrpcRequest = {
 }
 
 export const goodResponseChild = {
-  id: '20000000-0000-0000-0000-a2f8feb52944',
+  id: goodResponseChildId,
   jsonrpc: '2.0',
   method: 'submit_query_response',
   params: {
-    id: 'child-query-id',
+    id: childQueryId,
     type: 'https://github.com/digicatapult/veritable-documentation/tree/main/schemas/veritable_messaging/query_types/total_carbon_embodiment/response/0.1',
     data: {
       mass: 200,

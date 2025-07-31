@@ -7,6 +7,7 @@ import Database from '../../../models/db/index.js'
 import { ConnectionRow, QueryRow } from '../../../models/db/types.js'
 import VeritableCloudagent from '../../../models/veritableCloudagent/index.js'
 import VeritableCloudagentEvents from '../../veritableCloudagentEvents.js'
+import { agentConnectionId, connectionId, drpcId, queryId } from './fixtures.js'
 type QueryMockOptions = {
   getRows: {
     connection: Partial<ConnectionRow>[]
@@ -15,8 +16,8 @@ type QueryMockOptions = {
 }
 export const defaultOptions: QueryMockOptions = {
   getRows: {
-    connection: [{ id: 'connection-id', agent_connection_id: 'agent_connection_id' }],
-    query: [{ id: 'query-id', response: null }],
+    connection: [{ id: connectionId, agent_connection_id: agentConnectionId }],
+    query: [{ id: queryId, response: null }],
   },
 }
 
@@ -29,7 +30,7 @@ export const withDrpcEventMocks = (testOptions: Partial<QueryMockOptions> = {}) 
   const cloudagentMock = {
     submitDrpcResponse: sinon.stub().resolves(),
     submitDrpcRequest: sinon.stub().resolves({
-      id: 'drpc-id',
+      id: drpcId,
       result: {
         type: 'https://github.com/digicatapult/veritable-documentation/tree/main/schemas/veritable_messaging/query_ack/0.1',
       },
