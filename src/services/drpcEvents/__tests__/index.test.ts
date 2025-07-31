@@ -3,7 +3,16 @@ import { beforeEach, describe, it } from 'mocha'
 import sinon from 'sinon'
 
 import DrpcEvents from '../index.js'
-import { agentConnectionId, goodRequestId, goodResponseChildId, goodResponseId, childQueryId, connectionId, drpcId, goodRequest, goodResponse, goodResponseChild, queryId } from './fixtures.js'
+import {
+  agentConnectionId,
+  childQueryId,
+  connectionId,
+  goodRequest,
+  goodRequestId,
+  goodResponse,
+  goodResponseChild,
+  goodResponseId,
+} from './fixtures.js'
 import { withDrpcEventMocks } from './helpers.js'
 describe('DrpcEvents', function () {
   let clock: sinon.SinonFakeTimers
@@ -96,7 +105,6 @@ describe('DrpcEvents', function () {
         expect(stub.callCount).to.equal(0)
       })
     })
-
     describe('missing request', function () {
       let mocks: ReturnType<typeof withDrpcEventMocks>
       beforeEach(async function () {
@@ -130,7 +138,6 @@ describe('DrpcEvents', function () {
         }
       })
     })
-
     describe('as client', function () {
       let mocks: ReturnType<typeof withDrpcEventMocks>
       beforeEach(async function () {
@@ -165,7 +172,6 @@ describe('DrpcEvents', function () {
         }
       })
     })
-
     describe('request-sent state', function () {
       let mocks: ReturnType<typeof withDrpcEventMocks>
       beforeEach(async function () {
@@ -200,7 +206,6 @@ describe('DrpcEvents', function () {
         }
       })
     })
-
     describe('invalid method', function () {
       let mocks: ReturnType<typeof withDrpcEventMocks>
       beforeEach(async function () {
@@ -247,7 +252,6 @@ describe('DrpcEvents', function () {
         }
       })
     })
-
     describe('bad params', function () {
       let mocks: ReturnType<typeof withDrpcEventMocks>
       beforeEach(async function () {
@@ -294,7 +298,6 @@ describe('DrpcEvents', function () {
         }
       })
     })
-
     describe('invalid query', function () {
       let mocks: ReturnType<typeof withDrpcEventMocks>
       beforeEach(async function () {
@@ -344,7 +347,6 @@ describe('DrpcEvents', function () {
         }
       })
     })
-
     describe('unknown agent connection', function () {
       let mocks: ReturnType<typeof withDrpcEventMocks>
       beforeEach(async function () {
@@ -384,7 +386,6 @@ describe('DrpcEvents', function () {
         }
       })
     })
-
     describe('method throwing before query insert', function () {
       let mocks: ReturnType<typeof withDrpcEventMocks>
       beforeEach(async function () {
@@ -435,7 +436,6 @@ describe('DrpcEvents', function () {
         }
       })
     })
-
     describe('method throwing after query insert', function () {
       let mocks: ReturnType<typeof withDrpcEventMocks>
       beforeEach(async function () {
@@ -515,7 +515,7 @@ describe('DrpcEvents', function () {
       })
     })
   })
-  describe('DrpcRequestStateChanged-responseReceived', function () {
+  describe.only('DrpcRequestStateChanged-responseReceived', function () {
     describe('partial query', function () {
       const childQuery = [{ id: childQueryId, response: null, parent_id: 'query-id' }]
       const parentQuery = [
@@ -651,7 +651,6 @@ describe('DrpcEvents', function () {
         ])
       })
     })
-
     describe('happy path', function () {
       let mocks: ReturnType<typeof withDrpcEventMocks>
       beforeEach(async function () {
@@ -684,7 +683,7 @@ describe('DrpcEvents', function () {
         const stub = mocks.cloudagentMock.submitDrpcResponse
         expect(stub.callCount).to.equal(1)
         expect(stub.firstCall.args).to.deep.equal([
-          'request-id',
+          goodResponseId,
           {
             result: {
               type: 'https://github.com/digicatapult/veritable-documentation/tree/main/schemas/veritable_messaging/query_ack/0.1',
@@ -848,7 +847,7 @@ describe('DrpcEvents', function () {
         ])
       })
     })
-    describe.skip('unknown agent connection', function () {
+    describe('unknown agent connection', function () {
       let mocks: ReturnType<typeof withDrpcEventMocks>
       beforeEach(async function () {
         clock.reset()
@@ -887,7 +886,7 @@ describe('DrpcEvents', function () {
         }
       })
     })
-    describe.only('method throwing before query update', function () {
+    describe('method throwing before query update', function () {
       let mocks: ReturnType<typeof withDrpcEventMocks>
       beforeEach(async function () {
         clock.reset()
