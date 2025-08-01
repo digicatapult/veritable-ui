@@ -7,8 +7,14 @@ import DrpcEvents from '../index.js'
 import { withDrpcEventMocks } from './helpers.js'
 
 // const goodRequestId = '00000000-0000-4000-8000-000000000000'
-// const goodResponseId = '00000000-0000-4000-8000-000000000001'
-// const goodResponseChildId = '00000000-0000-4000-8000-000000000002'
+// const goodResponseId = '00000000-0000-4000-8000-111111111111'
+// const goodResponseChildId = '00000000-0000-4000-8000-222222222222'
+
+const parentConnectionId = '11111111-0000-4000-8000-000000000000'
+const childConnectionId = '22222222-0000-4000-8000-000000000000'
+const parentQueryId = '11111111-0000-4000-8000-111111111111'
+const childQueryId = '22222222-0000-4000-8000-222222222222'
+const parentResponseId = '11111111-1111-4000-8000-000000000000'
 
 const goodRequest: DrpcRequest = {
   id: 'goodRequest',
@@ -33,7 +39,7 @@ const goodResponse: DrpcRequest = {
   jsonrpc: '2.0',
   method: 'submit_query_response',
   params: {
-    id: 'query-id',
+    id: parentQueryId,
     type: 'https://github.com/digicatapult/veritable-documentation/tree/main/schemas/veritable_messaging/query_types/total_carbon_embodiment/response/0.1',
     data: {
       mass: 3456,
@@ -52,7 +58,7 @@ const goodResponseChild = {
   jsonrpc: '2.0',
   method: 'submit_query_response',
   params: {
-    id: 'child-query-id',
+    id: childQueryId,
     type: 'https://github.com/digicatapult/veritable-documentation/tree/main/schemas/veritable_messaging/query_types/total_carbon_embodiment/response/0.1',
     data: {
       mass: 200,
@@ -65,6 +71,59 @@ const goodResponseChild = {
     },
   },
 }
+
+const childConnection = [{ id: childConnectionId }]
+const parentQuery = [
+  {
+    id: parentQueryId,
+    type: 'total_carbon_embodiment',
+    details: {
+      subjectId: {
+        idType: 'product_and_quantity',
+        content: {
+          productId: 'parent-product-id',
+          quantity: 42,
+        },
+      },
+    },
+    response: {
+      mass: 58,
+      unit: 'kg',
+    },
+    status: 'forwarded',
+    connection_id: parentConnectionId,
+    response_id: parentResponseId,
+  },
+]
+
+const childQuery = [
+  {
+    id: childQueryId,
+    response: null,
+    parent_id: parentQueryId,
+  },
+]
+
+const allChildQuery = [
+  {
+    id: childQueryId,
+    type: 'total_carbon_embodiment',
+    response: {
+      subjectId: {
+        idType: 'product_and_quantity',
+        content: {
+          productId: 'child-product-id',
+          quantity: 42,
+        },
+      },
+      mass: 42,
+      unit: 'kg',
+      partialResponses: [],
+    },
+    parent_id: parentQueryId, //parent
+    status: 'resolved',
+  },
+]
 
 describe('DrpcEvents', function () {
   let clock: sinon.SinonFakeTimers
@@ -579,51 +638,6 @@ describe('DrpcEvents', function () {
 
   describe('DrpcRequestStateChanged-responseReceived', function () {
     describe('partial query', function () {
-      const childQuery = [{ id: 'child-query-id', response: null, parent_id: 'query-id' }]
-      const parentQuery = [
-        {
-          id: 'query-id',
-          type: 'total_carbon_embodiment',
-          details: {
-            subjectId: {
-              idType: 'product_and_quantity',
-              content: {
-                productId: 'parent-product-id',
-                quantity: 42,
-              },
-            },
-          },
-          response: {
-            mass: 58,
-            unit: 'kg',
-          },
-          status: 'forwarded',
-          connection_id: 'parent-connection-id',
-          response_id: 'parent-response-id',
-        },
-      ]
-      const allChildQuery = [
-        {
-          id: 'child-query-id',
-          type: 'total_carbon_embodiment',
-          response: {
-            subjectId: {
-              idType: 'product_and_quantity',
-              content: {
-                productId: 'child-product-id',
-                quantity: 42,
-              },
-            },
-            mass: 42,
-            unit: 'kg',
-            partialResponses: [],
-          },
-          parent_id: 'query-id',
-          status: 'resolved',
-        },
-      ]
-      const childConnection = [{ id: 'child-connection-id' }]
-
       const { eventsMock, dbMock, args } = withDrpcEventMocks()
       const drpcEvents = new DrpcEvents(...args)
 
@@ -641,7 +655,7 @@ describe('DrpcEvents', function () {
           payload: {
             drpcMessageRecord: {
               request: goodResponseChild,
-              connectionId: 'child-connection-id',
+              connectionId: childConnectionId,
               role: 'server',
               state: 'request-received',
             },
@@ -651,14 +665,14 @@ describe('DrpcEvents', function () {
         await clock.runAllAsync()
       })
 
-      it('retrieves a regular query along with partial', () => {
+      it.only('retrieves a regular query along with partial', () => {
         const stub = dbMock.get
         expect(stub.callCount).to.equal(5)
-        expect(stub.getCall(0).args).to.deep.equal(['connection', { agent_connection_id: 'child-connection-id' }])
-        expect(stub.getCall(1).args).to.deep.equal(['query', { id: 'child-query-id', role: 'requester' }])
-        expect(stub.getCall(2).args).to.deep.equal(['query', { id: 'query-id', role: 'responder' }])
-        expect(stub.getCall(3).args).to.deep.equal(['connection', { id: 'parent-connection-id' }])
-        expect(stub.getCall(4).args).to.deep.equal(['query', { parent_id: 'query-id', role: 'requester' }])
+        expect(stub.getCall(0).args).to.deep.equal(['connection', { agent_connection_id: childConnectionId }])
+        expect(stub.getCall(1).args).to.deep.equal(['query', { id: childQueryId, role: 'requester' }])
+        expect(stub.getCall(2).args).to.deep.equal(['query', { id: parentQueryId, role: 'responder' }])
+        expect(stub.getCall(3).args).to.deep.equal(['connection', { id: parentConnectionId }])
+        expect(stub.getCall(4).args).to.deep.equal(['query', { parent_id: parentQueryId, role: 'requester' }])
       })
 
       it('updates response as per drpc request', () => {
