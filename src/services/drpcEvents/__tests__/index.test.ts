@@ -6,16 +6,16 @@ import { DrpcRequest } from '../../veritableCloudagentEvents.js'
 import DrpcEvents from '../index.js'
 import { withDrpcEventMocks } from './helpers.js'
 
-const goodRequestId = '00000000-0000-0000-0000-000000000000'
-const goodResponseId = '00000000-0000-0000-0000-000000000001'
-const goodResponseChildId = '00000000-0000-0000-0000-000000000002'
+// const goodRequestId = '00000000-0000-4000-8000-000000000000'
+// const goodResponseId = '00000000-0000-4000-8000-000000000001'
+// const goodResponseChildId = '00000000-0000-4000-8000-000000000002'
 
 const goodRequest: DrpcRequest = {
   id: 'goodRequest',
   jsonrpc: '2.0',
   method: 'submit_query_request',
   params: {
-    id: 'fb45f64a-7c2b-43e8-85c2-da66a6899446',
+    id: '00000000-0000-4000-8000-111111111111',
     data: {
       subjectId: {
         idType: 'product_and_quantity',
@@ -66,7 +66,7 @@ const goodResponseChild = {
   },
 }
 
-describe.only('DrpcEvents', function () {
+describe('DrpcEvents', function () {
   let clock: sinon.SinonFakeTimers
   before(function () {
     clock = sinon.useFakeTimers()
@@ -132,7 +132,7 @@ describe.only('DrpcEvents', function () {
                 content: { productId: 'product-id', quantity: 42 },
               },
             },
-            response_id: 'fb45f64a-7c2b-43e8-85c2-da66a6899446',
+            response_id: '00000000-0000-4000-8000-111111111111',
             role: 'responder',
             response: null,
             expires_at: new Date(1000),
@@ -541,7 +541,7 @@ describe.only('DrpcEvents', function () {
                 content: { productId: 'product-id', quantity: 42 },
               },
             },
-            response_id: 'fb45f64a-7c2b-43e8-85c2-da66a6899446',
+            response_id: '00000000-0000-4000-8000-111111111111',
             response: null,
             role: 'responder',
             expires_at: new Date(1000),
