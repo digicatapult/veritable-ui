@@ -20,7 +20,9 @@ import {
 } from './fixtures.js'
 import { withDrpcEventMocks } from './helpers.js'
 
-describe.only('DrpcEvents', function () {
+// NB stubbed calls do not use UUIDs for connectionId, query_id, agent-connection-id
+
+describe('DrpcEvents', function () {
   let clock: sinon.SinonFakeTimers
   before(function () {
     clock = sinon.useFakeTimers()
@@ -86,7 +88,7 @@ describe.only('DrpcEvents', function () {
                 content: { productId: 'product-id', quantity: 42 },
               },
             },
-            response_id: '00000000-0000-4000-8000-111111111111',
+            response_id: goodResponseId,
             role: 'responder',
             response: null,
             expires_at: new Date(1000),
@@ -495,7 +497,7 @@ describe.only('DrpcEvents', function () {
                 content: { productId: 'product-id', quantity: 42 },
               },
             },
-            response_id: '00000000-0000-4000-8000-111111111111',
+            response_id: goodResponseId,
             response: null,
             role: 'responder',
             expires_at: new Date(1000),
