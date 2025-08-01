@@ -10,7 +10,7 @@ import { mockIds, toHTMLString, withQueriesMocks } from './helpers.js'
 
 const expiresAtExpectation = new Date(1000 + 7 * 24 * 60 * 60 * 1000)
 
-describe('QueriesController', () => {
+describe.only('QueriesController', () => {
   const req = { log: mockLogger } as unknown as Request
   let clock: sinon.SinonFakeTimers | null = null
 
@@ -30,6 +30,7 @@ describe('QueriesController', () => {
       const result = await controller.queries().then(toHTMLString)
       expect(result).to.equal('queries_template')
     })
+
     it('should call db as expected', async () => {
       const { dbMock, args } = withQueriesMocks()
       const controller = new QueriesController(...args)
@@ -172,9 +173,106 @@ describe('QueriesController', () => {
 
       expect(result).to.equal('queryForm_error_queryForm')
     })
+
+    it('should call page with stage error if rpc succeeds with error', async () => {
+      const { dbMock, args, cloudagentMock } = withQueriesMocks()
+      cloudagentMock.submitDrpcRequest = sinon.stub().resolves({
+        error: new Error('error'),
+        id: 'request-id',
+      })
+
+      const controller = new QueriesController(...args)
+      const result = await controller
+        .carbonEmbodimentResponseSubmit(req, '5390af91-c551-4d74-b394-d8ae0805059e', {
+          companyId: '2345789',
+          emissions: 25,
+        })
+        .then(toHTMLString)
+      expect(dbMock.update.getCall(0).args).to.deep.equal([
+        'query',
+        { id: '5390af91-c551-4d74-b394-d8ae0805059a' },
+        { status: 'errored' },
+      ])
+      expect(result).to.equal('queriesResponse_error_template')
+    })
   })
 
   describe('query responses', () => {
+    it('should call db as expected', async () => {
+      const { args, dbMock } = withQueriesMocks()
+      const controller = new QueriesController(...args)
+      const spy = dbMock.get
+      await controller.response(req, 'SomeId').then(toHTMLString)
+      const search = 'SomeId'
+      expect(spy.firstCall.calledWith('query', { id: search })).to.equal(true)
+    })
+
+    it('should call query response page with stage FORM as expected', async () => {
+      const { args } = withQueriesMocks()
+      const controller = new QueriesController(...args)
+      const result = await controller.response(req, 'someId123').then(toHTMLString)
+
+      expect(result).to.equal('queriesResponse_form_template')
+    })
+
+    it('should call query response page with stage SUCCESS as expected', async () => {
+      const { args } = withQueriesMocks()
+      const controller = new QueriesController(...args)
+      const result = await controller
+        .carbonEmbodimentResponseSubmit(req, '5390af91-c551-4d74-b394-d8ae0805059e', {
+          companyId: '2345789',
+          emissions: 25,
+        })
+        .then(toHTMLString)
+
+      expect(result).to.equal('queriesResponse_success_template')
+    })
+
+    it('sets query status to error if rpc succeeds without response', async () => {
+      const { dbMock, args, cloudagentMock } = withQueriesMocks()
+      cloudagentMock.submitDrpcRequest = sinon.stub().resolves(undefined)
+
+      const controller = new QueriesController(...args)
+
+      const result = await controller
+        .carbonEmbodimentResponseSubmit(req, '5390af91-c551-4d74-b394-d8ae0805059e', {
+          companyId: '2345789',
+          emissions: 25,
+        })
+        .then(toHTMLString)
+
+      expect(result).to.equal('queriesResponse_error_template')
+      expect(dbMock.update.getCall(0).args).to.deep.equal([
+        'query',
+        { id: '5390af91-c551-4d74-b394-d8ae0805059a' },
+        { status: 'errored' },
+      ])
+    })
+
+    it('should call page with stage error if rpc fails', async () => {
+      const { args, cloudagentMock } = withQueriesMocks()
+      cloudagentMock.submitDrpcRequest = sinon.stub().rejects(new Error('testing'))
+
+      const controller = new QueriesController(...args)
+      const result = await controller
+        .carbonEmbodimentResponseSubmit(req, '5390af91-c551-4d74-b394-d8ae0805059e', {
+          companyId: '2345789',
+          emissions: 25,
+        })
+        .then(toHTMLString)
+
+      expect(result).to.equal('queriesResponse_error_template')
+    })
+
+    describe('viewing query responses', () => {
+      it('should call db as expected', async () => {
+        const { args, dbMock } = withQueriesMocks()
+        const controller = new QueriesController(...args)
+        const spy = dbMock.get
+        await controller.response(req, mockIds.queryId).then(toHTMLString)
+        expect(spy.firstCall.calledWith('query', { id: mockIds.queryId })).to.equal(true)
+      })
+    })
     describe('partial query responses', () => {
       describe('if invalid partial input', () => {
         it('throws if connectionsIds array is not in the req.body', async () => {
@@ -324,104 +422,6 @@ describe('QueriesController', () => {
         expect(dbMock.get.secondCall.calledWith('query', { id: 'query-partial-id-test' })).to.equal(true)
         expect(result).to.be.equal('queriesResponse_success_template')
       })
-    })
-
-    it('should call db as expected', async () => {
-      const { args, dbMock } = withQueriesMocks()
-      const controller = new QueriesController(...args)
-      const spy = dbMock.get
-      await controller.response(req, 'SomeId').then(toHTMLString)
-      const search = 'SomeId'
-      expect(spy.firstCall.calledWith('query', { id: search })).to.equal(true)
-    })
-
-    it('should call query response page with stage FORM as expected', async () => {
-      const { args } = withQueriesMocks()
-      const controller = new QueriesController(...args)
-      const result = await controller.response(req, 'someId123').then(toHTMLString)
-
-      expect(result).to.equal('queriesResponse_form_template')
-    })
-
-    it('should call query response page with stage SUCCESS as expected', async () => {
-      const { args } = withQueriesMocks()
-      const controller = new QueriesController(...args)
-      const result = await controller
-        .carbonEmbodimentResponseSubmit(req, '5390af91-c551-4d74-b394-d8ae0805059e', {
-          companyId: '2345789',
-          emissions: 25,
-        })
-        .then(toHTMLString)
-
-      expect(result).to.equal('queriesResponse_success_template')
-    })
-
-    it('sets query status to error if rpc succeeds without response', async () => {
-      const { dbMock, args, cloudagentMock } = withQueriesMocks()
-      cloudagentMock.submitDrpcRequest = sinon.stub().resolves(undefined)
-
-      const controller = new QueriesController(...args)
-
-      const result = await controller
-        .carbonEmbodimentResponseSubmit(req, '5390af91-c551-4d74-b394-d8ae0805059e', {
-          companyId: '2345789',
-          emissions: 25,
-        })
-        .then(toHTMLString)
-
-      expect(result).to.equal('queriesResponse_error_template')
-      expect(dbMock.update.getCall(0).args).to.deep.equal([
-        'query',
-        { id: '5390af91-c551-4d74-b394-d8ae0805059a' },
-        { status: 'errored' },
-      ])
-    })
-
-    it('should call page with stage error if rpc fails', async () => {
-      const { args, cloudagentMock } = withQueriesMocks()
-      cloudagentMock.submitDrpcRequest = sinon.stub().rejects(new Error('testing'))
-
-      const controller = new QueriesController(...args)
-      const result = await controller
-        .carbonEmbodimentResponseSubmit(req, '5390af91-c551-4d74-b394-d8ae0805059e', {
-          companyId: '2345789',
-          emissions: 25,
-        })
-        .then(toHTMLString)
-
-      expect(result).to.equal('queriesResponse_error_template')
-    })
-  })
-
-  it('should call page with stage error if rpc succeeds with error', async () => {
-    const { dbMock, args, cloudagentMock } = withQueriesMocks()
-    cloudagentMock.submitDrpcRequest = sinon.stub().resolves({
-      error: new Error('error'),
-      id: 'request-id',
-    })
-
-    const controller = new QueriesController(...args)
-    const result = await controller
-      .carbonEmbodimentResponseSubmit(req, '5390af91-c551-4d74-b394-d8ae0805059e', {
-        companyId: '2345789',
-        emissions: 25,
-      })
-      .then(toHTMLString)
-    expect(dbMock.update.getCall(0).args).to.deep.equal([
-      'query',
-      { id: '5390af91-c551-4d74-b394-d8ae0805059a' },
-      { status: 'errored' },
-    ])
-    expect(result).to.equal('queriesResponse_error_template')
-  })
-
-  describe('viewing query responses', () => {
-    it('should call db as expected', async () => {
-      const { args, dbMock } = withQueriesMocks()
-      const controller = new QueriesController(...args)
-      const spy = dbMock.get
-      await controller.response(req, mockIds.queryId).then(toHTMLString)
-      expect(spy.firstCall.calledWith('query', { id: mockIds.queryId })).to.equal(true)
     })
   })
 
