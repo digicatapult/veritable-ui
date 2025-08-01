@@ -6,9 +6,9 @@ import { DrpcRequest } from '../../veritableCloudagentEvents.js'
 import DrpcEvents from '../index.js'
 import { withDrpcEventMocks } from './helpers.js'
 
-// const goodRequestId = '00000000-0000-4000-8000-000000000000'
-// const goodResponseId = '00000000-0000-4000-8000-111111111111'
-// const goodResponseChildId = '00000000-0000-4000-8000-222222222222'
+const goodRequestId = '00000000-0000-4000-8000-000000000000'
+const goodResponseId = '00000000-0000-4000-8000-111111111111'
+const goodResponseChildId = '00000000-0000-4000-8000-222222222222'
 
 const parentConnectionId = '11111111-0000-4000-8000-000000000000'
 const childConnectionId = '22222222-0000-4000-8000-000000000000'
@@ -17,7 +17,7 @@ const childQueryId = '22222222-0000-4000-8000-222222222222'
 const parentResponseId = '11111111-1111-4000-8000-000000000000'
 
 const goodRequest: DrpcRequest = {
-  id: 'goodRequest',
+  id: goodRequestId,
   jsonrpc: '2.0',
   method: 'submit_query_request',
   params: {
@@ -35,7 +35,7 @@ const goodRequest: DrpcRequest = {
 }
 
 const goodResponse: DrpcRequest = {
-  id: 'goodResponse',
+  id: goodResponseId,
   jsonrpc: '2.0',
   method: 'submit_query_response',
   params: {
@@ -54,7 +54,7 @@ const goodResponse: DrpcRequest = {
 }
 
 const goodResponseChild = {
-  id: 'goodResponseChild',
+  id: goodResponseChildId,
   jsonrpc: '2.0',
   method: 'submit_query_response',
   params: {
@@ -167,7 +167,7 @@ describe.only('DrpcEvents', function () {
         const stub = mocks.cloudagentMock.submitDrpcResponse
         expect(stub.callCount).to.equal(1)
         expect(stub.firstCall.args).to.deep.equal([
-          'goodRequest',
+          goodRequestId,
           {
             result: {
               type: 'https://github.com/digicatapult/veritable-documentation/tree/main/schemas/veritable_messaging/query_ack/0.1',
@@ -203,7 +203,7 @@ describe.only('DrpcEvents', function () {
             query_id: 'query-id',
             method: 'submit_query_request',
             role: 'server',
-            agent_rpc_id: 'goodRequest',
+            agent_rpc_id: goodRequestId,
             result: {
               type: 'https://github.com/digicatapult/veritable-documentation/tree/main/schemas/veritable_messaging/query_ack/0.1',
             },
@@ -350,7 +350,7 @@ describe.only('DrpcEvents', function () {
         const stub = mocks.cloudagentMock.submitDrpcResponse
         expect(stub.callCount).to.equal(1)
         expect(stub.firstCall.args).to.deep.equal([
-          'goodRequest',
+          goodRequestId,
           {
             error: {
               code: -32601,
@@ -397,7 +397,7 @@ describe.only('DrpcEvents', function () {
         const stub = mocks.cloudagentMock.submitDrpcResponse
         expect(stub.callCount).to.equal(1)
         expect(stub.firstCall.args).to.deep.equal([
-          'goodRequest',
+          goodRequestId,
           {
             error: {
               code: -32602,
@@ -447,7 +447,7 @@ describe.only('DrpcEvents', function () {
         const stub = mocks.cloudagentMock.submitDrpcResponse
         expect(stub.callCount).to.equal(1)
         expect(stub.firstCall.args).to.deep.equal([
-          'goodRequest',
+          goodRequestId,
           {
             error: {
               code: -32602,
@@ -538,7 +538,7 @@ describe.only('DrpcEvents', function () {
         const stub = mocks.cloudagentMock.submitDrpcResponse
         expect(stub.callCount).to.equal(1)
         expect(stub.firstCall.args).to.deep.equal([
-          'goodRequest',
+          goodRequestId,
           {
             error: {
               code: -32603,
@@ -624,7 +624,7 @@ describe.only('DrpcEvents', function () {
         const stub = mocks.cloudagentMock.submitDrpcResponse
         expect(stub.callCount).to.equal(2)
         expect(stub.secondCall.args).to.deep.equal([
-          'goodRequest',
+          goodRequestId,
           {
             error: {
               code: -32603,
@@ -760,7 +760,7 @@ describe.only('DrpcEvents', function () {
         const stub = mocks.cloudagentMock.submitDrpcResponse
         expect(stub.callCount).to.equal(1)
         expect(stub.firstCall.args).to.deep.equal([
-          'goodResponse',
+          goodResponseId,
           {
             result: {
               type: 'https://github.com/digicatapult/veritable-documentation/tree/main/schemas/veritable_messaging/query_ack/0.1',
@@ -796,7 +796,7 @@ describe.only('DrpcEvents', function () {
             query_id: parentQueryId,
             method: 'submit_query_response',
             role: 'server',
-            agent_rpc_id: 'goodResponse',
+            agent_rpc_id: goodResponseId,
             result: {
               type: 'https://github.com/digicatapult/veritable-documentation/tree/main/schemas/veritable_messaging/query_ack/0.1',
             },
@@ -867,7 +867,7 @@ describe.only('DrpcEvents', function () {
         const stub = mocks.cloudagentMock.submitDrpcResponse
         expect(stub.callCount).to.equal(1)
         expect(stub.firstCall.args).to.deep.equal([
-          'goodResponse',
+          goodResponseId,
           {
             error: {
               code: -32602,
@@ -917,7 +917,7 @@ describe.only('DrpcEvents', function () {
         const stub = mocks.cloudagentMock.submitDrpcResponse
         expect(stub.callCount).to.equal(1)
         expect(stub.firstCall.args).to.deep.equal([
-          'goodResponse',
+          goodResponseId,
           {
             error: {
               code: -32602,
@@ -1001,7 +1001,7 @@ describe.only('DrpcEvents', function () {
         const stub = mocks.cloudagentMock.submitDrpcResponse
         expect(stub.callCount).to.equal(1)
         expect(stub.firstCall.args).to.deep.equal([
-          'goodResponse',
+          goodResponseId,
           {
             error: {
               code: -32603,
@@ -1074,7 +1074,7 @@ describe.only('DrpcEvents', function () {
         const stub = mocks.cloudagentMock.submitDrpcResponse
         expect(stub.callCount).to.equal(2)
         expect(stub.secondCall.args).to.deep.equal([
-          'goodResponse',
+          goodResponseId,
           {
             error: {
               code: -32603,
