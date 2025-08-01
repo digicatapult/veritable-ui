@@ -23,7 +23,7 @@ describe.only('QueriesController', () => {
     sinon.restore()
   })
 
-  describe('queries', () => {
+  describe('Queries', () => {
     it('should match the snapshot of the rendered query page', async () => {
       const { args } = withQueriesMocks()
       const controller = new QueriesController(...args)
@@ -273,159 +273,9 @@ describe.only('QueriesController', () => {
         expect(spy.firstCall.calledWith('query', { id: mockIds.queryId })).to.equal(true)
       })
     })
-    describe('partial query responses', () => {
-      describe('if invalid partial input', () => {
-        it('throws if connectionsIds array is not in the req.body', async () => {
-          const { args } = withQueriesMocks()
-          const controller = new QueriesController(...args)
-          try {
-            await controller.carbonEmbodimentResponseSubmit(req, 'query-partial-id-test', {
-              companyId: 'some-company-id',
-              partialQuery: ['on'],
-              productIds: ['product-1', 'product-2'],
-              quantities: [10, 20],
-              emissions: 10,
-            })
-            // the below expect should never happen since we expect test to throw
-            expect.fail('Expected exception to be thrown')
-          } catch (err) {
-            if (!(err instanceof InvalidInputError)) {
-              expect.fail('expected InvalidInputError')
-            }
-            expect(err.toString()).to.be.equal('Error: missing a property in the request body')
-          }
-        })
-
-        it('throws if productIds array is not in the req.body', async () => {
-          const { args } = withQueriesMocks()
-          const controller = new QueriesController(...args)
-          try {
-            await controller.carbonEmbodimentResponseSubmit(req, 'query-partial-id-test', {
-              companyId: 'some-company-id',
-              partialQuery: ['on'],
-              connectionIds: ['conn-id-1', 'conn-id-2'],
-              quantities: [10, 20],
-              emissions: 10,
-            })
-            expect.fail('Expected exception to be thrown')
-          } catch (err) {
-            if (!(err instanceof InvalidInputError)) {
-              expect.fail('expected InvalidInputError')
-            }
-            expect(err.toString()).to.be.equal('Error: missing a property in the request body')
-          }
-        })
-
-        it('throws if quantities and productIds arrays are not req.body', async () => {
-          const { args } = withQueriesMocks()
-          const controller = new QueriesController(...args)
-          try {
-            await controller.carbonEmbodimentResponseSubmit(req, 'query-partial-id-test', {
-              companyId: 'some-company-id',
-              partialQuery: ['on'],
-              connectionIds: ['conn-id-1', 'conn-id-2'],
-              emissions: 10,
-            })
-            expect.fail('Expected exception to be thrown')
-          } catch (err) {
-            if (!(err instanceof InvalidInputError)) {
-              expect.fail('expected InvalidInputError')
-            }
-            expect(err.toString()).to.be.equal('Error: missing a property in the request body')
-          }
-        })
-
-        it('throws if arrays are not the same size', async () => {
-          const { args } = withQueriesMocks()
-          const controller = new QueriesController(...args)
-          try {
-            await controller.carbonEmbodimentResponseSubmit(req, 'query-partial-id-test', {
-              companyId: 'some-company-id',
-              partialQuery: ['on'],
-              productIds: ['product-id-1'],
-              quantities: [1, 2, 3],
-              connectionIds: ['conn-id-1', 'conn-id-2'],
-              emissions: 10,
-            })
-            expect.fail('Expected exception to be thrown')
-          } catch (err) {
-            if (!(err instanceof InvalidInputError)) {
-              expect.fail('expected InvalidInputError')
-            }
-            expect(err.toString()).to.be.equal('Error: partial query validation failed, invalid data')
-          }
-        })
-      })
-
-      it('creates a child query and renders a response view', async () => {
-        const { args, dbMock } = withQueriesMocks()
-        const controller = new QueriesController(...args)
-        const result = await controller
-          .carbonEmbodimentResponseSubmit(req, 'query-partial-id-test', {
-            companyId: 'some-company-id',
-            partialQuery: ['on'],
-            emissions: 10,
-            partialSelect: ['on', 'on'],
-            connectionIds: ['conn-id-1', 'conn-id-2'],
-            productIds: ['product-1', 'product-2'],
-            quantities: [10, 20],
-          })
-          .then(toHTMLString)
-
-        expect(dbMock.insert.getCall(0).args).to.deep.equal([
-          'query',
-          {
-            connection_id: 'conn-id-1',
-            type: 'total_carbon_embodiment',
-            status: 'pending_their_input',
-            parent_id: '5390af91-c551-4d74-b394-d8ae0805059a',
-            details: {
-              subjectId: {
-                idType: 'product_and_quantity',
-                content: {
-                  productId: 'product-1',
-                  quantity: 10,
-                },
-              },
-            },
-            response_id: null,
-            response: null,
-            role: 'requester',
-            expires_at: new Date(),
-          },
-        ])
-        expect(dbMock.insert.getCall(1).args).to.deep.equal([
-          'query',
-          {
-            connection_id: 'conn-id-2',
-            parent_id: '5390af91-c551-4d74-b394-d8ae0805059a',
-            type: 'total_carbon_embodiment',
-            status: 'pending_their_input',
-            details: {
-              subjectId: {
-                idType: 'product_and_quantity',
-                content: {
-                  productId: 'product-2',
-                  quantity: 20,
-                },
-              },
-            },
-            response_id: null,
-            response: null,
-            role: 'requester',
-            expires_at: new Date(),
-          },
-        ])
-        expect(
-          dbMock.get.firstCall.calledWith('connection', { id: 'some-company-id', status: 'verified_both' })
-        ).to.equal(true)
-        expect(dbMock.get.secondCall.calledWith('query', { id: 'query-partial-id-test' })).to.equal(true)
-        expect(result).to.be.equal('queriesResponse_success_template')
-      })
-    })
   })
 
-  describe('Partial Query', () => {
+  describe('Partial Queries', () => {
     const { args, dbMock, cloudagentMock } = withQueriesMocks()
     let result: string
 
@@ -596,6 +446,157 @@ describe.only('QueriesController', () => {
 
       it('renders success page', () => {
         expect(result).to.equal('queriesResponse_success_template')
+      })
+    })
+
+    describe('partial query responses', () => {
+      it('creates a child query and renders a response view', async () => {
+        const { args, dbMock } = withQueriesMocks()
+        const controller = new QueriesController(...args)
+        const result = await controller
+          .carbonEmbodimentResponseSubmit(req, 'query-partial-id-test', {
+            companyId: 'some-company-id',
+            partialQuery: ['on'],
+            emissions: 10,
+            partialSelect: ['on', 'on'],
+            connectionIds: ['conn-id-1', 'conn-id-2'],
+            productIds: ['product-1', 'product-2'],
+            quantities: [10, 20],
+          })
+          .then(toHTMLString)
+
+        expect(dbMock.insert.getCall(0).args).to.deep.equal([
+          'query',
+          {
+            connection_id: 'conn-id-1',
+            type: 'total_carbon_embodiment',
+            status: 'pending_their_input',
+            parent_id: '5390af91-c551-4d74-b394-d8ae0805059a',
+            details: {
+              subjectId: {
+                idType: 'product_and_quantity',
+                content: {
+                  productId: 'product-1',
+                  quantity: 10,
+                },
+              },
+            },
+            response_id: null,
+            response: null,
+            role: 'requester',
+            expires_at: new Date(),
+          },
+        ])
+        expect(dbMock.insert.getCall(1).args).to.deep.equal([
+          'query',
+          {
+            connection_id: 'conn-id-2',
+            parent_id: '5390af91-c551-4d74-b394-d8ae0805059a',
+            type: 'total_carbon_embodiment',
+            status: 'pending_their_input',
+            details: {
+              subjectId: {
+                idType: 'product_and_quantity',
+                content: {
+                  productId: 'product-2',
+                  quantity: 20,
+                },
+              },
+            },
+            response_id: null,
+            response: null,
+            role: 'requester',
+            expires_at: new Date(),
+          },
+        ])
+        expect(
+          dbMock.get.firstCall.calledWith('connection', { id: 'some-company-id', status: 'verified_both' })
+        ).to.equal(true)
+        expect(dbMock.get.secondCall.calledWith('query', { id: 'query-partial-id-test' })).to.equal(true)
+        expect(result).to.be.equal('queriesResponse_success_template')
+      })
+
+      describe('if invalid partial input', () => {
+        it('throws if connectionsIds array is not in the req.body', async () => {
+          const { args } = withQueriesMocks()
+          const controller = new QueriesController(...args)
+          try {
+            await controller.carbonEmbodimentResponseSubmit(req, 'query-partial-id-test', {
+              companyId: 'some-company-id',
+              partialQuery: ['on'],
+              productIds: ['product-1', 'product-2'],
+              quantities: [10, 20],
+              emissions: 10,
+            })
+            // the below expect should never happen since we expect test to throw
+            expect.fail('Expected exception to be thrown')
+          } catch (err) {
+            if (!(err instanceof InvalidInputError)) {
+              expect.fail('expected InvalidInputError')
+            }
+            expect(err.toString()).to.be.equal('Error: missing a property in the request body')
+          }
+        })
+
+        it('throws if productIds array is not in the req.body', async () => {
+          const { args } = withQueriesMocks()
+          const controller = new QueriesController(...args)
+          try {
+            await controller.carbonEmbodimentResponseSubmit(req, 'query-partial-id-test', {
+              companyId: 'some-company-id',
+              partialQuery: ['on'],
+              connectionIds: ['conn-id-1', 'conn-id-2'],
+              quantities: [10, 20],
+              emissions: 10,
+            })
+            expect.fail('Expected exception to be thrown')
+          } catch (err) {
+            if (!(err instanceof InvalidInputError)) {
+              expect.fail('expected InvalidInputError')
+            }
+            expect(err.toString()).to.be.equal('Error: missing a property in the request body')
+          }
+        })
+
+        it('throws if quantities and productIds arrays are not req.body', async () => {
+          const { args } = withQueriesMocks()
+          const controller = new QueriesController(...args)
+          try {
+            await controller.carbonEmbodimentResponseSubmit(req, 'query-partial-id-test', {
+              companyId: 'some-company-id',
+              partialQuery: ['on'],
+              connectionIds: ['conn-id-1', 'conn-id-2'],
+              emissions: 10,
+            })
+            expect.fail('Expected exception to be thrown')
+          } catch (err) {
+            if (!(err instanceof InvalidInputError)) {
+              expect.fail('expected InvalidInputError')
+            }
+            expect(err.toString()).to.be.equal('Error: missing a property in the request body')
+          }
+        })
+
+        it('throws if arrays are not the same size', async () => {
+          const { args } = withQueriesMocks()
+          const controller = new QueriesController(...args)
+          try {
+            await controller.carbonEmbodimentResponseSubmit(req, 'query-partial-id-test', {
+              companyId: 'some-company-id',
+              partialQuery: ['on'],
+              productIds: ['product-id-1'],
+              quantities: [1, 2, 3],
+              connectionIds: ['conn-id-1', 'conn-id-2'],
+              emissions: 10,
+            })
+            expect.fail('Expected exception to be thrown')
+          } catch (err) {
+            if (!(err instanceof InvalidInputError)) {
+              expect.fail('expected InvalidInputError')
+            }
+            expect(err.toString()).to.be.equal('Error: partial query validation failed, invalid data')
+          }
+        })
       })
     })
   })
