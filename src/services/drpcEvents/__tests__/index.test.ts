@@ -2,128 +2,23 @@ import { expect } from 'chai'
 import { beforeEach, describe, it } from 'mocha'
 import sinon from 'sinon'
 
-import { DrpcRequest } from '../../veritableCloudagentEvents.js'
 import DrpcEvents from '../index.js'
+import {
+  allChildQuery,
+  childConnection,
+  childConnectionId,
+  childQuery,
+  childQueryId,
+  goodRequest,
+  goodRequestId,
+  goodResponse,
+  goodResponseChild,
+  goodResponseId,
+  parentConnectionId,
+  parentQuery,
+  parentQueryId,
+} from './fixtures.js'
 import { withDrpcEventMocks } from './helpers.js'
-
-const goodRequestId = '00000000-0000-4000-8000-000000000000'
-const goodResponseId = '00000000-0000-4000-8000-111111111111'
-const goodResponseChildId = '00000000-0000-4000-8000-222222222222'
-
-const parentConnectionId = '11111111-0000-4000-8000-000000000000'
-const childConnectionId = '22222222-0000-4000-8000-000000000000'
-const parentQueryId = '11111111-0000-4000-8000-111111111111'
-const childQueryId = '22222222-0000-4000-8000-222222222222'
-const parentResponseId = '11111111-1111-4000-8000-000000000000'
-
-const goodRequest: DrpcRequest = {
-  id: goodRequestId,
-  jsonrpc: '2.0',
-  method: 'submit_query_request',
-  params: {
-    id: '00000000-0000-4000-8000-111111111111',
-    data: {
-      subjectId: {
-        idType: 'product_and_quantity',
-        content: { productId: 'product-id', quantity: 42 },
-      },
-    },
-    type: 'https://github.com/digicatapult/veritable-documentation/tree/main/schemas/veritable_messaging/query_types/total_carbon_embodiment/request/0.1',
-    createdTime: 0,
-    expiresTime: 1,
-  },
-}
-
-const goodResponse: DrpcRequest = {
-  id: goodResponseId,
-  jsonrpc: '2.0',
-  method: 'submit_query_response',
-  params: {
-    id: parentQueryId,
-    type: 'https://github.com/digicatapult/veritable-documentation/tree/main/schemas/veritable_messaging/query_types/total_carbon_embodiment/response/0.1',
-    data: {
-      mass: 3456,
-      unit: 'kg',
-      subjectId: {
-        idType: 'product_and_quantity',
-        content: { productId: 'product-id', quantity: 42 },
-      },
-      partialResponses: [],
-    },
-  },
-}
-
-const goodResponseChild = {
-  id: goodResponseChildId,
-  jsonrpc: '2.0',
-  method: 'submit_query_response',
-  params: {
-    id: childQueryId,
-    type: 'https://github.com/digicatapult/veritable-documentation/tree/main/schemas/veritable_messaging/query_types/total_carbon_embodiment/response/0.1',
-    data: {
-      mass: 200,
-      unit: 'kg',
-      subjectId: {
-        idType: 'product_and_quantity',
-        content: { productId: 'partial-product-id', quantity: 42 },
-      },
-      partialResponses: [],
-    },
-  },
-}
-
-const childConnection = [{ id: childConnectionId }]
-const parentQuery = [
-  {
-    id: parentQueryId,
-    type: 'total_carbon_embodiment',
-    details: {
-      subjectId: {
-        idType: 'product_and_quantity',
-        content: {
-          productId: 'parent-product-id',
-          quantity: 42,
-        },
-      },
-    },
-    response: {
-      mass: 58,
-      unit: 'kg',
-    },
-    status: 'forwarded',
-    connection_id: parentConnectionId,
-    response_id: parentResponseId,
-  },
-]
-
-const childQuery = [
-  {
-    id: childQueryId,
-    response: null,
-    parent_id: parentQueryId,
-  },
-]
-
-const allChildQuery = [
-  {
-    id: childQueryId,
-    type: 'total_carbon_embodiment',
-    response: {
-      subjectId: {
-        idType: 'product_and_quantity',
-        content: {
-          productId: 'child-product-id',
-          quantity: 42,
-        },
-      },
-      mass: 42,
-      unit: 'kg',
-      partialResponses: [],
-    },
-    parent_id: parentQueryId, //parent
-    status: 'resolved',
-  },
-]
 
 describe.only('DrpcEvents', function () {
   let clock: sinon.SinonFakeTimers
