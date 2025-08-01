@@ -10,7 +10,7 @@ import { mockIds, toHTMLString, withQueriesMocks } from './helpers.js'
 
 const expiresAtExpectation = new Date(1000 + 7 * 24 * 60 * 60 * 1000)
 
-describe.only('QueriesController', () => {
+describe('QueriesController', () => {
   const req = { log: mockLogger } as unknown as Request
   let clock: sinon.SinonFakeTimers | null = null
 
