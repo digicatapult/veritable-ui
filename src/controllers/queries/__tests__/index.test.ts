@@ -92,7 +92,7 @@ describe.only('QueriesController', () => {
       expect(dbMock.insert.getCall(0).args).to.deep.equal([
         'query',
         {
-          connection_id: 'cccccccc-0001-0000-0000-d8ae0805059e',
+          connection_id: 'cccccccc-0001-4000-8000-d8ae0805059e',
           details: {
             subjectId: {
               idType: 'product_and_quantity',
@@ -144,7 +144,7 @@ describe.only('QueriesController', () => {
         .then(toHTMLString)
       expect(dbMock.update.getCall(0).args).to.deep.equal([
         'query',
-        { id: 'ccaaaaaa-0000-0000-0000-d8ae0805059e' },
+        { id: 'ccaaaaaa-0000-4000-8000-d8ae0805059e' },
         { status: 'errored' },
       ])
       expect(result).to.equal('queryForm_error_queryForm')
@@ -167,7 +167,7 @@ describe.only('QueriesController', () => {
         .then(toHTMLString)
       expect(dbMock.update.getCall(0).args).to.deep.equal([
         'query',
-        { id: 'ccaaaaaa-0000-0000-0000-d8ae0805059e' },
+        { id: 'ccaaaaaa-0000-4000-8000-d8ae0805059e' },
         { status: 'errored' },
       ])
 
@@ -314,8 +314,8 @@ describe.only('QueriesController', () => {
 
     it('retrieves connections and query details from a database', async () => {
       expect(dbMock.get.args).to.deep.equal([
-        ['query', { id: '00000000-0000-0000-0000-d8ae0805059e' }],
-        ['connection', { id: 'cccccccc-0001-0000-0000-d8ae0805059e' }, [['updated_at', 'desc']]],
+        ['query', { id: '00000000-0000-4000-8000-d8ae0805059e' }],
+        ['connection', { id: 'cccccccc-0001-4000-8000-d8ae0805059e' }, [['updated_at', 'desc']]],
         ['connection', { status: 'verified_both' }],
       ])
     })
@@ -327,15 +327,15 @@ describe.only('QueriesController', () => {
       expect(formatted.partial).to.be.equal(true)
       expect(formatted.connections).to.deep.equal([
         {
-          agent_connection_id: 'aaaaaaaa-0000-0000-0000-d8ae0805059e',
+          agent_connection_id: 'aaaaaaaa-0000-4000-8000-d8ae0805059e',
           company_name: 'PARTIAL_QUERY',
-          id: 'cccccccc-0000-0000-0000-d8ae0805059e',
+          id: 'cccccccc-0000-4000-8000-d8ae0805059e',
           status: 'verified_both',
         },
         {
-          agent_connection_id: 'aaaaaaaa-0000-0000-0000-d8ae0805059e',
+          agent_connection_id: 'aaaaaaaa-0000-4000-8000-d8ae0805059e',
           company_name: 'VERIFIED_THEM',
-          id: 'cccccccc-0000-0000-0000-d8ae0805059e',
+          id: 'cccccccc-0000-4000-8000-d8ae0805059e',
           status: 'verified_them',
         },
       ])
@@ -346,12 +346,12 @@ describe.only('QueriesController', () => {
         const controller = new QueriesController(...args)
         result = await controller
           .carbonEmbodimentResponseSubmit(req, mockIds.queryId, {
-            companyId: 'cccccccc-0001-0000-0000-d8ae0805059e',
+            companyId: 'cccccccc-0001-4000-8000-d8ae0805059e',
             partialQuery: ['on'],
             partialSelect: ['on'],
             productIds: ['partial-product-id'],
             quantities: [10],
-            connectionIds: ['cccccccc-0000-0000-0000-d8ae0805059e'],
+            connectionIds: ['cccccccc-0000-4000-8000-d8ae0805059e'],
             emissions: 10,
           })
           .then(toHTMLString)
@@ -360,7 +360,7 @@ describe.only('QueriesController', () => {
       it('submits a Drpc request to the cloudagent', () => {
         expect(cloudagentMock.submitDrpcRequest.callCount).to.equal(1)
         expect(cloudagentMock.submitDrpcRequest.firstCall.args).to.have.deep.members([
-          'aaaaaaaa-0000-0000-0000-d8ae0805059e',
+          'aaaaaaaa-0000-4000-8000-d8ae0805059e',
           'submit_query_request',
           {
             data: {
@@ -372,7 +372,7 @@ describe.only('QueriesController', () => {
                 },
               },
             },
-            id: 'ccaaaaaa-0000-0000-0000-d8ae0805059e',
+            id: 'ccaaaaaa-0000-4000-8000-d8ae0805059e',
             type: 'https://github.com/digicatapult/veritable-documentation/tree/main/schemas/veritable_messaging/query_types/total_carbon_embodiment/request/0.1',
             createdTime: 1,
             expiresTime: 1,
@@ -384,7 +384,7 @@ describe.only('QueriesController', () => {
         expect(dbMock.insert.getCall(0).args).to.have.deep.members([
           'query',
           {
-            connection_id: 'cccccccc-0000-0000-0000-d8ae0805059e',
+            connection_id: 'cccccccc-0000-4000-8000-d8ae0805059e',
             type: 'total_carbon_embodiment',
             status: 'pending_their_input',
             parent_id: '5390af91-c551-4d74-b394-d8ae0805059a',
@@ -420,7 +420,7 @@ describe.only('QueriesController', () => {
               subjectId: {
                 idType: 'product_and_quantity',
                 content: {
-                  productId: '00000000-0000-0000-0000-d8ae0805059e',
+                  productId: '00000000-0000-4000-8000-d8ae0805059e',
                   quantity: 2,
                 },
               },
@@ -434,7 +434,7 @@ describe.only('QueriesController', () => {
           'query_rpc',
           {
             agent_rpc_id: 'request-id',
-            query_id: 'ccaaaaaa-0000-0000-0000-d8ae0805059e',
+            query_id: 'ccaaaaaa-0000-4000-8000-d8ae0805059e',
             role: 'client',
             method: 'submit_query_request',
             result: {
