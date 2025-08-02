@@ -3,7 +3,7 @@ import en from 'i18n-iso-countries/langs/en.json' with { type: 'json' }
 /**
  * @example "did:key:z6Mkk7yqnGF3YwTrLpqrW6PGsKci7dNqh1CjnvMbzrMerSeL"
  */
-export type DID = string
+export type DID = `did:${string}`
 
 /**
  * @example "WgWxqztrNooG92RXvxSTWv:3:CL:20:tag"
@@ -25,7 +25,7 @@ export type Version = string
  * @pattern [0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-4[0-9A-Fa-f]{3}-[89ABab][0-9A-Fa-f]{3}-[0-9A-Fa-f]{12}
  * @example "52907745-7672-470e-a803-a2f8feb52944"
  */
-export type UUID = string
+export type UUID = `${string}-${string}-${string}-${string}-${string}`
 
 /**
  * Hex string with 0x prefix
