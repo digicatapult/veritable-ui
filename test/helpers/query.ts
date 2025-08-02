@@ -1,8 +1,8 @@
 import 'reflect-metadata'
 
+import { CountryCode } from '../../src/models/strings.js'
 import { fetchGet, fetchPost } from './routeHelper.js'
 import { delay } from './util.js'
-import { CountryCode } from '../../src/models/strings.js'
 
 export const co2QueryContent = {
   productId: 'E2E-DC001',
