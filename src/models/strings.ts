@@ -3,7 +3,7 @@ import en from 'i18n-iso-countries/langs/en.json' with { type: 'json' }
 /**
  * @example "did:key:z6Mkk7yqnGF3YwTrLpqrW6PGsKci7dNqh1CjnvMbzrMerSeL"
  */
-export type DID = `did:${string}`
+export type DID = `did:${string}:${string}`
 
 /**
  * @example "WgWxqztrNooG92RXvxSTWv:3:CL:20:tag"
