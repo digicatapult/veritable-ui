@@ -1,6 +1,8 @@
 import en from 'i18n-iso-countries/langs/en.json' with { type: 'json' }
 
 /**
+ * W3C Decentralized Identifier format v1.0
+ * @pattern did:method:did-method specific identifier
  * @example "did:key:z6Mkk7yqnGF3YwTrLpqrW6PGsKci7dNqh1CjnvMbzrMerSeL"
  */
 export type DID = `did:${string}:${string}`
