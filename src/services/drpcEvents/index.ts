@@ -53,7 +53,7 @@ export default class DrpcEvents {
     }
   }
 
-  private async handleRequestReceived(request: DrpcRequest, agentConnectionId: string) {
+  private async handleRequestReceived(request: DrpcRequest, agentConnectionId: UUID) {
     const method = request.method
     switch (method) {
       case 'submit_query_request':
@@ -78,9 +78,9 @@ export default class DrpcEvents {
 
   private async handleSubmitQueryRequest(
     request: DrpcRequest & { method: 'submit_query_request' },
-    agentConnectionId: string
+    agentConnectionId: UUID
   ) {
-    let queryId: string | null = null
+    let queryId: UUID | null = null
     try {
       this.logger.info(
         'DRPC request (%s) received on connection %s of method %s',
@@ -165,7 +165,7 @@ export default class DrpcEvents {
 
   private async handleSubmitQueryResponse(
     request: DrpcRequest & { method: 'submit_query_response' },
-    agentConnectionId: string
+    agentConnectionId: UUID
   ) {
     try {
       this.logger.info(

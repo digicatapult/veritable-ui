@@ -2,65 +2,25 @@ import { expect } from 'chai'
 import { beforeEach, describe, it } from 'mocha'
 import sinon from 'sinon'
 
-import { DrpcRequest } from '../../veritableCloudagentEvents.js'
 import DrpcEvents from '../index.js'
+import {
+  allChildQuery,
+  childConnection,
+  childConnectionId,
+  childQuery,
+  childQueryId,
+  goodRequest,
+  goodRequestId,
+  goodResponse,
+  goodResponseChild,
+  goodResponseId,
+  parentConnectionId,
+  parentQuery,
+  parentQueryId,
+} from './fixtures.js'
 import { withDrpcEventMocks } from './helpers.js'
 
-const goodRequest: DrpcRequest = {
-  id: 'request-id',
-  jsonrpc: '2.0',
-  method: 'submit_query_request',
-  params: {
-    id: 'fb45f64a-7c2b-43e8-85c2-da66a6899446',
-    data: {
-      subjectId: {
-        idType: 'product_and_quantity',
-        content: { productId: 'product-id', quantity: 42 },
-      },
-    },
-    type: 'https://github.com/digicatapult/veritable-documentation/tree/main/schemas/veritable_messaging/query_types/total_carbon_embodiment/request/0.1',
-    createdTime: 0,
-    expiresTime: 1,
-  },
-}
-
-const goodResponse: DrpcRequest = {
-  id: 'request-id',
-  jsonrpc: '2.0',
-  method: 'submit_query_response',
-  params: {
-    id: 'query-id',
-    type: 'https://github.com/digicatapult/veritable-documentation/tree/main/schemas/veritable_messaging/query_types/total_carbon_embodiment/response/0.1',
-    data: {
-      mass: 3456,
-      unit: 'kg',
-      subjectId: {
-        idType: 'product_and_quantity',
-        content: { productId: 'product-id', quantity: 42 },
-      },
-      partialResponses: [],
-    },
-  },
-}
-
-const goodResponseChild = {
-  id: 'request-id-2',
-  jsonrpc: '2.0',
-  method: 'submit_query_response',
-  params: {
-    id: 'child-query-id',
-    type: 'https://github.com/digicatapult/veritable-documentation/tree/main/schemas/veritable_messaging/query_types/total_carbon_embodiment/response/0.1',
-    data: {
-      mass: 200,
-      unit: 'kg',
-      subjectId: {
-        idType: 'product_and_quantity',
-        content: { productId: 'partial-product-id', quantity: 42 },
-      },
-      partialResponses: [],
-    },
-  },
-}
+// NB stubbed calls do not use UUIDs for connectionId, query_id, agent-connection-id
 
 describe('DrpcEvents', function () {
   let clock: sinon.SinonFakeTimers
@@ -104,7 +64,7 @@ describe('DrpcEvents', function () {
         const stub = mocks.cloudagentMock.submitDrpcResponse
         expect(stub.callCount).to.equal(1)
         expect(stub.firstCall.args).to.deep.equal([
-          'request-id',
+          goodRequestId,
           {
             result: {
               type: 'https://github.com/digicatapult/veritable-documentation/tree/main/schemas/veritable_messaging/query_ack/0.1',
@@ -128,7 +88,7 @@ describe('DrpcEvents', function () {
                 content: { productId: 'product-id', quantity: 42 },
               },
             },
-            response_id: 'fb45f64a-7c2b-43e8-85c2-da66a6899446',
+            response_id: goodResponseId,
             role: 'responder',
             response: null,
             expires_at: new Date(1000),
@@ -140,7 +100,7 @@ describe('DrpcEvents', function () {
             query_id: 'query-id',
             method: 'submit_query_request',
             role: 'server',
-            agent_rpc_id: 'request-id',
+            agent_rpc_id: goodRequestId,
             result: {
               type: 'https://github.com/digicatapult/veritable-documentation/tree/main/schemas/veritable_messaging/query_ack/0.1',
             },
@@ -287,7 +247,7 @@ describe('DrpcEvents', function () {
         const stub = mocks.cloudagentMock.submitDrpcResponse
         expect(stub.callCount).to.equal(1)
         expect(stub.firstCall.args).to.deep.equal([
-          'request-id',
+          goodRequestId,
           {
             error: {
               code: -32601,
@@ -334,7 +294,7 @@ describe('DrpcEvents', function () {
         const stub = mocks.cloudagentMock.submitDrpcResponse
         expect(stub.callCount).to.equal(1)
         expect(stub.firstCall.args).to.deep.equal([
-          'request-id',
+          goodRequestId,
           {
             error: {
               code: -32602,
@@ -384,7 +344,7 @@ describe('DrpcEvents', function () {
         const stub = mocks.cloudagentMock.submitDrpcResponse
         expect(stub.callCount).to.equal(1)
         expect(stub.firstCall.args).to.deep.equal([
-          'request-id',
+          goodRequestId,
           {
             error: {
               code: -32602,
@@ -475,7 +435,7 @@ describe('DrpcEvents', function () {
         const stub = mocks.cloudagentMock.submitDrpcResponse
         expect(stub.callCount).to.equal(1)
         expect(stub.firstCall.args).to.deep.equal([
-          'request-id',
+          goodRequestId,
           {
             error: {
               code: -32603,
@@ -537,7 +497,7 @@ describe('DrpcEvents', function () {
                 content: { productId: 'product-id', quantity: 42 },
               },
             },
-            response_id: 'fb45f64a-7c2b-43e8-85c2-da66a6899446',
+            response_id: goodResponseId,
             response: null,
             role: 'responder',
             expires_at: new Date(1000),
@@ -561,7 +521,7 @@ describe('DrpcEvents', function () {
         const stub = mocks.cloudagentMock.submitDrpcResponse
         expect(stub.callCount).to.equal(2)
         expect(stub.secondCall.args).to.deep.equal([
-          'request-id',
+          goodRequestId,
           {
             error: {
               code: -32603,
@@ -572,53 +532,9 @@ describe('DrpcEvents', function () {
       })
     })
   })
+
   describe('DrpcRequestStateChanged-responseReceived', function () {
     describe('partial query', function () {
-      const childQuery = [{ id: 'child-query-id', response: null, parent_id: 'query-id' }]
-      const parentQuery = [
-        {
-          id: 'query-id',
-          type: 'total_carbon_embodiment',
-          details: {
-            subjectId: {
-              idType: 'product_and_quantity',
-              content: {
-                productId: 'parent-product-id',
-                quantity: 42,
-              },
-            },
-          },
-          response: {
-            mass: 58,
-            unit: 'kg',
-          },
-          status: 'forwarded',
-          connection_id: 'parent-connection-id',
-          response_id: 'parent-response-id',
-        },
-      ]
-      const allChildQuery = [
-        {
-          id: 'child-query-id',
-          type: 'total_carbon_embodiment',
-          response: {
-            subjectId: {
-              idType: 'product_and_quantity',
-              content: {
-                productId: 'child-product-id',
-                quantity: 42,
-              },
-            },
-            mass: 42,
-            unit: 'kg',
-            partialResponses: [],
-          },
-          parent_id: 'query-id',
-          status: 'resolved',
-        },
-      ]
-      const childConnection = [{ id: 'child-connection-id' }]
-
       const { eventsMock, dbMock, args } = withDrpcEventMocks()
       const drpcEvents = new DrpcEvents(...args)
 
@@ -636,7 +552,7 @@ describe('DrpcEvents', function () {
           payload: {
             drpcMessageRecord: {
               request: goodResponseChild,
-              connectionId: 'child-connection-id',
+              connectionId: childConnectionId,
               role: 'server',
               state: 'request-received',
             },
@@ -649,11 +565,11 @@ describe('DrpcEvents', function () {
       it('retrieves a regular query along with partial', () => {
         const stub = dbMock.get
         expect(stub.callCount).to.equal(5)
-        expect(stub.getCall(0).args).to.deep.equal(['connection', { agent_connection_id: 'child-connection-id' }])
-        expect(stub.getCall(1).args).to.deep.equal(['query', { id: 'child-query-id', role: 'requester' }])
-        expect(stub.getCall(2).args).to.deep.equal(['query', { id: 'query-id', role: 'responder' }])
-        expect(stub.getCall(3).args).to.deep.equal(['connection', { id: 'parent-connection-id' }])
-        expect(stub.getCall(4).args).to.deep.equal(['query', { parent_id: 'query-id', role: 'requester' }])
+        expect(stub.getCall(0).args).to.deep.equal(['connection', { agent_connection_id: childConnectionId }])
+        expect(stub.getCall(1).args).to.deep.equal(['query', { id: childQueryId, role: 'requester' }])
+        expect(stub.getCall(2).args).to.deep.equal(['query', { id: parentQueryId, role: 'responder' }])
+        expect(stub.getCall(3).args).to.deep.equal(['connection', { id: parentConnectionId }])
+        expect(stub.getCall(4).args).to.deep.equal(['query', { parent_id: parentQueryId, role: 'requester' }])
       })
 
       it('updates response as per drpc request', () => {
@@ -662,7 +578,7 @@ describe('DrpcEvents', function () {
         expect(stub.callCount).to.equal(2)
         expect(stub.firstCall.args).to.deep.equal([
           'query',
-          { id: 'child-query-id' },
+          { id: childQueryId },
           {
             response: {
               mass: 200,
@@ -678,7 +594,7 @@ describe('DrpcEvents', function () {
         ])
         expect(stub.lastCall.args).to.deep.equal([
           'query',
-          { id: 'query-id' },
+          { id: parentQueryId },
           {
             response: {
               mass: 58,
@@ -694,7 +610,7 @@ describe('DrpcEvents', function () {
                     },
                     partialResponses: [],
                   },
-                  id: 'child-query-id',
+                  id: childQueryId,
                   type: 'https://github.com/digicatapult/veritable-documentation/tree/main/schemas/veritable_messaging/query_types/total_carbon_embodiment/response/0.1',
                 },
               ],
@@ -734,14 +650,14 @@ describe('DrpcEvents', function () {
         const stub = mocks.dbMock.get
         expect(stub.callCount).to.equal(2)
         expect(stub.firstCall.args).to.deep.equal(['connection', { agent_connection_id: 'agent-connection-id' }])
-        expect(stub.secondCall.args).to.deep.equal(['query', { id: 'query-id', role: 'requester' }])
+        expect(stub.secondCall.args).to.deep.equal(['query', { id: parentQueryId, role: 'requester' }])
       })
 
       it('should call submitDrpcResponse correctly', function () {
         const stub = mocks.cloudagentMock.submitDrpcResponse
         expect(stub.callCount).to.equal(1)
         expect(stub.firstCall.args).to.deep.equal([
-          'request-id',
+          goodResponseId,
           {
             result: {
               type: 'https://github.com/digicatapult/veritable-documentation/tree/main/schemas/veritable_messaging/query_ack/0.1',
@@ -757,7 +673,7 @@ describe('DrpcEvents', function () {
         expect(stub1.callCount).to.equal(2)
         expect(stub.firstCall.args).to.deep.equal([
           'query',
-          { id: 'query-id' },
+          { id: parentQueryId },
           {
             response: {
               mass: 3456,
@@ -774,10 +690,10 @@ describe('DrpcEvents', function () {
         expect(stub2.firstCall.args).to.deep.equal([
           'query_rpc',
           {
-            query_id: 'query-id',
+            query_id: parentQueryId,
             method: 'submit_query_response',
             role: 'server',
-            agent_rpc_id: 'request-id',
+            agent_rpc_id: goodResponseId,
             result: {
               type: 'https://github.com/digicatapult/veritable-documentation/tree/main/schemas/veritable_messaging/query_ack/0.1',
             },
@@ -785,6 +701,7 @@ describe('DrpcEvents', function () {
         ])
       })
     })
+
     describe('missing response', function () {
       let mocks: ReturnType<typeof withDrpcEventMocks>
       beforeEach(async function () {
@@ -817,6 +734,7 @@ describe('DrpcEvents', function () {
         }
       })
     })
+
     describe('bad params for response', function () {
       let mocks: ReturnType<typeof withDrpcEventMocks>
       beforeEach(async function () {
@@ -846,7 +764,7 @@ describe('DrpcEvents', function () {
         const stub = mocks.cloudagentMock.submitDrpcResponse
         expect(stub.callCount).to.equal(1)
         expect(stub.firstCall.args).to.deep.equal([
-          'request-id',
+          goodResponseId,
           {
             error: {
               code: -32602,
@@ -863,6 +781,7 @@ describe('DrpcEvents', function () {
         }
       })
     })
+
     describe('invalid query in response', function () {
       let mocks: ReturnType<typeof withDrpcEventMocks>
       beforeEach(async function () {
@@ -895,7 +814,7 @@ describe('DrpcEvents', function () {
         const stub = mocks.cloudagentMock.submitDrpcResponse
         expect(stub.callCount).to.equal(1)
         expect(stub.firstCall.args).to.deep.equal([
-          'request-id',
+          goodResponseId,
           {
             error: {
               code: -32602,
@@ -905,6 +824,7 @@ describe('DrpcEvents', function () {
         ])
       })
     })
+
     describe('unknown agent connection', function () {
       let mocks: ReturnType<typeof withDrpcEventMocks>
       beforeEach(async function () {
@@ -944,6 +864,7 @@ describe('DrpcEvents', function () {
         }
       })
     })
+
     describe('method throwing before query update', function () {
       let mocks: ReturnType<typeof withDrpcEventMocks>
       beforeEach(async function () {
@@ -977,7 +898,7 @@ describe('DrpcEvents', function () {
         const stub = mocks.cloudagentMock.submitDrpcResponse
         expect(stub.callCount).to.equal(1)
         expect(stub.firstCall.args).to.deep.equal([
-          'request-id',
+          goodResponseId,
           {
             error: {
               code: -32603,
@@ -994,6 +915,7 @@ describe('DrpcEvents', function () {
         }
       })
     })
+
     describe('method throwing after query update', function () {
       let mocks: ReturnType<typeof withDrpcEventMocks>
       beforeEach(async function () {
@@ -1021,7 +943,7 @@ describe('DrpcEvents', function () {
         const stub = mocks.dbMock.get
         expect(stub.callCount).to.equal(2)
         expect(stub.firstCall.args).to.deep.equal(['connection', { agent_connection_id: 'agent-connection-id' }])
-        expect(stub.secondCall.args).to.deep.equal(['query', { id: 'query-id', role: 'requester' }])
+        expect(stub.secondCall.args).to.deep.equal(['query', { id: parentQueryId, role: 'requester' }])
       })
 
       it('should insert into the database a query and query_rpc', function () {
@@ -1029,7 +951,7 @@ describe('DrpcEvents', function () {
         expect(stub.callCount).to.equal(1)
         expect(stub.firstCall.args).to.deep.equal([
           'query',
-          { id: 'query-id' },
+          { id: parentQueryId },
           {
             response: {
               mass: 3456,
@@ -1049,7 +971,7 @@ describe('DrpcEvents', function () {
         const stub = mocks.cloudagentMock.submitDrpcResponse
         expect(stub.callCount).to.equal(2)
         expect(stub.secondCall.args).to.deep.equal([
-          'request-id',
+          goodResponseId,
           {
             error: {
               code: -32603,

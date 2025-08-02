@@ -142,9 +142,9 @@ export class ConnectionController extends HTMLController {
 
   private async verifyReceiveConnection(
     logger: pino.Logger,
-    agentConnectionId: string,
+    agentConnectionId: UUID,
     profile: SharedOrganisationInfo,
-    pin: string
+    pin: PIN_CODE
   ) {
     logger.debug('verifyReceiveConnection(): called for credential proposal', { agentConnectionId, profile, pin })
 
@@ -167,7 +167,7 @@ export class ConnectionController extends HTMLController {
       ],
     })
   }
-  private async pollPinSubmission(logger: ILogger, connectionId: string, initialPinAttemptsRemaining: number | null) {
+  private async pollPinSubmission(logger: ILogger, connectionId: UUID, initialPinAttemptsRemaining: number | null) {
     logger.trace('pollPinSubmission(): called for database checks %j', { connectionId, initialPinAttemptsRemaining })
 
     try {

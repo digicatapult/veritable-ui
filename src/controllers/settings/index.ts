@@ -7,8 +7,10 @@ import { InternalError } from '../../errors.js'
 import Database from '../../models/db/index.js'
 import { SettingsRow } from '../../models/db/types.js'
 import OrganisationRegistry from '../../models/orgRegistry/organisationRegistry.js'
+import { COMPANY_NUMBER, EMAIL, SOCRATA_NUMBER } from '../../models/strings.js'
 import SettingsTemplates from '../../views/settings/settings.js'
 import { HTML, HTMLController } from './../HTMLController.js'
+
 type SettingsDict = {
   admin_email: { setting_value: string; created_at: Date; updated_at: Date }
 } & Record<string, { setting_value: string; created_at: Date; updated_at: Date }>
@@ -16,9 +18,9 @@ type SettingsDict = {
 export type SettingsType = {
   company_name: string
   companies_house_number: string
-  from_email: string
+  from_email: EMAIL
   postal_address: string
-  admin_email: string
+  admin_email: EMAIL
   reset_enabled: boolean
 }
 
@@ -70,11 +72,11 @@ export class SettingsController extends HTMLController {
     @Request() req: express.Request,
     @Body()
     body: {
-      admin_email: string
+      admin_email: EMAIL
       company_name: string
-      companies_house_number: string
+      companies_house_number: COMPANY_NUMBER | SOCRATA_NUMBER | string
       postal_address: string
-      from_email: string
+      from_email: EMAIL
       action?: 'updateSettings'
     },
     @Query('edit') edit?: boolean

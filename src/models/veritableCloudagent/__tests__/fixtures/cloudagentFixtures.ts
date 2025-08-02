@@ -3,24 +3,24 @@ import { pino } from 'pino'
 import type { ILogger } from '../../../../logger.js'
 
 export const createInviteSuccessResponse = {
-  invitationUrl: 'example.com',
-  outOfBandRecord: { id: 'example-id' },
+  invitationUrl: 'http://example.com',
+  outOfBandRecord: { id: '00000001-7672-470e-a803-a2f8feb52944' },
 }
 
 export const receiveInviteSuccessResponse = {
   outOfBandRecord: {
-    id: 'oob-id',
+    id: '00000001-7672-470e-a803-a2f8feb52944',
   },
   connectionRecord: {
-    id: 'connection-id',
+    id: '00000000-7672-470e-a803-a2f8feb52944',
   },
 }
 
 export const getConnectionsSuccessResponse = [
   {
-    id: 'connection-id',
+    id: '00000000-7672-470e-a803-a2f8feb52944',
     state: 'completed',
-    outOfBandId: 'oob-id',
+    outOfBandId: '00000001-7672-470e-a803-a2f8feb52944',
   },
 ]
 
@@ -51,7 +51,7 @@ export const drpcRequestResponse = {
   result: {
     value: 'result',
   },
-  id: 'request-id',
+  id: '00000002-7672-470e-a803-a2f8feb52944',
 }
 
 export const mockLogger: ILogger = pino({ level: 'silent' })

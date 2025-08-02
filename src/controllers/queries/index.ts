@@ -294,7 +294,7 @@ export class QueriesController extends HTMLController {
       emissions: number
       partialQuery?: 'on'[] // TODO: remove
       partialSelect?: 'on'[] // TODO: remove
-      connectionIds?: string[]
+      connectionIds?: UUID[]
       productIds?: string[]
       quantities?: UInt[]
     }
@@ -569,7 +569,7 @@ export class QueriesController extends HTMLController {
 
   private async submitDrpcQueryAndStoreResult(
     log: Logger,
-    agentConnectionId: string,
+    agentConnectionId: UUID,
     query: QueryRow,
     rpcRequest: DrpcQueryRequest
   ) {
