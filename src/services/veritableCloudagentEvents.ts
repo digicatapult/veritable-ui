@@ -12,7 +12,7 @@ import IndexedAsyncEventEmitter from '../utils/indexedAsyncEventEmitter.js'
 import { MapDiscriminatedUnion } from '../utils/types.js'
 
 const drpcRequestParser = z.object({
-  jsonrpc: z.string(),
+  jsonrpc: z.literal('2.0'),
   method: z.string(),
   params: z.record(z.any(), z.any()).optional(),
   id: z.uuid(),
