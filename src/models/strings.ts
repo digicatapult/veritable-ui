@@ -2,7 +2,7 @@ import en from 'i18n-iso-countries/langs/en.json' with { type: 'json' }
 
 /**
  * W3C Decentralized Identifier format v1.0
- * @pattern did:method:did-method specific identifier
+ * @pattern did:[A-Za-z0-9]+:[A-Za-z0-9]+
  * @example "did:key:z6Mkk7yqnGF3YwTrLpqrW6PGsKci7dNqh1CjnvMbzrMerSeL"
  */
 export type DID = string
