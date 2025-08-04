@@ -13,7 +13,7 @@ import {
   submitQueryRpcParams,
   typeToResponseSchemaMap,
 } from '../../models/drpc.js'
-import { UUID } from '../../models/strings.js'
+import { UUID } from '../../models/stringTypes.js'
 import VeritableCloudagent from '../../models/veritableCloudagent/index.js'
 import { DrpcResponse, JsonRpcError } from '../../models/veritableCloudagent/internal.js'
 

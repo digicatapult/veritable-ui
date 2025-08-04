@@ -1,6 +1,6 @@
 import z from 'zod'
 import { QueryType } from './db/types'
-import { BIC, CountryCode, countryCodes } from './strings.js'
+import { BIC, CountryCode, countryCodes } from './stringTypes.js'
 
 export const ProductAndQuantity = z.object({
   idType: z.literal('product_and_quantity'),

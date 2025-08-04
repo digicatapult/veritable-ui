@@ -2,7 +2,7 @@ import { expect } from 'chai'
 import { describe } from 'mocha'
 import { mockIds } from '../../../controllers/queries/__tests__/helpers.js'
 import { ConnectionRow, QueryRow } from '../../../models/db/types.js'
-import { CountryCode } from '../../../models/strings.js'
+import { CountryCode } from '../../../models/stringTypes.js'
 import QueryResponseTemplates from '../queryResponse.js'
 
 const templates = new QueryResponseTemplates()

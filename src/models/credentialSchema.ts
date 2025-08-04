@@ -1,7 +1,7 @@
 import { inject, injectable, singleton } from 'tsyringe'
 import { Env, type PartialEnv } from '../env/index.js'
 import { Logger, type ILogger } from '../logger.js'
-import { DID, SchemaId } from './strings.js'
+import { DID, SchemaId } from './stringTypes.js'
 import VeritableCloudagent from './veritableCloudagent/index.js'
 
 export const schemaMap = {

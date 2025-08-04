@@ -7,7 +7,7 @@ import { Logger, type ILogger } from '../logger.js'
 import VeritableCloudagent from '../models/veritableCloudagent/index.js'
 import { connectionParser, credentialParser } from '../models/veritableCloudagent/internal.js'
 
-import { UUID } from '../models/strings.js'
+import { UUID } from '../models/stringTypes.js'
 import IndexedAsyncEventEmitter from '../utils/indexedAsyncEventEmitter.js'
 import { MapDiscriminatedUnion } from '../utils/types.js'
 

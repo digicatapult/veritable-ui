@@ -1,6 +1,6 @@
 import { randomUUID } from 'crypto'
 import type { ConnectionRow } from '../../../models/db/types.js'
-import { COMPANY_NUMBER, CountryCode, SOCRATA_NUMBER, UUID } from '../../../models/strings.js'
+import { COMPANY_NUMBER, CountryCode, SOCRATA_NUMBER, UUID } from '../../../models/stringTypes.js'
 export const notFoundCompanyNumber = '00000000'
 export const invalidCompanyNumber = 'XXXXXXXX'
 export const validCompanyNumber = '00000001'

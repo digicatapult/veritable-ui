@@ -7,7 +7,7 @@ import { InternalError } from '../../errors.js'
 import Database from '../../models/db/index.js'
 import { SettingsRow } from '../../models/db/types.js'
 import OrganisationRegistry from '../../models/orgRegistry/organisationRegistry.js'
-import { COMPANY_NUMBER, EMAIL, SOCRATA_NUMBER } from '../../models/strings.js'
+import { COMPANY_NUMBER, EMAIL, SOCRATA_NUMBER } from '../../models/stringTypes.js'
 import SettingsTemplates from '../../views/settings/settings.js'
 import { HTML, HTMLController } from './../HTMLController.js'
 

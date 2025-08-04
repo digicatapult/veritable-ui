@@ -24,7 +24,7 @@ import {
   type CountryCode,
   type EMAIL,
   type UUID,
-} from '../../models/strings.js'
+} from '../../models/stringTypes.js'
 import VeritableCloudagent from '../../models/veritableCloudagent/index.js'
 import { neverFail } from '../../utils/promises.js'
 import { FromInviteTemplates } from '../../views/newConnection/fromInvite.js'

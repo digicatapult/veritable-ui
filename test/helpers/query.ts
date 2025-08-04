@@ -1,6 +1,6 @@
 import 'reflect-metadata'
 
-import { CountryCode } from '../../src/models/strings.js'
+import { CountryCode } from '../../src/models/stringTypes.js'
 import { fetchGet, fetchPost } from './routeHelper.js'
 import { delay } from './util.js'
 

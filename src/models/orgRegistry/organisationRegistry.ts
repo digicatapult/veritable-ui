@@ -5,7 +5,7 @@ import { InternalError } from '../../errors.js'
 import { type ILogger, Logger } from '../../logger.js'
 import Database from '../db/index.js'
 import { OrganisationRegistriesRow } from '../db/types.js'
-import { COMPANY_NUMBER, CountryCode, SOCRATA_NUMBER } from '../strings.js'
+import { COMPANY_NUMBER, CountryCode, SOCRATA_NUMBER } from '../stringTypes.js'
 import { companyHouseProfileSchema } from './registrySchemas/companyHouseSchema.js'
 import { dosEntitySchema } from './registrySchemas/socrataSchema.js'
 

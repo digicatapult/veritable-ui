@@ -12,7 +12,7 @@ import {
   type SchemaId,
   type UUID,
   type Version,
-} from '../strings.js'
+} from '../stringTypes.js'
 
 const oobParser = z.object({
   invitationUrl: z.url(),

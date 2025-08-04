@@ -6,7 +6,7 @@ import { RAW_ENV_TOKEN } from '../../env/common.js'
 import { Env } from '../../env/index.js'
 import type { ILogger } from '../../logger.js'
 import OrganisationRegistry from '../orgRegistry/organisationRegistry.js'
-import { CountryCode } from '../strings.js'
+import { CountryCode } from '../stringTypes.js'
 import {
   finalSuccessResponse,
   invalidCompanyNumber,

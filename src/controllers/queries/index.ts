@@ -19,7 +19,7 @@ import {
   submitQueryRpcParams,
 } from '../../models/drpc.js'
 import { UInt } from '../../models/numbers.js'
-import { BIC, CountryCode, type UUID } from '../../models/strings.js'
+import { BIC, CountryCode, type UUID } from '../../models/stringTypes.js'
 import VeritableCloudagent from '../../models/veritableCloudagent/index.js'
 import { JsonRpcError } from '../../models/veritableCloudagent/internal.js'
 import QueriesTemplates from '../../views/queries/queries.js'
