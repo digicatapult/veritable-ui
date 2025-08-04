@@ -101,7 +101,7 @@ export default class ConnectionTemplates {
           </div>
           <table class="list-page">
             <thead>
-              {['Company Name', 'Status', 'Actions'].map((name: string) => (
+              {['Company Number', 'Company Name', 'Country Code', 'Status', 'Actions'].map((name: string) => (
                 <th>
                   <span>{Html.escapeHtml(name)}</span>
                   <a class="list-filter-icon disabled" />
@@ -123,10 +123,19 @@ export default class ConnectionTemplates {
     )
   }
 
-  private connectionRow = ({ company_name, id, status, pin_tries_remaining_count }: ConnectionRow) => {
+  private connectionRow = ({
+    company_name,
+    company_number,
+    registry_country_code,
+    id,
+    status,
+    pin_tries_remaining_count,
+  }: ConnectionRow) => {
     return (
       <tr>
+        <td>{Html.escapeHtml(company_number)}</td>
         <td>{Html.escapeHtml(company_name)}</td>
+        <td>{Html.escapeHtml(registry_country_code)}</td>
         <td>{connectionStatusToClass(status)}</td>
         <td>
           <LinkButton

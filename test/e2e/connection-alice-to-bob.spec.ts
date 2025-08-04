@@ -40,6 +40,7 @@ test.describe('Connection from Alice to Bob', () => {
       await page.waitForSelector('text=Invite New Connection')
       await page.click('a.button[href="connection/new"]')
 
+      await expect(page.locator('#new-invite-country-code-display')).toHaveValue('GB')
       await page.fill('#new-invite-company-number-input', '04659351')
       await page.fill('#new-invite-email-input', 'alice@testmail.com')
 
@@ -147,6 +148,8 @@ test.describe('Connection from Alice to Bob', () => {
       await page.click('a[href="/connection"]', { delay: 5000 })
       const statusText = await page.textContent('div.list-item-status[data-status="success"]')
       expect(statusText).toContain('Connected')
+      await expect(page.locator('#search-results')).toContainText('04659351')
+      await expect(page.locator('#search-results')).toContainText('GB')
     })
   })
 })
