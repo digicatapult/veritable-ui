@@ -49,7 +49,10 @@ describe('iPiD API', () => {
         countryCode: validCountryCode,
         name: 'Company Name',
       })
-      expect(result).deep.equal({ score: 0, description: 'Unexpected error with IPID BAV' })
+      expect(result).deep.equal({
+        score: 0,
+        description: 'Unexpected error with Beneficiary Account Validation process',
+      })
     })
   })
 })

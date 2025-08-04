@@ -631,7 +631,10 @@ export default class QueryResponseTemplates {
     return (
       <div id="new-query-confirmation-text">
         <h2>Thank you for your response!</h2>
-        <p>You have successfully forwarded a ${typeMap[props.type].name} query to the following supplier(s):</p>
+        <p>
+          You have successfully forwarded a ${Html.escapeHtml(typeMap[props.type].name)} query to the following
+          supplier(s):
+        </p>
         <i>
           <p>{Html.escapeHtml(props.connection.company_name)}</p>
         </i>
