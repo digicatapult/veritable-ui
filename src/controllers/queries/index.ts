@@ -22,7 +22,7 @@ import {
   submitQueryRpcParams,
 } from '../../models/drpc.js'
 import { UInt } from '../../models/numbers.js'
-import { type CountryCode, type UUID } from '../../models/strings.js'
+import { type CountryCode, type UUID } from '../../models/stringTypes.js'
 import VeritableCloudagent from '../../models/veritableCloudagent/index.js'
 import { JsonRpcError } from '../../models/veritableCloudagent/internal.js'
 import QueriesTemplates from '../../views/queries/queries.js'
@@ -311,7 +311,7 @@ export class QueriesController extends HTMLController {
       emissions: number
       partialQuery?: 'on'[] // TODO: remove
       partialSelect?: 'on'[] // TODO: remove
-      connectionIds?: string[]
+      connectionIds?: UUID[]
       productIds?: string[]
       quantities?: UInt[]
     }
@@ -603,7 +603,7 @@ export class QueriesController extends HTMLController {
 
   private async submitDrpcQueryAndStoreResult(
     log: Logger,
-    agentConnectionId: string,
+    agentConnectionId: UUID,
     query: QueryRow,
     rpcRequest: DrpcQueryRequest
   ) {

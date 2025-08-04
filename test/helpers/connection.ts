@@ -7,7 +7,7 @@ import sinon from 'sinon'
 import Database from '../../src/models/db/index.js'
 import { ConnectionRow } from '../../src/models/db/types.js'
 import EmailService from '../../src/models/emailService/index.js'
-import { CountryCode } from '../../src/models/strings.js'
+import { CountryCode, UUID } from '../../src/models/stringTypes.js'
 import VeritableCloudagent from '../../src/models/veritableCloudagent/index.js'
 import createHttpServer from '../../src/server.js'
 import VeritableCloudagentEvents from '../../src/services/veritableCloudagentEvents.js'
@@ -24,12 +24,12 @@ export type TwoPartyContext = {
   localCloudagent: VeritableCloudagent
   localDatabase: Database
   localVerificationPin: string
-  localConnectionId: string
+  localConnectionId: UUID
 
   remoteCloudagent: VeritableCloudagent
   remoteDatabase: Database
   remoteVerificationPin: string
-  remoteConnectionId: string
+  remoteConnectionId: UUID
 }
 
 export type ThreePartyContext = {
@@ -46,7 +46,7 @@ export type ThreePartyContext = {
     bob: Database
     charlie: Database
   }
-  aliceConnectionId: string
+  aliceConnectionId: UUID
   charliesConnections: {
     withBob: ConnectionRow
   }

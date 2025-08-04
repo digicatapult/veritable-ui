@@ -22,6 +22,7 @@ export default class ConnectionEvents {
   }
 
   private connectionStateChangedHandler: eventData<'ConnectionStateChanged'> = async (event) => {
+    this.logger.debug(`new connection event %j`, event.payload)
     const connectionState = event.payload.connectionRecord.state
     if (connectionState !== 'abandoned' && connectionState !== 'completed') {
       return

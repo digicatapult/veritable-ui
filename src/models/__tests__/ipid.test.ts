@@ -2,7 +2,7 @@ import { expect } from 'chai'
 import { describe, it } from 'mocha'
 import { Logger, pino } from 'pino'
 import IpidBav from '../ipid.js'
-import { CountryCode } from '../strings.js'
+import { CountryCode } from '../stringTypes.js'
 import { badValidateResponse, invalidCountryCode, validCountryCode } from './fixtures/ipidFixtures.js'
 import { withIpidMock } from './helpers/mockIpid.js'
 const mockLogger: Logger = pino({ level: 'silent' })

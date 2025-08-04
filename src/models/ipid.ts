@@ -3,7 +3,7 @@ import { container, injectable } from 'tsyringe'
 import { Env } from '../env/index.js'
 import { IBav } from './bav.js'
 import { BavResFields } from './drpc.js'
-import { CountryCode } from './strings.js'
+import { CountryCode } from './stringTypes.js'
 
 const env = container.resolve(Env)
 

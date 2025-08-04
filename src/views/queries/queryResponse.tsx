@@ -9,7 +9,7 @@ import {
   carbonEmbodimentResponseData,
   ProductAndQuantity,
 } from '../../models/drpc.js'
-import { bicRegex, CountryCode } from '../../models/strings.js'
+import { bicRegex, CountryCode } from '../../models/stringTypes.js'
 import { FormButton, LinkButton, Page } from '../common.js'
 import { typeMap } from './queryRequest.js'
 

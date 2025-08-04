@@ -1,5 +1,5 @@
 import { SharedOrganisationInfo, SocrataProfile } from '../../orgRegistry/organisationRegistry'
-import { CountryCode } from '../../strings'
+import { CountryCode } from '../../stringTypes'
 export const validCompanyNumber = '3211809'
 export const secondaryCompanyNumber = '11111111'
 export const invalidCompanyNumber = '079646992'

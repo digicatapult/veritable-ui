@@ -1,5 +1,5 @@
 import { PublicKeyResponse, ValidateResponse } from '../../ipid'
-import { CountryCode } from '../../strings'
+import { CountryCode } from '../../stringTypes.js'
 
 export const validNodeId = 'test-node-01'
 export const pgpPublicKey = '-----BEGIN PGP PUBLIC KEY BLOCK-----\nFAKEKEY123ABC==\n-----END PGP PUBLIC KEY BLOCK-----'

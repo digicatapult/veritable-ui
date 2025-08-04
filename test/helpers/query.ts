@@ -1,5 +1,6 @@
 import 'reflect-metadata'
 
+import { CountryCode } from '../../src/models/stringTypes.js'
 import { fetchGet, fetchPost } from './routeHelper.js'
 import { delay } from './util.js'
 
@@ -41,7 +42,7 @@ export async function withCarbonQueryResponse(requesterUrl: string, responderUrl
 export async function withBavQueryResponse(
   requesterUrl: string,
   responderUrl: string,
-  countryCode: string,
+  countryCode: CountryCode,
   name: string,
   accountId: string,
   clearingSystemId: string

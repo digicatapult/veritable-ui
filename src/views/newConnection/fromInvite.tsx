@@ -1,6 +1,6 @@
 import Html from '@kitajs/html'
 import { singleton } from 'tsyringe'
-import { BASE_64_URL } from '../../models/strings.js'
+import { BASE_64_URL } from '../../models/stringTypes.js'
 import { Page } from '../common.js'
 import { FormFeedback, NewConnectionTemplates } from './base.js'
 

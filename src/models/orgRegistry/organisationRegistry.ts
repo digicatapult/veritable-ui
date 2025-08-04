@@ -5,7 +5,7 @@ import { InternalError } from '../../errors.js'
 import { type ILogger, Logger } from '../../logger.js'
 import Database from '../db/index.js'
 import { OrganisationRegistriesRow } from '../db/types.js'
-import { CountryCode } from '../strings.js'
+import { COMPANY_NUMBER, CountryCode, SOCRATA_NUMBER } from '../stringTypes.js'
 import { companyHouseProfileSchema } from './registrySchemas/companyHouseSchema.js'
 import { dosEntitySchema } from './registrySchemas/socrataSchema.js'
 
@@ -96,7 +96,7 @@ export default class OrganisationRegistry {
   }
 
   async getOrganisationProfileByOrganisationNumber(
-    companyNumber: string,
+    companyNumber: COMPANY_NUMBER | SOCRATA_NUMBER,
     registryCountryCode: CountryCode
   ): Promise<OrganisationProfile> {
     this.logger.info(`Retrieving organisation profile for ${companyNumber} in ${registryCountryCode}`)
