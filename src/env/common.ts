@@ -2,7 +2,7 @@ import dotenv from 'dotenv'
 import envalid from 'envalid'
 
 import { container } from 'tsyringe'
-import { countryCodes } from '../models/strings.js'
+import { countryCodes } from '../models/stringTypes.js'
 import {
   emailTransportValidator,
   issuanceRecordValidator,

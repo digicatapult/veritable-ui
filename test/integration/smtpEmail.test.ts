@@ -4,7 +4,7 @@ import { describe, it } from 'mocha'
 
 import http from 'http'
 import { resetContainer } from '../../src/ioc.js'
-import { CountryCode } from '../../src/models/strings.js'
+import { CountryCode } from '../../src/models/stringTypes.js'
 import createHttpServer from '../../src/server.js'
 import VeritableCloudagentEvents from '../../src/services/veritableCloudagentEvents.js'
 import { alice } from '../helpers/fixtures.js'

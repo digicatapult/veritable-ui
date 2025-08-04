@@ -3,7 +3,7 @@ import sinon from 'sinon'
 
 import Database from '../../../models/db/index.js'
 import { ConnectionRow, QueryRow } from '../../../models/db/types.js'
-import { UUID } from '../../../models/strings.js'
+import { UUID } from '../../../models/stringTypes.js'
 import VeritableCloudagent from '../../../models/veritableCloudagent/index.js'
 import QueriesTemplates from '../../../views/queries/queries.js'
 import QueryListTemplates from '../../../views/queries/queriesList.js'
@@ -28,10 +28,10 @@ type QueryMockOptions = {
 }
 
 const mockIds: { [k: string]: UUID } = {
-  queryId: '00000000-0000-0000-0000-d8ae0805059e',
-  companyId: 'cccccccc-0001-0000-0000-d8ae0805059e',
-  connectionId: 'cccccccc-0000-0000-0000-d8ae0805059e',
-  agentConnectionId: 'aaaaaaaa-0000-0000-0000-d8ae0805059e',
+  queryId: '00000000-0000-4000-8000-d8ae0805059e',
+  companyId: 'cccccccc-0001-4000-8000-d8ae0805059e',
+  connectionId: 'cccccccc-0000-4000-8000-d8ae0805059e',
+  agentConnectionId: 'aaaaaaaa-0000-4000-8000-d8ae0805059e',
 }
 
 const defaultOptions: QueryMockOptions = {
@@ -113,7 +113,7 @@ const defaultOptions: QueryMockOptions = {
     ],
     queryInsert: [
       {
-        id: 'ccaaaaaa-0000-0000-0000-d8ae0805059e',
+        id: 'ccaaaaaa-0000-4000-8000-d8ae0805059e',
         connection_id: mockIds.connectionId,
         type: 'total_carbon_embodiment',
         status: 'pending_their_input',

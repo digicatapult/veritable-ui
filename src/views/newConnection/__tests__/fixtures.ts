@@ -1,5 +1,5 @@
 import { SharedOrganisationInfo } from '../../../models/orgRegistry/organisationRegistry.js'
-import { CountryCode } from '../../../models/strings.js'
+import { CountryCode } from '../../../models/stringTypes.js'
 import { FormFeedback } from '../base.js'
 
 export const successResponse: SharedOrganisationInfo = {

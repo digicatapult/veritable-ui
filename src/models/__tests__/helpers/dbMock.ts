@@ -2,7 +2,7 @@ import { container } from 'tsyringe'
 import { Env } from '../../../env/index.js'
 import Database from '../../db/index.js'
 import { OrganisationRegistriesRow } from '../../db/types.js'
-import { CountryCode } from '../../strings.js'
+import { CountryCode } from '../../stringTypes.js'
 
 const env: Env = container.resolve(Env)
 

@@ -1,5 +1,6 @@
 import 'reflect-metadata'
 
+import { CountryCode } from '../../src/models/stringTypes.js'
 import { fetchGet, fetchPost } from './routeHelper.js'
 import { delay } from './util.js'
 
@@ -42,7 +43,7 @@ export async function withBavQueryResponse(
   requesterUrl: string,
   responderUrl: string,
   bic: string,
-  countryCode: string
+  countryCode: CountryCode
 ) {
   await withBavQueryRequest(requesterUrl)
   const connectionId = await getConnectionId(responderUrl)

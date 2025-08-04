@@ -1,6 +1,6 @@
 import z from 'zod'
 import { QueryType } from './db/types'
-import { BIC, CountryCode, countryCodes } from './strings.js'
+import { BIC, CountryCode, countryCodes } from './stringTypes.js'
 
 export const ProductAndQuantity = z.object({
   idType: z.literal('product_and_quantity'),
@@ -23,10 +23,10 @@ export const carbonResponseSchema = z.literal(`${schemaBaseUrl}/query_types/tota
 export const bavRequestSchema = z.literal(`${schemaBaseUrl}/query_types/beneficiary_account_validation/request/0.1`)
 export const bavResponseSchema = z.literal(`${schemaBaseUrl}/query_types/beneficiary_account_validation/response/0.1`)
 
-export const schema = z.union([carbonRequestSchema, carbonResponseSchema, bavRequestSchema, bavResponseSchema])
-export type Schema = z.infer<typeof schema>
+export const querySchema = z.union([carbonRequestSchema, carbonResponseSchema, bavRequestSchema, bavResponseSchema])
+export type QuerySchema = z.infer<typeof querySchema>
 
-export const schemaToTypeMap: Record<Schema, QueryType> = {
+export const schemaToTypeMap: Record<QuerySchema, QueryType> = {
   [carbonRequestSchema.value]: 'total_carbon_embodiment',
   [carbonResponseSchema.value]: 'total_carbon_embodiment',
   [bavRequestSchema.value]: 'beneficiary_account_validation',
@@ -41,7 +41,7 @@ export const typeToResponseSchemaMap: Record<QueryType, ResponseSchema> = {
 } as const
 
 const baseQueryRequest = {
-  id: z.string(),
+  id: z.uuid(),
   createdTime: z.number().int().gte(0),
   expiresTime: z.number().int().gte(0),
 }
@@ -68,7 +68,7 @@ export type SubmitQueryRequest = {
 }
 
 const baseQueryResponse = z.object({
-  id: z.string(),
+  id: z.uuid(),
   createdTime: z.number().int().gte(0).optional(),
   expiresTime: z.number().int().gte(0).optional(),
 })

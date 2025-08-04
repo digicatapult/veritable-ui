@@ -8,7 +8,7 @@ import Database from '../../../models/db/index.js'
 import { ConnectionRow } from '../../../models/db/types.js'
 import EmailService from '../../../models/emailService/index.js'
 import OrganisationRegistry from '../../../models/orgRegistry/organisationRegistry.js'
-import { CountryCode } from '../../../models/strings.js'
+import { COMPANY_NUMBER, CountryCode, SOCRATA_NUMBER, UUID } from '../../../models/stringTypes.js'
 import VeritableCloudagent from '../../../models/veritableCloudagent/index.js'
 import ConnectionTemplates from '../../../views/connection/connection.js'
 import { FormFeedback } from '../../../views/newConnection/base.js'
@@ -74,7 +74,7 @@ export const withConnectionMocks = (
   }
   const pinSubmission = {
     renderPinForm: (props: {
-      connectionId: string
+      connectionId: UUID
       pin?: string
       continuationFromInvite: boolean
       remainingTries?: string
@@ -130,7 +130,7 @@ export const withNewConnectionMocks = () => {
   } as unknown as Database
 
   const mockCompanyHouseEntity = {
-    getOrganisationProfileByOrganisationNumber: async (companyNumber: string) => {
+    getOrganisationProfileByOrganisationNumber: async (companyNumber: COMPANY_NUMBER | SOCRATA_NUMBER) => {
       if (companyNumber === notFoundCompanyNumber) {
         return {
           type: 'notFound',
@@ -203,7 +203,7 @@ export const withNewConnectionMocks = () => {
   } as unknown as FromInviteTemplates
 
   const mockPinForm = {
-    renderPinForm: (props: { connectionId: string; pin?: string; continuationFromInvite: boolean }) =>
+    renderPinForm: (props: { connectionId: UUID; pin?: string; continuationFromInvite: boolean }) =>
       templateFake('renderPinForm', props.connectionId, props.pin, props.continuationFromInvite),
     renderSuccess: (props: { companyName: string; stepCount: number }) =>
       templateFake('renderSuccess', props.companyName, props.stepCount),

@@ -1,6 +1,6 @@
 import Html from '@kitajs/html'
 import { singleton } from 'tsyringe'
-import { COMPANY_NUMBER, companyNumberRegex, EMAIL } from '../../models/strings.js'
+import { COMPANY_NUMBER, companyNumberRegex, EMAIL } from '../../models/stringTypes.js'
 import { Page } from '../common.js'
 import { FormFeedback, NewConnectionTemplates } from './base.js'
 
