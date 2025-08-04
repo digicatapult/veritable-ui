@@ -85,13 +85,7 @@ export class NewInviteTemplates extends NewConnectionTemplates {
             <option value="GB">United Kingdom</option>
             <option value="US">United States</option>
           </select>
-          <input
-            id="new-invite-country-code-display"
-            name="registryCountryCode"
-            type="text"
-            readonly
-            value={props.registryCountryCode}
-          />
+          <input id="new-invite-country-code-display" type="text" readonly value={props.registryCountryCode} />
         </div>
         <input
           id="new-invite-company-number-input"
