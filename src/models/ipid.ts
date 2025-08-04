@@ -87,7 +87,7 @@ export default class IpidBav implements IBav {
         return { score: 0, description: error.userMessage }
       }
       log.error(error)
-      return { score: 0, description: 'Unexpected error with IPID BAV' }
+      return { score: 0, description: 'Unexpected error with Beneficiary Account Validation process' }
     }
   }
 
