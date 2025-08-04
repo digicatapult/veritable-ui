@@ -117,7 +117,7 @@ export class NewConnectionController extends HTMLController {
 
     if (registryCountryCode === 'GB' && !companyNumber.match(companyNumberRegex)) {
       req.log.info('company %s number did not match %s regex', companyNumber, companyNumberRegex)
-      return this.newConnectionForm(req, undefined, registryCountryCode)
+      return this.newConnectionForm(req)
     }
 
     const companyOrError = await this.lookupCompany(req.log, companyNumber, registryCountryCode)
