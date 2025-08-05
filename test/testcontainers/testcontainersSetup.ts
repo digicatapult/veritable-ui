@@ -70,7 +70,11 @@ export async function bringUpVeritableUIContainer(
       IPID_API_KEY: 'API_KEY',
       IPID_CUSTOMER_ID: 'ipid-customer-id',
     })
-    .withCommand(['sh', '-c', 'node ./node_modules/.bin/knex migrate:latest; npm start'])
+    .withCommand([
+      'sh',
+      '-c',
+      "NODE_OPTIONS='--no-experimental-strip-types' node ./node_modules/.bin/knex migrate:latest; npm start",
+    ])
     .withWaitStrategy(Wait.forListeningPorts())
     .withNetwork(network)
     .withReuse()
