@@ -4,20 +4,28 @@ import { Env } from '../../env/index.js'
 import { InternalError } from '../../errors.js'
 import { type ILogger, Logger } from '../../logger.js'
 import Database from '../db/index.js'
-import { OrganisationRegistriesRow } from '../db/types.js'
+import { OrganisationRegistriesRow, type RegistryType } from '../db/types.js'
 import { CountryCode } from '../strings.js'
 import { companyHouseProfileSchema } from './registrySchemas/companyHouseSchema.js'
+import { openCorporatesSchema } from './registrySchemas/openCorporatesSchema.js'
 import { dosEntitySchema } from './registrySchemas/socrataSchema.js'
 
 export type CompanyHouseProfile = z.infer<typeof companyHouseProfileSchema>
 export type SocrataProfile = z.infer<typeof dosEntitySchema>
+export type OpenCorporatesProfile = z.infer<typeof openCorporatesSchema>
 export type SharedOrganisationInfo = {
   name: string
   address: string
   status: string
   number: string
   registryCountryCode: CountryCode
+  selectedRegistry: RegistryType
   registeredOfficeIsInDispute: boolean
+}
+export type OrganisationRequest = {
+  companyNumber: string
+  registryCountryCode: CountryCode
+  selectedRegistry: RegistryType
 }
 export type OrganisationProfile =
   | {
@@ -45,10 +53,11 @@ export default class OrganisationRegistry {
     private db: Database,
     @inject(Logger) private logger: ILogger
   ) {
-    this.localOrganisationProfilePromise = this.getOrganisationProfileByOrganisationNumber(
-      env.get('INVITATION_FROM_COMPANY_NUMBER'),
-      env.get('LOCAL_REGISTRY_TO_USE')
-    ).then((result) => {
+    this.localOrganisationProfilePromise = this.getOrganisationProfileByOrganisationNumber({
+      companyNumber: env.get('INVITATION_FROM_COMPANY_NUMBER'),
+      registryCountryCode: env.get('LOCAL_REGISTRY_TO_USE'),
+      selectedRegistry: 'company_house',
+    }).then((result) => {
       if (result.type === 'notFound') {
         throw new InternalError(`Local organisation profile not found`)
       }
@@ -95,20 +104,42 @@ export default class OrganisationRegistry {
     throw new InternalError(`Error calling Socrata API`)
   }
 
-  async getOrganisationProfileByOrganisationNumber(
-    companyNumber: string,
-    registryCountryCode: CountryCode
-  ): Promise<OrganisationProfile> {
-    this.logger.info(`Retrieving organisation profile for ${companyNumber} in ${registryCountryCode}`)
-    const registry = await this.resolveOrganisationRegistry(registryCountryCode)
-    if (!registry) {
-      throw new InternalError(`Registry for ${registryCountryCode} not set`)
+  private async makeOpenCorporatesRequest(route: string): Promise<unknown> {
+    const url = new URL(route)
+    const response = await fetch(url.toString(), {
+      method: 'GET',
+    })
+    if (response.ok) {
+      return response.json()
     }
-    switch (registryCountryCode) {
-      case 'GB':
-        return this.formatCompanyHouseResults(await this.getCompanyHouseProfileByCompanyNumber(companyNumber, registry))
-      case 'US':
-        return this.formatSocrataResults(await this.getSocrataProfileByCompanyNumber(companyNumber, registry))
+
+    if (response.status === 404) {
+      return null
+    }
+
+    throw new InternalError(`Error calling OpenCorporates API`)
+  }
+
+  async getOrganisationProfileByOrganisationNumber(orgReq: OrganisationRequest): Promise<OrganisationProfile> {
+    this.logger.info(`Retrieving organisation profile for ${orgReq.companyNumber} in ${orgReq.registryCountryCode}`)
+    const registry = await this.resolveOrganisationRegistry(orgReq.registryCountryCode, orgReq.selectedRegistry)
+    if (!registry) {
+      throw new InternalError(`Registry for ${orgReq.registryCountryCode} not set`)
+    }
+    switch (orgReq.selectedRegistry) {
+      case 'company_house':
+        return this.formatCompanyHouseResults(
+          await this.getCompanyHouseProfileByCompanyNumber(orgReq.companyNumber, registry, orgReq.selectedRegistry)
+        )
+      case 'socrata':
+        return this.formatSocrataResults(
+          await this.getSocrataProfileByCompanyNumber(orgReq.companyNumber, registry, orgReq.selectedRegistry)
+        )
+
+      case 'open_corporates':
+        return this.formatOpenCorporatesResults(
+          await this.getOpenCorporatesProfileByCompanyNumber(orgReq.companyNumber, registry, orgReq.registryCountryCode)
+        )
       default:
         throw new InternalError(`Registry ${registry} not set`)
     }
@@ -119,7 +150,8 @@ export default class OrganisationRegistry {
   */
   private async getCompanyHouseProfileByCompanyNumber(
     companyNumber: string,
-    registry: OrganisationRegistriesRow
+    registry: OrganisationRegistriesRow,
+    selectedRegistry: RegistryType
   ): Promise<BaseProfileSearchResult<CompanyHouseProfile>> {
     this.logger.info(`Getting company house profile for ${companyNumber}`)
     const endpoint = `${registry.url}/company/${encodeURIComponent(companyNumber)}`
@@ -131,7 +163,8 @@ export default class OrganisationRegistry {
 
   private async getSocrataProfileByCompanyNumber(
     companyNumber: string,
-    registry: OrganisationRegistriesRow
+    registry: OrganisationRegistriesRow,
+    selectedRegistry: RegistryType
   ): Promise<BaseProfileSearchResult<SocrataProfile>> {
     this.logger.info(`Getting socrata profile for ${companyNumber}`)
     // NOTE: 3211809 <-- comp no to test socrata with
@@ -142,6 +175,20 @@ export default class OrganisationRegistry {
     return parsedCompanyProfile.length === 0 || parsedCompanyProfile === null
       ? { type: 'notFound' }
       : { type: 'found', company: parsedCompanyProfile }
+  }
+
+  private async getOpenCorporatesProfileByCompanyNumber(
+    companyNumber: string,
+    registry: OrganisationRegistriesRow,
+    registryCountryCode: CountryCode
+  ): Promise<BaseProfileSearchResult<OpenCorporatesProfile>> {
+    this.logger.info(`Getting open corporates profile for ${companyNumber}`)
+    const endpoint = `${registry.url}/companies/${registryCountryCode.toLowerCase()}/${encodeURIComponent(companyNumber)}`
+    console.log('endpoint', endpoint)
+    const companyProfile = await this.makeOpenCorporatesRequest(endpoint)
+    return companyProfile === null
+      ? { type: 'notFound' }
+      : { type: 'found', company: openCorporatesSchema.parse(companyProfile) }
   }
 
   async localOrganisationProfile(): Promise<SharedOrganisationInfo> {
@@ -167,6 +214,7 @@ export default class OrganisationRegistry {
         status: 'active', // presume active if org is found
         registryCountryCode: 'US' as CountryCode,
         registeredOfficeIsInDispute: false, // presume no if no dispute info
+        selectedRegistry: 'socrata',
       },
       type: 'found',
     }
@@ -200,13 +248,50 @@ export default class OrganisationRegistry {
         status: companyHouseResults.company.company_status,
         registryCountryCode: 'GB' as CountryCode,
         registeredOfficeIsInDispute: companyHouseResults.company.registered_office_is_in_dispute ?? false,
+        selectedRegistry: 'company_house',
+      },
+      type: 'found',
+    }
+  }
+  async formatOpenCorporatesResults(
+    openCorporatesResults: BaseProfileSearchResult<OpenCorporatesProfile>
+  ): Promise<OrganisationProfile> {
+    if (openCorporatesResults.type === 'notFound') {
+      return openCorporatesResults
+    }
+    const company = openCorporatesResults.company.results.company
+    return {
+      company: {
+        name: company.name,
+        address: company.registered_address_in_full,
+        number: company.company_number,
+        status: company.current_status.toLowerCase(), // TODO: unify the statuses
+        registryCountryCode: company.jurisdiction_code.toUpperCase() as CountryCode,
+        registeredOfficeIsInDispute: false,
+        selectedRegistry: 'open_corporates',
       },
       type: 'found',
     }
   }
 
-  private async resolveOrganisationRegistry(registryCountryCode: string) {
+  private async resolveOrganisationRegistry(
+    registryCountryCode: string,
+    thirdPartyRegistryToUse: string | null = null
+  ) {
     this.logger.info(`Resolving organisation registry for ${registryCountryCode}`)
+    if (thirdPartyRegistryToUse !== null) {
+      const [registry]: OrganisationRegistriesRow[] = await this.db.get('organisation_registries', {
+        country_code: registryCountryCode,
+        registry_key: thirdPartyRegistryToUse,
+      })
+      if (registry) {
+        this.logger.info(`Resolved organisation registry for ${registryCountryCode} to ${registry.registry_name}`)
+        return registry
+      }
+      this.logger.info(`${thirdPartyRegistryToUse} registry is not configured for ${registryCountryCode}`)
+      return null
+    }
+
     const [registry]: OrganisationRegistriesRow[] = await this.db.get('organisation_registries', {
       country_code: registryCountryCode,
     })

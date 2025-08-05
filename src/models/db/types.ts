@@ -10,6 +10,9 @@ export const tablesList = [
   'settings',
   'organisation_registries',
 ] as const
+const registryTypes = ['company_house', 'open_corporates', 'socrata'] as const
+export const registryKeyParser = z.enum(registryTypes)
+export type RegistryType = (typeof registryTypes)[number]
 
 const insertConnection = z.object({
   company_name: z.string(),
@@ -26,15 +29,18 @@ const insertConnection = z.object({
   pin_attempt_count: z.number().int().gte(0).lte(255),
   pin_tries_remaining_count: z.number().int().gte(0).lte(255).nullable(),
   registry_country_code: z.string(),
+  registry_code: registryKeyParser,
 })
 
 const insertOrganisationRegistries = z.object({
   country_code: z.string(),
   registry_name: z.string(),
-  registry_key: z.string(),
+  registry_key: registryKeyParser,
   url: z.string(),
   api_key: z.string(),
+  third_party: z.boolean(),
 })
+
 const insertConnectionInvite = z.object({
   connection_id: z.string(),
   oob_invite_id: z.string(),

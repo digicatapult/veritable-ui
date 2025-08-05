@@ -50,7 +50,7 @@ export const defaultConfig = {
   CLOUDAGENT_ADMIN_PING_TIMEOUT_MS: envalid.num({ default: 30000 }),
   INVITATION_PIN_SECRET: pinSecretValidator({ devDefault: Buffer.from('secret', 'utf8') }),
   INVITATION_PIN_ATTEMPT_LIMIT: envalid.num({ default: 5 }),
-  INVITATION_FROM_COMPANY_NUMBER: envalid.str({ devDefault: '07964699' }), // TODO: change to LOCAL_COMPANY_NUMBER ??
+  INVITATION_FROM_COMPANY_NUMBER: envalid.str({ devDefault: '00102498' }), // TODO: change to LOCAL_COMPANY_NUMBER ??
   ISSUANCE_DID_POLICY: issuanceRecordValidator({ devDefault: 'EXISTING_OR_NEW' }),
   ISSUANCE_SCHEMA_POLICY: issuanceRecordValidator({ devDefault: 'EXISTING_OR_NEW' }),
   ISSUANCE_CRED_DEF_POLICY: issuanceRecordValidator({ devDefault: 'EXISTING_OR_NEW' }),
@@ -60,6 +60,10 @@ export const defaultConfig = {
     default: 'GB',
     devDefault: 'GB',
     choices: countryCodes,
+  }),
+  OPENCORPORATES_API_URL: envalid.str({
+    devDefault: 'http://localhost:8443',
+    default: 'https://api.opencorporates.com/v0.4/companies',
   }),
 }
 

@@ -8,6 +8,7 @@ import Server from './server.js'
 import { Logger, type ILogger } from './logger.js'
 import { CredentialSchema } from './models/credentialSchema.js'
 import Database from './models/db/index.js'
+import { RegistryType } from './models/db/types.js'
 ;(async () => {
   const env = container.resolve(Env)
   const logger = container.resolve<ILogger>(Logger)
@@ -70,29 +71,56 @@ async function initializeSettings(logger: ILogger, env: Env, db: Database) {
 }
 async function initializeOrganisationRegistries(logger: ILogger, env: Env, db: Database) {
   const organisationRegistriesFromDb = await db.get('organisation_registries', {}, [])
+  logger.info(`Found ${organisationRegistriesFromDb.length} existing organisation registries in database`)
 
   const organisationRegistries = [
     {
       country_code: 'GB',
       registry_name: 'Company House',
-      registry_key: 'company_house',
+      registry_key: 'company_house' as RegistryType,
       url: env.get('COMPANY_HOUSE_API_URL') || 'https://api.company-information.service.gov.uk',
       api_key: '',
+      third_party: false,
     },
     {
       country_code: 'US',
       registry_name: 'Socrata',
-      registry_key: 'socrata',
+      registry_key: 'socrata' as RegistryType,
       url: env.get('SOCRATA_API_URL') || 'https://data.ny.gov/resource/p66s-i79p.json',
       api_key: '',
+      third_party: false,
+    },
+    {
+      country_code: 'NL',
+      registry_name: 'Open Corporates',
+      registry_key: 'open_corporates' as RegistryType,
+      url: env.get('OPENCORPORATES_API_URL') || 'https://api.open-corporates.com',
+      api_key: '',
+      third_party: true,
+    },
+    {
+      country_code: 'GB',
+      registry_name: 'Open Corporates',
+      registry_key: 'open_corporates' as RegistryType,
+      url: env.get('OPENCORPORATES_API_URL') || 'https://api.open-corporates.com',
+      api_key: '',
+      third_party: true,
     },
   ]
 
   // Insert only the missing registries
-  const existingKeys = organisationRegistriesFromDb.map((row) => row.registry_key)
-  const registriesToInsert = organisationRegistries.filter((registry) => !existingKeys.includes(registry.registry_key))
+  const existingKeys = organisationRegistriesFromDb.map((row) => `${row.registry_key}_${row.country_code}`)
+  console.log('Existing keys from database:', existingKeys)
+  const registriesToInsert = organisationRegistries.filter(
+    (registry) => !existingKeys.includes(`${registry.registry_key}_${registry.country_code}`)
+  )
+  console.log(
+    'Registries to insert:',
+    registriesToInsert.map((r) => `${r.registry_key}_${r.country_code}`)
+  )
 
   if (registriesToInsert.length > 0) {
+    logger.info(`Inserting ${registriesToInsert.length} new organisation registries`)
     for (const registry of registriesToInsert) {
       try {
         await db.insert('organisation_registries', registry)
