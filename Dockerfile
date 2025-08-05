@@ -1,7 +1,6 @@
 # syntax=docker/dockerfile:1.17
 FROM node:lts-alpine AS builder
 
-ARG NODE_OPTIONS='--no-experimental-strip-types'
 WORKDIR /veritable-ui
 
 # Install base dependencies
@@ -17,7 +16,6 @@ RUN npm run build
 # Service
 FROM node:lts-alpine AS service
 
-ARG NODE_OPTIONS='--no-experimental-strip-types'
 WORKDIR /veritable-ui
 
 RUN apk add --no-cache coreutils curl
