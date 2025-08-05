@@ -17,15 +17,8 @@ export type RegistryType = (typeof registryTypes)[number]
 const insertConnection = z.object({
   company_name: z.string(),
   company_number: z.string(),
-  status: z.union([
-    z.literal('pending'),
-    z.literal('unverified'),
-    z.literal('verified_them'),
-    z.literal('verified_us'),
-    z.literal('verified_both'),
-    z.literal('disconnected'),
-  ]),
-  agent_connection_id: z.union([z.string(), z.null()]),
+  status: z.enum(['pending', 'unverified', 'verified_them', 'verified_us', 'verified_both', 'disconnected']),
+  agent_connection_id: z.union([z.uuid(), z.null()]),
   pin_attempt_count: z.number().int().gte(0).lte(255),
   pin_tries_remaining_count: z.number().int().gte(0).lte(255).nullable(),
   registry_country_code: z.string(),
@@ -42,11 +35,11 @@ const insertOrganisationRegistries = z.object({
 })
 
 const insertConnectionInvite = z.object({
-  connection_id: z.string(),
-  oob_invite_id: z.string(),
+  connection_id: z.uuid(),
+  oob_invite_id: z.uuid(),
   pin_hash: z.string(),
   expires_at: z.date(),
-  validity: z.union([z.literal('valid'), z.literal('expired'), z.literal('too_many_attempts'), z.literal('used')]),
+  validity: z.enum(['valid', 'expired', 'too_many_attempts', 'used']),
 })
 
 const queryTypes = ['total_carbon_embodiment', 'beneficiary_account_validation'] as const
@@ -55,11 +48,11 @@ export const queryTypeParser = z.enum(queryTypes)
 export type QueryType = (typeof queryTypes)[number]
 
 const insertQuery = z.object({
-  connection_id: z.string(),
-  parent_id: z.string().nullable().optional(),
+  connection_id: z.uuid(),
+  parent_id: z.uuid().nullable().optional(),
   type: queryTypeParser,
   status: z.enum(['resolved', 'pending_your_input', 'pending_their_input', 'errored', 'forwarded']),
-  response_id: z.string().nullable(),
+  response_id: z.uuid().nullable(),
   role: z.enum(['requester', 'responder']),
   expires_at: z.date(),
   details: z.object({
@@ -70,16 +63,16 @@ const insertQuery = z.object({
 })
 
 const defaultFields = z.object({
-  id: z.string(),
+  id: z.uuid(),
   created_at: z.date(),
   updated_at: z.date(),
 })
 
 const insertQueryRpc = z.object({
-  query_id: z.string(),
-  agent_rpc_id: z.string(),
-  role: z.union([z.literal('client'), z.literal('server')]),
-  method: z.union([z.literal('submit_query_request'), z.literal('submit_query_response')]),
+  query_id: z.uuid(),
+  agent_rpc_id: z.uuid(),
+  role: z.enum(['client', 'server']),
+  method: z.enum(['submit_query_request', 'submit_query_response']),
   result: z.union([z.record(z.any(), z.any()), z.null()]).optional(),
   error: z.union([z.record(z.any(), z.any()), z.null()]).optional(),
 })
@@ -91,24 +84,24 @@ const insertSettings = z.object({
 const Zod = {
   connection: {
     insert: insertConnection,
-    get: insertConnection.merge(defaultFields),
+    get: insertConnection.extend(defaultFields.shape),
   },
   connection_invite: {
     insert: insertConnectionInvite,
-    get: insertConnectionInvite.merge(defaultFields),
+    get: insertConnectionInvite.extend(defaultFields.shape),
   },
   query: {
     insert: insertQuery,
-    get: insertQuery.merge(defaultFields),
+    get: insertQuery.extend(defaultFields.shape),
   },
   query_rpc: {
     insert: insertQueryRpc,
-    get: insertQueryRpc.merge(defaultFields),
+    get: insertQueryRpc.extend(defaultFields.shape),
   },
   settings: {
     insert: insertSettings,
     get: insertSettings.extend({
-      id: z.string(),
+      id: z.uuid(),
       created_at: z.date(),
       updated_at: z.date(),
     }),
@@ -119,7 +112,7 @@ const Zod = {
       .extend({
         id: z.string(),
       })
-      .merge(defaultFields),
+      .extend(defaultFields.shape),
   },
 }
 

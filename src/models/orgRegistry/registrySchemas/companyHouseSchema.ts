@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { companyNumberRegex } from '../../strings.js'
+import { companyNumberRegex } from '../../stringTypes.js'
 
 export const companyHouseProfileSchema = z.object({
   company_number: z.string().regex(new RegExp(companyNumberRegex)).min(8).max(8),
@@ -16,18 +16,18 @@ export const companyHouseProfileSchema = z.object({
     region: z.string().optional(),
   }),
   registered_office_is_in_dispute: z.boolean().optional(),
-  company_status: z.union([
-    z.literal('active'),
-    z.literal('dissolved'),
-    z.literal('liquidation'),
-    z.literal('receivership'),
-    z.literal('converted-closed'),
-    z.literal('voluntary-arrangement'),
-    z.literal('insolvency-proceedings'),
-    z.literal('administration'),
-    z.literal('open'),
-    z.literal('closed'),
-    z.literal('registered'),
-    z.literal('removed'),
+  company_status: z.enum([
+    'active',
+    'dissolved',
+    'liquidation',
+    'receivership',
+    'converted-closed',
+    'voluntary-arrangement',
+    'insolvency-proceedings',
+    'administration',
+    'open',
+    'closed',
+    'registered',
+    'removed',
   ]),
 })

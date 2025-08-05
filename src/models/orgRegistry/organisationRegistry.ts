@@ -4,8 +4,8 @@ import { Env } from '../../env/index.js'
 import { InternalError } from '../../errors.js'
 import { type ILogger, Logger } from '../../logger.js'
 import Database from '../db/index.js'
-import { OrganisationRegistriesRow, type RegistryType } from '../db/types.js'
-import { CountryCode } from '../strings.js'
+import { OrganisationRegistriesRow, RegistryType } from '../db/types.js'
+import { CountryCode } from '../stringTypes.js'
 import { companyHouseProfileSchema } from './registrySchemas/companyHouseSchema.js'
 import { openCorporatesSchema } from './registrySchemas/openCorporatesSchema.js'
 import { dosEntitySchema } from './registrySchemas/socrataSchema.js'
@@ -275,8 +275,8 @@ export default class OrganisationRegistry {
   }
 
   private async resolveOrganisationRegistry(
-    registryCountryCode: string,
-    thirdPartyRegistryToUse: string | null = null
+    registryCountryCode: CountryCode,
+    thirdPartyRegistryToUse: RegistryType | null = null
   ) {
     this.logger.info(`Resolving organisation registry for ${registryCountryCode}`)
     if (thirdPartyRegistryToUse !== null) {

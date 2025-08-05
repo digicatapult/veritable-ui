@@ -5,16 +5,23 @@ import { InternalError, NotFoundError } from '../../errors.js'
 import { type ILogger } from '../../logger.js'
 import { MapDiscriminatedUnion } from '../../utils/types.js'
 import { DrpcQueryRequest, DrpcQueryResponse } from '../drpc.js'
-import { CountryCode } from '../strings.js'
+import {
+  type CountryCode,
+  type CredentialDefinitionId,
+  type DID,
+  type SchemaId,
+  type UUID,
+  type Version,
+} from '../stringTypes.js'
 
 const oobParser = z.object({
-  invitationUrl: z.string(),
-  outOfBandRecord: z.object({ id: z.string() }),
+  invitationUrl: z.url(),
+  outOfBandRecord: z.object({ id: z.uuid() }),
 })
 type OutOfBandInvite = z.infer<typeof oobParser>
 
 const oobInviteParser = z.object({
-  id: z.string().uuid(),
+  id: z.uuid(),
   role: z.enum(['sender', 'receiver']),
 })
 
@@ -22,28 +29,28 @@ type OutOfBandRecord = z.infer<typeof oobInviteParser>
 
 const receiveUrlParser = z.object({
   outOfBandRecord: z.object({
-    id: z.string(),
+    id: z.uuid(),
   }),
   connectionRecord: z.object({
-    id: z.string(),
+    id: z.uuid(),
   }),
 })
 type ReceiveUrlResponse = z.infer<typeof receiveUrlParser>
 
 export const connectionParser = z.object({
-  id: z.string(),
-  state: z.union([
-    z.literal('start'),
-    z.literal('invitation-sent'),
-    z.literal('invitation-received'),
-    z.literal('request-sent'),
-    z.literal('request-received'),
-    z.literal('response-sent'),
-    z.literal('response-received'),
-    z.literal('abandoned'),
-    z.literal('completed'),
+  id: z.uuid(),
+  state: z.enum([
+    'start',
+    'invitation-sent',
+    'invitation-received',
+    'request-sent',
+    'request-received',
+    'response-sent',
+    'response-received',
+    'abandoned',
+    'completed',
   ]),
-  outOfBandId: z.string(),
+  outOfBandId: z.uuid(),
 })
 export type Connection = z.infer<typeof connectionParser>
 
@@ -62,14 +69,14 @@ export const didCreateParser = z.object({
 })
 export const didListParser = z.array(didCreateParser)
 
-export const schemaParser = z.object({
+export const credentialSchemaParser = z.object({
   id: z.string(),
   issuerId: z.string(),
   name: z.string(),
   version: z.string(),
   attrNames: z.array(z.string()),
 })
-export type Schema = z.infer<typeof schemaParser>
+export type CredentialSchema = z.infer<typeof credentialSchemaParser>
 
 export const credentialDefinitionParser = z.object({
   id: z.string(),
@@ -79,23 +86,23 @@ export const credentialDefinitionParser = z.object({
 export type CredentialDefinition = z.infer<typeof credentialDefinitionParser>
 
 export const credentialParser = z.object({
-  id: z.string(),
-  connectionId: z.string(),
+  id: z.uuid(),
+  connectionId: z.uuid(),
   protocolVersion: z.string(),
   credentialAttributes: z.array(credentialAttributeParser).optional(),
-  role: z.union([z.literal('issuer'), z.literal('holder')]),
-  state: z.union([
-    z.literal('proposal-sent'),
-    z.literal('proposal-received'),
-    z.literal('offer-sent'),
-    z.literal('offer-received'),
-    z.literal('declined'),
-    z.literal('request-sent'),
-    z.literal('request-received'),
-    z.literal('credential-issued'),
-    z.literal('credential-received'),
-    z.literal('done'),
-    z.literal('abandoned'),
+  role: z.enum(['issuer', 'holder']),
+  state: z.enum([
+    'proposal-sent',
+    'proposal-received',
+    'offer-sent',
+    'offer-received',
+    'declined',
+    'request-sent',
+    'request-received',
+    'credential-issued',
+    'credential-received',
+    'done',
+    'abandoned',
   ]),
   errorMessage: z.string().optional(),
   metadata: z
@@ -130,7 +137,7 @@ export type CredentialFormatData = z.infer<typeof credentialFormatDataParser>
 
 const responseCommonParser = z.object({
   jsonrpc: z.literal('2.0'),
-  id: z.string(),
+  id: z.uuid(),
 })
 export const jsonRpcError = z.object({
   code: z.number(),
@@ -139,37 +146,37 @@ export const jsonRpcError = z.object({
 export const drpcResponseParser = z.union([
   z
     .object({
-      result: z.object({}).passthrough(),
+      result: z.looseObject({}),
     })
-    .merge(responseCommonParser),
+    .extend(responseCommonParser.shape),
   z
     .object({
       error: jsonRpcError,
     })
-    .merge(responseCommonParser),
+    .extend(responseCommonParser.shape),
 ])
 export type JsonRpcError = z.infer<typeof jsonRpcError>
 export type DrpcResponse = z.infer<typeof drpcResponseParser>
 
 const connectionListParser = z.array(connectionParser)
 const credentialListParser = z.array(credentialParser)
-const schemaListParser = z.array(schemaParser)
+const schemaListParser = z.array(credentialSchemaParser)
 const credentialDefinitionListParser = z.array(credentialDefinitionParser)
 
 export type CredentialProposalInput = {
-  schemaIssuerId?: string
-  schemaId?: string
+  schemaIssuerId?: DID
+  schemaId?: SchemaId
   schemaName?: string
-  schemaVersion?: string
-  credentialDefinitionId?: string
-  issuerId?: string
+  schemaVersion?: Version
+  credentialDefinitionId?: CredentialDefinitionId
+  issuerId?: DID
   attributes?: {
     name: string
     value: string
   }[]
 }
 export type CredentialProposalAcceptInput = {
-  credentialDefinitionId?: string
+  credentialDefinitionId?: CredentialDefinitionId
   attributes?: {
     name: string
     value: string
@@ -236,11 +243,11 @@ export default class VeritableCloudagentInt<Config extends CloudagentConfig = De
     )
   }
 
-  public async getOutOfBandInvite(id: string): Promise<OutOfBandRecord> {
+  public async getOutOfBandInvite(id: UUID): Promise<OutOfBandRecord> {
     return this.getRequest(`/v1/oob/${id}`, this.buildParser(oobInviteParser))
   }
 
-  public async deleteOutOfBandInvite(id: string): Promise<void> {
+  public async deleteOutOfBandInvite(id: UUID): Promise<void> {
     return this.deleteRequest(`/v1/oob/${id}`, () => {})
   }
 
@@ -248,11 +255,11 @@ export default class VeritableCloudagentInt<Config extends CloudagentConfig = De
     return this.getRequest('/v1/connections', this.buildParser(connectionListParser))
   }
 
-  public async deleteCredential(id: string): Promise<void> {
+  public async deleteCredential(id: UUID): Promise<void> {
     return this.deleteRequest(`/v1/credentials/${id}`, () => {})
   }
 
-  public async deleteConnection(id: string): Promise<void> {
+  public async deleteConnection(id: UUID): Promise<void> {
     return this.deleteRequest(`/v1/connections/${id}`, () => {})
   }
 
@@ -273,13 +280,22 @@ export default class VeritableCloudagentInt<Config extends CloudagentConfig = De
     )
   }
 
-  public async createSchema(issuerId: string, name: string, version: string, attrNames: string[]): Promise<Schema> {
-    return this.postRequest('/v1/schemas', { issuerId, name, version, attrNames }, this.buildParser(schemaParser))
+  public async createSchema(
+    issuerId: DID,
+    name: string,
+    version: Version,
+    attrNames: string[]
+  ): Promise<CredentialSchema> {
+    return this.postRequest(
+      '/v1/schemas',
+      { issuerId, name, version, attrNames },
+      this.buildParser(credentialSchemaParser)
+    )
   }
 
   public async getCreatedSchemas(
-    filters: Partial<{ issuerId: string; schemaName: string; schemaVersion: string }> = {}
-  ): Promise<Schema[]> {
+    filters: Partial<{ issuerId: DID; schemaName: string; schemaVersion: Version }> = {}
+  ): Promise<CredentialSchema[]> {
     const params = new URLSearchParams({
       createdLocally: 'true',
       ...filters,
@@ -288,13 +304,13 @@ export default class VeritableCloudagentInt<Config extends CloudagentConfig = De
     return this.getRequest(`/v1/schemas?${params}`, this.buildParser(schemaListParser))
   }
 
-  public async getSchemaById(schemaId: string): Promise<Schema> {
-    return this.getRequest(`/v1/schemas/${encodeURIComponent(schemaId)}`, this.buildParser(schemaParser))
+  public async getSchemaById(schemaId: SchemaId): Promise<CredentialSchema> {
+    return this.getRequest(`/v1/schemas/${encodeURIComponent(schemaId)}`, this.buildParser(credentialSchemaParser))
   }
 
   public async createCredentialDefinition(
-    issuerId: string,
-    schemaId: string,
+    issuerId: DID,
+    schemaId: SchemaId,
     tag: string
   ): Promise<CredentialDefinition> {
     return this.postRequest(
@@ -305,7 +321,7 @@ export default class VeritableCloudagentInt<Config extends CloudagentConfig = De
   }
 
   public async getCreatedCredentialDefinitions(
-    filters: Partial<{ schemaId: string; issuerId: string }> = {}
+    filters: Partial<{ schemaId: SchemaId; issuerId: DID }> = {}
   ): Promise<CredentialDefinition[]> {
     const params = new URLSearchParams({
       createdLocally: 'true',
@@ -315,7 +331,9 @@ export default class VeritableCloudagentInt<Config extends CloudagentConfig = De
     return this.getRequest(`/v1/credential-definitions?${params}`, this.buildParser(credentialDefinitionListParser))
   }
 
-  public async getCredentialDefinitionById(credentialDefinitionId: string): Promise<CredentialDefinition> {
+  public async getCredentialDefinitionById(
+    credentialDefinitionId: CredentialDefinitionId
+  ): Promise<CredentialDefinition> {
     return this.getRequest(
       `/v1/credential-definitions/${encodeURIComponent(credentialDefinitionId)}`,
       this.buildParser(credentialDefinitionParser)
@@ -326,11 +344,11 @@ export default class VeritableCloudagentInt<Config extends CloudagentConfig = De
     return this.getRequest('/v1/credentials', this.buildParser(credentialListParser))
   }
 
-  public async getCredentialFormatData(credentialId: string): Promise<CredentialFormatData> {
+  public async getCredentialFormatData(credentialId: UUID): Promise<CredentialFormatData> {
     return this.getRequest(`/v1/credentials/${credentialId}/format-data`, this.buildParser(credentialFormatDataParser))
   }
 
-  public async proposeCredential(connectionId: string, proposal: CredentialProposalInput): Promise<Credential> {
+  public async proposeCredential(connectionId: UUID, proposal: CredentialProposalInput): Promise<Credential> {
     const body = {
       protocolVersion: 'v2',
       credentialFormats: {
@@ -343,7 +361,7 @@ export default class VeritableCloudagentInt<Config extends CloudagentConfig = De
     return this.postRequest('/v1/credentials/propose-credential', body, this.buildParser(credentialParser))
   }
 
-  public async acceptProposal(credentialId: string, proposal: CredentialProposalAcceptInput): Promise<Credential> {
+  public async acceptProposal(credentialId: UUID, proposal: CredentialProposalAcceptInput): Promise<Credential> {
     const body = {
       credentialFormats: {
         anoncreds: {
@@ -356,7 +374,7 @@ export default class VeritableCloudagentInt<Config extends CloudagentConfig = De
   }
 
   public async submitDrpcRequest<M extends Config['drpcRequest']['method']>(
-    connectionId: string,
+    connectionId: UUID,
     method: M,
     params: MapDiscriminatedUnion<Config['drpcRequest'], 'method'>[M]['params']
   ): Promise<DrpcResponse | undefined> {
@@ -376,7 +394,7 @@ export default class VeritableCloudagentInt<Config extends CloudagentConfig = De
   }
 
   public async submitDrpcResponse(
-    requestId: string,
+    requestId: UUID,
     response: { result?: Config['drpcResponseResult']; error?: JsonRpcError }
   ): Promise<void> {
     return this.postRequest(
@@ -389,18 +407,18 @@ export default class VeritableCloudagentInt<Config extends CloudagentConfig = De
     )
   }
 
-  public async acceptCredentialOffer(credentialId: string): Promise<Credential> {
+  public async acceptCredentialOffer(credentialId: UUID): Promise<Credential> {
     return this.postRequest(`/v1/credentials/${credentialId}/accept-offer`, {}, this.buildParser(credentialParser))
   }
 
-  public async acceptCredentialRequest(credentialId: string): Promise<Credential> {
+  public async acceptCredentialRequest(credentialId: UUID): Promise<Credential> {
     return this.postRequest(`/v1/credentials/${credentialId}/accept-request`, {}, this.buildParser(credentialParser))
   }
 
-  public async acceptCredential(credentialId: string): Promise<Credential> {
+  public async acceptCredential(credentialId: UUID): Promise<Credential> {
     return this.postRequest(`/v1/credentials/${credentialId}/accept-credential`, {}, this.buildParser(credentialParser))
   }
-  public async sendProblemReport(credentialId: string, description: string): Promise<Credential> {
+  public async sendProblemReport(credentialId: UUID, description: string): Promise<Credential> {
     return this.postRequest(
       `/v1/credentials/${credentialId}/send-problem-report`,
       { description: description },

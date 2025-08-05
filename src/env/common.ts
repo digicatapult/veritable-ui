@@ -2,7 +2,7 @@ import dotenv from 'dotenv'
 import envalid from 'envalid'
 
 import { container } from 'tsyringe'
-import { countryCodes } from '../models/strings.js'
+import { countryCodes } from '../models/stringTypes.js'
 import {
   emailTransportValidator,
   issuanceRecordValidator,
@@ -65,6 +65,9 @@ export const defaultConfig = {
     devDefault: 'http://localhost:8443',
     default: 'https://api.opencorporates.com/v0.4/companies',
   }),
+  IPID_API_URL: envalid.str({ default: 'https://sandbox.ipid.works' }),
+  IPID_API_KEY: envalid.str(),
+  IPID_CUSTOMER_ID: envalid.str({ default: 'digicatapult-uat' }),
 }
 
 // we mainly separate out the raw environment loading so we can override it safely in tests

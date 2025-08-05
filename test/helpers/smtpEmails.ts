@@ -1,15 +1,15 @@
 import http from 'http'
 import { z } from 'zod'
 
-const ToSchema = z.array(z.string())
+const ToSchema = z.array(z.email())
 
 const EmailItemSchema = z.object({
   isRelayed: z.boolean(),
-  deliveredTo: z.string().email(),
-  id: z.string().uuid(),
-  from: z.string().email(),
+  deliveredTo: z.email(),
+  id: z.uuid(),
+  from: z.email(),
   to: ToSchema,
-  receivedDate: z.string().datetime(),
+  receivedDate: z.iso.datetime(),
   subject: z.string(),
   attachmentCount: z.number().int(),
   isUnread: z.boolean(),
@@ -19,7 +19,7 @@ export const EmailResponseSchema = z.object({
   results: z.array(EmailItemSchema),
 })
 
-export type Email = {
+export type TestEmail = {
   isRelayed: boolean
   deliveredTo: string
   id: string
@@ -35,7 +35,7 @@ export type Email = {
  * @param search this can be TO or FROM or in subject email address
  * @returns validated Email
  */
-export async function checkEmails(search: string): Promise<Email> {
+export async function checkEmails(search: string): Promise<TestEmail> {
   return new Promise((resolve, reject) => {
     const options = {
       hostname: 'localhost',
@@ -104,7 +104,7 @@ export async function extractInvite(emailId: string): Promise<string | null> {
   }
 }
 
-export async function findNewAdminEmail(oldAdminEmailId: string): Promise<Email> {
+export async function findNewAdminEmail(oldAdminEmailId: string): Promise<TestEmail> {
   return new Promise((resolve, reject) => {
     const options = {
       hostname: 'localhost',
@@ -130,7 +130,7 @@ export async function findNewAdminEmail(oldAdminEmailId: string): Promise<Email>
           }
 
           const newAdminEmail = results.find(
-            (msg: Email) => msg.subject === 'Postal Code for Verification:' && msg.id !== oldAdminEmailId
+            (msg: TestEmail) => msg.subject === 'Postal Code for Verification:' && msg.id !== oldAdminEmailId
           )
 
           if (!newAdminEmail) {

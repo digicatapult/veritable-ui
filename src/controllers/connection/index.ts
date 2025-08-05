@@ -3,7 +3,7 @@ import { pino } from 'pino'
 import { Body, Get, Path, Post, Produces, Query, Request, Route, Security, SuccessResponse } from 'tsoa'
 import { injectable } from 'tsyringe'
 
-import { pinCodeRegex, type PIN_CODE, type UUID } from '../../models/strings.js'
+import { pinCodeRegex, type PIN_CODE, type UUID } from '../../models/stringTypes.js'
 import ConnectionTemplates from '../../views/connection/connection.js'
 
 import { DatabaseTimeoutError, InternalError, InvalidInputError, NotFoundError } from '../../errors.js'
@@ -142,9 +142,9 @@ export class ConnectionController extends HTMLController {
 
   private async verifyReceiveConnection(
     logger: pino.Logger,
-    agentConnectionId: string,
+    agentConnectionId: UUID,
     profile: SharedOrganisationInfo,
-    pin: string
+    pin: PIN_CODE
   ) {
     logger.debug('verifyReceiveConnection(): called for credential proposal', { agentConnectionId, profile, pin })
 
@@ -167,7 +167,7 @@ export class ConnectionController extends HTMLController {
       ],
     })
   }
-  private async pollPinSubmission(logger: ILogger, connectionId: string, initialPinAttemptsRemaining: number | null) {
+  private async pollPinSubmission(logger: ILogger, connectionId: UUID, initialPinAttemptsRemaining: number | null) {
     logger.trace('pollPinSubmission(): called for database checks %j', { connectionId, initialPinAttemptsRemaining })
 
     try {

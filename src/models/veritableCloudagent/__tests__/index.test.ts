@@ -15,7 +15,7 @@ import {
 import { withCloudagentMock } from './helpers/mockCloudagent.js'
 
 import { InternalError } from '../../../errors.js'
-import { CountryCode } from '../../strings.js'
+import { CountryCode } from '../../stringTypes.js'
 import VeritableCloudagent from '../index.js'
 
 describe('veritableCloudagent', () => {
