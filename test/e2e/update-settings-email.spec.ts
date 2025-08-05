@@ -54,7 +54,7 @@ test.describe('Updating Settings - email', () => {
       })
     ).toBeTruthy()
   })
-  test.only('Check version id', async () => {
+  test('Check version id', async () => {
     await page.waitForSelector('a[href="/settings"]')
     await page.click('a[href="/settings"]')
     await page.waitForURL(`${baseUrlAlice}/settings`)
