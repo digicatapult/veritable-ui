@@ -12,8 +12,8 @@
   },
   "scripts": {
     "depcheck": "depcheck",
-    "test:unit": "NODE_ENV=test ./node_modules/.bin/mocha --config ./test/mocharc.json --file ./test/init-unit.ts ./src/**/*.test.ts",
-    "test:integration": "NODE_ENV=test ./node_modules/.bin/mocha --config ./test/mocharc.json --file ./test/init.ts ./test/**/*.test.ts",
+    "test:unit": "NODE_OPTIONS='--no-experimental-strip-types' NODE_ENV=test ./node_modules/.bin/mocha --config ./test/mocharc.json --file ./test/init-unit.ts ./src/**/*.test.ts",
+    "test:integration": "NODE_OPTIONS='--no-experimental-strip-types' NODE_ENV=test ./node_modules/.bin/mocha --config ./test/mocharc.json --file ./test/init.ts ./test/**/*.test.ts",
     "test:e2e": "playwright test --trace on --max-failures=1",
     "test:playwright": "playwright test --ui",
     "check": "npm run tsoa:build && tsc --noEmit",
