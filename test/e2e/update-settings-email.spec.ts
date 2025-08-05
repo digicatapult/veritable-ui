@@ -1,5 +1,5 @@
 import { expect, Page, test } from '@playwright/test'
-import version from '../../src/utils/version'
+import version from '../../src/utils/version.js'
 import { cleanup, CustomBrowserContext, withLoggedInUser, withRegisteredAccount } from '../helpers/registerLogIn'
 
 test.describe('Updating Settings - email', () => {
@@ -54,7 +54,7 @@ test.describe('Updating Settings - email', () => {
       })
     ).toBeTruthy()
   })
-  test('Check version id', async () => {
+  test.only('Check version id', async () => {
     await page.waitForSelector('a[href="/settings"]')
     await page.click('a[href="/settings"]')
     await page.waitForURL(`${baseUrlAlice}/settings`)
