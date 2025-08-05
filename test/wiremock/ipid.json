@@ -1,0 +1,48 @@
+{
+  "mappings": [
+    {
+      "request": {
+        "method": "GET",
+        "url": "/validation/api/v1/public-key?country_code=GB"
+      },
+      "response": {
+        "status": 200,
+        "jsonBody": {
+          "response_code": 2000,
+          "response_message": "Success",
+          "data": {
+            "node_id": "test-node-01",
+            "node_public_key": "-----BEGIN PGP PUBLIC KEY BLOCK-----\nFAKEKEY123ABC==\n-----END PGP PUBLIC KEY BLOCK-----"
+          }
+        }
+      }
+    },
+    {
+      "request": {
+        "method": "POST",
+        "url": "/utility/encrypt-payload"
+      },
+      "response": {
+        "status": 200,
+        "body": "-----BEGIN PGP MESSAGE-----\nENCRYPTED123PAYLOAD==\n-----END PGP MESSAGE-----"
+      }
+    },
+    {
+      "request": {
+        "method": "POST",
+        "url": "/validation/api/v1/bank-account/validate"
+      },
+      "response": {
+        "status": 200,
+        "jsonBody": {
+          "response_code": 2000,
+          "response_message": "ValidationSucceeded",
+          "data": {
+            "match_score": 0.9217778,
+            "match_score_description": "Partial Match"
+          }
+        }
+      }
+    }
+  ]
+}

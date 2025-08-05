@@ -9,7 +9,7 @@ import {
   carbonEmbodimentResponseData,
   ProductAndQuantity,
 } from '../../models/drpc.js'
-import { bicRegex } from '../../models/stringTypes.js'
+import { bicRegex, CountryCode } from '../../models/stringTypes.js'
 import { FormButton, LinkButton, Page } from '../common.js'
 import { typeMap } from './queryRequest.js'
 
@@ -18,40 +18,68 @@ export interface ResponseFormProps {
   connection: ConnectionRow
   connections?: ConnectionRow[]
   partial?: boolean
+  countryCode?: CountryCode
   query: QueryRow
   type: QueryType
 }
 
-const countries = isoCountries.getNames('en', { select: 'official' })
+export const bavResponseFields = ['accountId', 'clearingSystemId', 'iban', 'registrationId', 'bic'] as const
+export type bavResponseField = (typeof bavResponseFields)[number]
+const countryCodeToResponseMap: Partial<Record<CountryCode, bavResponseField[]>> = {
+  GB: ['accountId', 'clearingSystemId'],
+  US: ['accountId', 'clearingSystemId'],
+  IN: ['accountId', 'clearingSystemId'],
+  ID: ['accountId', 'bic'],
+  NP: ['accountId'],
+  PK: ['accountId', 'bic'],
+  NG: ['accountId', 'bic'],
+  CN: ['accountId'],
+  KR: ['accountId', 'bic'],
+  BD: ['accountId', 'bic'],
+  BR: ['registrationId', 'iban'],
+  MX: ['accountId'],
+  UG: ['accountId', 'bic'],
+  AR: ['accountId'],
+  BE: ['registrationId', 'iban'],
+  FR: ['registrationId', 'iban'],
+  IT: ['iban'],
+  NL: ['registrationId', 'iban'],
+  PL: ['registrationId', 'iban'],
+  MY: ['accountId', 'bic'],
+  UY: ['accountId', 'bic'],
+  PE: ['accountId'],
+  TR: ['iban'],
+  ZA: ['accountId', 'clearingSystemId'],
+  TH: ['accountId', 'bic'],
+}
+
+const countries = Object.fromEntries(
+  Object.entries(isoCountries.getNames('en', { select: 'official' })).filter(
+    ([code]) => code in countryCodeToResponseMap
+  )
+)
 
 @singleton()
 export default class QueryResponseTemplates {
   constructor() {}
 
-  public queryResponsePage = ({ formStage, connection, query, partial, connections, type }: ResponseFormProps) => {
+  public queryResponsePage = (props: ResponseFormProps) => {
     return (
       <Page
         title="Veritable - Query Response"
         activePage="queries"
-        heading={`${typeMap[type].name} Query`}
+        heading={`${typeMap[props.type].name} Query`}
         headerLinks={[
           { name: 'Query Management', url: '/queries' },
           {
-            name: typeMap[type].name,
-            url: `/queries/${query.id}/response`,
+            name: typeMap[props.type].name,
+            url: `/queries/${props.query.id}/response`,
           },
         ]}
       >
         <div class="connections header"></div>
         <div class="card-body">
-          <this.Body
-            formStage={formStage}
-            connection={connection}
-            query={query}
-            partial={partial}
-            connections={connections}
-            type={type}
-          />
+          <this.Body {...props} />
         </div>
       </Page>
     )
@@ -220,7 +248,7 @@ export default class QueryResponseTemplates {
     )
   }
 
-  private bavResponseFormPage = ({ query, ...props }: ResponseFormProps) => {
+  private bavResponseFormPage = ({ query, connection }: ResponseFormProps) => {
     return (
       <div class="container-query-form">
         <div class="query-form-left">
@@ -230,47 +258,116 @@ export default class QueryResponseTemplates {
           </span>
         </div>
         <div class="query-form-right">
-          <div hx-swap-oob="true" hx-swap="ignoreTitle:true" id="partial-query">
-            <form
-              id="bav"
-              hx-post={`/queries/${query.id}/response/bav`}
-              hx-select="main > *"
-              hx-include={"[name='bic'], [name='countryCode']"}
-              hx-target="main"
+          <div class="input-container">
+            <label for="country-select" class="input-label">
+              Country
+            </label>
+            <select
+              id="country-select"
+              name="countryCode"
+              class="input-with-label"
+              hx-get="/queries/bav-response-fields"
+              hx-trigger="change"
+              hx-target="#bav-form-fields"
+              hx-include="[name=countryCode]"
               hx-swap="innerHTML"
+              required
             >
-              <input type="hidden" name="companyId" value={Html.escapeHtml(props.connection.id)} />
-              <div class="input-container">
-                <label for="bav-bic-input" class="input-label">
-                  Bank Identifier Code
-                </label>
-                <input
-                  id="bav-bic-input"
-                  name="bic"
-                  placeholder="AAAABBCC123"
-                  class="input-with-label"
-                  type="text"
-                  required
-                  pattern={bicRegex.source}
-                  title="Valid BIC (4 letters, 2 country letters, 2 alphanumeric, optional 3 more alphanumeric)"
-                />
-              </div>
-              <div class="input-container">
-                <label for="country-select" class="input-label">
-                  Country
-                </label>
-                <select id="country-select" name="countryCode" class="input-with-label" required>
-                  <option value="">Select country</option>
-                  {Object.entries(countries).map(([countryCode, name]) => (
-                    <option value={countryCode}>{Html.escapeHtml(name)}</option>
-                  ))}
-                </select>
-              </div>
-              <FormButton text="Submit Response" style="filled" />
-            </form>
+              <option value="">Select country</option>
+              {Object.entries(countries).map(([countryCode, name]) => (
+                <option value={countryCode}>{Html.escapeHtml(name)}</option>
+              ))}
+            </select>
           </div>
+          <form
+            id="bav-form"
+            hx-post={`/queries/${query.id}/response/bav`}
+            hx-select="main > *"
+            hx-include={
+              "[name='countryCode'], [name='bic'], [name='name'], [name='accountId'], [name='clearingSystemId'], [name='iban'], [name='registrationId']"
+            }
+            hx-target="main"
+          >
+            <input type="hidden" name="connectionId" value={Html.escapeHtml(connection.id)} />
+            <div id="bav-form-fields">
+              <this.bavForm />
+            </div>
+          </form>
         </div>
       </div>
+    )
+  }
+
+  public bavForm = ({ countryCode }: { countryCode?: CountryCode }) => {
+    const formFieldsToShow = countryCode ? (countryCodeToResponseMap[countryCode] ?? bavResponseFields) : []
+
+    return (
+      <>
+        {countryCode && (
+          <div class="input-container">
+            <label for="bav-name-input" class="input-label">
+              Account Name
+            </label>
+            <input id="bav-name-input" name="name" class="input-with-label" type="text" required />
+          </div>
+        )}
+        {formFieldsToShow.includes('accountId') && (
+          <div class="input-container">
+            <label for="bav-account-id-input" class="input-label">
+              Account Number
+            </label>
+            <input id="bav-account-id-input" name="accountId" class="input-with-label" type="text" required />
+          </div>
+        )}
+        {formFieldsToShow.includes('clearingSystemId') && (
+          <div class="input-container">
+            <label for="bav-clearing-system-id-input" class="input-label">
+              Clearing System ID
+            </label>
+            <input
+              id="bav-clearing-system-id-input"
+              name="clearingSystemId"
+              class="input-with-label"
+              type="text"
+              required
+            />
+          </div>
+        )}
+        {formFieldsToShow.includes('iban') && (
+          <div class="input-container">
+            <label for="bav-iban-input" class="input-label">
+              IBAN
+            </label>
+            <input id="bav-iban-input" name="iban" class="input-with-label" type="text" required />
+          </div>
+        )}
+        {formFieldsToShow.includes('registrationId') && (
+          <div class="input-container">
+            <label for="bav-registration-id-input" class="input-label">
+              Registration ID
+            </label>
+            <input id="bav-registration-id-input" name="registrationId" class="input-with-label" type="text" required />
+          </div>
+        )}
+        {formFieldsToShow.includes('bic') && (
+          <div class="input-container">
+            <label for="bav-bic-input" class="input-label">
+              Bank Identifier Code
+            </label>
+            <input
+              id="bav-bic-input"
+              name="bic"
+              placeholder="AAAABBCC123"
+              class="input-with-label"
+              type="text"
+              required
+              pattern={bicRegex.source}
+              title="Valid BIC (4 letters, 2 country letters, 2 alphanumeric, optional 3 more alphanumeric)"
+            />
+          </div>
+        )}
+        {countryCode && <FormButton text="Submit Response" style="filled" />}
+      </>
     )
   }
 
@@ -298,9 +395,9 @@ export default class QueryResponseTemplates {
             </div>
           </div>
           <br />
-          <table id="query-response-view">
+          <table class="query-response-view">
             <tr>
-              <td>Company name:</td>
+              <td>Account name:</td>
               <td class="query-results-left-padding-table">{Html.escapeHtml(connection.company_name)}</td>
             </tr>
             <tr>
@@ -319,7 +416,7 @@ export default class QueryResponseTemplates {
             </tr>
           </table>
           <h2>Response Information</h2>
-          <table id="query-response-view">
+          <table class="query-response-view">
             <tr>
               <td>Date Certified:</td>
               <td class="query-results-left-padding-table">
@@ -410,7 +507,7 @@ export default class QueryResponseTemplates {
             </div>
           </div>
           <br />
-          <table id="query-response-view">
+          <table class="query-response-view">
             <tr>
               <td>Company name:</td>
               <td class="query-results-left-padding-table">{Html.escapeHtml(connection.company_name)}</td>
@@ -421,25 +518,112 @@ export default class QueryResponseTemplates {
             </tr>
           </table>
           <h2>Response Information</h2>
-          <table id="query-response-view">
+          <table class="query-response-view">
             <tr>
-              <td>Date Certified:</td>
+              <td>Timestamp:</td>
               <td class="query-results-left-padding-table">
                 <time>{Html.escapeHtml(new Date(query.updated_at))}</time>
               </td>
             </tr>
-            <tr>
-              <td>Bank Identifier Code:</td>
-              <td class="query-results-left-padding-table">{Html.escapeHtml(responseData.bic)}</td>
-            </tr>
-            <tr>
-              <td>Country Code:</td>
-              <td class="query-results-left-padding-table">{Html.escapeHtml(responseData.countryCode)}</td>
-            </tr>
+            <this.bavResponseRow heading={'Country'} value={isoCountries.getName(responseData.countryCode, 'en')} />
+            <this.bavResponseRow heading={'Name'} value={responseData.name} />
+            <this.bavResponseRow heading={'Bank Identifier Code'} value={responseData.bic} />
+            <this.bavResponseRow heading={'IBAN'} value={responseData.iban} />
+            <this.bavResponseRow heading={'Account ID'} value={responseData.accountId} />
+            <this.bavResponseRow heading={'Clearing System ID'} value={responseData.clearingSystemId} />
+            <this.bavResponseRow heading={'Registration ID'} value={responseData.registrationId} />
           </table>
+
+          {query.role === 'requester' && (
+            <>
+              <div class="row">
+                <h2>Verification</h2>
+                <button
+                  id="bav-verify-button"
+                  class="button"
+                  data-variant="action"
+                  hx-post="response/bav/verify"
+                  hx-target="#bav-verification-results"
+                  hx-indicator="#bav-verification-results"
+                  hx-swap="outerHTML"
+                >
+                  Verify
+                </button>
+              </div>
+              <this.bavVerificationResults
+                score={responseData.score}
+                description={responseData.description}
+                connectionId={connection.id}
+              />
+            </>
+          )}
           <LinkButton text="Back to Queries" href="/queries" style="filled" />
         </div>
       </div>
+    )
+  }
+
+  public bavVerificationResults = ({
+    score,
+    description,
+    connectionId,
+  }: {
+    score?: number
+    description?: string
+    connectionId: string
+  }): JSX.Element => {
+    const strongMatchTooltip = `Account details match.`
+    const partialMatchTooltip = `Account found. Potential typo in name.`
+    const weakMatchTooltip = `Account found. Name does not match.`
+    const noMatchTooltip = `Account not found.`
+
+    const options = [
+      { threshold: 0.95, tooltip: strongMatchTooltip, icon: 'tick', offerNewQuery: false },
+      { threshold: 0.5, tooltip: partialMatchTooltip, icon: 'tilde', offerNewQuery: true },
+      { threshold: 0, tooltip: weakMatchTooltip, icon: 'tilde', offerNewQuery: true },
+      { threshold: -Infinity, tooltip: noMatchTooltip, icon: 'cross', offerNewQuery: true },
+    ]
+    const option = options.find((o) => score! > o.threshold)
+
+    return (
+      <div id="bav-verification-results">
+        <table class={`query-response-view`}>
+          <tr>
+            <td>Description:</td>
+            <td id="bav-verification-results-details" class="query-results-left-padding-table" title={option?.tooltip}>
+              {score !== undefined && description !== undefined ? (
+                <>
+                  {Html.escapeHtml(description)}
+                  <span class={`bav-verify-icon ${option?.icon}`} />
+                  {option?.offerNewQuery && (
+                    <a
+                      class="button"
+                      data-variant="action"
+                      href={`/queries/new?type=beneficiary_account_validation&connectionId=${connectionId}`}
+                    >
+                      Send new query
+                    </a>
+                  )}
+                </>
+              ) : (
+                'Awaiting request'
+              )}
+            </td>
+          </tr>
+        </table>
+        <div id="spinner" />
+      </div>
+    )
+  }
+
+  private bavResponseRow = ({ heading, value }: { heading: string; value?: string }): JSX.Element | null => {
+    if (value === undefined) return null
+
+    return (
+      <tr>
+        <td>{Html.escapeHtml(heading)}:</td>
+        <td class="query-results-left-padding-table">{Html.escapeHtml(value)}</td>
+      </tr>
     )
   }
 
@@ -448,8 +632,8 @@ export default class QueryResponseTemplates {
       <div id="new-query-confirmation-text">
         <h2>Thank you for your response!</h2>
         <p>
-          You have successfully forwarded the query to the following supplier(s) for their carbon contribution to the
-          product/component:
+          You have successfully forwarded a ${Html.escapeHtml(typeMap[props.type].name)} query to the following
+          supplier(s):
         </p>
         <i>
           <p>{Html.escapeHtml(props.connection.company_name)}</p>

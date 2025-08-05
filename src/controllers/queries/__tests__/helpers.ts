@@ -1,9 +1,10 @@
 import { Readable } from 'node:stream'
 import sinon from 'sinon'
 
+import { IBav } from '../../../models/bav.js'
 import Database from '../../../models/db/index.js'
 import { ConnectionRow, QueryRow } from '../../../models/db/types.js'
-import { UUID } from '../../../models/stringTypes.js'
+import { CountryCode, UUID } from '../../../models/stringTypes.js'
 import VeritableCloudagent from '../../../models/veritableCloudagent/index.js'
 import QueriesTemplates from '../../../views/queries/queries.js'
 import QueryListTemplates from '../../../views/queries/queriesList.js'
@@ -156,6 +157,16 @@ export const withQueriesMocks = (testOptions: Partial<QueryMockOptions> = {}) =>
 
   const queryResponseTemplateMock = {
     queryResponsePage: (props: ResponseFormProps) => templateFake('queriesResponse', props),
+    bavForm: ({ countryCode }: { countryCode: CountryCode }) => templateListFake('bavForm', countryCode),
+    bavVerificationResults: ({
+      score,
+      description,
+      connectionId,
+    }: {
+      score: number
+      description: string
+      connectionId: string
+    }) => templateListFake('bavVerificationResults', score, description, connectionId),
   } as unknown as QueryResponseTemplates
   const queryTemplateMock = {
     chooseQueryPage: () => templateFake('queries'),
@@ -179,6 +190,9 @@ export const withQueriesMocks = (testOptions: Partial<QueryMockOptions> = {}) =>
       Promise.resolve()
     }),
   }
+  const bavApi = {
+    validate: () => Promise.resolve({ score: 1, description: 'Strong match' }),
+  }
 
   return {
     queryRequestTemplateMock,
@@ -187,6 +201,7 @@ export const withQueriesMocks = (testOptions: Partial<QueryMockOptions> = {}) =>
     queryTemplateMock,
     dbMock,
     cloudagentMock,
+    bavApi,
     args: [
       queryRequestTemplateMock,
       queryResponseTemplateMock,
@@ -194,6 +209,7 @@ export const withQueriesMocks = (testOptions: Partial<QueryMockOptions> = {}) =>
       queryListTemplateMock,
       cloudagentMock as unknown as VeritableCloudagent,
       dbMock as unknown as Database,
+      bavApi as unknown as IBav,
     ] as const,
   }
 }

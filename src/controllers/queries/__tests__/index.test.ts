@@ -1,4 +1,5 @@
-import { expect } from 'chai'
+import * as chai from 'chai'
+import chaiAsPromised from 'chai-as-promised'
 import { describe, it } from 'mocha'
 import sinon from 'sinon'
 
@@ -7,6 +8,9 @@ import { InvalidInputError } from '../../../errors.js'
 import { mockLogger } from '../../__tests__/helpers.js'
 import { QueriesController } from '../index.js'
 import { mockIds, toHTMLString, withQueriesMocks } from './helpers.js'
+
+chai.use(chaiAsPromised)
+const expect = chai.expect
 
 const expiresAtExpectation = new Date(1000 + 7 * 24 * 60 * 60 * 1000)
 
@@ -534,7 +538,7 @@ describe('QueriesController', () => {
             if (!(err instanceof InvalidInputError)) {
               expect.fail('expected InvalidInputError')
             }
-            expect(err.toString()).to.be.equal('Error: missing a property in the request body')
+            expect((err as Error).toString()).to.be.equal('Error: missing a property in the request body')
           }
         })
 
@@ -554,7 +558,7 @@ describe('QueriesController', () => {
             if (!(err instanceof InvalidInputError)) {
               expect.fail('expected InvalidInputError')
             }
-            expect(err.toString()).to.be.equal('Error: missing a property in the request body')
+            expect((err as Error).toString()).to.be.equal('Error: missing a property in the request body')
           }
         })
 
@@ -573,7 +577,7 @@ describe('QueriesController', () => {
             if (!(err instanceof InvalidInputError)) {
               expect.fail('expected InvalidInputError')
             }
-            expect(err.toString()).to.be.equal('Error: missing a property in the request body')
+            expect((err as Error).toString()).to.be.equal('Error: missing a property in the request body')
           }
         })
 
@@ -594,10 +598,58 @@ describe('QueriesController', () => {
             if (!(err instanceof InvalidInputError)) {
               expect.fail('expected InvalidInputError')
             }
-            expect(err.toString()).to.be.equal('Error: partial query validation failed, invalid data')
+            expect((err as Error).toString()).to.be.equal('Error: partial query validation failed, invalid data')
           }
         })
       })
+    })
+  })
+
+  describe('bav response form fields', () => {
+    it('should return fields associated with BAV for a country', async () => {
+      const { args } = withQueriesMocks()
+      const controller = new QueriesController(...args)
+      const result = await controller.bavResponseFields('GB').then(toHTMLString)
+      expect(result).to.equal('bavForm_GB_bavForm')
+    })
+  })
+
+  describe('bav response verify', () => {
+    it('should get and update query with verification results', async () => {
+      const { args, dbMock } = withQueriesMocks()
+      const controller = new QueriesController(...args)
+      const bavResponse = { subjectId: { idType: 'bav' }, countryCode: 'GB', name: 'Test Company' }
+      dbMock.get = sinon.stub().callsFake(() =>
+        Promise.resolve([
+          {
+            id: mockIds.queryId,
+            status: 'resolved',
+            type: 'beneficiary_account_validation',
+            response: bavResponse,
+            connection_id: mockIds.companyId,
+          },
+        ])
+      )
+
+      const result = await controller.bavResponseVerify(req, mockIds.queryId).then(toHTMLString)
+      expect(dbMock.get.firstCall.calledWith('query', { id: mockIds.queryId })).to.equal(true)
+      expect(dbMock.update.getCall(0).args).to.deep.equal([
+        'query',
+        { id: mockIds.queryId },
+        { response: { ...bavResponse, score: 1, description: 'Strong match' } },
+        false,
+      ])
+      expect(result).to.equal(`bavVerificationResults_1-Strong match-${mockIds.companyId}_bavVerificationResults`)
+    })
+
+    it('should error if query is not BAV type or resolved', async () => {
+      const { args } = withQueriesMocks()
+      const controller = new QueriesController(...args)
+
+      await expect(controller.bavResponseVerify(req, mockIds.queryId)).to.be.rejectedWith(
+        InvalidInputError,
+        `Only resolved BAV queries can be validated`
+      )
     })
   })
 })

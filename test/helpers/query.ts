@@ -42,17 +42,21 @@ export async function withCarbonQueryResponse(requesterUrl: string, responderUrl
 export async function withBavQueryResponse(
   requesterUrl: string,
   responderUrl: string,
-  bic: string,
-  countryCode: CountryCode
+  countryCode: CountryCode,
+  name: string,
+  accountId: string,
+  clearingSystemId: string
 ) {
   await withBavQueryRequest(requesterUrl)
   const connectionId = await getConnectionId(responderUrl)
   const queryId = await getQuery(responderUrl)
 
   await fetchPost(`${responderUrl}/queries/${queryId}/response/bav`, {
-    companyId: connectionId,
-    bic,
+    connectionId,
     countryCode,
+    name,
+    accountId,
+    clearingSystemId,
   })
 }
 
