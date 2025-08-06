@@ -1,5 +1,5 @@
 import { expect, Page, test } from '@playwright/test'
-import version from '../../src/utils/version'
+import version from '../../src/utils/version.js'
 import { cleanup, CustomBrowserContext, withLoggedInUser, withRegisteredAccount } from '../helpers/registerLogIn'
 
 test.describe('Updating Settings - email', () => {
