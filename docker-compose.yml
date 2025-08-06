@@ -1,7 +1,7 @@
 services:
   # -------------------- shared -------------------------------#
   keycloak:
-    image: quay.io/keycloak/keycloak:26.3.1
+    image: quay.io/keycloak/keycloak:26.3.2
     container_name: keycloak
     environment:
       - KC_BOOTSTRAP_ADMIN_USERNAME=admin
@@ -72,6 +72,9 @@ services:
       - LOCAL_REGISTRY_TO_USE=GB
       - SOCRATA_API_URL=https://data.ny.gov/resource/p66s-i79p.json
       - COMPANY_PROFILE_API_KEY=${COMPANY_PROFILE_API_KEY}
+      - IPID_API_URL=https://sandbox.ipid.works
+      - IPID_API_KEY=${IPID_API_KEY}
+      - IPID_CUSTOMER_ID=digicatapult-uat
   postgres-veritable-ui-alice:
     image: postgres:17.5-alpine
     container_name: postgres-veritable-ui-alice
@@ -94,7 +97,7 @@ services:
       - POSTGRES_PASSWORD=postgres
       - POSTGRES_DB=postgres-veritable-cloudagent
   veritable-cloudagent-alice:
-    image: digicatapult/veritable-cloudagent:v0.13.22
+    image: digicatapult/veritable-cloudagent:v0.13.27
     container_name: veritable-cloudagent-alice
     restart: always
     depends_on:
@@ -163,6 +166,9 @@ services:
       - LOCAL_REGISTRY_TO_USE=GB
       - SOCRATA_API_URL=https://data.ny.gov/resource/p66s-i79p.json
       - COMPANY_PROFILE_API_KEY=${COMPANY_PROFILE_API_KEY}
+      - IPID_API_URL=https://sandbox.ipid.works
+      - IPID_API_KEY=${IPID_API_KEY}
+      - IPID_CUSTOMER_ID=digicatapult-uat
 
   postgres-veritable-ui-bob:
     image: postgres:17.5-alpine
@@ -186,7 +192,7 @@ services:
       - POSTGRES_PASSWORD=postgres
       - POSTGRES_DB=postgres-veritable-cloudagent
   veritable-cloudagent-bob:
-    image: digicatapult/veritable-cloudagent:v0.13.22
+    image: digicatapult/veritable-cloudagent:v0.13.27
     container_name: veritable-cloudagent-bob
     restart: always
     depends_on:
@@ -255,6 +261,9 @@ services:
       - COMPANY_PROFILE_API_KEY=${COMPANY_PROFILE_API_KEY}
       - LOCAL_REGISTRY_TO_USE=GB
       - SOCRATA_API_URL=https://data.ny.gov/resource/p66s-i79p.json
+      - IPID_API_URL=https://sandbox.ipid.works
+      - IPID_API_KEY=${IPID_API_KEY}
+      - IPID_CUSTOMER_ID=digicatapult-uat
 
   postgres-veritable-ui-charlie:
     image: postgres:17.5-alpine
@@ -278,7 +287,7 @@ services:
       - POSTGRES_PASSWORD=postgres
       - POSTGRES_DB=postgres-veritable-cloudagent
   veritable-cloudagent-charlie:
-    image: digicatapult/veritable-cloudagent:v0.13.22
+    image: digicatapult/veritable-cloudagent:v0.13.27
     container_name: veritable-cloudagent-charlie
     restart: always
     depends_on:
@@ -305,9 +314,9 @@ services:
 
   # -------------------- wiremock ----------------------------#
 
-  wiremock-organisation-registries:
+  wiremock:
     image: wiremock/wiremock:3.13.1
-    container_name: wiremock-organisation-registries
+    container_name: wiremock
     scale: 0
     ports:
       - '8443:8080' # Port for accessing wiremock

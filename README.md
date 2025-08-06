@@ -132,6 +132,9 @@ This is the list of all environment variables including brief description
 | ISSUANCE_SCHEMA_POLICY           | y        | EXISTING_OR_NEW                                                | Same as above but for credential schema                                                                                                                                        |
 | ISSUANCE_CRED_DEF_POLICY         | y        | EXISTING_OR_NEW                                                | Same as above but this is for credential definitions                                                                                                                           |
 | DEMO_MODE                        | y        | true                                                           | Enables or disables the `/reset` endpoint                                                                                                                                      |
+| IPID_API_URL                     | n        | https://sandbox.ipid.works                                     | URL for iPiD service. See [iPiD](#ipid)                                                                                                                                        |
+| IPID_API_KEY                     | y        | -                                                              | API key for iPiD service. See [iPiD](#ipid)                                                                                                                                    |
+| IPID_CUSTOMER_ID                 | n        | digicatapult-uat                                               | Customer ID provided by iPiD with API key. See [iPiD](#ipid)                                                                                                                   |
 | SOCRATA_API_URL                  | y        | https://data.ny.gov/resource/p66s-i79p.json                    | External service containing list of companies in NY definitions                                                                                                                |
 | LOCAL_REGISTRY_TO_USE            | y        | GB                                                             | Defines which registry to use to look up info about the local instance                                                                                                         |
 
@@ -265,6 +268,10 @@ npm run db:migrate
 - Paste the invitation text into Alice's [Add from Invitation](http://localhost:3000/connection/new?fromInvite=true). The right hand box should update to show Bob's registered address (set by the `INVITATION_FROM_COMPANY_NUMBER` env). Submit.
 - Search `Verification Code: ` in the logs of the terminal for the running Alice server. Copy this code. Select `Complete Verification` on [Bob's side](http://localhost:3001/connection) of the connection, paste the code and continue.
 - The connection will now show as `Connected` for both personas, and queries can be sent.
+
+## iPiD
+
+[iPiD](https://ipid.tech/) provide a 'Know Your Payee' API for validating bank account information from various countries. One of the available queries in Veritable UI is a 'Beneficiary Account Validation' query, where one member requests the bank details of another. After receiving a response, the requester can choose to validate the bank details using the iPiD API, assuming the service has been configured with iPiD environment variables (URL, api key and customer ID). Credentials are available from iPiD directly. They offer a sandbox for free testing.
 
 ## Registries
 

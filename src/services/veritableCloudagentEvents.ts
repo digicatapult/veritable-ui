@@ -7,14 +7,15 @@ import { Logger, type ILogger } from '../logger.js'
 import VeritableCloudagent from '../models/veritableCloudagent/index.js'
 import { connectionParser, credentialParser } from '../models/veritableCloudagent/internal.js'
 
+import { UUID } from '../models/stringTypes.js'
 import IndexedAsyncEventEmitter from '../utils/indexedAsyncEventEmitter.js'
 import { MapDiscriminatedUnion } from '../utils/types.js'
 
 const drpcRequestParser = z.object({
-  jsonrpc: z.string(),
+  jsonrpc: z.literal('2.0'),
   method: z.string(),
   params: z.record(z.any(), z.any()).optional(),
-  id: z.string(),
+  id: z.uuid(),
 })
 const eventParser = z.discriminatedUnion('type', [
   z.object({
@@ -37,7 +38,7 @@ const eventParser = z.discriminatedUnion('type', [
     payload: z.object({
       drpcMessageRecord: z.object({
         request: drpcRequestParser.optional(),
-        connectionId: z.string(),
+        connectionId: z.uuid(),
         role: z.enum(['client', 'server']),
         state: z.enum(['request-sent', 'request-received', 'completed']),
       }),
@@ -124,7 +125,7 @@ export default class VeritableCloudagentEvents extends IndexedAsyncEventEmitter<
           return
         }
 
-        let id: string
+        let id: UUID
         const type = data.type
         this.logger.debug('WebSocket Message is of type %s', type)
         switch (type) {

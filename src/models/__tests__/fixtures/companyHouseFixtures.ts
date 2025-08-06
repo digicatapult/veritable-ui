@@ -1,5 +1,5 @@
 import { CompanyHouseProfile, SharedOrganisationInfo } from '../../orgRegistry/organisationRegistry.js'
-import { CountryCode } from '../../strings.js'
+import { CountryCode } from '../../stringTypes.js'
 
 export const validCompanyNumber = '07964699'
 export const secondaryCompanyNumber = '11111111'

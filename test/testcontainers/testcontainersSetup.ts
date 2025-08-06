@@ -17,7 +17,7 @@ const postgresVersion = parsed.services['postgres-veritable-ui-alice'].image
 const cloudagentVersion = parsed.services['veritable-cloudagent-alice'].image
 const kuboVersion = parsed.services.ipfs.image
 const smtp4devVersion = parsed.services.smtp4dev.image
-const wireMockVersion = parsed.services['wiremock-organisation-registries'].image
+const wireMockVersion = parsed.services['wiremock'].image
 
 //============ Veritable UI Container ============
 
@@ -60,12 +60,15 @@ export async function bringUpVeritableUIContainer(
       SMTP_PORT: '25',
       SMTP_USER: '',
       EMAIL_TRANSPORT: 'SMTP_EMAIL',
-      COMPANY_HOUSE_API_URL: 'http://wiremock-organisation-registries:8080',
+      COMPANY_HOUSE_API_URL: 'http://wiremock:8080',
       DEMO_MODE: 'true',
       SMTP_SECURE: 'false',
       COMPANY_PROFILE_API_KEY: 'API_KEY',
-      SOCRATA_API_URL: 'http://wiremock-organisation-registries:8080',
+      SOCRATA_API_URL: 'http://wiremock:8080',
       LOCAL_REGISTRY_TO_USE: localRegistryToUse,
+      IPID_API_URL: 'http://wiremock:8080',
+      IPID_API_KEY: 'API_KEY',
+      IPID_CUSTOMER_ID: 'ipid-customer-id',
     })
     .withCommand(['sh', '-c', 'node ./node_modules/.bin/knex migrate:latest; npm start'])
     .withWaitStrategy(Wait.forListeningPorts())
@@ -210,7 +213,7 @@ export async function composeSmtp4dev(): Promise<StartedTestContainer> {
 
 export async function wireMockContainer(): Promise<StartedTestContainer> {
   const container = await new GenericContainer(wireMockVersion)
-    .withName('wiremock-organisation-registries')
+    .withName('wiremock')
     .withExposedPorts({
       container: 8080,
       host: 8443,

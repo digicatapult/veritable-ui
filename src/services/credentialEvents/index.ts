@@ -4,7 +4,11 @@ import { ZodType, z } from 'zod'
 import { Logger, type ILogger } from '../../logger.js'
 import Database from '../../models/db/index.js'
 import { default as VeritableCloudagent } from '../../models/veritableCloudagent/index.js'
-import { type Credential, type CredentialFormatData, type Schema } from '../../models/veritableCloudagent/internal.js'
+import {
+  type Credential,
+  type CredentialFormatData,
+  type CredentialSchema,
+} from '../../models/veritableCloudagent/internal.js'
 import VeritableCloudagentEvents, { eventData } from '../veritableCloudagentEvents.js'
 import CompanyDetailsV1Handler from './companyDetailsV1.js'
 import { CredentialEventHandler, CredentialEventHandlerBase } from './types.js'
@@ -147,7 +151,7 @@ export default class CredentialEvents {
     return credential.role === 'issuer' && credential.state === 'proposal-received'
   }
 
-  private isSchemaValid(formatData: CredentialFormatData, maybeSchema: Schema | null): boolean {
+  private isSchemaValid(formatData: CredentialFormatData, maybeSchema: CredentialSchema | null): boolean {
     return (
       maybeSchema !== null &&
       formatData.proposal?.anoncreds.schema_name === maybeSchema.name &&

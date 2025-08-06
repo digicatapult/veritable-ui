@@ -1,6 +1,7 @@
 import { inject, injectable, singleton } from 'tsyringe'
 import { Env, type PartialEnv } from '../env/index.js'
 import { Logger, type ILogger } from '../logger.js'
+import { DID, SchemaId } from './stringTypes.js'
 import VeritableCloudagent from './veritableCloudagent/index.js'
 
 export const schemaMap = {
@@ -12,7 +13,7 @@ type SCHEMA_NAMES = keyof typeof schemaMap
 @singleton()
 @injectable()
 export class CredentialSchema {
-  private issuerId?: string
+  private issuerId?: DID
   private schemaId?: Record<SCHEMA_NAMES, string>
   private credentialDefinitionId?: Record<SCHEMA_NAMES, string>
 
@@ -47,7 +48,7 @@ export class CredentialSchema {
     throw new Error('Could not find existing DiD to use for issuing credentials')
   }
 
-  private async assertSchema(issuerId: string, schemaName: SCHEMA_NAMES): Promise<string> {
+  private async assertSchema(issuerId: DID, schemaName: SCHEMA_NAMES): Promise<string> {
     if (this.schemaId) {
       return this.schemaId[schemaName]
     }
@@ -89,8 +90,8 @@ export class CredentialSchema {
   }
 
   private async assertCredentialDefinition(
-    issuerId: string,
-    schemaId: string,
+    issuerId: DID,
+    schemaId: SchemaId,
     schemaName: SCHEMA_NAMES
   ): Promise<string> {
     if (this.credentialDefinitionId) {

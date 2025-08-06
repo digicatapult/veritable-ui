@@ -5,7 +5,7 @@ import sinon from 'sinon'
 import { toHTMLString, withNewConnectionMocks } from './helpers.js'
 
 import { Request } from 'express'
-import { CountryCode } from '../../../models/strings.js'
+import { CountryCode } from '../../../models/stringTypes.js'
 import { mockLogger } from '../../__tests__/helpers.js'
 import { NewConnectionController } from '../newConnection.js'
 import {
