@@ -1,7 +1,7 @@
 import { Knex } from 'knex'
 import { z } from 'zod'
 import { bavResponseData, carbonEmbodimentResponseData, subjectIdParser } from '../drpc.js'
-import { countryCodes } from '../strings.js'
+import { countryCodes } from '../stringTypes.js'
 
 export const tablesList = [
   'connection',
