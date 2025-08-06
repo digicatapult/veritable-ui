@@ -92,13 +92,16 @@ export class NewConnectionController extends HTMLController {
     const maxLength = registryCountryCode === 'GB' ? 8 : 7
 
     return this.html(
-      this.newInvite.newInviteFormPage({
-        type: 'message',
-        message: 'Please type in a valid company number to populate information',
-        regex: pattern,
-        minlength: minLength,
-        maxlength: maxLength,
-      })
+      this.newInvite.newInviteFormPage(
+        {
+          type: 'message',
+          message: 'Please type in a valid company number to populate information',
+          regex: pattern,
+          minlength: minLength,
+          maxlength: maxLength,
+        },
+        registryCountryCode
+      )
     )
   }
 
@@ -121,7 +124,7 @@ export class NewConnectionController extends HTMLController {
 
     const companyOrError = await this.lookupCompany(req.log, companyNumber, registryCountryCode)
     if (companyOrError.type === 'error') {
-      req.log.warn('Error occured while looking up the company %j', {
+      req.log.warn('Error occurred while looking up the company %j', {
         companyNumber,
         registryCountryCode,
         err: companyOrError,
@@ -324,14 +327,14 @@ export class NewConnectionController extends HTMLController {
     logger: pino.Logger,
     invite: BASE_64_URL
   ): Promise<
-    | { type: 'success'; inviteUrl: string; company: SharedOrganisationInfo; registryCountryCode: string }
+    | { type: 'success'; inviteUrl: string; company: SharedOrganisationInfo; registryCountryCode: CountryCode }
     | { type: 'error'; message: string }
   > {
     let decodedInvite: Invite
     try {
       decodedInvite = inviteParser.parse(JSON.parse(Buffer.from(invite, 'base64url').toString('utf8')))
     } catch (err) {
-      logger.info('unknown error occured %j', err)
+      logger.info('unknown error occurred %j', err)
       return {
         type: 'error',
         message: 'Invitation is not valid, the invite is not in the correct format',
@@ -543,7 +546,7 @@ export class NewConnectionController extends HTMLController {
     pinHash: string,
     invitationId: UUID,
     agentConnectionId: UUID | null,
-    registryCountryCode: string
+    registryCountryCode: CountryCode
   ): Promise<{ type: 'success'; connectionId: UUID } | { type: 'error'; error: string }> {
     try {
       let connectionId: UUID = ''

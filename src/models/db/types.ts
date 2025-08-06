@@ -1,6 +1,7 @@
 import { Knex } from 'knex'
 import { z } from 'zod'
 import { bavResponseData, carbonEmbodimentResponseData, subjectIdParser } from '../drpc.js'
+import { countryCodes } from '../stringTypes.js'
 
 export const tablesList = [
   'connection',
@@ -18,7 +19,7 @@ const insertConnection = z.object({
   agent_connection_id: z.union([z.uuid(), z.null()]),
   pin_attempt_count: z.number().int().gte(0).lte(255),
   pin_tries_remaining_count: z.number().int().gte(0).lte(255).nullable(),
-  registry_country_code: z.string(),
+  registry_country_code: z.enum(countryCodes),
 })
 
 const insertOrganisationRegistries = z.object({
