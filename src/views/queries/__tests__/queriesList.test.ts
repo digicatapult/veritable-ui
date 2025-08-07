@@ -21,6 +21,7 @@ describe('ConnectionTemplates', () => {
           type: 'total_carbon_embodiment',
           updated_at: sampleDate,
           role: 'requester',
+          expires_at: sampleDate,
         },
       ])
       expect(rendered).to.matchSnapshot()
@@ -35,6 +36,7 @@ describe('ConnectionTemplates', () => {
           type: 'total_carbon_embodiment',
           updated_at: sampleDate,
           role: 'requester',
+          expires_at: sampleDate,
         },
       ])
       expect(rendered).to.matchSnapshot()
@@ -49,6 +51,7 @@ describe('ConnectionTemplates', () => {
           type: 'total_carbon_embodiment',
           updated_at: sampleDate,
           role: 'requester',
+          expires_at: sampleDate,
         },
         {
           id: 'someID2',
@@ -57,6 +60,7 @@ describe('ConnectionTemplates', () => {
           type: 'total_carbon_embodiment',
           updated_at: sampleDate,
           role: 'requester',
+          expires_at: sampleDate,
         },
         {
           id: 'someID3',
@@ -65,6 +69,7 @@ describe('ConnectionTemplates', () => {
           type: 'total_carbon_embodiment',
           updated_at: sampleDate,
           role: 'requester',
+          expires_at: sampleDate,
         },
         {
           id: 'someID4',
@@ -73,6 +78,7 @@ describe('ConnectionTemplates', () => {
           type: 'total_carbon_embodiment',
           updated_at: sampleDate,
           role: 'requester',
+          expires_at: sampleDate,
         },
         {
           id: 'someID5',
@@ -81,6 +87,7 @@ describe('ConnectionTemplates', () => {
           type: 'total_carbon_embodiment',
           updated_at: sampleDate,
           role: 'requester',
+          expires_at: sampleDate,
         },
         {
           id: 'someID6',
@@ -89,6 +96,7 @@ describe('ConnectionTemplates', () => {
           type: 'total_carbon_embodiment',
           updated_at: sampleDate,
           role: 'requester',
+          expires_at: sampleDate,
         },
         {
           id: 'someID7',
@@ -97,6 +105,7 @@ describe('ConnectionTemplates', () => {
           type: 'total_carbon_embodiment',
           updated_at: sampleDate,
           role: 'requester',
+          expires_at: sampleDate,
         },
       ])
       expect(rendered).to.matchSnapshot()

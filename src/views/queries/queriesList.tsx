@@ -8,7 +8,7 @@ type QueryRole = QueryRow['role']
 
 type Query = {
   company_name: string
-} & Pick<QueryRow, 'type' | 'status' | 'updated_at' | 'role' | 'id'>
+} & Pick<QueryRow, 'type' | 'status' | 'updated_at' | 'role' | 'id' | 'expires_at'>
 
 function mapQueryType(query: Query) {
   switch (query.type) {
@@ -100,7 +100,7 @@ export default class QueryListTemplates {
           </div>
           <table class="list-page">
             <thead>
-              {['Company Name', 'Query Type', 'Direction', 'Requested deadline', 'Status', 'Actions'].map(
+              {['Company Name', 'Query Type', 'Direction', 'Request Deadline', 'Status', 'Actions'].map(
                 (name: string) => (
                   <th>
                     <span>{Html.escapeHtml(name || 'unknown')}</span>
@@ -121,7 +121,14 @@ export default class QueryListTemplates {
                     <td>{Html.escapeHtml(mapQueryType(query))}</td>
                     <td>{this.direction(query.role)}</td>
                     <td>
-                      <time>{Html.escapeHtml(new Date(query.updated_at).toISOString())}</time>
+                      <time>
+                        {Html.escapeHtml(
+                          `${query.expires_at.toLocaleDateString()} - ${query.expires_at.toLocaleTimeString(undefined, {
+                            hour: '2-digit',
+                            minute: '2-digit',
+                          })}`
+                        )}
+                      </time>
                     </td>
                     <td>{queryStatusToClass(query.status)}</td>
 
