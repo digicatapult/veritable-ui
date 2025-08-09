@@ -1,11 +1,22 @@
 import { expect } from 'chai'
-import { describe, test } from 'mocha'
+import { afterEach, describe, test } from 'mocha'
+import sinon from 'sinon'
 import { ConnectionRow } from '../../../models/db/types.js'
 import QueryRequestTemplates from '../queryRequest.js'
 
 const connection = { id: 'connection-id', company_name: 'company-name' } as ConnectionRow
 
 describe('QueryRequestTemplates', () => {
+  let clock: sinon.SinonFakeTimers
+
+  beforeEach(() => {
+    clock = sinon.useFakeTimers(new Date('2025-08-06T12:00:00'))
+  })
+
+  afterEach(() => {
+    clock.restore()
+  })
+
   describe('newQueryRequestPage', () => {
     test('companySelect with companies', async () => {
       const templates = new QueryRequestTemplates()

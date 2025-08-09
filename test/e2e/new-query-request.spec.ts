@@ -1,4 +1,5 @@
 import { expect, Page, test } from '@playwright/test'
+import { expiresAt } from '../helpers/query.js'
 import { cleanup, CustomBrowserContext, withLoggedInUser, withRegisteredAccount } from '../helpers/registerLogIn.js'
 import { withConnection } from '../helpers/setupConnection.js'
 
@@ -65,6 +66,7 @@ test.describe('New query request', () => {
       )
       await page.getByPlaceholder('BX20001').fill('E2E-Product-id')
       await page.getByLabel('Quantity').fill('10')
+      await page.getByLabel('Request Deadline').fill(expiresAt)
       await page.getByRole('button', { name: 'Submit Query' }).click({ delay: 2000 })
 
       const successModal = page.locator('#new-query-confirmation-text')
@@ -120,6 +122,7 @@ test.describe('New query request', () => {
         'Request financial details from OFFSHORE RENEWABLE ENERGY CATAPULT'
       )
 
+      await page.getByLabel('Request Deadline').fill(expiresAt)
       await page.getByRole('button', { name: 'Submit Query' }).click({ delay: 2000 })
 
       const successModal = page.locator('#new-query-confirmation-text')
@@ -161,6 +164,7 @@ test.describe('New query request', () => {
         'Request financial details from OFFSHORE RENEWABLE ENERGY CATAPULT'
       )
 
+      await page.getByLabel('Request Deadline').fill(expiresAt)
       await page.getByRole('button', { name: 'Submit Query' }).click({ delay: 2000 })
 
       const successModal = page.locator('#new-query-confirmation-text')
