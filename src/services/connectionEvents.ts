@@ -19,6 +19,7 @@ export default class ConnectionEvents {
 
   public start() {
     this.cloudagent.on('ConnectionStateChanged', this.connectionStateChangedHandler)
+    this.cloudagent.on('ConnectionDidRotated', this.connectionDidRotatedHandler)
   }
 
   private connectionStateChangedHandler: eventData<'ConnectionStateChanged'> = async (event) => {
@@ -60,5 +61,9 @@ export default class ConnectionEvents {
       )
       return
     })
+  }
+
+  private connectionDidRotatedHandler: eventData<'ConnectionDidRotated'> = async (event) => {
+    this.logger.debug(`new DID rotation event %j`, event.payload)
   }
 }
