@@ -70,6 +70,8 @@ export default class ConnectionEvents {
     await this.db.withTransaction(async (db) => {
       // Get the connection id from the OOB invitation id in the event payload
       // TODO: figure out how to catch this event if we are using direct DID-mediated connections
+      // at present the event from credo-ts doesn't emit any of their DIDs if one is invalidated
+      // and the connection record
       const [outOfBandRecord] = await db.get('connection_invite', {
         oob_invite_id: outOfBandId,
       })
