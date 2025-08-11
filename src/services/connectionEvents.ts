@@ -65,24 +65,16 @@ export default class ConnectionEvents {
 
   private connectionDidRotatedHandler: eventData<'ConnectionDidRotated'> = async (event) => {
     this.logger.debug(`new DID rotation event %j`, event.payload)
-    const { outOfBandId, state: connectionState } = event.payload.connectionRecord
+    const { id: cloudAgentConnectionId, state: connectionState } = event.payload.connectionRecord
 
     await this.db.withTransaction(async (db) => {
-      // Get the connection id from the OOB invitation id in the event payload
-      // TODO: figure out how to catch this event if we are using direct DID-mediated connections
-      // at present the event from credo-ts doesn't emit any of their DIDs if one is invalidated
-      // and the connection record
-      const [outOfBandRecord] = await db.get('connection_invite', {
-        oob_invite_id: outOfBandId,
-      })
-      const { connection_id: cloudAgentConnectionId } = outOfBandRecord
       // If this is a disconnection event (ie rotated to 0/null/undefined)
       if (!event.payload.theirDid?.to && connectionState === 'completed') {
         this.logger.warn('Connection %s has disconnected from us', cloudAgentConnectionId)
         // Mark as disconnected in db
-        await this.db.update(
+        await db.update(
           'connection',
-          { id: cloudAgentConnectionId, status: 'verified_both' },
+          { agent_connection_id: cloudAgentConnectionId, status: 'verified_both' },
           { status: 'disconnected' }
         )
       }
