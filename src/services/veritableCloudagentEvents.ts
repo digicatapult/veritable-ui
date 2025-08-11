@@ -27,7 +27,7 @@ const eventParser = z.discriminatedUnion('type', [
     type: z.literal('ConnectionDidRotated'),
     payload: z.object({
       connectionRecord: connectionParser,
-      theirDid: z.object({ to: z.string() }).optional(),
+      theirDid: z.object({ from: z.string(), to: z.string() }).optional(),
     }),
   }),
   z.object({
@@ -138,7 +138,7 @@ export default class VeritableCloudagentEvents extends IndexedAsyncEventEmitter<
             break
           case 'ConnectionDidRotated':
             id = data.payload.connectionRecord.id
-            this.logger.debug('DID rotation event on connection %s', id)
+            this.logger.trace('DID rotation event on connection %s', id)
             break
           case 'CredentialStateChanged':
             id = data.payload.credentialRecord.id
