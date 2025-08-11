@@ -27,8 +27,7 @@ const eventParser = z.discriminatedUnion('type', [
     type: z.literal('ConnectionDidRotated'),
     payload: z.object({
       connectionRecord: connectionParser,
-      // ourDid: z.object({ from: z.string(), to: z.string() }).optional(),
-      theirDid: z.object({ from: z.string(), to: z.string() }).optional(),
+      theirDid: z.object({ to: z.string() }).optional(),
     }),
   }),
   z.object({
@@ -36,7 +35,6 @@ const eventParser = z.discriminatedUnion('type', [
     payload: z.object({ credentialRecord: credentialParser }),
   }),
   z.object({ type: z.literal('BasicMessageStateChanged'), payload: z.object({}) }),
-  // z.object({ type: z.literal('ConnectionDidRotated'), payload: z.object({}) }),
   z.object({ type: z.literal('RevocationNotificationReceived'), payload: z.object({}) }),
   z.object({
     type: z.literal('DrpcRequestStateChanged'),
@@ -140,7 +138,7 @@ export default class VeritableCloudagentEvents extends IndexedAsyncEventEmitter<
             break
           case 'ConnectionDidRotated':
             id = data.payload.connectionRecord.id
-            this.logger.trace('DID rotation event on connection %s', id)
+            this.logger.debug('DID rotation event on connection %s', id)
             break
           case 'CredentialStateChanged':
             id = data.payload.credentialRecord.id
