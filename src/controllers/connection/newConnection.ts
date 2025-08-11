@@ -415,26 +415,47 @@ export class NewConnectionController extends HTMLController {
         message: 'No registry configured for this country',
       }
     }
-    // favour country-spec. reqistry
-    // TODO: search in all configured registries if needed
+    // search in all configured registries if needed, favour country-spec. registry
     const countryRegistry = registry.filter((registry) => registry.third_party === false)
 
-    const companyOrError = await this.lookupCompany(
-      logger,
+    const thirdPartyRegistry = registry.filter((registry) => registry.third_party === true)
+    const orderedRegistry = [...countryRegistry, ...thirdPartyRegistry]
 
-      decodedInvite.goalCode,
-      countryRegistry[0].registry_key,
-      decodedInvite.companyNumber
-    )
+    let companyOrError: { type: 'success'; company: SharedOrganisationInfo } | { type: 'error'; message: string } = {
+      type: 'error',
+      message: 'Company not found',
+    }
+    for (const registry of orderedRegistry) {
+      logger.info('looking up company in registry %s', registry.registry_name)
+      try {
+        companyOrError = await this.lookupCompany(
+          logger,
+
+          decodedInvite.goalCode,
+          registry.registry_key,
+          decodedInvite.companyNumber
+        )
+        if (companyOrError.type === 'success') {
+          return {
+            type: 'success',
+            inviteUrl: decodedInvite.inviteUrl,
+            company: companyOrError.company,
+            registryCountryCode: decodedInvite.goalCode,
+          }
+        }
+      } catch (err) {
+        // let it silently fail if not found in registry
+        logger.info('error looking up company in registry %s %j', registry.registry_name, err)
+      }
+    }
     if (companyOrError.type === 'error') {
-      logger.info('companyOrError')
+      logger.info('companyOrError %j', companyOrError)
       return companyOrError
     }
+    logger.info('companyOrError %s', 'Unexpected state: company lookup succeeded but missing required properties')
     return {
-      type: 'success',
-      inviteUrl: decodedInvite.inviteUrl,
-      company: companyOrError.company,
-      registryCountryCode: decodedInvite.goalCode,
+      type: 'error',
+      message: 'Unexpected state: company lookup succeeded but missing required properties',
     }
   }
 

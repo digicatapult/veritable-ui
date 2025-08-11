@@ -166,8 +166,8 @@ services:
       - SMTP_SECURE=false
       - SOCRATA_API_URL=https://data.ny.gov/resource/p66s-i79p.json
       - COMPANY_PROFILE_API_KEY=${COMPANY_PROFILE_API_KEY}
-      - OPENCORPORATES_API_URL=http://wiremock:8080/companies
-      - OPENCORPORATES_API_KEY=test-key
+      - OPEN_CORPORATES_API_URL=http://wiremock:8080/companies
+      - OPEN_CORPORATES_API_KEY=test-key
       - IPID_API_URL=https://sandbox.ipid.works
       - IPID_API_KEY=${IPID_API_KEY}
       - IPID_CUSTOMER_ID=digicatapult-uat
@@ -269,8 +269,8 @@ services:
       - IPID_API_URL=https://sandbox.ipid.works
       - IPID_API_KEY=${IPID_API_KEY}
       - IPID_CUSTOMER_ID=digicatapult-uat
-      - OPENCORPORATES_API_URL=http://wiremock:8080/companies
-      - OPENCORPORATES_API_KEY=test-key
+      - OPEN_CORPORATES_API_URL=http://wiremock:8080/companies
+      - OPEN_CORPORATES_API_KEY=test-key
 
   postgres-veritable-ui-charlie:
     image: postgres:17.5-alpine

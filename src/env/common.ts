@@ -67,7 +67,7 @@ export const defaultConfig = {
     devDefault: 'GB',
     choices: countryCodes,
   }),
-  OPENCORPORATES_API_URL: envalid.str({
+  OPEN_CORPORATES_API_URL: envalid.str({
     devDefault: 'http://localhost:8443/companies',
     default: 'https://api.opencorporates.com/v0.4/companies',
   }),
