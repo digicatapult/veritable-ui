@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { companyNumberRegex } from '../../strings.js'
+import { companyNumberRegex } from '../../stringTypes.js'
 
 export const openCorporatesSchema = z.object({
   api_version: z.string(),

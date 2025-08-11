@@ -307,7 +307,7 @@ export class NewConnectionController extends HTMLController {
 
     const wrappedInvitation: Invite = {
       companyNumber: this.env.get('INVITATION_FROM_COMPANY_NUMBER'),
-      goalCode: this.env.get('LOCAL_REGISTRY_TO_USE'), // 'search for me in this registry' --> allows the company we're issuing the invite to add the registry if needed
+      goalCode: this.env.get('LOCAL_REGISTRY_COUNTRY_CODE'), // 'search for me in this registry' --> allows the company we're issuing the invite to add the registry if needed
       inviteUrl: invite.invitationUrl,
     }
 

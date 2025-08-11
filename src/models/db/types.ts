@@ -10,7 +10,7 @@ export const tablesList = [
   'settings',
   'organisation_registries',
 ] as const
-const registryTypes = ['company_house', 'open_corporates', 'socrata'] as const
+export const registryTypes = ['company_house', 'open_corporates', 'socrata'] as const
 export const registryKeyParser = z.enum(registryTypes)
 export type RegistryType = (typeof registryTypes)[number]
 

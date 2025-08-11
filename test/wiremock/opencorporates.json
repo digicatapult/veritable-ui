@@ -3,7 +3,7 @@
     {
       "request": {
         "method": "GET",
-        "url": "/companies/gb/00102498"
+        "url": "/companies/gb/00102498?api_token=test-key"
       },
       "response": {
         "status": 200,

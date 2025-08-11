@@ -69,12 +69,13 @@ services:
       - COMPANY_HOUSE_API_URL=https://api.company-information.service.gov.uk
       - DEMO_MODE=true
       - SMTP_SECURE=false
-      - LOCAL_REGISTRY_TO_USE=GB
+      - LOCAL_REGISTRY_TO_USE=company_house
       - SOCRATA_API_URL=https://data.ny.gov/resource/p66s-i79p.json
       - COMPANY_PROFILE_API_KEY=${COMPANY_PROFILE_API_KEY}
       - IPID_API_URL=https://sandbox.ipid.works
       - IPID_API_KEY=${IPID_API_KEY}
       - IPID_CUSTOMER_ID=digicatapult-uat
+      - LOCAL_REGISTRY_COUNTRY_CODE=GB
   postgres-veritable-ui-alice:
     image: postgres:17.5-alpine
     container_name: postgres-veritable-ui-alice
@@ -132,8 +133,8 @@ services:
         npm i -g pino-pretty
         node ./node_modules/.bin/knex migrate:latest
         npm start | pino-pretty -c -S"
-    # env_file:
-    #   - .env
+    env_file:
+      - .env
     environment:
       - NODE_ENV=production
       - LOG_LEVEL=debug
@@ -163,13 +164,15 @@ services:
       - SMTP_USER=username
       - EMAIL_TRANSPORT=SMTP_EMAIL
       - SMTP_SECURE=false
-      - LOCAL_REGISTRY_TO_USE=GB
       - SOCRATA_API_URL=https://data.ny.gov/resource/p66s-i79p.json
       - COMPANY_PROFILE_API_KEY=${COMPANY_PROFILE_API_KEY}
-      - OPENCORPORATES_API_URL=http://wiremock-organisation-registries:8080
+      - OPENCORPORATES_API_URL=http://wiremock:8080/companies
+      - OPENCORPORATES_API_KEY=test-key
       - IPID_API_URL=https://sandbox.ipid.works
       - IPID_API_KEY=${IPID_API_KEY}
       - IPID_CUSTOMER_ID=digicatapult-uat
+      - LOCAL_REGISTRY_TO_USE=company_house
+      - LOCAL_REGISTRY_COUNTRY_CODE=GB
 
   postgres-veritable-ui-bob:
     image: postgres:17.5-alpine
@@ -260,11 +263,14 @@ services:
       - EMAIL_TRANSPORT=SMTP_EMAIL
       - SMTP_SECURE=false
       - COMPANY_PROFILE_API_KEY=${COMPANY_PROFILE_API_KEY}
-      - LOCAL_REGISTRY_TO_USE=GB
+      - LOCAL_REGISTRY_TO_USE=company_house
+      - LOCAL_REGISTRY_COUNTRY_CODE=GB
       - SOCRATA_API_URL=https://data.ny.gov/resource/p66s-i79p.json
       - IPID_API_URL=https://sandbox.ipid.works
       - IPID_API_KEY=${IPID_API_KEY}
       - IPID_CUSTOMER_ID=digicatapult-uat
+      - OPENCORPORATES_API_URL=http://wiremock:8080/companies
+      - OPENCORPORATES_API_KEY=test-key
 
   postgres-veritable-ui-charlie:
     image: postgres:17.5-alpine

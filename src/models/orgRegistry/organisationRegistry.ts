@@ -55,8 +55,8 @@ export default class OrganisationRegistry {
   ) {
     this.localOrganisationProfilePromise = this.getOrganisationProfileByOrganisationNumber({
       companyNumber: env.get('INVITATION_FROM_COMPANY_NUMBER'),
-      registryCountryCode: env.get('LOCAL_REGISTRY_TO_USE'),
-      selectedRegistry: 'company_house',
+      registryCountryCode: env.get('LOCAL_REGISTRY_COUNTRY_CODE'),
+      selectedRegistry: env.get('LOCAL_REGISTRY_TO_USE'),
     }).then((result) => {
       if (result.type === 'notFound') {
         throw new InternalError(`Local organisation profile not found`)
@@ -109,6 +109,7 @@ export default class OrganisationRegistry {
     const response = await fetch(url.toString(), {
       method: 'GET',
     })
+    console.log('response', response)
     if (response.ok) {
       return response.json()
     }
@@ -169,7 +170,7 @@ export default class OrganisationRegistry {
     this.logger.info(`Getting socrata profile for ${companyNumber}`)
     // NOTE: 3211809 <-- comp no to test socrata with
     const endpoint = `${registry.url}?dos_id=${companyNumber}`
-
+    console.log('endpoint', endpoint)
     const companyProfile = await this.makeSocrataRequest(endpoint)
     const parsedCompanyProfile = dosEntitySchema.parse(companyProfile)
     return parsedCompanyProfile.length === 0 || parsedCompanyProfile === null
@@ -183,7 +184,7 @@ export default class OrganisationRegistry {
     registryCountryCode: CountryCode
   ): Promise<BaseProfileSearchResult<OpenCorporatesProfile>> {
     this.logger.info(`Getting open corporates profile for ${companyNumber}`)
-    const endpoint = `${registry.url}/companies/${registryCountryCode.toLowerCase()}/${encodeURIComponent(companyNumber)}`
+    const endpoint = `${registry.url}/${registryCountryCode.toLowerCase()}/${encodeURIComponent(companyNumber)}?api_token=${this.env.get('OPEN_CORPORATES_API_KEY')}`
     console.log('endpoint', endpoint)
     const companyProfile = await this.makeOpenCorporatesRequest(endpoint)
     return companyProfile === null
@@ -260,6 +261,7 @@ export default class OrganisationRegistry {
       return openCorporatesResults
     }
     const company = openCorporatesResults.company.results.company
+    console.log('company', company)
     return {
       company: {
         name: company.name,

@@ -2,6 +2,7 @@ import dotenv from 'dotenv'
 import envalid from 'envalid'
 
 import { container } from 'tsyringe'
+import { registryTypes } from '../models/db/types.js'
 import { countryCodes } from '../models/stringTypes.js'
 import {
   emailTransportValidator,
@@ -57,14 +58,20 @@ export const defaultConfig = {
   DEMO_MODE: envalid.bool({ devDefault: true, default: false }),
   SOCRATA_API_URL: envalid.str({ default: 'https://data.ny.gov/resource/p66s-i79p.json' }),
   LOCAL_REGISTRY_TO_USE: envalid.str({
+    default: 'open_corporates',
+    devDefault: 'open_corporates',
+    choices: registryTypes,
+  }),
+  LOCAL_REGISTRY_COUNTRY_CODE: envalid.str({
     default: 'GB',
     devDefault: 'GB',
     choices: countryCodes,
   }),
   OPENCORPORATES_API_URL: envalid.str({
-    devDefault: 'http://localhost:8443',
+    devDefault: 'http://localhost:8443/companies',
     default: 'https://api.opencorporates.com/v0.4/companies',
   }),
+  OPEN_CORPORATES_API_KEY: envalid.str({ devDefault: 'test-key' }),
   IPID_API_URL: envalid.str({ default: 'https://sandbox.ipid.works' }),
   IPID_API_KEY: envalid.str(),
   IPID_CUSTOMER_ID: envalid.str({ default: 'digicatapult-uat' }),

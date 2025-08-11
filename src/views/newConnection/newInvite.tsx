@@ -84,43 +84,45 @@ export class NewInviteTemplates extends NewConnectionTemplates {
           <option value="US">US</option>
         </select>
 
-        <div id="new-invite-registry-select"></div>
-
-        {/* Wrapper div for HTMX updates */}
         <div id="dynamic-invite-form-content">
           <p>Configured registries for this country </p>
           {props.feedback.type == 'message' && Html.escapeHtml(props.feedback.registryOptionsPerCountry) && (
             <div class="registry-selection">
               {/* Country Registry Button - only show if there are country registries */}
               {props.feedback.registryOptionsPerCountry.countryRegistries.length > 0 && (
-                <label class="registry-option">
+                <div class="registry-option">
                   <input
+                    id="country-registry-radio"
                     type="radio"
                     name="selectedRegistry"
                     value={props.feedback.registryOptionsPerCountry.countryRegistries[0].registry_key}
                     checked={true}
                   />
-
-                  <span class="registry-button">
+                  <label for="country-registry-radio">
                     {Html.escapeHtml(props.feedback.registryOptionsPerCountry.countryRegistries[0].registry_name)}
-                  </span>
-                </label>
+                  </label>
+                </div>
               )}
 
               {/* Third Party Registry Button - only show if there are third party registries */}
               {props.feedback.registryOptionsPerCountry.thirdPartyRegistries.length > 0 && (
-                <label class="registry-option">
+                <div class="registry-option">
                   <input
+                    id="third-party-registry-radio"
                     type="radio"
                     name="selectedRegistry"
                     value={props.feedback.registryOptionsPerCountry.thirdPartyRegistries[0].registry_key}
-                    // checked={props.feedback.registryOptionsPerCountry.countryRegistries.length === 0}
                   />
-
-                  <span class="registry-button">
+                  <label for="third-party-registry-radio">
                     {Html.escapeHtml(props.feedback.registryOptionsPerCountry.thirdPartyRegistries[0].registry_name)}
+                  </label>
+                  <span
+                    id="third-party-registry-info-icon"
+                    title="Third-party registries are external data providers that aggregate company information from multiple sources. We use OpenCorporates, a comprehensive database of company information from around the world."
+                  >
+                    i
                   </span>
-                </label>
+                </div>
               )}
             </div>
           )}
