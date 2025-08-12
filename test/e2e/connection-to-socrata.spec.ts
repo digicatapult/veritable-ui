@@ -20,7 +20,6 @@ test.describe('Connection to Socrata', () => {
   test.beforeEach(async ({ browser }) => {
     context = await browser.newContext()
     page = await context.newPage()
-
     await withRegisteredAccount(page, context, baseUrlAlice)
     await withLoggedInUser(page, context, baseUrlAlice)
   })

@@ -20,7 +20,6 @@ test.describe('Connection from Alice to Bob', () => {
   test.beforeEach(async ({ browser }) => {
     context = await browser.newContext()
     page = await context.newPage()
-
     await withRegisteredAccount(page, context, baseUrlAlice)
     await withLoggedInUser(page, context, baseUrlAlice)
   })
@@ -29,6 +28,7 @@ test.describe('Connection from Alice to Bob', () => {
     await page.close()
     await cleanup([baseUrlAlice, baseUrlBob])
   })
+
   // End-to-end process: Alice registers, invites Bob, Bob submits invite & pin, Alice submits pin
   test('Connection from Alice to Bob', async () => {
     test.setTimeout(100000)
