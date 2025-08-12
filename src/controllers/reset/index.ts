@@ -46,7 +46,6 @@ export class ResetController {
       )
     } catch (err: unknown) {
       logger.warn('error occured while resetting %s', err)
-
       return false
     }
   }
