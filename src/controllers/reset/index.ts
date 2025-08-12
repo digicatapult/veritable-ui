@@ -70,15 +70,22 @@ export class ResetController {
       req.log.info('items to be deleted: %j', { credentials, connections })
 
       const results = await Promise.allSettled([
-        ...credentials.map(({ id }: { id: string }) => {
-          req.log.debug('deleting credential from cloudagent %s: ', id)
-          return this.cloudagent.deleteCredential(id)
-        }),
-        ...connections.map(({ id }: { id: string }) => {
-          req.log.debug('deleting connection from cloudagent %s: ', id)
-          return this.cloudagent.closeConnection(id, 'delete')
-        }),
+        ...(credentials.length > 0
+          ? credentials.map(({ id }: { id: string }) => {
+              req.log.debug('deleting credential from cloudagent %s: ', id)
+              return this.cloudagent.deleteCredential(id)
+            })
+          : []),
+
+        ...(connections.length > 0
+          ? connections.map(({ id }: { id: string }) => {
+              req.log.debug('closing and deleting connection from cloudagent %s: ', id)
+              return this.cloudagent.closeConnection(id, 'delete')
+            })
+          : []),
+
         await this.db.delete('connection', {}),
+        await this.db.delete('connection_invite', {}),
       ])
 
       const rejected = results.filter((r) => r.status === 'rejected').map((r) => (r as PromiseRejectedResult).reason)
