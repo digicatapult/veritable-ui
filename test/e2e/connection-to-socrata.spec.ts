@@ -40,8 +40,8 @@ test.describe('Connection to Socrata', () => {
 
       await page.waitForSelector('text=Invite New Connection')
       await page.click('a.button[href="connection/new"]')
-      await page.selectOption('#new-invite-country-select', 'US')
-      await expect(page.locator('#new-invite-country-select')).toHaveValue('US')
+      await page.selectOption('#new-invite-country-select', 'United States')
+      await expect(page.locator('#new-invite-country-code-display')).toHaveValue('US')
 
       await page.fill('#new-invite-company-number-input', '3211809')
       await page.fill('#new-invite-email-input', 'alice@testmail.com')
@@ -147,6 +147,8 @@ test.describe('Connection to Socrata', () => {
       await page.click('a[href="/connection"]', { delay: 5000 })
       const statusText = await page.textContent('div.list-item-status[data-status="success"]')
       expect(statusText).toContain('Connected')
+      await expect(page.locator('#search-results')).toContainText('3211809')
+      await expect(page.locator('#search-results')).toContainText('US')
     })
   })
 })

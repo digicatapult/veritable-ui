@@ -1,6 +1,6 @@
 import Html from '@kitajs/html'
 import { singleton } from 'tsyringe'
-import { COMPANY_NUMBER, companyNumberRegex, EMAIL } from '../../models/stringTypes.js'
+import { COMPANY_NUMBER, companyNumberRegex, CountryCode, EMAIL } from '../../models/stringTypes.js'
 import { Page } from '../common.js'
 import { FormFeedback, NewConnectionTemplates } from './base.js'
 
@@ -12,7 +12,7 @@ export class NewInviteTemplates extends NewConnectionTemplates {
     super()
   }
 
-  public newInviteFormPage = (feedback: FormFeedback) => {
+  public newInviteFormPage = (feedback: FormFeedback, registryCountryCode?: CountryCode) => {
     return (
       <Page
         title="Veritable - New Connection"
@@ -28,7 +28,7 @@ export class NewInviteTemplates extends NewConnectionTemplates {
           <span>Invite New Connection</span>
         </div>
         <div class="card-body">
-          <this.newInviteForm feedback={feedback} formStage="form" />
+          <this.newInviteForm feedback={feedback} formStage="form" registryCountryCode={registryCountryCode} />
         </div>
       </Page>
     )
@@ -38,7 +38,7 @@ export class NewInviteTemplates extends NewConnectionTemplates {
     formStage: NewInviteFormStage
     companyNumber?: COMPANY_NUMBER
     email?: EMAIL
-    registryCountryCode?: string
+    registryCountryCode?: CountryCode
     feedback: FormFeedback
   }): JSX.Element => {
     switch (props.formStage) {
@@ -54,7 +54,7 @@ export class NewInviteTemplates extends NewConnectionTemplates {
   private newInviteInput = (props: {
     companyNumber?: COMPANY_NUMBER
     email?: EMAIL
-    registryCountryCode?: string
+    registryCountryCode?: CountryCode
     feedback: FormFeedback
   }): JSX.Element => {
     return (
@@ -68,21 +68,45 @@ export class NewInviteTemplates extends NewConnectionTemplates {
           { type: 'submit', value: 'continue', text: 'Continue' },
         ]}
       >
-        <select
-          id="new-invite-country-select"
-          name="registryCountryCode"
+        <div id="new-invite-country-with-code">
+          <select
+            id="new-invite-country-select"
+            name="registryCountryCode"
+            required
+            value={props.registryCountryCode}
+            hx-get="/connection/new"
+            hx-trigger="change"
+            hx-target="#dynamic-invite-form-content"
+            hx-select="#dynamic-invite-form-content"
+            hx-swap="outerHTML"
+            hx-include="this"
+            onchange="document.getElementById('new-invite-country-code-display').value = this.value;"
+          >
+            <option value="GB">United Kingdom</option>
+            <option value="US">United States</option>
+          </select>
+          <input id="new-invite-country-code-display" type="text" readonly value={props.registryCountryCode} />
+        </div>
+        {/* <input
+          id="new-invite-company-number-input"
+          name="companyNumber"
+          placeholder="Company Number"
           required
-          value={props.registryCountryCode}
-          hx-get="/connection/new"
-          hx-trigger="change"
-          hx-target="#dynamic-invite-form-content"
-          hx-select="#dynamic-invite-form-content"
+          hx-get="/connection/new/verify-company"
+          hx-trigger="keyup changed delay:200ms, change, load"
+          hx-target="#new-connection-feedback"
+          hx-select="#new-connection-feedback"
           hx-swap="outerHTML"
-          hx-include="this"
-        >
-          <option value="GB">United Kingdom</option>
-          <option value="US">US</option>
-        </select>
+          hx-include="#new-invite-country-select"
+          pattern={
+            props.feedback.type === 'message' && props.feedback.regex ? props.feedback.regex : companyNumberRegex.source
+          }
+          minlength={props.feedback.type === 'message' && props.feedback.minlength ? props.feedback.minlength : 6}
+          maxlength={props.feedback.type === 'message' && props.feedback.maxlength ? props.feedback.maxlength : 10}
+          oninput="this.reportValidity()"
+          value={props.companyNumber}
+          type="text"
+        ></input> */}
 
         <div id="dynamic-invite-form-content">
           <p>Configured registries for this country </p>

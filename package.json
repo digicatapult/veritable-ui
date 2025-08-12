@@ -1,19 +1,19 @@
 {
   "name": "veritable-ui",
-  "version": "0.19.0",
+  "version": "0.19.6",
   "description": "UI for Veritable",
   "main": "src/index.ts",
   "type": "module",
   "author": "Digital Catapult",
   "license": "Apache-2.0",
   "engines": {
-    "node": "^22.0.0",
-    "npm": "^10.0.0"
+    "node": ">=22.0.0",
+    "npm": ">=11.0.0"
   },
   "scripts": {
     "depcheck": "depcheck",
-    "test:unit": "NODE_ENV=test ./node_modules/.bin/mocha --config ./test/mocharc.json --file ./test/init-unit.ts ./src/**/*.test.ts",
-    "test:integration": "NODE_ENV=test ./node_modules/.bin/mocha --config ./test/mocharc.json --file ./test/init.ts ./test/**/*.test.ts",
+    "test:unit": "NODE_OPTIONS='--no-experimental-strip-types' NODE_ENV=test ./node_modules/.bin/mocha --config ./test/mocharc.json --file ./test/init-unit.ts ./src/**/*.test.ts",
+    "test:integration": "NODE_OPTIONS='--no-experimental-strip-types' NODE_ENV=test ./node_modules/.bin/mocha --config ./test/mocharc.json --file ./test/init.ts ./test/**/*.test.ts",
     "test:e2e": "playwright test --trace on --max-failures=1",
     "test:playwright": "playwright test --ui",
     "check": "npm run tsoa:build && tsc --noEmit",
@@ -33,7 +33,7 @@
     "xss-scan": "xss-scan"
   },
   "dependencies": {
-    "@digicatapult/tsoa-oauth-express": "^2.0.16",
+    "@digicatapult/tsoa-oauth-express": "^2.0.17",
     "@kitajs/html": "^4.2.9",
     "@kitajs/ts-html-plugin": "^4.1.1",
     "@tsoa/runtime": "^6.6.0",
@@ -56,12 +56,12 @@
     "tsoa": "^6.6.0",
     "tsyringe": "^4.10.0",
     "ws": "^8.18.3",
-    "zod": "^4.0.14"
+    "zod": "^4.0.15"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.3.1",
     "@eslint/js": "^9.32.0",
-    "@playwright/test": "^1.54.1",
+    "@playwright/test": "^1.54.2",
     "@swc-node/register": "^1.10.10",
     "@swc/cli": "^0.7.8",
     "@swc/core": "^1.13.3",
@@ -78,8 +78,8 @@
     "@types/supertest": "^6.0.3",
     "@types/swagger-ui-express": "^4.1.8",
     "@types/ws": "^8.18.1",
-    "@typescript-eslint/eslint-plugin": "^8.38.0",
-    "@typescript-eslint/parser": "^8.38.0",
+    "@typescript-eslint/eslint-plugin": "^8.39.0",
+    "@typescript-eslint/parser": "^8.39.0",
     "chai": "^5.2.1",
     "chai-as-promised": "8.0.1",
     "chai-jest-snapshot": "^2.0.0",
@@ -87,19 +87,19 @@
     "depcheck": "^1.4.7",
     "eslint": "^9.32.0",
     "eslint-config-prettier": "^10.1.8",
-    "eslint-plugin-prettier": "^5.5.3",
+    "eslint-plugin-prettier": "^5.5.4",
     "globals": "^16.3.0",
     "mocha": "^11.7.1",
     "pino-pretty": "^13.1.1",
-    "playwright": "^1.54.1",
+    "playwright": "^1.54.2",
     "playwright-ctrf-json-reporter": "^0.0.22",
     "prettier": "^3.6.2",
     "prettier-plugin-organize-imports": "^4.2.0",
     "sinon": "^21.0.0",
     "supertest": "^7.1.4",
-    "testcontainers": "^11.4.0",
-    "typescript": "^5.8.3",
-    "undici": "^7.12.0",
-    "yaml": "^2.8.0"
+    "testcontainers": "^11.5.1",
+    "typescript": "^5.9.2",
+    "undici": "^7.13.0",
+    "yaml": "^2.8.1"
   }
 }

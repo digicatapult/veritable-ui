@@ -163,7 +163,7 @@ export class NewConnectionController extends HTMLController {
 
     const companyOrError = await this.lookupCompany(req.log, registryCountryCode, selectedRegistry, companyNumber)
     if (companyOrError.type === 'error') {
-      req.log.warn('Error occured while looking up the company %j', {
+      req.log.warn('Error occurred while looking up the company %j', {
         companyNumber,
         registryCountryCode,
         selectedRegistry,
@@ -390,7 +390,7 @@ export class NewConnectionController extends HTMLController {
     try {
       decodedInvite = inviteParser.parse(JSON.parse(Buffer.from(invite, 'base64url').toString('utf8')))
     } catch (err) {
-      logger.info('unknown error occured %j', err)
+      logger.info('unknown error occurred %j', err)
       return {
         type: 'error',
         message: 'Invitation is not valid, the invite is not in the correct format',
@@ -647,7 +647,7 @@ export class NewConnectionController extends HTMLController {
     agentConnectionId: UUID | null,
     registryCountryCode: CountryCode,
     registryCode: RegistryType
-  ): Promise<{ type: 'success'; connectionId: string } | { type: 'error'; error: string }> {
+  ): Promise<{ type: 'success'; connectionId: UUID } | { type: 'error'; error: string }> {
     try {
       let connectionId: UUID = ''
       await this.db.withTransaction(async (db) => {

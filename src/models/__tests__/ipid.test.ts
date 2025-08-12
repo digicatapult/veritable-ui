@@ -1,6 +1,7 @@
 import { expect } from 'chai'
 import { describe, it } from 'mocha'
 import { Logger, pino } from 'pino'
+import sinon from 'sinon'
 import IpidBav from '../ipid.js'
 import { CountryCode } from '../stringTypes.js'
 import { badValidateResponse, invalidCountryCode, validCountryCode } from './fixtures/ipidFixtures.js'
@@ -43,8 +44,8 @@ describe('iPiD API', () => {
 
   describe('external iPid API down', () => {
     it('set description to unexpected error', async () => {
-      // no mock to simulate API down
       const ipid = new IpidBav()
+      sinon.stub(ipid, 'wrappedFetch').throws(new Error())
       const result = await ipid.validate(mockLogger, {
         countryCode: validCountryCode,
         name: 'Company Name',
