@@ -3,6 +3,7 @@ import { inject, injectable, singleton } from 'tsyringe'
 import { Logger, type ILogger } from '../logger.js'
 import Database from '../models/db/index.js'
 import VeritableCloudagentEvents from './veritableCloudagentEvents.js'
+import VeritableCloudagent from '../models/veritableCloudagent/index.js'
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 declare const CloudagentOn: VeritableCloudagentEvents['on']
@@ -13,13 +14,14 @@ type eventData<T> = Parameters<typeof CloudagentOn<T>>[1]
 export default class ConnectionEvents {
   constructor(
     private db: Database,
-    private cloudagent: VeritableCloudagentEvents,
+    private cloudagent: VeritableCloudagent,
+    private cloudagentEvents: VeritableCloudagentEvents,
     @inject(Logger) protected logger: ILogger
   ) {}
 
   public start() {
-    this.cloudagent.on('ConnectionStateChanged', this.connectionStateChangedHandler)
-    this.cloudagent.on('ConnectionDidRotated', this.connectionDidRotatedHandler)
+    this.cloudagentEvents.on('ConnectionStateChanged', this.connectionStateChangedHandler)
+    this.cloudagentEvents.on('ConnectionDidRotated', this.connectionDidRotatedHandler)
   }
 
   private connectionStateChangedHandler: eventData<'ConnectionStateChanged'> = async (event) => {
@@ -34,11 +36,13 @@ export default class ConnectionEvents {
       const [inviteRecord] = await db.get('connection_invite', { oob_invite_id: outOfBandId })
       if (!inviteRecord) {
         this.logger.warn(
-          'Connection event on unknown connection %s with state %s',
+          'Connection event on connection %s with state %s has no invitation record',
           cloudAgentConnectionId,
           connectionState
         )
-        throw new Error('Connection event on unknown connection')
+        this.cloudagent.closeConnection(cloudAgentConnectionId)
+        this.logger.warn('Hangup message automatically sent to connection %s', cloudAgentConnectionId)
+        return
       }
 
       const [connection] = await db.get('connection', { id: inviteRecord.connection_id })
