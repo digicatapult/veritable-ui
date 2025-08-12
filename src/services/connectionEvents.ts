@@ -43,6 +43,7 @@ export default class ConnectionEvents {
         this.cloudagent.closeConnection(cloudAgentConnectionId)
         this.logger.warn('Hangup message automatically sent to connection %s', cloudAgentConnectionId)
         return
+        // TODO: tests
       }
 
       const [connection] = await db.get('connection', { id: inviteRecord.connection_id })
