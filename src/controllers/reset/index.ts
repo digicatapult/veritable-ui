@@ -76,7 +76,7 @@ export class ResetController {
         }),
         ...connections.map(({ id }: { id: string }) => {
           req.log.debug('deleting connection from cloudagent %s: ', id)
-          return this.cloudagent.deleteConnection(id)
+          return this.cloudagent.closeConnection(id, 'delete')
         }),
         await this.db.delete('connection', {}),
       ])

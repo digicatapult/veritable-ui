@@ -47,7 +47,7 @@ const dbMock = {
 }
 
 const cloudagentMock = {
-  deleteConnection: sinon.stub(),
+  closeConnection: sinon.stub(),
   deleteCredential: sinon.stub(),
   getCredentials: sinon.stub().callsFake(() => Promise.resolve(fixtures['agent_credentials'])),
   getConnections: sinon.stub().resolves(fixtures['agent_connections']),
@@ -110,7 +110,7 @@ describe('ResetController', () => {
       })
 
       it('doest not call any cloudagents methods too', () => {
-        expect(cloudagentMock.deleteConnection.callCount).to.be.equal(0)
+        expect(cloudagentMock.closeConnection.callCount).to.be.equal(0)
         expect(cloudagentMock.deleteCredential.callCount).to.be.equal(0)
       })
     })
@@ -163,11 +163,11 @@ describe('ResetController', () => {
         expect(dbMock.delete.firstCall.args).to.deep.equal(['connection', {}])
         expect(cloudagentMock.deleteCredential.firstCall.args).to.deep.equal(['some-agent-credential-id-1'])
         expect(cloudagentMock.deleteCredential.secondCall.args).to.deep.equal(['some-agent-credential-id-2'])
-        expect(cloudagentMock.deleteConnection.firstCall.args).to.deep.equal(['some-agent-id-1'])
-        expect(cloudagentMock.deleteConnection.secondCall.args).to.deep.equal(['some-agent-id-2'])
-        expect(cloudagentMock.deleteConnection.thirdCall.args).to.deep.equal(['some-agent-id-3'])
+        expect(cloudagentMock.closeConnection.firstCall.args).to.deep.equal(['some-agent-id-1', 'delete'])
+        expect(cloudagentMock.closeConnection.secondCall.args).to.deep.equal(['some-agent-id-2', 'delete'])
+        expect(cloudagentMock.closeConnection.thirdCall.args).to.deep.equal(['some-agent-id-3', 'delete'])
         expect(cloudagentMock.deleteCredential.callCount).to.be.equal(2)
-        expect(cloudagentMock.deleteConnection.callCount).to.be.equal(3)
+        expect(cloudagentMock.closeConnection.callCount).to.be.equal(3)
       })
 
       it('confirms that records have been removed', () => {
