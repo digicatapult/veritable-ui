@@ -87,7 +87,7 @@ export class ResetController {
         throw new Error(`${rejected.length} deletions were rejected with Error: ${rejected[0]}`)
       }
 
-      req.log.debug('item have been delete and running check to confirm')
+      req.log.debug('item have been deleted and running check to confirm')
       // confirm reset by calling isReset() method
       if (!(await this.isReset(req.log))) {
         req.log.warn('reset isReset() check has failed')
