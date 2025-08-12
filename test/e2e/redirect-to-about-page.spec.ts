@@ -12,6 +12,7 @@ test.describe('Redirect to about page', () => {
     page = await context.newPage()
     await withRegisteredAccount(page, context, baseUrlAlice)
   })
+
   test.beforeEach(async () => {
     await cleanup([baseUrlAlice])
     page = await context.newPage()

@@ -16,16 +16,17 @@ test.describe('Resetting app', () => {
     await withRegisteredAccount(page, context, baseUrlAlice)
   })
 
-  test.afterEach(async () => {
-    await page.close()
-    await cleanup([baseUrlAlice, baseUrlBob])
-  })
   test.beforeEach(async () => {
     await cleanup([baseUrlAlice, baseUrlBob])
     page = await context.newPage()
     await withLoggedInUser(page, context, baseUrlAlice)
 
     await withConnection(baseUrlAlice, baseUrlBob)
+  })
+
+  test.afterEach(async () => {
+    await page.close()
+    await cleanup([baseUrlAlice, baseUrlBob])
   })
 
   test('Reset all on Alice', async () => {
