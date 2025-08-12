@@ -20,7 +20,6 @@ test.describe('Resetting app', () => {
     await cleanup([baseUrlAlice, baseUrlBob])
     page = await context.newPage()
     await withLoggedInUser(page, context, baseUrlAlice)
-
     await withConnection(baseUrlAlice, baseUrlBob)
   })
 
