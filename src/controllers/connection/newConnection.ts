@@ -10,6 +10,7 @@ import { Env } from '../../env/index.js'
 import { NotFoundError } from '../../errors.js'
 import { Logger, type ILogger } from '../../logger.js'
 import Database from '../../models/db/index.js'
+import { type RegistryType } from '../../models/db/types.js'
 import EmailService from '../../models/emailService/index.js'
 import OrganisationRegistry, { SharedOrganisationInfo } from '../../models/orgRegistry/organisationRegistry.js'
 import {
@@ -44,6 +45,12 @@ const inviteParser = z.object({
   inviteUrl: z.url(),
 })
 type Invite = z.infer<typeof inviteParser>
+export type CountryRegistries = {
+  country_code: string
+  registry_name: string
+  registry_key: string
+  third_party: boolean
+}
 
 @injectable()
 @Security('oauth2')
@@ -75,12 +82,45 @@ export class NewConnectionController extends HTMLController {
     @Query() fromInvite: boolean = false,
     @Query() registryCountryCode: CountryCode = 'GB'
   ): Promise<HTML> {
+    // send back updated registry options after we have taken the country code
+
+    // get available registries for a country and send back
+    const availableRegistries = await this.db.get('organisation_registries', {
+      country_code: registryCountryCode,
+    })
+
+    // Filter registries into two arrays based on third_party field
+    const thirdPartyRegistries = availableRegistries.filter((registry) => registry.third_party === true)
+    const countryRegistries = availableRegistries.filter((registry) => registry.third_party === false)
+
+    // Map to only include required fields this should not access the API_KEY
+    const filteredThirdPartyRegistries: CountryRegistries[] = thirdPartyRegistries.map((registry) => ({
+      country_code: registry.country_code,
+      registry_name: registry.registry_name,
+      registry_key: registry.registry_key,
+      third_party: registry.third_party,
+    }))
+
+    const filteredCountryRegistries: CountryRegistries[] = countryRegistries.map((registry) => ({
+      country_code: registry.country_code,
+      registry_name: registry.registry_name,
+      registry_key: registry.registry_key,
+      third_party: registry.third_party,
+    }))
+    const registryOptionsPerCountry: {
+      thirdPartyRegistries: CountryRegistries[]
+      countryRegistries: CountryRegistries[]
+    } = {
+      thirdPartyRegistries: filteredThirdPartyRegistries,
+      countryRegistries: filteredCountryRegistries,
+    }
     if (fromInvite) {
       req.log.trace('rendering new connection receiver form')
       return this.html(
         this.fromInvite.fromInviteFormPage({
           type: 'message',
           message: 'Please paste the invite text from the invitation email',
+          registryOptionsPerCountry,
         })
       )
     }
@@ -92,16 +132,14 @@ export class NewConnectionController extends HTMLController {
     const maxLength = registryCountryCode === 'GB' ? 8 : 7
 
     return this.html(
-      this.newInvite.newInviteFormPage(
-        {
-          type: 'message',
-          message: 'Please type in a valid company number to populate information',
-          regex: pattern,
-          minlength: minLength,
-          maxlength: maxLength,
-        },
-        registryCountryCode
-      )
+      this.newInvite.newInviteFormPage({
+        type: 'message',
+        message: 'Please type in a valid company number to populate information',
+        regex: pattern,
+        minlength: minLength,
+        maxlength: maxLength,
+        registryOptionsPerCountry,
+      })
     )
   }
 
@@ -112,8 +150,9 @@ export class NewConnectionController extends HTMLController {
   @Get('/verify-company')
   public async verifyCompanyForm(
     @Request() req: express.Request,
-    @Query() companyNumber: COMPANY_NUMBER | SOCRATA_NUMBER,
-    @Query() registryCountryCode: CountryCode
+    @Query() registryCountryCode: CountryCode,
+    @Query() selectedRegistry: RegistryType,
+    @Query() companyNumber: COMPANY_NUMBER | SOCRATA_NUMBER
   ): Promise<HTML> {
     req.log.debug('verifying %s company number for country %s', companyNumber, registryCountryCode)
 
@@ -122,11 +161,12 @@ export class NewConnectionController extends HTMLController {
       return this.newConnectionForm(req)
     }
 
-    const companyOrError = await this.lookupCompany(req.log, companyNumber, registryCountryCode)
+    const companyOrError = await this.lookupCompany(req.log, registryCountryCode, selectedRegistry, companyNumber)
     if (companyOrError.type === 'error') {
       req.log.warn('Error occurred while looking up the company %j', {
         companyNumber,
         registryCountryCode,
+        selectedRegistry,
         err: companyOrError,
       })
       return this.newInviteErrorHtml(companyOrError.message, undefined, companyNumber)
@@ -193,6 +233,7 @@ export class NewConnectionController extends HTMLController {
       email: EMAIL
       action: 'back' | 'continue' | 'submit'
       registryCountryCode: CountryCode
+      selectedRegistry: RegistryType
     }
   ): Promise<HTML> {
     /*
@@ -202,9 +243,16 @@ export class NewConnectionController extends HTMLController {
     4. Create new connection record if one doesn't exist
     5. Send a new invitation
     */
+    console.log('submitNewInvite', body.action)
 
     // lookup company by number
-    const companyOrError = await this.lookupCompany(req.log, body.companyNumber, body.registryCountryCode)
+    const companyOrError = await this.lookupCompany(
+      req.log,
+
+      body.registryCountryCode,
+      body.selectedRegistry,
+      body.companyNumber
+    )
     if (companyOrError.type === 'error') {
       req.log.warn('error creating invitation to company %j', body)
       return this.newInviteErrorHtml(companyOrError.message, body.email, body.companyNumber)
@@ -244,7 +292,14 @@ export class NewConnectionController extends HTMLController {
     const dbResult =
       allowInvitation.state === 'update_existing'
         ? await this.updateExistingConnection(req.log, company, pinHash, invite.outOfBandRecord.id)
-        : await this.insertNewConnection(company, pinHash, invite.outOfBandRecord.id, null, body.registryCountryCode)
+        : await this.insertNewConnection(
+            company,
+            pinHash,
+            invite.outOfBandRecord.id,
+            null,
+            body.registryCountryCode,
+            body.selectedRegistry
+          )
     if (dbResult.type === 'error') {
       req.log.warn(`unable to apply '${allowInvitation.state}' %j`, dbResult)
       return this.newInviteErrorHtml(dbResult.error, body.email, company.number)
@@ -252,7 +307,7 @@ export class NewConnectionController extends HTMLController {
 
     const wrappedInvitation: Invite = {
       companyNumber: this.env.get('INVITATION_FROM_COMPANY_NUMBER'),
-      goalCode: this.env.get('LOCAL_REGISTRY_TO_USE'), // 'search for me in this registry' --> allows the company we're issuing the invite to add the registry if needed
+      goalCode: this.env.get('LOCAL_REGISTRY_COUNTRY_CODE'), // 'search for me in this registry' --> allows the company we're issuing the invite to add the registry if needed
       inviteUrl: invite.invitationUrl,
     }
 
@@ -309,7 +364,8 @@ export class NewConnectionController extends HTMLController {
       pinHash,
       invite.outOfBandRecord.id,
       invite.connectionRecord.id,
-      inviteOrError.registryCountryCode
+      inviteOrError.registryCountryCode,
+      inviteOrError.company.selectedRegistry // TODO: should we be verifying this or do they send it over?
     )
     if (dbResult.type === 'error') {
       req.log.warn('unable to insert a new connection %j', dbResult)
@@ -348,29 +404,72 @@ export class NewConnectionController extends HTMLController {
         message: 'Invitation is not valid',
       }
     }
+    // check if we have a registry configured for this country
+    const registry = await this.db.get('organisation_registries', {
+      country_code: decodedInvite.goalCode,
+    })
+    if (registry.length === 0) {
+      logger.info('no registry configured for this country %s', decodedInvite.goalCode)
+      return {
+        type: 'error',
+        message: 'No registry configured for this country',
+      }
+    }
+    // search in all configured registries if needed, favour country-spec. registry
+    const countryRegistry = registry.filter((registry) => registry.third_party === false)
 
-    const companyOrError = await this.lookupCompany(logger, decodedInvite.companyNumber, decodedInvite.goalCode)
+    const thirdPartyRegistry = registry.filter((registry) => registry.third_party === true)
+    const orderedRegistry = [...countryRegistry, ...thirdPartyRegistry]
+
+    let companyOrError: { type: 'success'; company: SharedOrganisationInfo } | { type: 'error'; message: string } = {
+      type: 'error',
+      message: 'Company not found',
+    }
+    for (const registry of orderedRegistry) {
+      logger.info('looking up company in registry %s', registry.registry_name)
+      try {
+        companyOrError = await this.lookupCompany(
+          logger,
+
+          decodedInvite.goalCode,
+          registry.registry_key,
+          decodedInvite.companyNumber
+        )
+        if (companyOrError.type === 'success') {
+          return {
+            type: 'success',
+            inviteUrl: decodedInvite.inviteUrl,
+            company: companyOrError.company,
+            registryCountryCode: decodedInvite.goalCode,
+          }
+        }
+      } catch (err) {
+        // let it silently fail if not found in registry
+        logger.info('error looking up company in registry %s %j', registry.registry_name, err)
+      }
+    }
     if (companyOrError.type === 'error') {
-      logger.info('companyOrError')
+      logger.info('companyOrError %j', companyOrError)
       return companyOrError
     }
+    logger.info('companyOrError %s', 'Unexpected state: company lookup succeeded but missing required properties')
     return {
-      type: 'success',
-      inviteUrl: decodedInvite.inviteUrl,
-      company: companyOrError.company,
-      registryCountryCode: decodedInvite.goalCode,
+      type: 'error',
+      message: 'Unexpected state: company lookup succeeded but missing required properties',
     }
   }
 
   private async lookupCompany(
     logger: pino.Logger,
-    companyNumber: COMPANY_NUMBER | SOCRATA_NUMBER,
-    registryCountryCode: CountryCode
+    registryCountryCode: CountryCode,
+    selectedRegistry: RegistryType,
+    companyNumber: COMPANY_NUMBER | SOCRATA_NUMBER
   ): Promise<{ type: 'success'; company: SharedOrganisationInfo } | { type: 'error'; message: string }> {
-    const companySearch = await this.organisationRegistry.getOrganisationProfileByOrganisationNumber(
+    const companySearch = await this.organisationRegistry.getOrganisationProfileByOrganisationNumber({
       companyNumber,
-      registryCountryCode
-    )
+      registryCountryCode,
+      selectedRegistry,
+    })
     if (companySearch.type === 'notFound') {
       logger.info('%s company not found', companySearch)
       return {
@@ -546,7 +645,8 @@ export class NewConnectionController extends HTMLController {
     pinHash: string,
     invitationId: UUID,
     agentConnectionId: UUID | null,
-    registryCountryCode: CountryCode
+    registryCountryCode: CountryCode,
+    registryCode: RegistryType
   ): Promise<{ type: 'success'; connectionId: UUID } | { type: 'error'; error: string }> {
     try {
       let connectionId: UUID = ''
@@ -559,6 +659,7 @@ export class NewConnectionController extends HTMLController {
           pin_attempt_count: 0,
           pin_tries_remaining_count: null,
           registry_country_code: registryCountryCode,
+          registry_code: registryCode,
         })
 
         await db.insert('connection_invite', {
