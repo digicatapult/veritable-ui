@@ -1,7 +1,7 @@
 import { z } from 'zod'
 
 import { type PartialEnv } from '../../env/index.js'
-import { InternalError, NotFoundError } from '../../errors.js'
+import { BadRequestError, InternalError, NotFoundError } from '../../errors.js'
 import { type ILogger } from '../../logger.js'
 import { MapDiscriminatedUnion } from '../../utils/types.js'
 import { DrpcQueryRequest, DrpcQueryResponse } from '../drpc.js'
@@ -446,6 +446,9 @@ export default class VeritableCloudagentInt<Config extends CloudagentConfig = De
     })
 
     if (!response.ok) {
+      if (response.status === 400) {
+        throw new BadRequestError(`${path}`)
+      }
       if (response.status === 404) {
         throw new NotFoundError(`${path}`)
       }
