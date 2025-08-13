@@ -449,16 +449,16 @@ export default class VeritableCloudagentInt<Config extends CloudagentConfig = De
       if (response.status === 404) {
         throw new NotFoundError(`${path}`)
       }
-      throw new InternalError(`Unexpected error calling GET ${path}: ${response.statusText}`)
+      throw new InternalError(`Unexpected error calling ${method} ${path}: ${response.statusText}`)
     }
 
     try {
       return await parse(response)
     } catch (err) {
       if (err instanceof Error) {
-        throw new InternalError(`Error parsing response from calling GET ${path}: ${err.name} - ${err.message}`)
+        throw new InternalError(`Error parsing response from calling ${method} ${path}: ${err.name} - ${err.message}`)
       }
-      throw new InternalError(`Unknown error parsing response to calling GET ${path}`)
+      throw new InternalError(`Unknown error parsing response to calling ${method} ${path}`)
     }
   }
 
