@@ -163,10 +163,10 @@ describe('ResetController', () => {
         expect(dbMock.delete.firstCall.args).to.deep.equal(['connection', {}])
         expect(cloudagentMock.deleteCredential.firstCall.args).to.deep.equal(['some-agent-credential-id-1'])
         expect(cloudagentMock.deleteCredential.secondCall.args).to.deep.equal(['some-agent-credential-id-2'])
+        expect(cloudagentMock.deleteCredential.callCount).to.be.equal(2)
         expect(cloudagentMock.closeConnection.firstCall.args).to.deep.equal(['some-agent-id-1', 'delete'])
         expect(cloudagentMock.closeConnection.secondCall.args).to.deep.equal(['some-agent-id-2', 'delete'])
         expect(cloudagentMock.closeConnection.thirdCall.args).to.deep.equal(['some-agent-id-3', 'delete'])
-        expect(cloudagentMock.deleteCredential.callCount).to.be.equal(2)
         expect(cloudagentMock.closeConnection.callCount).to.be.equal(3)
       })
 
