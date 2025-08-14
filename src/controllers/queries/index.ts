@@ -69,7 +69,7 @@ export class QueriesController extends HTMLController {
     }
     const connections = await this.db.get('connection', query, [['updated_at', 'desc']])
 
-    const query_subset = await this.db.get('query', {}, [['updated_at', 'desc']])
+    const query_subset = await this.db.get('query', {}, [['expires_at', 'asc']])
 
     const queries = combineData(query_subset, connections)
     req.log.info('found and combined queries %j', queries)
@@ -136,10 +136,10 @@ export class QueriesController extends HTMLController {
       connectionId: UUID
       productId: string
       quantity: number
+      expiresAt: Date
     }
   ) {
     const connection = await this.verifyConnection(req.log, body.connectionId)
-    const expiresTime = new Date(new Date().getTime() + 7 * 24 * 60 * 60 * 1000) // add a week to now
 
     return await this.handleQueryRequest(
       req.log,
@@ -157,7 +157,7 @@ export class QueriesController extends HTMLController {
           },
         },
       },
-      expiresTime
+      body.expiresAt
     )
   }
 
@@ -171,10 +171,10 @@ export class QueriesController extends HTMLController {
     @Body()
     body: {
       connectionId: UUID
+      expiresAt: Date
     }
   ) {
     const connection = await this.verifyConnection(req.log, body.connectionId)
-    const expiresTime = new Date(new Date().getTime() + 7 * 24 * 60 * 60 * 1000) // add a week to now
 
     return await this.handleQueryRequest(
       req.log,
@@ -188,7 +188,7 @@ export class QueriesController extends HTMLController {
           },
         },
       },
-      expiresTime
+      body.expiresAt
     )
   }
 
@@ -688,6 +688,7 @@ function combineData(query_subset: QueryRow[], connections: ConnectionRow[]) {
         updated_at: query.updated_at,
         status: query.status,
         role: query.role,
+        expires_at: query.expires_at,
       }
     })
     .filter((query) => query !== undefined) // Filter out queries without a matching connection

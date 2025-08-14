@@ -207,6 +207,19 @@ export default class QueryRequestTemplates {
                 ></input>
                 <p class="additional-input-label">Quantity of product</p>
               </div>
+              <div class="input-container">
+                <label for="datetime-input" class="input-label">
+                  Request Deadline
+                </label>
+                <input
+                  id="datetime-input"
+                  class="input-with-label"
+                  type="datetime-local"
+                  name="expiresAt"
+                  required
+                  min={new Date().toISOString().slice(0, -8)}
+                />
+              </div>
               <FormButton text="Submit Query" style="filled" />
             </form>
           </div>
@@ -226,6 +239,19 @@ export default class QueryRequestTemplates {
           <p>Request financial details from {Html.escapeHtml(props.connection.company_name)}</p>
           <form id="bav" hx-post="/queries/bav" hx-select="main > *" hx-target="main" hx-swap="innerHTML">
             <input type="hidden" name="connectionId" value={props.connection.id} />
+            <div class="input-container">
+              <label for="datetime-input" class="input-label">
+                Request Deadline
+              </label>
+              <input
+                id="datetime-input"
+                class="input-with-label"
+                type="datetime-local"
+                name="expiresAt"
+                required
+                min={new Date().toISOString().slice(0, -8)}
+              />
+            </div>
             <FormButton text="Submit Query" style="filled" />
           </form>
         </div>
