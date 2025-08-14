@@ -6,7 +6,7 @@ import { CountryCode } from '../../src/models/stringTypes.js'
 import { cleanupCloudagent, cleanupDatabase } from '../helpers/cleanup.js'
 import { setupTwoPartyContext, TwoPartyContext } from '../helpers/connection.js'
 import { alice, socrataCompany } from '../helpers/fixtures.js'
-import { cleanupRegistries, insertCompanyHouseRegistry, insertSocrataRegistry } from '../helpers/registries.js'
+import { insertCompanyHouseRegistry, insertSocrataRegistry } from '../helpers/registries.js'
 import { post } from '../helpers/routeHelper.js'
 import { delay } from '../helpers/util.js'
 const ukRegistryCountryCode = 'GB' as CountryCode
@@ -20,7 +20,6 @@ describe('NewConnectionController', () => {
 
   beforeEach(async () => {
     await setupTwoPartyContext(context)
-
     await cleanupCloudagent([context.localCloudagent, context.remoteCloudagent])
     await cleanupDatabase([context.localDatabase, context.remoteDatabase])
     await insertCompanyHouseRegistry()
@@ -29,9 +28,6 @@ describe('NewConnectionController', () => {
 
   afterEach(async () => {
     context.cloudagentEvents.stop()
-    await cleanupCloudagent([context.localCloudagent, context.remoteCloudagent])
-    await cleanupDatabase([context.localDatabase, context.remoteDatabase])
-    await cleanupRegistries()
   })
 
   describe('create invitation (happy path)', function () {

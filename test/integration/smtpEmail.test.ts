@@ -8,7 +8,7 @@ import { CountryCode } from '../../src/models/stringTypes.js'
 import createHttpServer from '../../src/server.js'
 import VeritableCloudagentEvents from '../../src/services/veritableCloudagentEvents.js'
 import { alice } from '../helpers/fixtures.js'
-import { cleanupRegistries, insertCompanyHouseRegistry } from '../helpers/registries.js'
+import { insertCompanyHouseRegistry } from '../helpers/registries.js'
 import { post } from '../helpers/routeHelper.js'
 import { clearSmtp4devMessages, EmailResponseSchema } from '../helpers/smtpEmails.js'
 describe('SMTP email', () => {
@@ -30,7 +30,6 @@ describe('SMTP email', () => {
     afterEach(async () => {
       server.cloudagentEvents.stop()
       await clearSmtp4devMessages()
-      await cleanupRegistries()
     })
 
     it('should send an email via SMTP', async () => {

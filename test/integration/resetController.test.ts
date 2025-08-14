@@ -5,7 +5,7 @@ import { ConnectionRow } from '../../src/models/db/types.js'
 import { Connection } from '../../src/models/veritableCloudagent/internal.js'
 import { cleanupCloudagent, cleanupDatabase } from '../helpers/cleanup.js'
 import { setupTwoPartyContext, TwoPartyContext, withVerifiedConnection } from '../helpers/connection.js'
-import { cleanupRegistries, insertCompanyHouseRegistry } from '../helpers/registries.js'
+import { insertCompanyHouseRegistry } from '../helpers/registries.js'
 import { del } from '../helpers/routeHelper.js'
 
 describe('integration test for /reset endpoint', function () {
@@ -14,7 +14,6 @@ describe('integration test for /reset endpoint', function () {
 
   beforeEach(async function () {
     await setupTwoPartyContext(context)
-
     await cleanupCloudagent([context.localCloudagent, context.remoteCloudagent])
     await cleanupDatabase([context.localDatabase, context.remoteDatabase])
     await insertCompanyHouseRegistry()
@@ -22,9 +21,6 @@ describe('integration test for /reset endpoint', function () {
 
   afterEach(async () => {
     context.cloudagentEvents.stop()
-    await cleanupCloudagent([context.localCloudagent, context.remoteCloudagent])
-    await cleanupDatabase([context.localDatabase, context.remoteDatabase])
-    await cleanupRegistries()
   })
 
   describe('if DEMO_MODE=true', function () {
