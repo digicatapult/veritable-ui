@@ -14,13 +14,13 @@ describe('integration test for /reset endpoint', function () {
 
   beforeEach(async function () {
     await setupTwoPartyContext(context)
-    await cleanupCloudagent([context.localCloudagent, context.remoteCloudagent])
-    await cleanupDatabase([context.localDatabase, context.remoteDatabase])
     await insertCompanyHouseRegistry()
   })
 
   afterEach(async () => {
     context.cloudagentEvents.stop()
+    await cleanupCloudagent([context.localCloudagent, context.remoteCloudagent])
+    await cleanupDatabase([context.localDatabase, context.remoteDatabase])
   })
 
   describe('if DEMO_MODE=true', function () {

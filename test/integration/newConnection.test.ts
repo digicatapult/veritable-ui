@@ -20,14 +20,14 @@ describe('NewConnectionController', () => {
 
   beforeEach(async () => {
     await setupTwoPartyContext(context)
-    await cleanupCloudagent([context.localCloudagent, context.remoteCloudagent])
-    await cleanupDatabase([context.localDatabase, context.remoteDatabase])
     await insertCompanyHouseRegistry()
     await insertSocrataRegistry()
   })
 
   afterEach(async () => {
     context.cloudagentEvents.stop()
+    await cleanupCloudagent([context.localCloudagent, context.remoteCloudagent])
+    await cleanupDatabase([context.localDatabase, context.remoteDatabase])
   })
 
   describe('create invitation (happy path)', function () {

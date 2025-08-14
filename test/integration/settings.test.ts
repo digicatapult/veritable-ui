@@ -24,8 +24,6 @@ describe('integration tests for settings page', function () {
 
   beforeEach(async () => {
     await setupTwoPartyContext(context)
-    await cleanupCloudagent([context.localCloudagent, context.remoteCloudagent])
-    await cleanupDatabase([context.localDatabase, context.remoteDatabase])
     await context.localDatabase.insert('settings', {
       setting_key: 'admin_email',
       setting_value: 'admin@testmail.com',
@@ -34,6 +32,8 @@ describe('integration tests for settings page', function () {
 
   afterEach(async () => {
     context.cloudagentEvents.stop()
+    await cleanupCloudagent([context.localCloudagent, context.remoteCloudagent])
+    await cleanupDatabase([context.localDatabase, context.remoteDatabase])
   })
 
   describe('happy path', function () {

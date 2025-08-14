@@ -11,13 +11,13 @@ describe('partial query aggregation', function () {
 
   beforeEach(async () => {
     await setupThreePartyContext(context)
-    await cleanupCloudagent([context.agent.alice, context.agent.bob, context.agent.charlie])
-    await cleanupDatabase([context.db.alice, context.db.bob, context.db.charlie])
     await insertCompanyHouseRegistry()
   })
 
   afterEach(async () => {
     context.cloudagentEvents.stop()
+    await cleanupCloudagent([context.agent.alice, context.agent.bob, context.agent.charlie])
+    await cleanupDatabase([context.db.alice, context.db.bob, context.db.charlie])
   })
 
   describe('with established connections: Alice -> Bob -> Charlie', function () {
