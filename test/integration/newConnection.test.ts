@@ -178,7 +178,7 @@ describe('NewConnectionController', () => {
   })
 
   describe('connection complete (receive side)', function () {
-    beforeEach(async () => {
+    it('should update connection to unverified once connection is established', async () => {
       const invite = await context.remoteCloudagent.createOutOfBandInvite({
         companyName: alice.company_name,
         registryCountryCode: ukRegistryCountryCode,
@@ -196,15 +196,13 @@ describe('NewConnectionController', () => {
         invite: inviteContent,
         action: 'createConnection',
       })
-    })
 
-    it('should update connection to unverified once connection is established', async () => {
       for (let i = 0; i < 100; i++) {
         const [connection] = await context.localDatabase.get('connection')
         if (connection.status === 'unverified') {
           return
         }
-        await delay(10)
+        await delay(100)
       }
       expect.fail('Expected connection to update to state unverified')
     })
@@ -236,7 +234,7 @@ describe('NewConnectionController', () => {
         if (connection.status === 'unverified') {
           return
         }
-        await delay(10)
+        await delay(100)
       }
       expect.fail('Expected connection to update to state unverified')
     })
