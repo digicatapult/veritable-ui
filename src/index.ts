@@ -110,13 +110,8 @@ async function initializeOrganisationRegistries(logger: ILogger, env: Env, db: D
 
   // Insert only the missing registries
   const existingKeys = organisationRegistriesFromDb.map((row) => `${row.registry_key}_${row.country_code}`)
-  console.log('Existing keys from database:', existingKeys)
   const registriesToInsert = organisationRegistries.filter(
     (registry) => !existingKeys.includes(`${registry.registry_key}_${registry.country_code}`)
-  )
-  console.log(
-    'Registries to insert:',
-    registriesToInsert.map((r) => `${r.registry_key}_${r.country_code}`)
   )
 
   if (registriesToInsert.length > 0) {

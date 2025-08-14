@@ -1,5 +1,5 @@
 import { randomUUID } from 'crypto'
-import type { ConnectionRow } from '../../../models/db/types.js'
+import type { ConnectionRow, OrganisationRegistriesRow, RegistryType } from '../../../models/db/types.js'
 import { COMPANY_NUMBER, CountryCode, SOCRATA_NUMBER, UUID } from '../../../models/stringTypes.js'
 export const notFoundCompanyNumber = '00000000'
 export const invalidCompanyNumber = 'XXXXXXXX'
@@ -30,6 +30,8 @@ export const validCompany = {
   address: 'ADDRESS_LINE_1, ADDRESS_LINE_2, COUNTRY, LOCALITY, PO_BOX, POSTAL_CODE, REGION',
   status: 'active',
   registryCountryCode: 'GB' as CountryCode,
+  selectedRegistry: 'company_house' as RegistryType,
+  registeredOfficeIsInDispute: false,
 }
 
 export const validExistingCompany = {
@@ -47,7 +49,7 @@ export const validCompanyInDispute = {
 
 export const validCompanyInactive = {
   ...validCompany,
-  number: validCompanyNumberInDispute,
+  number: validCompanyNumberInactive,
   name: 'NAME4',
   status: 'inactive',
 }
@@ -123,6 +125,19 @@ export const validConnection: ConnectionRow = {
   pin_attempt_count: 0,
   pin_tries_remaining_count: 0,
   registry_country_code: 'GB' as CountryCode,
+  registry_code: 'company_house' as RegistryType,
+}
+
+export const validRegistry: OrganisationRegistriesRow = {
+  id: '4a5d4085-5924-43c6-b60d-754440332e3d',
+  country_code: 'GB' as CountryCode,
+  registry_name: 'Company House',
+  registry_key: 'company_house' as RegistryType,
+  third_party: false,
+  created_at: new Date(),
+  updated_at: new Date(),
+  url: 'https://api.company-house.gov.uk',
+  api_key: 'test-key',
 }
 
 export const validCompanyMap: Record<string, typeof validCompany> = {

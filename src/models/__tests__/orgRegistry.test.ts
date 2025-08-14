@@ -5,6 +5,7 @@ import { container } from 'tsyringe'
 import { RAW_ENV_TOKEN } from '../../env/common.js'
 import { Env } from '../../env/index.js'
 import type { ILogger } from '../../logger.js'
+import { RegistryType } from '../db/types.js'
 import OrganisationRegistry from '../orgRegistry/organisationRegistry.js'
 import { CountryCode } from '../stringTypes.js'
 import {
@@ -19,7 +20,7 @@ import { withCompanyHouseMock } from './helpers/mockCompanyHouse.js'
 
 const mockLogger: ILogger = pino({ level: 'silent' })
 const ukRegistryCountryCode = 'GB' as CountryCode
-
+const companyHouseRegistry = 'company_house' as RegistryType
 describe('organisationRegistry with company house as registry', () => {
   withCompanyHouseMock()
 
@@ -27,20 +28,22 @@ describe('organisationRegistry with company house as registry', () => {
     it('should return company found if valid company', async () => {
       const environment = container.resolve(Env)
       const organisationRegistryObject = new OrganisationRegistry(environment, mockDb, mockLogger)
-      const response = await organisationRegistryObject.getOrganisationProfileByOrganisationNumber(
-        validCompanyNumber,
-        ukRegistryCountryCode
-      )
+      const response = await organisationRegistryObject.getOrganisationProfileByOrganisationNumber({
+        companyNumber: validCompanyNumber,
+        registryCountryCode: ukRegistryCountryCode,
+        selectedRegistry: companyHouseRegistry,
+      })
       expect(response).deep.equal({ type: 'found', company: finalSuccessResponse })
     })
 
     it('should return notFound for 404', async () => {
       const environment = new Env()
       const organisationRegistryObject = new OrganisationRegistry(environment, mockDb, mockLogger)
-      const response = await organisationRegistryObject.getOrganisationProfileByOrganisationNumber(
-        noCompanyNumber,
-        ukRegistryCountryCode
-      )
+      const response = await organisationRegistryObject.getOrganisationProfileByOrganisationNumber({
+        companyNumber: noCompanyNumber,
+        registryCountryCode: ukRegistryCountryCode,
+        selectedRegistry: companyHouseRegistry,
+      })
       expect(response).deep.equal({ type: 'notFound' })
     })
 
@@ -49,10 +52,11 @@ describe('organisationRegistry with company house as registry', () => {
       const organisationRegistryObject = new OrganisationRegistry(environment, mockDb, mockLogger)
       let errorMessage: unknown
       try {
-        await organisationRegistryObject.getOrganisationProfileByOrganisationNumber(
-          invalidCompanyNumber,
-          ukRegistryCountryCode
-        )
+        await organisationRegistryObject.getOrganisationProfileByOrganisationNumber({
+          companyNumber: invalidCompanyNumber,
+          registryCountryCode: ukRegistryCountryCode,
+          selectedRegistry: companyHouseRegistry,
+        })
       } catch (err) {
         errorMessage = err
       }

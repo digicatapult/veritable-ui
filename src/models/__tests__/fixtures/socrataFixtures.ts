@@ -1,5 +1,6 @@
-import { SharedOrganisationInfo, SocrataProfile } from '../../orgRegistry/organisationRegistry'
-import { CountryCode } from '../../stringTypes'
+import { RegistryType } from '../../db/types.js'
+import { SharedOrganisationInfo, SocrataProfile } from '../../orgRegistry/organisationRegistry.js'
+import { CountryCode } from '../../stringTypes.js'
 export const validCompanyNumber = '3211809'
 export const secondaryCompanyNumber = '11111111'
 export const invalidCompanyNumber = '079646992'
@@ -27,4 +28,5 @@ export const finalSuccessResponse: SharedOrganisationInfo = {
   number: '3211809',
   registryCountryCode: 'US' as CountryCode,
   registeredOfficeIsInDispute: false,
+  selectedRegistry: 'socrata' as RegistryType,
 }

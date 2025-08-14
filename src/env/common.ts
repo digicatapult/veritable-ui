@@ -68,8 +68,8 @@ export const defaultConfig = {
     choices: countryCodes,
   }),
   OPEN_CORPORATES_API_URL: envalid.str({
-    devDefault: 'http://localhost:8443/companies',
-    default: 'https://api.opencorporates.com/v0.4/companies',
+    devDefault: 'http://localhost:8443',
+    default: 'https://api.opencorporates.com/v0.4',
   }),
   OPEN_CORPORATES_API_KEY: envalid.str({ devDefault: 'test-key' }),
   IPID_API_URL: envalid.str({ default: 'https://sandbox.ipid.works' }),

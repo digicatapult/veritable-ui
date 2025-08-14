@@ -5,7 +5,7 @@ import { InternalError } from '../../errors.js'
 import { type ILogger, Logger } from '../../logger.js'
 import Database from '../db/index.js'
 import { OrganisationRegistriesRow, RegistryType } from '../db/types.js'
-import { CountryCode } from '../stringTypes.js'
+import { COMPANY_NUMBER, CountryCode, SOCRATA_NUMBER } from '../stringTypes.js'
 import { companyHouseProfileSchema } from './registrySchemas/companyHouseSchema.js'
 import { openCorporatesSchema } from './registrySchemas/openCorporatesSchema.js'
 import { dosEntitySchema } from './registrySchemas/socrataSchema.js'
@@ -23,7 +23,7 @@ export type SharedOrganisationInfo = {
   registeredOfficeIsInDispute: boolean
 }
 export type OrganisationRequest = {
-  companyNumber: string
+  companyNumber: SOCRATA_NUMBER | COMPANY_NUMBER
   registryCountryCode: CountryCode
   selectedRegistry: RegistryType
 }
@@ -53,6 +53,7 @@ export default class OrganisationRegistry {
     private db: Database,
     @inject(Logger) private logger: ILogger
   ) {
+    console.log('setting up local organisation profile')
     this.localOrganisationProfilePromise = this.getOrganisationProfileByOrganisationNumber({
       companyNumber: env.get('INVITATION_FROM_COMPANY_NUMBER'),
       registryCountryCode: env.get('LOCAL_REGISTRY_COUNTRY_CODE'),
@@ -109,7 +110,6 @@ export default class OrganisationRegistry {
     const response = await fetch(url.toString(), {
       method: 'GET',
     })
-    console.log('response', response)
     if (response.ok) {
       return response.json()
     }
@@ -122,6 +122,7 @@ export default class OrganisationRegistry {
   }
 
   async getOrganisationProfileByOrganisationNumber(orgReq: OrganisationRequest): Promise<OrganisationProfile> {
+    console.log('orgReq', orgReq)
     this.logger.info(`Retrieving organisation profile for ${orgReq.companyNumber} in ${orgReq.registryCountryCode}`)
     const registry = await this.resolveOrganisationRegistry(orgReq.registryCountryCode, orgReq.selectedRegistry)
     if (!registry) {
@@ -170,7 +171,6 @@ export default class OrganisationRegistry {
     this.logger.info(`Getting socrata profile for ${companyNumber}`)
     // NOTE: 3211809 <-- comp no to test socrata with
     const endpoint = `${registry.url}?dos_id=${companyNumber}`
-    console.log('endpoint', endpoint)
     const companyProfile = await this.makeSocrataRequest(endpoint)
     const parsedCompanyProfile = dosEntitySchema.parse(companyProfile)
     return parsedCompanyProfile.length === 0 || parsedCompanyProfile === null
@@ -184,9 +184,11 @@ export default class OrganisationRegistry {
     registryCountryCode: CountryCode
   ): Promise<BaseProfileSearchResult<OpenCorporatesProfile>> {
     this.logger.info(`Getting open corporates profile for ${companyNumber}`)
-    const endpoint = `${registry.url}/${registryCountryCode.toLowerCase()}/${encodeURIComponent(companyNumber)}?api_token=${this.env.get('OPEN_CORPORATES_API_KEY')}`
+    const endpoint = `${registry.url}/companies/${registryCountryCode.toLowerCase()}/${encodeURIComponent(companyNumber)}?api_token=${this.env.get('OPEN_CORPORATES_API_KEY')}`
     console.log('endpoint', endpoint)
     const companyProfile = await this.makeOpenCorporatesRequest(endpoint)
+    console.log('companyNumber', companyNumber)
+    console.log('companyProfile', companyProfile)
     return companyProfile === null
       ? { type: 'notFound' }
       : { type: 'found', company: openCorporatesSchema.parse(companyProfile) }
@@ -261,7 +263,6 @@ export default class OrganisationRegistry {
       return openCorporatesResults
     }
     const company = openCorporatesResults.company.results.company
-    console.log('company', company)
     return {
       company: {
         name: company.name,

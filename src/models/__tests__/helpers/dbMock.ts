@@ -16,6 +16,7 @@ const ukRegistry: OrganisationRegistriesRow = {
   api_key: '',
   created_at: new Date(),
   updated_at: new Date(),
+  third_party: false,
 }
 
 // Mock data for NY registry (Socrata)
@@ -28,6 +29,7 @@ const nyRegistry: OrganisationRegistriesRow = {
   api_key: '',
   created_at: new Date(),
   updated_at: new Date(),
+  third_party: false,
 }
 
 export const mockDb = {

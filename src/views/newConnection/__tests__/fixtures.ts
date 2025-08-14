@@ -19,6 +19,10 @@ export const testErrorTargetBox: FormFeedback = {
 export const testMessageTargetBox: FormFeedback = {
   type: 'message',
   message: 'This is a message',
+  registryOptionsPerCountry: {
+    countryRegistries: [],
+    thirdPartyRegistries: [],
+  },
 }
 
 export const testSuccessTargetBox: FormFeedback = {

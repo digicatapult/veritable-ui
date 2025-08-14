@@ -5,10 +5,10 @@ import sinon from 'sinon'
 import { Env } from '../../../env/index.js'
 import { ILogger } from '../../../logger.js'
 import Database from '../../../models/db/index.js'
-import { ConnectionRow } from '../../../models/db/types.js'
+import { ConnectionRow, RegistryType } from '../../../models/db/types.js'
 import EmailService from '../../../models/emailService/index.js'
-import OrganisationRegistry from '../../../models/orgRegistry/organisationRegistry.js'
-import { COMPANY_NUMBER, CountryCode, SOCRATA_NUMBER, UUID } from '../../../models/stringTypes.js'
+import OrganisationRegistry, { OrganisationRequest } from '../../../models/orgRegistry/organisationRegistry.js'
+import { CountryCode, UUID } from '../../../models/stringTypes.js'
 import VeritableCloudagent from '../../../models/veritableCloudagent/index.js'
 import ConnectionTemplates from '../../../views/connection/connection.js'
 import { FormFeedback } from '../../../views/newConnection/base.js'
@@ -21,6 +21,7 @@ import {
   notFoundCompanyNumber,
   validCompanyMap,
   validConnection,
+  validRegistry,
 } from './fixtures.js'
 
 function templateFake(templateName: string, ...args: unknown[]) {
@@ -123,6 +124,10 @@ export const withNewConnectionMocks = () => {
         if (where?.connection_id) return inviteValidityMap[where?.connection_id]
         return []
       }
+      if (tableName === 'organisation_registries') {
+        if (where?.country_code) return [validRegistry]
+        return []
+      }
     },
     withTransaction: (fn: (arg: unknown) => unknown) => {
       return Promise.resolve(fn(mockWithTransaction))
@@ -130,7 +135,11 @@ export const withNewConnectionMocks = () => {
   } as unknown as Database
 
   const mockCompanyHouseEntity = {
-    getOrganisationProfileByOrganisationNumber: async (companyNumber: COMPANY_NUMBER | SOCRATA_NUMBER) => {
+    getOrganisationProfileByOrganisationNumber: async ({
+      companyNumber,
+      registryCountryCode,
+      selectedRegistry,
+    }: OrganisationRequest) => {
       if (companyNumber === notFoundCompanyNumber) {
         return {
           type: 'notFound',
@@ -145,11 +154,13 @@ export const withNewConnectionMocks = () => {
       throw new Error('Invalid number')
     },
     localOrganisationProfile: sinon.stub().resolves({
-      number: 'COMPANY_NUMBER',
+      number: '07964699',
       name: 'COMPANY_NAME',
       registryCountryCode: 'GB' as CountryCode,
       status: 'active',
       address: 'ADDRESS',
+      selectedRegistry: 'company_house' as RegistryType,
+      registeredOfficeIsInDispute: false,
     }),
   } as unknown as OrganisationRegistry
 
@@ -216,7 +227,7 @@ export const withNewConnectionMocks = () => {
           return Buffer.from('secret', 'utf8')
         case 'INVITATION_FROM_COMPANY_NUMBER':
           return '07964699'
-        case 'LOCAL_REGISTRY_TO_USE':
+        case 'LOCAL_REGISTRY_COUNTRY_CODE':
           return 'GB'
         default:
           throw new Error()

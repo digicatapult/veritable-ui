@@ -243,7 +243,6 @@ export class NewConnectionController extends HTMLController {
     4. Create new connection record if one doesn't exist
     5. Send a new invitation
     */
-    console.log('submitNewInvite', body.action)
 
     // lookup company by number
     const companyOrError = await this.lookupCompany(

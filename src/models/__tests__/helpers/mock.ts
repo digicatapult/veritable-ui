@@ -20,17 +20,28 @@ const requiredEnvs = {
   COMPANY_HOUSE_API_URL: 'http://localhost:8080',
   SOCRATA_API_URL: 'http://localhost:8080',
   NODE_ENV: 'test',
+  OPEN_CORPORATES_API_URL: 'http://localhost:8443',
+  OPEN_CORPORATES_API_KEY: 'test-key',
 }
 
 export const socrataAsLocalRegistry = {
   INVITATION_FROM_COMPANY_NUMBER: '3211809',
-  LOCAL_REGISTRY_TO_USE: 'US',
+  LOCAL_REGISTRY_COUNTRY_CODE: 'US',
+  LOCAL_REGISTRY_TO_USE: 'socrata',
   ...requiredEnvs,
 }
 
 export const companyHouseAsLocalRegistry = {
   INVITATION_FROM_COMPANY_NUMBER: '07964699',
-  LOCAL_REGISTRY_TO_USE: 'GB',
+  LOCAL_REGISTRY_COUNTRY_CODE: 'GB',
+  LOCAL_REGISTRY_TO_USE: 'company_house',
+  ...requiredEnvs,
+}
+
+export const openCorporatesAsLocalRegistry = {
+  INVITATION_FROM_COMPANY_NUMBER: '00102498',
+  LOCAL_REGISTRY_COUNTRY_CODE: 'GB',
+  LOCAL_REGISTRY_TO_USE: 'open_corporates',
   ...requiredEnvs,
 }
 
