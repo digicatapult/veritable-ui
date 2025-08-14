@@ -67,6 +67,16 @@ export default class ConnectionEvents {
     })
   }
 
+  /*
+  Hangup protocol: ConnectionRecord (NB OOB record doesn't change)
+  Message sender:
+  - Rotates their own Did into previousDids
+  - Keeps theirDid active
+  
+  Message recipient:
+  - Rotates theirDid into previousTheirDid
+  - Keeps Did active
+  */
   private connectionDidRotatedHandler: eventData<'ConnectionDidRotated'> = async (event) => {
     this.logger.debug(`new DID rotation event %j`, event.payload)
     const { id: cloudAgentConnectionId, state: connectionState } = event.payload.connectionRecord
