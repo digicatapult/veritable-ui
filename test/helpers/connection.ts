@@ -225,6 +225,8 @@ export const withVerifiedConnection = function (context: TwoPartyContext) {
     const invite = (emailSendStub.args.find(([name]) => name === 'connection_invite') || [])[1].invite
     const inviteUrl = JSON.parse(Buffer.from(invite, 'base64url').toString('utf8')).inviteUrl
 
+    emailSendStub.restore()
+
     const [{ id: localConnectionId }] = await context.localDatabase.get('connection')
     context.localConnectionId = localConnectionId
 
@@ -262,10 +264,6 @@ export const withVerifiedConnection = function (context: TwoPartyContext) {
 
     await context.localDatabase.update('connection', { id: context.localConnectionId }, { status: 'verified_both' })
     await context.remoteDatabase.update('connection', { id: context.remoteConnectionId }, { status: 'verified_both' })
-  })
-
-  afterEach(async function () {
-    emailSendStub.restore()
   })
 }
 
