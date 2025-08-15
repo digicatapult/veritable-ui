@@ -71,28 +71,23 @@ export default class ConnectionEvents {
   Hangup protocol: ConnectionRecord (NB OOB record doesn't change)
   Message sender:
   - Rotates their own Did into previousDids
+  - Did is blank
   - Keeps theirDid active
   
   Message recipient:
   - Rotates theirDid into previousTheirDid
+  - theirDid is blank
   - Keeps Did active
   */
   private connectionDidRotatedHandler: eventData<'ConnectionDidRotated'> = async (event) => {
     this.logger.debug(`new DID rotation event %j`, event.payload)
-    const { id: cloudAgentConnectionId, state: connectionState } = event.payload.connectionRecord
+    const { id: cloudAgentConnectionId } = event.payload.connectionRecord
 
-    await this.db.withTransaction(async (db) => {
-      // If this is a disconnection event (ie rotated to 0/null/undefined)
-      if (!event.payload.theirDid?.to && connectionState === 'completed') {
-        this.logger.warn('Connection %s has disconnected from us', cloudAgentConnectionId)
-        // Mark as disconnected in db
-        await db.update(
-          'connection',
-          { agent_connection_id: cloudAgentConnectionId, status: 'verified_both' },
-          { status: 'disconnected' }
-        )
-      }
-    })
+    // If this is a disconnection event (ie theirDid rotated to undefined)
+    if (!event.payload.theirDid?.to) {
+      this.logger.warn('Connection %s has disconnected from us', cloudAgentConnectionId)
+      await this.db.update('connection', { agent_connection_id: cloudAgentConnectionId }, { status: 'disconnected' })
+    }
 
     return
   }
