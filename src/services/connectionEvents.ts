@@ -2,8 +2,8 @@ import { inject, injectable, singleton } from 'tsyringe'
 
 import { Logger, type ILogger } from '../logger.js'
 import Database from '../models/db/index.js'
-import VeritableCloudagentEvents from './veritableCloudagentEvents.js'
 import VeritableCloudagent from '../models/veritableCloudagent/index.js'
+import VeritableCloudagentEvents from './veritableCloudagentEvents.js'
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 declare const CloudagentOn: VeritableCloudagentEvents['on']
@@ -36,7 +36,7 @@ export default class ConnectionEvents {
       const [inviteRecord] = await db.get('connection_invite', { oob_invite_id: outOfBandId })
       if (!inviteRecord) {
         this.logger.warn(
-          'Connection event on connection %s with state %s has no invitation record',
+          'Connection event on agent_connection_id %s with state %s has no invitation record',
           cloudAgentConnectionId,
           connectionState
         )
