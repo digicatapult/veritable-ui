@@ -59,6 +59,7 @@ export default class ConnectionEvents {
         return
       }
 
+      // TODO: more uniform use of connection.id vs. inviteRecord.connection_id
       const updateStatus = connectionState === 'completed' ? 'unverified' : 'disconnected'
       await db.update(
         'connection',
