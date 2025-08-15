@@ -61,7 +61,7 @@ export default class ConnectionEvents {
       await db.update(
         'connection',
         { id: inviteRecord.connection_id, status: connection.status },
-        { status: updateStatus, agent_connection_id: cloudAgentConnectionId }
+        { agent_connection_id: cloudAgentConnectionId, status: updateStatus }
       )
       this.logger.debug('Database state for connection %s updated to %s', connection.id, updateStatus)
       return
