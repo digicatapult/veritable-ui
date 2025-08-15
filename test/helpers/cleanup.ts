@@ -5,7 +5,6 @@ import { tablesList } from '../../src/models/db/types.js'
 
 // Call cleanup on all UI databases in parallel but delete tables in series
 export async function cleanupDatabase(databases: Database[]) {
-  console.debug('Database Cleanup')
   await Promise.all(
     databases.map(async (db) => {
       for (const table of tablesList) {
@@ -18,7 +17,6 @@ export async function cleanupDatabase(databases: Database[]) {
 // Cleanup all agents in parallel
 // Delete all connections and OOB invitations in series
 export async function cleanupCloudagent(cloudagents: VeritableCloudagent[]) {
-  console.debug('Cloudagent Cleanup')
   await Promise.all(
     cloudagents.map(async (agent) => {
       const connections = await agent.getConnections()
