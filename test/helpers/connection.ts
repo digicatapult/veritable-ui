@@ -212,25 +212,30 @@ export const withEstablishedConnectionFromThem = function (context: TwoPartyCont
 }
 
 export const withVerifiedConnection = function (context: TwoPartyContext) {
-  let emailSendStub: sinon.SinonStub
-
   beforeEach(async function () {
-    emailSendStub = sinon.stub(context.smtpServer, 'sendMail')
+    const emailSendStub = sinon.spy(context.smtpServer, 'sendMail')
+
     await post(context.app, '/connection/new/create-invitation', {
       companyNumber: alice.company_number,
       email: 'alice@testmail.com',
       action: 'submit',
       registryCountryCode: 'GB' as CountryCode,
     })
-    const invite = (emailSendStub.args.find(([name]) => name === 'connection_invite') || [])[1].invite
+
+    const connectionInvite = emailSendStub.args.find((item) => item[0] === 'connection_invite')
+    const invite = (connectionInvite![1] as { invite: string }).invite
     const inviteUrl = JSON.parse(Buffer.from(invite, 'base64url').toString('utf8')).inviteUrl
+
+    const connectionInviteAdmin = emailSendStub.args.find((item) => item[0] === 'connection_invite_admin')
+    const pinCode = (connectionInviteAdmin![3] as { pin: string }).pin
+    const pinHash = await argon2.hash(pinCode, { secret: context.app.get('INVITATION_PIN_SECRET') })
 
     emailSendStub.restore()
 
     const [{ id: localConnectionId }] = await context.localDatabase.get('connection')
     context.localConnectionId = localConnectionId
 
-    const aliceOOB = await context.remoteCloudagent.receiveOutOfBandInvite({
+    const fromAliceOOB = await context.remoteCloudagent.receiveOutOfBandInvite({
       companyName: alice.company_name,
       invitationUrl: inviteUrl,
     })
@@ -238,7 +243,7 @@ export const withVerifiedConnection = function (context: TwoPartyContext) {
     const [withAlice] = await context.remoteDatabase.insert('connection', {
       company_name: alice.company_name,
       company_number: alice.company_number,
-      agent_connection_id: aliceOOB.connectionRecord.id,
+      agent_connection_id: fromAliceOOB.connectionRecord.id,
       status: 'pending',
       pin_attempt_count: 0,
       pin_tries_remaining_count: 4,
@@ -246,16 +251,25 @@ export const withVerifiedConnection = function (context: TwoPartyContext) {
     })
     context.remoteConnectionId = withAlice.id
 
-    // wait for status to not be pending
+    // Bob's UI db needs this OOB invite because we accepted the OOB invite directly via the cloudagent
+    await context.remoteDatabase.insert('connection_invite', {
+      connection_id: withAlice.id,
+      oob_invite_id: fromAliceOOB.outOfBandRecord.id,
+      pin_hash: pinHash,
+      expires_at: new Date(new Date().getTime() + 60 * 1000),
+      validity: 'valid',
+    })
+
+    // Await completion of did exchange process
     const loopLimit = 100
     for (let i = 1; i <= loopLimit; i++) {
       const connectionsLocal = await context.localDatabase.get('connection')
       const connectionsRemote = await context.remoteDatabase.get('connection')
-      if (connectionsLocal[0].status === 'pending' || connectionsRemote[0].status === 'pending') {
-        await delay(10)
+      if (connectionsLocal[0].status === 'unverified' || connectionsRemote[0].status === 'unverified') {
         continue
+      } else {
+        await delay(100)
       }
-      context.localConnectionId = connectionsLocal[0].id
 
       if (i === loopLimit) {
         throw new Error('Timeout Error initialising connection')
@@ -283,7 +297,7 @@ export async function withBobAndCharlie(context: ThreePartyContext) {
 
   // alice part on bob
   const pinHash = await argon2.hash('123456', { secret: Buffer.from('secret', 'utf8') })
-  const aliceOOB = await context.agent.bob.receiveOutOfBandInvite({
+  const fromAliceOOB = await context.agent.bob.receiveOutOfBandInvite({
     companyName: alice.company_name,
     invitationUrl: bobsInvite,
   })
@@ -291,7 +305,7 @@ export async function withBobAndCharlie(context: ThreePartyContext) {
   const [withAlice] = await context.db.bob.insert('connection', {
     company_name: alice.company_name,
     company_number: alice.company_number,
-    agent_connection_id: aliceOOB.connectionRecord.id,
+    agent_connection_id: fromAliceOOB.connectionRecord.id,
     status: 'pending',
     pin_attempt_count: 0,
     pin_tries_remaining_count: 4,
@@ -300,7 +314,7 @@ export async function withBobAndCharlie(context: ThreePartyContext) {
 
   await context.db.bob.insert('connection_invite', {
     connection_id: withAlice.id,
-    oob_invite_id: aliceOOB.outOfBandRecord.id,
+    oob_invite_id: fromAliceOOB.outOfBandRecord.id,
     pin_hash: pinHash,
     expires_at: new Date(new Date().getTime() + 60 * 1000),
     validity: 'valid',
