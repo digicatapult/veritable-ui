@@ -42,6 +42,8 @@ export default class ConnectionEvents {
         )
         this.cloudagent.closeConnection(cloudAgentConnectionId)
         this.logger.warn('Hangup message automatically sent to connection %s', cloudAgentConnectionId)
+        return
+        // throw new Error('Connection event on unknown connection')
         // TODO: tests
       }
 
