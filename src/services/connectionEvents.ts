@@ -63,6 +63,7 @@ export default class ConnectionEvents {
         { id: inviteRecord.connection_id, status: connection.status },
         { status: updateStatus, agent_connection_id: cloudAgentConnectionId }
       )
+      this.logger.debug('Database state for connection %s updated to %s', connection.id, updateStatus)
       return
     })
   }
