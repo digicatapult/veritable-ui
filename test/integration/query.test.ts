@@ -7,7 +7,7 @@ import { insertCompanyHouseRegistry } from '../helpers/registries.js'
 import { post } from '../helpers/routeHelper.js'
 import { delay } from '../helpers/util.js'
 
-describe.only('query submission', function () {
+describe('query submission', function () {
   const context: TwoPartyContext = {} as TwoPartyContext
 
   beforeEach(async function () {
@@ -24,7 +24,7 @@ describe.only('query submission', function () {
   describe('Carbon embodiment query success', function () {
     withVerifiedConnection(context)
 
-    it.only('should respond 200 to a post query', async function () {
+    it('should respond 200 to a post query', async function () {
       const response = await post(context.app, `/queries/carbon-embodiment`, {
         connectionId: context.localConnectionId,
         productId: 'Test',
