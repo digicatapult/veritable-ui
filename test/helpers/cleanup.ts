@@ -22,9 +22,10 @@ export async function cleanupCloudagent(cloudagents: VeritableCloudagent[]) {
       const connections = await agent.getConnections()
       for (const connection of connections) {
         await agent.closeConnection(connection.id, 'delete')
-        if (connection.outOfBandId) {
-          await agent.deleteOutOfBandInvite(connection.outOfBandId)
-        }
+      }
+      const invites = await agent.getOutOfBandInvites()
+      for (const invite of invites) {
+        await agent.deleteOutOfBandInvite(invite.id)
       }
       const credentials = await agent.getCredentials()
       for (const credential of credentials) {
