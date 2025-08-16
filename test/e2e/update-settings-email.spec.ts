@@ -42,19 +42,6 @@ test.describe('Updating Settings - email', () => {
     const changedEmailValue = await page.inputValue('#admin_email')
     expect(changedEmailValue).toContain('sometestmail@test.com')
   })
-  test('Check reset is enabled and return success response', async () => {
-    await page.waitForSelector('a[href="/settings"]')
-    await page.click('a[href="/settings"]')
-    await page.waitForURL(`${baseUrlAlice}/settings`)
-
-    await page.waitForSelector('#reset-btn')
-    await page.click('#reset-btn')
-    expect(
-      page.waitForResponse((response) => {
-        return response.url().includes('/reset') && response.status() === 200
-      })
-    ).toBeTruthy()
-  })
   test('Check version id', async () => {
     await page.waitForSelector('a[href="/settings"]')
     await page.click('a[href="/settings"]')

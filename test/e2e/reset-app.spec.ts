@@ -46,6 +46,11 @@ test.describe('Resetting app', () => {
       await page.waitForURL(`${baseUrlAlice}/settings`)
       await page.waitForSelector('#reset-btn')
       await page.click('#reset-btn')
+      expect(
+        page.waitForResponse((response) => {
+          return response.url().includes('/reset') && response.status() === 200
+        })
+      ).toBeTruthy()
     })
 
     await test.step('Check there are no connections on Alice', async () => {
