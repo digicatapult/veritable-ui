@@ -39,22 +39,22 @@ beforeEach(function () {
 })
 
 after(async function () {
-  stopContainers(aliceDepsContainers)
-  stopContainers(bobDepsContainers)
-  stopContainers(charlieDepsContainers)
-  stopContainers(bobUIContainer)
-  stopContainers(charlieUIContainer)
-  stopContainers(sharedContainers)
-})
+  // Gather all containers into a single array
+  const allContainers = [
+    ...aliceDepsContainers,
+    ...bobDepsContainers,
+    ...charlieDepsContainers,
+    ...bobUIContainer,
+    ...charlieUIContainer,
+    ...sharedContainers,
+  ]
 
-async function stopContainers(containers: StartedTestContainer[]) {
-  await processPromises(await Promise.allSettled(containers.map((container) => container.stop())))
-}
+  // Stop all containers in parallel
+  const results = await Promise.allSettled(allContainers.map((container) => container.stop()))
 
-async function processPromises(results: PromiseSettledResult<StoppedTestContainer>[]) {
-  const rejected = results.filter((r) => r.status === 'rejected').map((r) => (r as PromiseRejectedResult).reason)
-
+  // Process results
+  const rejected = results.filter((r): r is PromiseRejectedResult => r.status === 'rejected').map((r) => r.reason)
   if (rejected.length > 0) {
     throw new Error(`${rejected.length} container shutdown unsuccessful with error: ${rejected[0]}`)
   }
-}
+})
