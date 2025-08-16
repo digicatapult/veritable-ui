@@ -25,8 +25,3 @@ export async function insertSocrataRegistry() {
     api_key: '',
   })
 }
-
-export async function cleanupRegistries() {
-  const db = container.resolve(Database)
-  await db.delete('organisation_registries', {})
-}

@@ -14,7 +14,7 @@ import {
 } from './fixtures/cloudagentFixtures.js'
 import { withCloudagentMock } from './helpers/mockCloudagent.js'
 
-import { InternalError } from '../../../errors.js'
+import { BadRequestError, InternalError } from '../../../errors.js'
 import { CountryCode } from '../../stringTypes.js'
 import VeritableCloudagent from '../index.js'
 
@@ -148,10 +148,10 @@ describe('veritableCloudagent', () => {
       })
     })
 
-    describe('error (response code)', function () {
+    describe('error (bad request)', function () {
       withCloudagentMock('GET', '/v1/connections', 400, {})
 
-      it('should throw internal error', async () => {
+      it('should throw a bad request error', async () => {
         const environment = new Env()
         const cloudagent = new VeritableCloudagent(environment, mockLogger)
 
@@ -161,7 +161,7 @@ describe('veritableCloudagent', () => {
         } catch (err) {
           error = err
         }
-        expect(error).instanceOf(InternalError)
+        expect(error).instanceOf(BadRequestError)
       })
     })
 
@@ -183,20 +183,20 @@ describe('veritableCloudagent', () => {
     })
   })
 
-  describe('deleteConnection', () => {
+  describe('closeConnection', () => {
     describe('success', function () {
-      withCloudagentMock('DELETE', '/v1/connections/42', 204, '')
+      withCloudagentMock('DELETE', '/v1/connections/42?delete=true', 204, '')
 
       it('should success', async () => {
         const environment = new Env()
         const cloudagent = new VeritableCloudagent(environment, mockLogger)
-        const response = await cloudagent.deleteConnection('42')
+        const response = await cloudagent.closeConnection('42', 'delete')
         expect(response).deep.equal(undefined)
       })
     })
 
-    describe('error (response code)', function () {
-      withCloudagentMock('DELETE', '/v1/connections/42', 400, {})
+    describe('error (bad request)', function () {
+      withCloudagentMock('DELETE', '/v1/connections/42?delete=true', 400, {})
 
       it('should throw internal error', async () => {
         const environment = new Env()
@@ -204,11 +204,11 @@ describe('veritableCloudagent', () => {
 
         let error: unknown = null
         try {
-          await cloudagent.deleteConnection('42')
+          await cloudagent.closeConnection('42', 'delete')
         } catch (err) {
           error = err
         }
-        expect(error).instanceOf(InternalError)
+        expect(error).instanceOf(BadRequestError)
       })
     })
   })
@@ -272,7 +272,7 @@ describe('veritableCloudagent', () => {
       })
     })
 
-    describe('error (response code)', function () {
+    describe('error (bad request)', function () {
       withCloudagentMock('GET', `/v1/dids?createdLocally=true&method=key`, 400, {})
 
       it('should throw internal error', async () => {
@@ -285,7 +285,7 @@ describe('veritableCloudagent', () => {
         } catch (err) {
           error = err
         }
-        expect(error).instanceOf(InternalError)
+        expect(error).instanceOf(BadRequestError)
       })
     })
 
@@ -375,7 +375,7 @@ describe('veritableCloudagent', () => {
       })
     })
 
-    describe('error (response code)', function () {
+    describe('error (bad request)', function () {
       withCloudagentMock(
         'GET',
         `/v1/schemas?createdLocally=true&issuerId=issuerId&schemaName=name&schemaVersion=version`,
@@ -393,7 +393,7 @@ describe('veritableCloudagent', () => {
         } catch (err) {
           error = err
         }
-        expect(error).instanceOf(InternalError)
+        expect(error).instanceOf(BadRequestError)
       })
     })
 
@@ -487,7 +487,7 @@ describe('veritableCloudagent', () => {
       })
     })
 
-    describe('error (response code)', function () {
+    describe('error (bad request)', function () {
       withCloudagentMock(
         'GET',
         `/v1/credential-definitions?createdLocally=true&issuerId=issuerId&schemaId=schemaId`,
@@ -495,7 +495,7 @@ describe('veritableCloudagent', () => {
         {}
       )
 
-      it('should throw internal error', async () => {
+      it('should throw a bad request error', async () => {
         const environment = new Env()
         const cloudagent = new VeritableCloudagent(environment, mockLogger)
 
@@ -508,7 +508,7 @@ describe('veritableCloudagent', () => {
         } catch (err) {
           error = err
         }
-        expect(error).instanceOf(InternalError)
+        expect(error).instanceOf(BadRequestError)
       })
     })
 

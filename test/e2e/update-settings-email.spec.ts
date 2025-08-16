@@ -11,6 +11,7 @@ test.describe('Updating Settings - email', () => {
   test.beforeAll(async () => {
     await cleanup([baseUrlAlice])
   })
+
   test.beforeEach(async ({ browser }) => {
     context = await browser.newContext()
     page = await context.newPage()
@@ -19,8 +20,8 @@ test.describe('Updating Settings - email', () => {
   })
 
   test.afterEach(async () => {
-    await cleanup([baseUrlAlice])
     await page.close()
+    await cleanup([baseUrlAlice])
   })
 
   test('Update admin email on alice', async () => {
