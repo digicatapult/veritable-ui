@@ -54,7 +54,7 @@ export class ResetController {
     const rejected = results.filter((r): r is PromiseRejectedResult => r.status === 'rejected').map((r) => r.reason)
 
     if (rejected.length > 0) {
-      throw new AggregateError(rejected, `${rejected.length} checks failed`)
+      throw new Error(`${rejected.length} checks failed: ${rejected}`)
     }
   }
 
