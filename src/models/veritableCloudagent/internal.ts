@@ -160,6 +160,7 @@ export type DrpcResponse = z.infer<typeof drpcResponseParser>
 
 const connectionListParser = z.array(connectionParser)
 const credentialListParser = z.array(credentialParser)
+const outOfBandListParser = z.array(oobInviteParser)
 const schemaListParser = z.array(credentialSchemaParser)
 const credentialDefinitionListParser = z.array(credentialDefinitionParser)
 
@@ -243,6 +244,11 @@ export default class VeritableCloudagentInt<Config extends CloudagentConfig = De
       },
       this.buildParser(receiveUrlParser)
     )
+  }
+
+  // TODO: parser and method only needed for isReset() check in reset controller
+  public async getOutOfBandInvites(): Promise<OutOfBandRecord[]> {
+    return this.getRequest(`/v1/oob/`, this.buildParser(outOfBandListParser))
   }
 
   public async getOutOfBandInvite(id: UUID): Promise<OutOfBandRecord> {
