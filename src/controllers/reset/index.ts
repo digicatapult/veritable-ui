@@ -80,16 +80,16 @@ export class ResetController {
         // CloudAgent cleanup (sequential)
         const connections = await this.cloudagent.getConnections()
         const credentials = await this.cloudagent.getCredentials()
+        const invites = await this.cloudagent.getOutOfBandInvites()
 
-        req.log.info('items to be deleted: %j', { credentials, connections })
+        req.log.info('items to be deleted: %j', { credentials, connections, invites })
 
         for (const connection of connections) {
           await this.cloudagent.closeConnection(connection.id, 'delete')
-          if (connection.outOfBandId) {
-            await this.cloudagent.deleteOutOfBandInvite(connection.outOfBandId)
-          }
         }
-
+        for (const invite of invites) {
+          await this.cloudagent.deleteOutOfBandInvite(invite.id)
+        }
         for (const credential of credentials) {
           await this.cloudagent.deleteCredential(credential.id)
         }
