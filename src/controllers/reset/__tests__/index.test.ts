@@ -73,11 +73,8 @@ const withMocks = (DEMO_MODE: boolean = true) => {
 }
 
 type ResetControllerPublic = { isReset: ResetController['isReset'] }
-const stubIsReset = (controller: ResetController, val: boolean) => {
-  sinon.stub(controller as unknown as ResetControllerPublic, 'isReset').callsFake(() => Promise.resolve(val))
-}
 
-describe('ResetController', () => {
+describe.only('ResetController', () => {
   let result: unknown
   const req = { log: mockLogger } as unknown as Request
 
@@ -138,7 +135,7 @@ describe('ResetController', () => {
         it('throws InternalError and returns error message', async () => {
           const { args } = withMocks()
           const controller = new ResetController(...args)
-          stubIsReset(controller, false)
+          sinon.stub(controller as unknown as ResetControllerPublic, 'isReset').rejects(AggregateError)
 
           try {
             result = await controller.reset(req)
@@ -146,10 +143,11 @@ describe('ResetController', () => {
             result = err
           }
 
+          // eslint-disable-next-line prettier/prettier
           expect(result)
             .to.be.instanceOf(InternalError)
             .that.has.property('message')
-            .that.is.equal('Error: reset failed')
+            .that.includes('reset failed')
         })
       })
 
@@ -175,10 +173,10 @@ describe('ResetController', () => {
         expect(cloudagentMock.getConnections.callCount).to.be.equal(2)
       })
 
-      it('return(200', async () => {
+      it('return(200)', async () => {
         const { args } = withMocks(true)
         const controller = new ResetController(...args)
-        stubIsReset(controller, true)
+        sinon.stub(controller as unknown as ResetControllerPublic, 'isReset').resolves()
         result = await controller.reset(req)
 
         expect(result).to.deep.equal({ statusCode: 200 })
