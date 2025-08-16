@@ -18,7 +18,7 @@ import { BadRequestError, InternalError } from '../../../errors.js'
 import { CountryCode } from '../../stringTypes.js'
 import VeritableCloudagent from '../index.js'
 
-describe.only('veritableCloudagent', () => {
+describe('veritableCloudagent', () => {
   let expect: Chai.ExpectStatic
   before(async () => {
     expect = (await import('chai')).expect
