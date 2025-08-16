@@ -74,7 +74,7 @@ const withMocks = (DEMO_MODE: boolean = true) => {
 
 type ResetControllerPublic = { isReset: ResetController['isReset'] }
 
-describe.only('ResetController', () => {
+describe('ResetController', () => {
   let result: unknown
   const req = { log: mockLogger } as unknown as Request
 
