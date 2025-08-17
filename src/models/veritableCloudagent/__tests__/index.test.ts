@@ -187,7 +187,7 @@ describe('veritableCloudagent', () => {
     describe('success', function () {
       withCloudagentMock('DELETE', '/v1/connections/42', 204, '')
 
-      it('should success', async () => {
+      it('should succeed', async () => {
         const environment = new Env()
         const cloudagent = new VeritableCloudagent(environment, mockLogger)
         const response = await cloudagent.deleteConnection('42')
