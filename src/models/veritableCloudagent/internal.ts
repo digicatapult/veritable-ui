@@ -462,10 +462,10 @@ export default class VeritableCloudagentInt<Config extends CloudagentConfig = De
 
     if (!response.ok) {
       if (response.status === 400) {
-        throw new BadRequestError(`${method} ${path}: ${response.statusText}`)
+        throw new BadRequestError(`${method} ${path}`)
       }
       if (response.status === 404) {
-        throw new NotFoundError(`${method} ${path}: ${response.statusText}`)
+        throw new NotFoundError(`${method} ${path}`)
       }
       throw new InternalError(`Unexpected error calling ${method} ${path}: ${response.statusText}`)
     }
@@ -502,10 +502,10 @@ export default class VeritableCloudagentInt<Config extends CloudagentConfig = De
 
     if (!response.ok) {
       if (response.status === 400) {
-        throw new BadRequestError(`${method} ${path}: ${response.statusText}`)
+        throw new BadRequestError(`${method} ${path}`)
       }
       if (response.status === 404) {
-        throw new NotFoundError(`${method} ${path}: ${response.statusText}`)
+        throw new NotFoundError(`${method} ${path}`)
       }
       throw new InternalError(`Unexpected error calling ${method} ${path}: ${response.statusText}`)
     }
