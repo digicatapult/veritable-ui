@@ -24,7 +24,6 @@ const oobInviteParser = z.object({
   id: z.uuid(),
   role: z.enum(['sender', 'receiver']),
 })
-
 type OutOfBandRecord = z.infer<typeof oobInviteParser>
 
 const receiveUrlParser = z.object({
@@ -216,7 +215,7 @@ export default class VeritableCloudagentInt<Config extends CloudagentConfig = De
     return this.getRequest(`/v1/oob/${id}`, this.buildParser(oobInviteParser))
   }
 
-  // Parser and method only used in reset controller
+  // Method only used in reset controller
   public async getOutOfBandInvites(): Promise<OutOfBandRecord[]> {
     return this.getRequest(`/v1/oob/`, this.buildParser(outOfBandListParser))
   }
@@ -502,6 +501,9 @@ export default class VeritableCloudagentInt<Config extends CloudagentConfig = De
     })
 
     if (!response.ok) {
+      if (response.status === 400) {
+        throw new BadRequestError(`${path}`)
+      }
       throw new InternalError(`Unexpected error calling ${method} ${path}: ${response.statusText}`)
     }
 
