@@ -2,13 +2,11 @@ import express from 'express'
 import { Delete, Hidden, Produces, Request, Route, Security, SuccessResponse } from 'tsoa'
 import { injectable } from 'tsyringe'
 
-import pino from 'pino'
 import { Env } from '../../env/index.js'
 import { BadRequestError, InternalError } from '../../errors.js'
 import Database from '../../models/db/index.js'
 import type { TABLE } from '../../models/db/types.js'
 import VeritableCloudagent from '../../models/veritableCloudagent/index.js'
-import { Connection, Credential } from '../../models/veritableCloudagent/internal.js'
 
 @injectable()
 @Security('oauth2')
@@ -22,38 +20,44 @@ export class ResetController {
     private cloudagent: VeritableCloudagent
   ) {}
 
-  // would be nice to restore to prior reset
-  private async isReset(logger: pino.Logger): Promise<boolean> {
+  private async isReset(): Promise<void> {
     const tables: TABLE[] = ['connection', 'connection_invite', 'query', 'query_rpc']
-    try {
-      const results = await Promise.allSettled([
-        ...tables.map(async (table: TABLE) => await this.db.get(table).then((res) => res.length)),
-        await this.cloudagent.getCredentials().then((res) => res.length),
-        await this.cloudagent.getConnections().then((res) => res.length),
-      ])
+    const results = await Promise.allSettled([
+      (async () => {
+        const nonEmptyTables: string[] = []
+        for (const table of tables) {
+          const rows = await this.db.get(table, {})
+          if (rows.length > 0) nonEmptyTables.push(`${table} (${rows.length} rows)`)
+        }
+        if (nonEmptyTables.length > 0) {
+          throw new Error(`Non-empty DB tables:\n- ${nonEmptyTables.join('\n- ')}`)
+        }
+      })(),
 
-      const fulfilled = results.filter((r) => r.status === 'fulfilled').map((r) => r.value)
-      const rejected = results.filter((r) => r.status === 'rejected').map((r) => (r as PromiseRejectedResult).reason)
+      (async () => {
+        const errors: string[] = []
+        const connections = await this.cloudagent.getConnections()
+        if (connections.length > 0) errors.push(`${connections.length} connections remain`)
 
-      if (rejected.length > 0) {
-        throw new Error(`${rejected.length} Resets were rejected with Error: ${rejected[0]}`)
-      }
+        const credentials = await this.cloudagent.getCredentials()
+        if (credentials.length > 0) errors.push(`${credentials.length} credentials remain`)
 
-      return (
-        fulfilled.reduce((out: number, next: number) => {
-          return out + next
-        }, 0) === 0
-      )
-    } catch (err: unknown) {
-      logger.warn('error occured while resting %s', err)
+        const OOBinvites = await this.cloudagent.getOutOfBandInvites()
+        if (OOBinvites.length > 0) errors.push(`${OOBinvites.length} out-of-band invites remain`)
 
-      return false
+        if (errors.length > 0) {
+          throw new Error(`Non-empty CloudAgent items:\n- ${errors.join('\n- ')}`)
+        }
+      })(),
+    ])
+
+    const rejected = results.filter((r): r is PromiseRejectedResult => r.status === 'rejected').map((r) => r.reason)
+
+    if (rejected.length > 0) {
+      throw new Error(`${rejected.length} checks failed: ${rejected}`)
     }
   }
 
-  /**
-   * Retrieves the connection list page
-   */
   @SuccessResponse(200)
   @Delete('/')
   public async reset(@Request() req: express.Request): Promise<{ statusCode: number }> {
@@ -63,40 +67,50 @@ export class ResetController {
       throw new BadRequestError('DEMO_MODE is false')
     }
 
-    try {
-      const connections: Connection[] = await this.cloudagent.getConnections()
-      const credentials: Credential[] = await this.cloudagent.getCredentials()
+    const tables: TABLE[] = ['connection', 'connection_invite', 'query', 'query_rpc']
+    const results = await Promise.allSettled([
+      (async () => {
+        // DB cleanup of all tables (sequential)
+        for (const table of tables) {
+          await this.db.delete(table, {})
+        }
+      })(),
 
-      req.log.info('items to be deleted: %j', { credentials, connections })
+      (async () => {
+        // CloudAgent cleanup (sequential)
+        const connections = await this.cloudagent.getConnections()
+        const credentials = await this.cloudagent.getCredentials()
+        const invites = await this.cloudagent.getOutOfBandInvites()
 
-      const results = await Promise.allSettled([
-        ...credentials.map(({ id }: { id: string }) => {
-          req.log.debug('deleting credential from cloudagent %s: ', id)
-          return this.cloudagent.deleteCredential(id)
-        }),
-        ...connections.map(({ id }: { id: string }) => {
-          req.log.debug('deleting connection from cloudagent %s: ', id)
-          return this.cloudagent.deleteConnection(id)
-        }),
-        await this.db.delete('connection', {}),
-      ])
+        req.log.info('items to be deleted: %j', { credentials, connections, invites })
 
-      const rejected = results.filter((r) => r.status === 'rejected').map((r) => (r as PromiseRejectedResult).reason)
+        for (const connection of connections) {
+          await this.cloudagent.deleteConnection(connection.id)
+        }
+        for (const invite of invites) {
+          await this.cloudagent.deleteOutOfBandInvite(invite.id)
+        }
+        for (const credential of credentials) {
+          await this.cloudagent.deleteCredential(credential.id)
+        }
+      })(),
+    ])
 
-      if (rejected.length > 0) {
-        throw new Error(`${rejected.length} deletions were rejected with Error: ${rejected[0]}`)
-      }
+    const rejected = results.filter((r): r is PromiseRejectedResult => r.status === 'rejected').map((r) => r.reason)
 
-      req.log.debug('item have been delete and running check to confirm')
-      // confirm reset by calling isReset() method
-      if (!(await this.isReset(req.log))) {
-        req.log.warn('reset isReset() check has failed')
-        throw new InternalError('reset failed')
-      }
-
-      return { statusCode: 200 }
-    } catch (err: unknown) {
-      throw new InternalError(err as string)
+    if (rejected.length > 0) {
+      throw new InternalError(`${rejected.length} deletions failed:\n- ${rejected.map(String).join('\n- ')}`)
     }
+
+    req.log.debug('running check to confirm all items have been deleted')
+    // confirm reset by calling isReset() method - TODO: is this necessary?
+    try {
+      await this.isReset()
+      req.log.info(`reset successful`)
+    } catch (error) {
+      throw new InternalError(`reset failed: ${error}`)
+    }
+
+    return { statusCode: 200 }
   }
 }
