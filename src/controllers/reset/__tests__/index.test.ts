@@ -4,7 +4,7 @@ import sinon from 'sinon'
 
 import { Request } from 'express'
 import { Env } from '../../../env/index.js'
-import { BadRequestError, InternalError } from '../../../errors.js'
+import { ForbiddenError, InternalError } from '../../../errors.js'
 import Database from '../../../models/db/index.js'
 import { TABLE } from '../../../models/db/types.js'
 import VeritableCloudagent from '../../../models/veritableCloudagent/index.js'
@@ -102,8 +102,8 @@ describe('ResetController', () => {
         }
       })
 
-      it('returns 400 along with BadRequestError instance', () => {
-        expect(result).to.be.instanceOf(BadRequestError)
+      it('returns 401 along with Forbidden message', () => {
+        expect(result).to.be.instanceOf(ForbiddenError)
         expect(result).to.have.property('message').that.is.equal('DEMO_MODE is false')
       })
 
