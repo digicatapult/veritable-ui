@@ -161,13 +161,13 @@ describe('ResetController', () => {
 
       it('deletes connections and connection_invites locally', () => {
         expect(dbMock.delete.firstCall.args).to.deep.equal(['connection', {}])
-        expect(cloudagentMock.deleteCredential.firstCall.args).to.deep.equal(['some-agent-credential-id-1'])
-        expect(cloudagentMock.deleteCredential.secondCall.args).to.deep.equal(['some-agent-credential-id-2'])
         expect(cloudagentMock.deleteConnection.firstCall.args).to.deep.equal(['some-agent-id-1'])
         expect(cloudagentMock.deleteConnection.secondCall.args).to.deep.equal(['some-agent-id-2'])
         expect(cloudagentMock.deleteConnection.thirdCall.args).to.deep.equal(['some-agent-id-3'])
-        expect(cloudagentMock.deleteCredential.callCount).to.be.equal(2)
         expect(cloudagentMock.deleteConnection.callCount).to.be.equal(3)
+        expect(cloudagentMock.deleteCredential.firstCall.args).to.deep.equal(['some-agent-credential-id-1'])
+        expect(cloudagentMock.deleteCredential.secondCall.args).to.deep.equal(['some-agent-credential-id-2'])
+        expect(cloudagentMock.deleteCredential.callCount).to.be.equal(2)
       })
 
       it('confirms that records have been removed', () => {
@@ -175,7 +175,7 @@ describe('ResetController', () => {
         expect(cloudagentMock.getConnections.callCount).to.be.equal(2)
       })
 
-      it('return(200', async () => {
+      it('return(200)', async () => {
         const { args } = withMocks(true)
         const controller = new ResetController(...args)
         stubIsReset(controller, true)
