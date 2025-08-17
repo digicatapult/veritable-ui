@@ -462,10 +462,10 @@ export default class VeritableCloudagentInt<Config extends CloudagentConfig = De
 
     if (!response.ok) {
       if (response.status === 400) {
-        throw new BadRequestError(`${path}`)
+        throw new BadRequestError(`${method} ${path}: ${response.statusText}`)
       }
       if (response.status === 404) {
-        throw new NotFoundError(`${path}`)
+        throw new NotFoundError(`${method} ${path}: ${response.statusText}`)
       }
       throw new InternalError(`Unexpected error calling ${method} ${path}: ${response.statusText}`)
     }
@@ -474,9 +474,9 @@ export default class VeritableCloudagentInt<Config extends CloudagentConfig = De
       return await parse(response)
     } catch (err) {
       if (err instanceof Error) {
-        throw new InternalError(`Error parsing response from calling ${method} ${path}: ${err.name} - ${err.message}`)
+        throw new InternalError(`Error parsing response from ${method} ${path}: ${err.name} - ${err.message}`)
       }
-      throw new InternalError(`Unknown error parsing response to calling ${method} ${path}`)
+      throw new InternalError(`Unknown error parsing response from ${method} ${path}`)
     }
   }
 
@@ -502,7 +502,10 @@ export default class VeritableCloudagentInt<Config extends CloudagentConfig = De
 
     if (!response.ok) {
       if (response.status === 400) {
-        throw new BadRequestError(`Bad request calling ${method} ${path}: ${response.statusText}`)
+        throw new BadRequestError(`${method} ${path}: ${response.statusText}`)
+      }
+      if (response.status === 404) {
+        throw new NotFoundError(`${method} ${path}: ${response.statusText}`)
       }
       throw new InternalError(`Unexpected error calling ${method} ${path}: ${response.statusText}`)
     }
@@ -511,9 +514,9 @@ export default class VeritableCloudagentInt<Config extends CloudagentConfig = De
       return await parse(response)
     } catch (err) {
       if (err instanceof Error) {
-        throw new InternalError(`Error parsing response from calling POST ${path}: ${err.name} - ${err.message}`)
+        throw new InternalError(`Error parsing response from ${method} ${path}: ${err.name} - ${err.message}`)
       }
-      throw new InternalError(`Unknown error parsing response to calling POST ${path}`)
+      throw new InternalError(`Unknown error parsing response from ${method} ${path}`)
     }
   }
 
