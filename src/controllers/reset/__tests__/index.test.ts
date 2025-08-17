@@ -142,7 +142,7 @@ describe('ResetController', () => {
         it('throws InternalError and returns error message', async () => {
           const { args } = withMocks()
           const controller = new ResetController(...args)
-          sinon.stub(controller as unknown as ResetControllerPublic, 'isReset').rejects(AggregateError)
+          sinon.stub(controller as unknown as ResetControllerPublic, 'isReset').rejects(Error)
 
           try {
             result = await controller.reset(req)
