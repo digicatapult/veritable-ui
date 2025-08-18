@@ -1,5 +1,6 @@
 import { z } from 'zod'
-import { companyNumberRegex } from '../../stringTypes.js'
+import { RegistryType } from '../../db/types.js'
+import { companyNumberRegex, CountryCode } from '../../stringTypes.js'
 
 export const openCorporatesSchema = z.object({
   api_version: z.string(),
@@ -16,4 +17,19 @@ export const openCorporatesSchema = z.object({
       registered_address_in_full: z.string(),
     }),
   }),
+})
+
+type OpenCorporatesProfile = z.infer<typeof openCorporatesSchema>
+
+export const openCorporatesResultSchema = openCorporatesSchema.transform((input) => {
+  const c = input.results.company
+  return {
+    name: c.name,
+    address: c.registered_address_in_full,
+    number: c.company_number,
+    status: c.current_status.toLowerCase(),
+    registryCountryCode: c.jurisdiction_code.toUpperCase() as CountryCode,
+    registeredOfficeIsInDispute: false,
+    selectedRegistry: 'open_corporates' as RegistryType,
+  }
 })

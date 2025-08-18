@@ -3,14 +3,7 @@ import { z } from 'zod'
 import { bavResponseData, carbonEmbodimentResponseData, subjectIdParser } from '../drpc.js'
 import { countryCodes } from '../stringTypes.js'
 
-export const tablesList = [
-  'connection',
-  'connection_invite',
-  'query',
-  'query_rpc',
-  'settings',
-  'organisation_registries',
-] as const
+export const tablesList = ['connection', 'connection_invite', 'query', 'query_rpc', 'settings'] as const
 export const registryTypes = ['company_house', 'open_corporates', 'socrata'] as const
 export const registryKeyParser = z.enum(registryTypes)
 export type RegistryType = (typeof registryTypes)[number]
@@ -24,15 +17,6 @@ const insertConnection = z.object({
   pin_tries_remaining_count: z.number().int().gte(0).lte(255).nullable(),
   registry_country_code: z.enum(countryCodes),
   registry_code: registryKeyParser,
-})
-
-const insertOrganisationRegistries = z.object({
-  country_code: z.string(),
-  registry_name: z.string(),
-  registry_key: registryKeyParser,
-  url: z.string(),
-  api_key: z.string(),
-  third_party: z.boolean(),
 })
 
 const insertConnectionInvite = z.object({
@@ -107,21 +91,12 @@ const Zod = {
       updated_at: z.date(),
     }),
   },
-  organisation_registries: {
-    insert: insertOrganisationRegistries,
-    get: insertOrganisationRegistries
-      .extend({
-        id: z.string(),
-      })
-      .extend(defaultFields.shape),
-  },
 }
 
 export type InsertConnection = z.infer<typeof Zod.connection.insert>
 export type ConnectionRow = z.infer<typeof Zod.connection.get>
 export type QueryRow = z.infer<typeof Zod.query.get>
 export type SettingsRow = z.infer<typeof Zod.settings.get>
-export type OrganisationRegistriesRow = z.infer<typeof Zod.organisation_registries.get>
 export type TABLES_TUPLE = typeof tablesList
 export type TABLE = TABLES_TUPLE[number]
 export type Models = {
