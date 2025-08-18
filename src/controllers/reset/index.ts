@@ -70,7 +70,7 @@ export class ResetController {
     const tables: TABLE[] = ['connection', 'connection_invite', 'query', 'query_rpc']
     const results = await Promise.allSettled([
       (async () => {
-        // DB cleanup of all tables (sequential)
+        // DB cleanup (sequential)
         for (const table of tables) {
           await this.db.delete(table, {})
         }
