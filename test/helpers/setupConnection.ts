@@ -77,7 +77,7 @@ export async function withConnection(inviterUrl: string, receiverUrl: string) {
     attempt++
     await delay(2000) // Can take 10-12 seconds to connect
     const inviterConnection = await fetchGet(`${inviterUrl}/connection?search=OFFSHORE`)
-    const [inviterConnectionStatus] = (await inviterConnection.text()).match('data-status="success"') || []
+    const [inviterConnectionStatus] = (await inviterConnection.text()).match(/data-status="success"/) || []
     if (inviterConnectionStatus) {
       break
     }
