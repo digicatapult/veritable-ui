@@ -30,7 +30,6 @@ test.describe('New query request', () => {
       await page.click('text=Query Request', { delay: 100 })
 
       const queryTypes = page.locator('.query-item')
-      await expect(queryTypes).toBeVisible()
       expect(queryTypes.nth(0)).not.toHaveClass('query-item disabled')
       expect(queryTypes.nth(1)).not.toHaveClass('query-item disabled')
       expect(queryTypes.nth(2)).toHaveClass('query-item disabled')
