@@ -27,7 +27,7 @@ export const dosEntitySchema = z
     return {
       name: e.current_entity_name,
       address: [
-        e.dos_process_name,
+        e.current_entity_name,
         e.dos_process_address_1,
         `${e.dos_process_city}, ${e.dos_process_state} ${e.dos_process_zip}`,
       ]

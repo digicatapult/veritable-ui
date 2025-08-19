@@ -83,8 +83,7 @@ export class NewConnectionController extends HTMLController {
     @Query() registryCountryCode: CountryCode = 'GB'
   ): Promise<HTML> {
     // get available registries for a country and send back
-    const availableRegistries = await this.organisationRegistry.strippedRegistriesInfo
-
+    const availableRegistries = await this.organisationRegistry.strippedRegistriesInfo()
     // Filter registries to only include those that support the specific country code
     const registriesForCountry = Object.entries(availableRegistries).filter(([registryType, registry]) =>
       registry.country_code.includes(registryCountryCode)
@@ -414,7 +413,7 @@ export class NewConnectionController extends HTMLController {
         message: 'Invitation is not valid',
       }
     }
-    const availableRegistries = await this.organisationRegistry.strippedRegistriesInfo
+    const availableRegistries = await this.organisationRegistry.strippedRegistriesInfo()
 
     // Filter registries to only include those that support the specific country code
     const registriesForCountry = Object.entries(availableRegistries).filter(([registryType, registry]) =>

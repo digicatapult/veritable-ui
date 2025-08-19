@@ -23,7 +23,7 @@ export const successResponse: SocrataProfile = [
 ]
 export const finalSuccessResponse: SharedOrganisationInfo = {
   name: '00:02:59 LLC',
-  address: '656 UNION STREET, APT. 2, BROOKLYN, NY, 11215',
+  address: '00:02:59 LLC, 656 UNION STREET, APT. 2, BROOKLYN, NY 11215',
   status: 'active',
   number: '3211809',
   registryCountryCode: 'US' as CountryCode,

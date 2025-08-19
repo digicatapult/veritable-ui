@@ -45,7 +45,7 @@ describe('NewConnectionController', () => {
     it('should return rendered form template (fromInvite = false)', async () => {
       const { args } = withNewConnectionMocks()
       const controller = new NewConnectionController(...args)
-      const result = await controller.newConnectionForm(req).then(toHTMLString)
+      const result = await controller.newConnectionForm(req).then(toHTMLString) // here
       expect(result).to.equal('newInvitePage_message_newInvitePage')
     })
 
@@ -373,8 +373,8 @@ describe('NewConnectionController', () => {
           toCompanyName: 'NAME',
           fromCompanyName: 'COMPANY_NAME',
         })
-        expect(emailSpy.secondCall.args[3]?.pin).match(/[0-9]{6}/)
-        expect(emailSpy.secondCall.args[3]).to.deep.contain({
+        expect(emailSpy.secondCall.args[2]?.pin).match(/[0-9]{6}/)
+        expect(emailSpy.secondCall.args[2]).to.deep.contain({
           receiver: 'NAME',
           address: 'ADDRESS_LINE_1, ADDRESS_LINE_2, COUNTRY, LOCALITY, PO_BOX, POSTAL_CODE, REGION',
         })
@@ -728,8 +728,8 @@ describe('NewConnectionController', () => {
 
       it('should send email to admin', () => {
         expect(emailSpy.firstCall.args[0]).equal('connection_invite_admin')
-        expect(emailSpy.firstCall.args[3]?.pin).match(/[0-9]{6}/)
-        expect(emailSpy.firstCall.args[3]).to.deep.contain({
+        expect(emailSpy.firstCall.args[2]?.pin).match(/[0-9]{6}/)
+        expect(emailSpy.firstCall.args[2]).to.deep.contain({
           receiver: 'NAME',
           address: 'ADDRESS_LINE_1, ADDRESS_LINE_2, COUNTRY, LOCALITY, PO_BOX, POSTAL_CODE, REGION',
         })

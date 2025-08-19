@@ -33,6 +33,7 @@ const nyRegistry: OrganisationRegistriesRow = {
 }
 
 export const mockDb = {
+  //TODO: likely redundant now
   get: (tableName: string, where?: Record<string, string>) => {
     if (tableName === 'organisation_registries' && where?.country_code) {
       if (where.country_code === 'GB') {

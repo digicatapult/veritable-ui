@@ -97,6 +97,7 @@ export const withConnectionMocks = (
     templateMock,
     dbMock,
     cloudagentMock,
+    organisationRegistry,
     args: [
       dbMock as unknown as Database,
       cloudagentMock as unknown as VeritableCloudagent,
@@ -162,6 +163,24 @@ export const withNewConnectionMocks = () => {
       selectedRegistry: 'company_house' as RegistryType,
       registeredOfficeIsInDispute: false,
     }),
+    strippedRegistriesInfo: () =>
+      Promise.resolve({
+        company_house: {
+          country_code: ['GB'],
+          third_party: false,
+          registry_name: 'Company House',
+        },
+        open_corporates: {
+          country_code: ['GB', 'NL', 'JP'],
+          third_party: true,
+          registry_name: 'Open Corporates',
+        },
+        socrata: {
+          country_code: ['US'],
+          third_party: false,
+          registry_name: 'Socrata',
+        },
+      }),
   } as unknown as OrganisationRegistry
 
   const mockCloudagent = {
@@ -229,6 +248,8 @@ export const withNewConnectionMocks = () => {
           return '07964699'
         case 'LOCAL_REGISTRY_COUNTRY_CODE':
           return 'GB'
+        case 'LOCAL_REGISTRY_TO_USE':
+          return 'company_house'
         default:
           throw new Error()
       }

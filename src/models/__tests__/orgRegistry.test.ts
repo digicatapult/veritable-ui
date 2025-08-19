@@ -14,7 +14,6 @@ import {
   noCompanyNumber,
   validCompanyNumber,
 } from './fixtures/companyHouseFixtures.js'
-import { mockDb } from './helpers/dbMock.js'
 import { companyHouseAsLocalRegistry, mockRegistryEnv } from './helpers/mock.js'
 import { withCompanyHouseMock } from './helpers/mockCompanyHouse.js'
 
@@ -27,7 +26,7 @@ describe('organisationRegistry with company house as registry', () => {
   describe('getOrganisationProfileByOrganisationNumber', () => {
     it('should return company found if valid company', async () => {
       const environment = container.resolve(Env)
-      const organisationRegistryObject = new OrganisationRegistry(environment, mockDb, mockLogger)
+      const organisationRegistryObject = new OrganisationRegistry(environment, mockLogger)
       const response = await organisationRegistryObject.getOrganisationProfileByOrganisationNumber({
         companyNumber: validCompanyNumber,
         registryCountryCode: ukRegistryCountryCode,
@@ -38,7 +37,7 @@ describe('organisationRegistry with company house as registry', () => {
 
     it('should return notFound for 404', async () => {
       const environment = new Env()
-      const organisationRegistryObject = new OrganisationRegistry(environment, mockDb, mockLogger)
+      const organisationRegistryObject = new OrganisationRegistry(environment, mockLogger)
       const response = await organisationRegistryObject.getOrganisationProfileByOrganisationNumber({
         companyNumber: noCompanyNumber,
         registryCountryCode: ukRegistryCountryCode,
@@ -49,7 +48,7 @@ describe('organisationRegistry with company house as registry', () => {
 
     it('should propagate other errors', async () => {
       const environment = new Env()
-      const organisationRegistryObject = new OrganisationRegistry(environment, mockDb, mockLogger)
+      const organisationRegistryObject = new OrganisationRegistry(environment, mockLogger)
       let errorMessage: unknown
       try {
         await organisationRegistryObject.getOrganisationProfileByOrganisationNumber({
@@ -80,7 +79,7 @@ describe('organisationRegistry with company house as registry', () => {
 
       container.registerInstance<OrganisationRegistry>(
         OrganisationRegistry,
-        new OrganisationRegistry(environment, mockDb, mockLogger)
+        new OrganisationRegistry(environment, mockLogger)
       )
       const organisationRegistryObject = container.resolve(OrganisationRegistry)
       const response = await organisationRegistryObject.localOrganisationProfile()

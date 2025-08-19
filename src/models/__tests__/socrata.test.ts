@@ -14,7 +14,6 @@ import {
   noCompanyNumber,
   validCompanyNumber,
 } from './fixtures/socrataFixtures.js'
-import { mockDb } from './helpers/dbMock.js'
 import { mockRegistryEnv, socrataAsLocalRegistry } from './helpers/mock.js'
 import { withSocrataMock } from './helpers/mockSocrata.js'
 const mockLogger: ILogger = pino({ level: 'silent' })
@@ -27,7 +26,7 @@ describe('organisationRegistry with socrata as registry', () => {
     it('should return company found if valid company', async () => {
       const environment = container.resolve(Env)
 
-      const organisationRegistryObject = new OrganisationRegistry(environment, mockDb, mockLogger)
+      const organisationRegistryObject = new OrganisationRegistry(environment, mockLogger)
       const response = await organisationRegistryObject.getOrganisationProfileByOrganisationNumber({
         companyNumber: validCompanyNumber,
         registryCountryCode: nyRegistryCountryCode,
@@ -37,7 +36,7 @@ describe('organisationRegistry with socrata as registry', () => {
     })
     it('should return notFound if company notFound', async () => {
       const environment = new Env()
-      const organisationRegistryObject = new OrganisationRegistry(environment, mockDb, mockLogger)
+      const organisationRegistryObject = new OrganisationRegistry(environment, mockLogger)
       const response = await organisationRegistryObject.getOrganisationProfileByOrganisationNumber({
         companyNumber: noCompanyNumber,
         registryCountryCode: nyRegistryCountryCode,
@@ -47,10 +46,10 @@ describe('organisationRegistry with socrata as registry', () => {
     })
     it('should propagate other errors', async () => {
       const environment = new Env()
-      const organisationRegistryObject = new OrganisationRegistry(environment, mockDb, mockLogger)
+      const organisationRegistryObject = new OrganisationRegistry(environment, mockLogger)
       let errorMessage: unknown
       try {
-        await organisationRegistryObject.getOrganisationProfileByOrganisationNumber({
+        const res = await organisationRegistryObject.getOrganisationProfileByOrganisationNumber({
           companyNumber: invalidCompanyNumber,
           registryCountryCode: nyRegistryCountryCode,
           selectedRegistry: socrataRegistry,
@@ -78,7 +77,7 @@ describe('organisationRegistry with socrata as registry', () => {
 
       container.registerInstance<OrganisationRegistry>(
         OrganisationRegistry,
-        new OrganisationRegistry(environment, mockDb, mockLogger)
+        new OrganisationRegistry(environment, mockLogger)
       )
       const organisationRegistryObject = container.resolve(OrganisationRegistry)
       const response = await organisationRegistryObject.localOrganisationProfile()

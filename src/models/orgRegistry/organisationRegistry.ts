@@ -54,7 +54,7 @@ export type BaseProfileSearchResult<T> =
 export default class OrganisationRegistry {
   private localOrganisationProfilePromise: Promise<SharedOrganisationInfo>
   private registries: Promise<Registries>
-  public strippedRegistriesInfo: Promise<StrippedRegistryInfo>
+  private strippedRegistries: Promise<StrippedRegistryInfo>
 
   constructor(
     private env: Env,
@@ -73,7 +73,7 @@ export default class OrganisationRegistry {
       })))
 
     // Initialize stripped registries info
-    this.strippedRegistriesInfo = this.getStrippedRegistriesInfo()
+    this.strippedRegistries = this.getStrippedRegistriesInfo()
 
     this.logger.info('OrganisationRegistry initialized')
   }
@@ -101,6 +101,9 @@ export default class OrganisationRegistry {
 
   async localOrganisationProfile(): Promise<SharedOrganisationInfo> {
     return await this.localOrganisationProfilePromise
+  }
+  async strippedRegistriesInfo(): Promise<StrippedRegistryInfo> {
+    return await this.strippedRegistries
   }
 
   private async resolveOrganisationRegistry(

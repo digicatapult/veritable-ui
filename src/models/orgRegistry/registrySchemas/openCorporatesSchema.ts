@@ -19,7 +19,7 @@ export const openCorporatesSchema = z.object({
   }),
 })
 
-type OpenCorporatesProfile = z.infer<typeof openCorporatesSchema>
+export type OpenCorporatesProfile = z.infer<typeof openCorporatesSchema>
 
 export const openCorporatesResultSchema = openCorporatesSchema.transform((input) => {
   const c = input.results.company

@@ -21,7 +21,7 @@ export function withOpenCorporatesMock() {
     const client = agent.get(env.get('OPEN_CORPORATES_API_URL'))
     client
       .intercept({
-        path: `/${gbCountryCode}/${validCompanyNumber}?api_token=test-key`,
+        path: `/companies/${gbCountryCode}/${validCompanyNumber}?api_token=test-key`,
         method: 'GET',
       })
       .reply(200, successResponse)
@@ -29,14 +29,14 @@ export function withOpenCorporatesMock() {
 
     client
       .intercept({
-        path: `/${gbCountryCode}/${noCompanyNumber}?api_token=test-key`,
+        path: `/companies/${gbCountryCode}/${noCompanyNumber}?api_token=test-key`,
         method: 'GET',
       })
       .reply(200, [])
 
     client
       .intercept({
-        path: `/${gbCountryCode}/${invalidCompanyNumber}?api_token=test-key`,
+        path: `/companies/${gbCountryCode}/${invalidCompanyNumber}?api_token=test-key`,
         method: 'GET',
       })
       .reply(404, {})
