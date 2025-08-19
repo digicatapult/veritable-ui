@@ -21,7 +21,6 @@ import {
   notFoundCompanyNumber,
   validCompanyMap,
   validConnection,
-  validRegistry,
 } from './fixtures.js'
 
 function templateFake(templateName: string, ...args: unknown[]) {
@@ -125,10 +124,6 @@ export const withNewConnectionMocks = () => {
         if (where?.connection_id) return inviteValidityMap[where?.connection_id]
         return []
       }
-      if (tableName === 'organisation_registries') {
-        if (where?.country_code) return [validRegistry]
-        return []
-      }
     },
     withTransaction: (fn: (arg: unknown) => unknown) => {
       return Promise.resolve(fn(mockWithTransaction))
@@ -136,11 +131,7 @@ export const withNewConnectionMocks = () => {
   } as unknown as Database
 
   const mockCompanyHouseEntity = {
-    getOrganisationProfileByOrganisationNumber: async ({
-      companyNumber,
-      registryCountryCode,
-      selectedRegistry,
-    }: OrganisationRequest) => {
+    getOrganisationProfileByOrganisationNumber: async ({ companyNumber }: OrganisationRequest) => {
       if (companyNumber === notFoundCompanyNumber) {
         return {
           type: 'notFound',

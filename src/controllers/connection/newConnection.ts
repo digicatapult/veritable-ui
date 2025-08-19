@@ -85,7 +85,7 @@ export class NewConnectionController extends HTMLController {
     // get available registries for a country and send back
     const availableRegistries = await this.organisationRegistry.strippedRegistriesInfo()
     // Filter registries to only include those that support the specific country code
-    const registriesForCountry = Object.entries(availableRegistries).filter(([registryType, registry]) =>
+    const registriesForCountry = Object.entries(availableRegistries).filter(([, registry]) =>
       registry.country_code.includes(registryCountryCode)
     )
 
@@ -94,10 +94,10 @@ export class NewConnectionController extends HTMLController {
 
     // Filter registries into two arrays based on third_party field
     const thirdPartyRegistries = Object.entries(filteredRegistries).filter(
-      ([_, registry]) => registry.third_party === true
+      ([, registry]) => registry.third_party === true
     )
     const countryRegistries = Object.entries(filteredRegistries).filter(
-      ([_, registry]) => registry.third_party === false
+      ([, registry]) => registry.third_party === false
     )
 
     // Transform to CountryRegistries[] type
@@ -416,7 +416,7 @@ export class NewConnectionController extends HTMLController {
     const availableRegistries = await this.organisationRegistry.strippedRegistriesInfo()
 
     // Filter registries to only include those that support the specific country code
-    const registriesForCountry = Object.entries(availableRegistries).filter(([registryType, registry]) =>
+    const registriesForCountry = Object.entries(availableRegistries).filter(([, registry]) =>
       registry.country_code.includes(decodedInvite.goalCode)
     )
     if (registriesForCountry.length === 0) {
@@ -432,10 +432,10 @@ export class NewConnectionController extends HTMLController {
 
     // Filter registries into two arrays based on third_party field
     const thirdPartyRegistries = Object.entries(filteredRegistries).filter(
-      ([_, registry]) => registry.third_party === true
+      ([, registry]) => registry.third_party === true
     )
     const countryRegistries = Object.entries(filteredRegistries).filter(
-      ([_, registry]) => registry.third_party === false
+      ([, registry]) => registry.third_party === false
     )
     const orderedRegistry = [...countryRegistries, ...thirdPartyRegistries]
 

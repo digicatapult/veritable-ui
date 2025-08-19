@@ -49,7 +49,7 @@ describe.skip('organisationRegistry with open corporates as registry', () => {
       const organisationRegistryObject = new OrganisationRegistry(environment, mockLogger)
       let errorMessage: unknown
       try {
-        const res = await organisationRegistryObject.getOrganisationProfileByOrganisationNumber({
+        await organisationRegistryObject.getOrganisationProfileByOrganisationNumber({
           companyNumber: invalidCompanyNumber,
           registryCountryCode: gbCountryCode,
           selectedRegistry: openCorporatesRegistry,

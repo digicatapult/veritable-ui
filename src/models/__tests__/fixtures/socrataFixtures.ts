@@ -1,12 +1,12 @@
 import { RegistryType } from '../../db/types.js'
-import { SharedOrganisationInfo, SocrataProfile } from '../../orgRegistry/organisationRegistry.js'
+import { SharedOrganisationInfo } from '../../orgRegistry/organisationRegistry.js'
 import { CountryCode } from '../../stringTypes.js'
 export const validCompanyNumber = '3211809'
 export const secondaryCompanyNumber = '11111111'
 export const invalidCompanyNumber = '079646992'
 export const noCompanyNumber = ''
 
-export const successResponse: SocrataProfile = [
+export const successResponse = [
   {
     dos_id: '3211809',
     current_entity_name: '00:02:59 LLC',

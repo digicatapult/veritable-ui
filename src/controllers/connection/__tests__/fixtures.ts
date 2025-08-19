@@ -1,5 +1,5 @@
 import { randomUUID } from 'crypto'
-import type { ConnectionRow, OrganisationRegistriesRow, RegistryType } from '../../../models/db/types.js'
+import type { ConnectionRow, RegistryType } from '../../../models/db/types.js'
 import { COMPANY_NUMBER, CountryCode, SOCRATA_NUMBER, UUID } from '../../../models/stringTypes.js'
 export const notFoundCompanyNumber = '00000000'
 export const invalidCompanyNumber = 'XXXXXXXX'
@@ -126,18 +126,6 @@ export const validConnection: ConnectionRow = {
   pin_tries_remaining_count: 0,
   registry_country_code: 'GB' as CountryCode,
   registry_code: 'company_house' as RegistryType,
-}
-
-export const validRegistry: OrganisationRegistriesRow = {
-  id: '4a5d4085-5924-43c6-b60d-754440332e3d',
-  country_code: 'GB' as CountryCode,
-  registry_name: 'Company House',
-  registry_key: 'company_house' as RegistryType,
-  third_party: false,
-  created_at: new Date(),
-  updated_at: new Date(),
-  url: 'https://api.company-house.gov.uk',
-  api_key: 'test-key',
 }
 
 export const validCompanyMap: Record<string, typeof validCompany> = {

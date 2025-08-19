@@ -49,7 +49,7 @@ describe('organisationRegistry with socrata as registry', () => {
       const organisationRegistryObject = new OrganisationRegistry(environment, mockLogger)
       let errorMessage: unknown
       try {
-        const res = await organisationRegistryObject.getOrganisationProfileByOrganisationNumber({
+        await organisationRegistryObject.getOrganisationProfileByOrganisationNumber({
           companyNumber: invalidCompanyNumber,
           registryCountryCode: nyRegistryCountryCode,
           selectedRegistry: socrataRegistry,

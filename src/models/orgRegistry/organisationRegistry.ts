@@ -60,20 +60,18 @@ export default class OrganisationRegistry {
     private env: Env,
     @inject(Logger) private logger: ILogger
   ) {
-    ;((this.registries = this.getConfiguredRegistries()),
-      (this.localOrganisationProfilePromise = this.getOrganisationProfileByOrganisationNumber({
-        companyNumber: env.get('INVITATION_FROM_COMPANY_NUMBER'),
-        registryCountryCode: env.get('LOCAL_REGISTRY_COUNTRY_CODE'),
-        selectedRegistry: env.get('LOCAL_REGISTRY_TO_USE'),
-      }).then((result) => {
-        if (result.type === 'notFound') {
-          throw new InternalError(`Local organisation profile not found`)
-        }
-        return result.company
-      })))
-
-    // Initialize stripped registries info
+    this.registries = this.getConfiguredRegistries()
     this.strippedRegistries = this.getStrippedRegistriesInfo()
+    this.localOrganisationProfilePromise = this.getOrganisationProfileByOrganisationNumber({
+      companyNumber: env.get('INVITATION_FROM_COMPANY_NUMBER'),
+      registryCountryCode: env.get('LOCAL_REGISTRY_COUNTRY_CODE'),
+      selectedRegistry: env.get('LOCAL_REGISTRY_TO_USE'),
+    }).then((result) => {
+      if (result.type === 'notFound') {
+        throw new InternalError(`Local organisation profile not found`)
+      }
+      return result.company
+    })
 
     this.logger.info('OrganisationRegistry initialized')
   }
