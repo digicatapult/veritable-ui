@@ -30,8 +30,9 @@ test.describe('Connection to Socrata', () => {
       await page.goto(`${baseUrlAlice}`, { waitUntil: 'networkidle' })
       await page.click('a[href="/connection"]', { delay: 100 })
 
-      await page.waitForSelector('text=Invite New Connection')
-      await page.click('a.button[href="connection/new"]', { delay: 100 })
+      const button = page.getByRole('link', { name: 'Invite New Connection' })
+      await expect(button).toBeVisible()
+      await button.click({ delay: 100 })
       await page.locator('#new-invite-country-select').waitFor({ state: 'visible' })
       await page.selectOption('#new-invite-country-select', 'United States')
       await expect(page.locator('#new-invite-country-code-display')).toHaveValue('US')
@@ -127,8 +128,9 @@ test.describe('Connection to Socrata', () => {
     })
 
     await test.step('Check connection is in state verified', async () => {
-      await expect(page.locator('a[href="/connection"]')).toBeVisible()
-      await page.click('a[href="/connection"]', { delay: 100 })
+      const connections = page.getByRole('link', { name: 'connections', exact: true })
+      await expect(connections).toBeVisible()
+      await connections.click({ delay: 100 })
 
       const statusText = page.locator('div.list-item-status[data-status="success"]')
       await expect(statusText).toBeVisible({ timeout: 15000 })
