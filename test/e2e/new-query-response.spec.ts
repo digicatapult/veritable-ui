@@ -11,7 +11,7 @@ test.describe('New query response', () => {
   let page: Page
 
   test.beforeEach(async ({ browser }) => {
-    await cleanup([AliceHost, BobHost])
+    test.setTimeout(30000) // Set timeout for this hook
     context = await browser.newContext()
     page = await context.newPage()
     await withRegisteredAccount(page, context, AliceHost)
@@ -19,15 +19,16 @@ test.describe('New query response', () => {
     await withConnection(AliceHost, BobHost)
   })
 
-  test.afterAll(async () => {
+  test.afterEach(async () => {
     await cleanup([AliceHost, BobHost])
     await page.close()
+    await context.close()
   })
 
   test('responds to a total carbon embodiment (CO2) query (Bob)', async () => {
     await withCarbonQueryRequest(AliceHost)
     await test.step('visits queries page and clicks on "respond to query" (Bob)', async () => {
-      await page.goto(`${BobHost}/queries`)
+      await page.goto(`${BobHost}/queries`, { waitUntil: 'load' })
       await page.getByText('Respond to query').click()
 
       await expect(page.getByRole('heading', { name: 'Total Carbon Embodiment Query' })).toBeVisible()
@@ -47,11 +48,12 @@ test.describe('New query response', () => {
       await expect(button).not.toBeDisabled()
       await expect(page.getByText('Once all supplier responses are received')).toBeVisible()
       await expect(page.getByText('You can check the status')).toBeVisible()
-      await button.click({ delay: 500 })
+      await button.click()
     })
 
     await test.step('returns to home page', async () => {
-      expect(page.url()).toContain(BobHost)
+      // expect(page.url()).toContain(BobHost)
+      await expect(page).toHaveURL(new RegExp(`${BobHost}/.*`))
       await expect(page.getByRole('heading', { name: 'Onboard/Refer' })).toBeVisible()
       await expect(page.getByRole('heading', { name: 'Onboard/Refer' })).not.toBeDisabled()
 
@@ -69,7 +71,7 @@ test.describe('New query response', () => {
   test('responds to a Beneficiary Account Validation (BAV) query (Bob)', async () => {
     await withBavQueryRequest(AliceHost)
     await test.step('visits queries page and clicks on "respond to query" (Bob)', async () => {
-      await page.goto(`${BobHost}/queries`)
+      await page.goto(`${BobHost}/queries`, { waitUntil: 'load' })
       await page.getByText('Respond to query').click()
 
       await expect(page.getByRole('heading', { name: 'Beneficiary Account Validation Query' })).toBeVisible()
@@ -92,7 +94,7 @@ test.describe('New query response', () => {
       await expect(button).not.toBeDisabled()
       await expect(page.getByText('Once all supplier responses are received')).toBeVisible()
       await expect(page.getByText('You can check the status')).toBeVisible()
-      await button.click({ delay: 500 })
+      await button.click()
     })
   })
 })

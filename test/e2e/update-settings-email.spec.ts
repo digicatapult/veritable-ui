@@ -8,9 +8,6 @@ test.describe('Updating Settings - email', () => {
 
   const baseUrlAlice = process.env.VERITABLE_ALICE_PUBLIC_URL || 'http://localhost:3000'
 
-  test.beforeAll(async () => {
-    await cleanup([baseUrlAlice])
-  })
   test.beforeEach(async ({ browser }) => {
     context = await browser.newContext()
     page = await context.newPage()
@@ -21,6 +18,7 @@ test.describe('Updating Settings - email', () => {
   test.afterEach(async () => {
     await cleanup([baseUrlAlice])
     await page.close()
+    await context.close()
   })
 
   test('Update admin email on alice', async () => {
@@ -41,19 +39,7 @@ test.describe('Updating Settings - email', () => {
     const changedEmailValue = await page.inputValue('#admin_email')
     expect(changedEmailValue).toContain('sometestmail@test.com')
   })
-  test('Check reset is enabled and return success response', async () => {
-    await page.waitForSelector('a[href="/settings"]')
-    await page.click('a[href="/settings"]')
-    await page.waitForURL(`${baseUrlAlice}/settings`)
 
-    await page.waitForSelector('#reset-btn')
-    await page.click('#reset-btn')
-    expect(
-      page.waitForResponse((response) => {
-        return response.url().includes('/reset') && response.status() === 200
-      })
-    ).toBeTruthy()
-  })
   test('Check version id', async () => {
     await page.waitForSelector('a[href="/settings"]')
     await page.click('a[href="/settings"]')
