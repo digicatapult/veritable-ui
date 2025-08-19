@@ -7,23 +7,15 @@ import { Request } from 'express'
 import { InvalidInputError } from '../../../errors.js'
 import { mockLogger } from '../../__tests__/helpers.js'
 import { QueriesController } from '../index.js'
-import { mockIds, toHTMLString, withQueriesMocks } from './helpers.js'
+import { expiresAt, mockIds, toHTMLString, withQueriesMocks } from './helpers.js'
 
 chai.use(chaiAsPromised)
 const expect = chai.expect
 
-const expiresAtExpectation = new Date(1000 + 7 * 24 * 60 * 60 * 1000)
-
 describe('QueriesController', () => {
   const req = { log: mockLogger } as unknown as Request
-  let clock: sinon.SinonFakeTimers | null = null
-
-  beforeEach(() => {
-    clock = sinon.useFakeTimers({ now: 1000, toFake: ['Date'] })
-  })
 
   afterEach(() => {
-    clock?.restore()
     sinon.restore()
   })
 
@@ -41,7 +33,7 @@ describe('QueriesController', () => {
       const spy = dbMock.get
       await controller.queryManagement(req).then(toHTMLString)
       expect(spy.firstCall.calledWith('connection', [], [['updated_at', 'desc']])).to.equal(true)
-      expect(spy.secondCall.calledWith('query', {}, [['updated_at', 'desc']])).to.equal(true)
+      expect(spy.secondCall.calledWith('query', {}, [['expires_at', 'asc']])).to.equal(true)
     })
 
     it('should call db as expected', async () => {
@@ -53,7 +45,7 @@ describe('QueriesController', () => {
       const query = search ? [['company_name', 'ILIKE', `%${search}%`]] : {}
       expect(spy.firstCall.calledWith('connection', query, [['updated_at', 'desc']])).to.equal(true)
 
-      expect(spy.secondCall.calledWith('query', {}, [['updated_at', 'desc']])).to.equal(true)
+      expect(spy.secondCall.calledWith('query', {}, [['expires_at', 'asc']])).to.equal(true)
     })
 
     it('should call db as expected', async () => {
@@ -90,6 +82,7 @@ describe('QueriesController', () => {
           connectionId: 'connection-id',
           productId: 'SomeID',
           quantity: 111,
+          expiresAt,
         })
         .then(toHTMLString)
 
@@ -112,7 +105,7 @@ describe('QueriesController', () => {
           response_id: null,
           role: 'requester',
           status: 'pending_their_input',
-          expires_at: expiresAtExpectation,
+          expires_at: expiresAt,
         },
       ])
       expect(result).to.equal('queryForm_success_queryForm')
@@ -128,6 +121,7 @@ describe('QueriesController', () => {
           connectionId: 'connection-id',
           productId: 'SomeID',
           quantity: 111,
+          expiresAt,
         })
         .then(toHTMLString)
 
@@ -144,6 +138,7 @@ describe('QueriesController', () => {
           connectionId: 'connection-id',
           productId: 'SomeID',
           quantity: 111,
+          expiresAt,
         })
         .then(toHTMLString)
       expect(dbMock.update.getCall(0).args).to.deep.equal([
@@ -167,6 +162,7 @@ describe('QueriesController', () => {
           connectionId: 'connection-id',
           productId: 'SomeID',
           quantity: 111,
+          expiresAt,
         })
         .then(toHTMLString)
       expect(dbMock.update.getCall(0).args).to.deep.equal([
@@ -379,7 +375,7 @@ describe('QueriesController', () => {
             id: 'ccaaaaaa-0000-4000-8000-d8ae0805059e',
             type: 'https://github.com/digicatapult/veritable-documentation/tree/main/schemas/veritable_messaging/query_types/total_carbon_embodiment/request/0.1',
             createdTime: 1,
-            expiresTime: 1,
+            expiresTime: Math.floor(expiresAt.getTime() / 1000),
           },
         ])
       })
@@ -404,7 +400,7 @@ describe('QueriesController', () => {
             response_id: null,
             response: null,
             role: 'requester',
-            expires_at: new Date(),
+            expires_at: expiresAt,
           },
         ])
       })
@@ -488,7 +484,7 @@ describe('QueriesController', () => {
             response_id: null,
             response: null,
             role: 'requester',
-            expires_at: new Date(),
+            expires_at: expiresAt,
           },
         ])
         expect(dbMock.insert.getCall(1).args).to.deep.equal([
@@ -510,7 +506,7 @@ describe('QueriesController', () => {
             response_id: null,
             response: null,
             role: 'requester',
-            expires_at: new Date(),
+            expires_at: expiresAt,
           },
         ])
         expect(

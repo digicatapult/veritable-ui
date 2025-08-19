@@ -35,6 +35,7 @@ describe('query submission', function () {
         connectionId: context.localConnectionId,
         productId: 'Test',
         quantity: 1,
+        expiresAt: new Date(),
       })
     })
 
