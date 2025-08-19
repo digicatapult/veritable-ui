@@ -41,7 +41,7 @@ test.describe('Query response view', () => {
     })
 
     await test.step('render correct CO2 emissions', async () => {
-      await expect(page).toHaveURL(new RegExp(`${AliceHost}/queries/*/response`))
+      await expect(page).toHaveURL(/\/queries\/[0-9a-f-]+\/response$/)
       await expect(page.getByRole('heading', { name: 'Query Information' })).toBeVisible()
       await expect(page.getByRole('cell', { name: 'CO2e' })).toContainText('20')
 
