@@ -28,10 +28,13 @@ export async function withRegisteredAccount(page: Page, context: CustomBrowserCo
   const expectedKeycloakUrl = `${baseKeycloakUrl}/realms/veritable/protocol/openid-connect/auth?response_type=code&client_id=veritable-ui&redirect_uri=http`
 
   await page.goto(loginUrl)
-  const url = page.url()
-  expect(url).toContain(expectedKeycloakUrl)
+  await page.waitForLoadState('networkidle')
+  expect(page.url()).toContain(expectedKeycloakUrl)
 
-  await page.click('a[href*="/realms/veritable/login-actions/registration"]')
+  const button = page.locator('a[href*="/realms/veritable/login-actions/registration"]')
+  await expect(button).toBeVisible()
+  await button.click({ delay: 100 })
+  await page.waitForLoadState('networkidle')
 
   context.username = `user-${randomUUID()}`
 
@@ -41,13 +44,17 @@ export async function withRegisteredAccount(page: Page, context: CustomBrowserCo
   await page.fill('#email', `${context.username}@testmail.com`)
   await page.fill('#firstName', 'name')
   await page.fill('#lastName', 'lastname')
-  await page.click('input[type="submit"][value="Register"]')
+  const submitButton = page.locator('input[type="submit"][value="Register"]')
+  await expect(submitButton).toBeVisible()
+  await submitButton.click({ delay: 100 })
+  await page.waitForLoadState('networkidle')
 }
 
 export async function withLoggedInUser(page: Page, context: CustomBrowserContext, loginUrl: string) {
   const baseKeycloakUrl = process.env.VERITABLE_KEYCLOAK_URL_PREFIX || 'http://localhost:3080'
   const expectedKeycloakUrl = `${baseKeycloakUrl}/realms/veritable/protocol/openid-connect/auth?response_type=code&client_id=veritable-ui&redirect_uri=http`
   await page.goto(loginUrl)
+  await page.waitForLoadState('networkidle')
   const inviteUrl = page.url()
   if (!context.username) {
     throw new Error(`username was not found`)
@@ -55,6 +62,7 @@ export async function withLoggedInUser(page: Page, context: CustomBrowserContext
   if (inviteUrl.includes(expectedKeycloakUrl)) {
     await page.fill('#username', context.username)
     await page.fill('#password', 'password')
-    await page.click('input[type="submit"][value="Sign In"]')
+    await page.click('input[type="submit"][value="Sign In"]', { delay: 100 })
+    await page.waitForLoadState('networkidle')
   }
 }
