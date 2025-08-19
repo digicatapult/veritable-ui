@@ -23,16 +23,16 @@ test.describe('Updating Settings - email', () => {
 
   test('Update admin email on alice', async () => {
     await page.waitForSelector('a[href="/settings"]')
-    await page.click('a[href="/settings"]')
+    await page.click('a[href="/settings"]', { delay: 100 })
     await page.waitForURL(`${baseUrlAlice}/settings`)
 
     await page.waitForSelector('input.edit-button')
-    await page.click('input.edit-button')
+    await page.click('input.edit-button', { delay: 100 })
 
     await page.focus('#admin_email')
     await page.fill('#admin_email', 'sometestmail@test.com')
 
-    await page.click('button[data-variant="outlined"][name="action"][value="updateSettings"]')
+    await page.click('button[data-variant="outlined"][name="action"][value="updateSettings"]', { delay: 100 })
     const emailValue = await page.inputValue('#admin_email')
     expect(emailValue).toBe('sometestmail@test.com')
 
@@ -42,7 +42,7 @@ test.describe('Updating Settings - email', () => {
 
   test('Check version id', async () => {
     await page.waitForSelector('a[href="/settings"]')
-    await page.click('a[href="/settings"]')
+    await page.click('a[href="/settings"]', { delay: 100 })
     await page.waitForURL(`${baseUrlAlice}/settings`)
 
     await page.waitForSelector('#version-id')
