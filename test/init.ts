@@ -4,6 +4,8 @@ import 'reflect-metadata'
 import chaiJestSnapshot from 'chai-jest-snapshot'
 import knex from 'knex'
 import { StartedTestContainer, StoppedTestContainer } from 'testcontainers'
+import { RegistryType } from '../src/models/db/types.js'
+import { CountryCode } from '../src/models/stringTypes.js'
 import { aliceDbConfig } from './helpers/fixtures.js'
 import {
   bringUpDependenciesContainers,
@@ -26,7 +28,13 @@ before(async function () {
   charlieDepsContainers = await bringUpDependenciesContainers('charlie', 5434, 3102)
   // Pass in ('name', host port for UI, 'company number', default company registry)
   bobUIContainer = await bringUpVeritableUIContainer('bob', 3001, '04659351')
-  charlieUIContainer = await bringUpVeritableUIContainer('charlie', 3002, '3211809', 'US')
+  charlieUIContainer = await bringUpVeritableUIContainer(
+    'charlie',
+    3002,
+    '3211809',
+    'US' as CountryCode,
+    'socrata' as RegistryType
+  )
 
   const database = knex(aliceDbConfig)
   await database.migrate.latest()

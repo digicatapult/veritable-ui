@@ -76,6 +76,8 @@ services:
       - IPID_API_KEY=${IPID_API_KEY}
       - IPID_CUSTOMER_ID=digicatapult-uat
       - LOCAL_REGISTRY_COUNTRY_CODE=GB
+      - OPEN_CORPORATES_API_URL=http://wiremock:8080
+      - OPEN_CORPORATES_API_KEY=test-key
   postgres-veritable-ui-alice:
     image: postgres:17.5-alpine
     container_name: postgres-veritable-ui-alice

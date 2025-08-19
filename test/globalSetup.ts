@@ -1,4 +1,6 @@
 import 'reflect-metadata'
+import { RegistryType } from '../src/models/db/types'
+import { CountryCode } from '../src/models/stringTypes'
 import {
   bringUpDependenciesContainers,
   bringUpSharedContainers,
@@ -14,7 +16,7 @@ async function globalSetup() {
   // Pass in ('name', host port for UI, 'company number', default company registry)
   await bringUpVeritableUIContainer('alice', 3000, '07964699')
   await bringUpVeritableUIContainer('bob', 3001, '04659351')
-  await bringUpVeritableUIContainer('charlie', 3002, '3211809', 'US')
+  await bringUpVeritableUIContainer('charlie', 3002, '3211809', 'US' as CountryCode, 'socrata' as RegistryType)
 }
 
 export default globalSetup

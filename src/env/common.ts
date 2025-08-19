@@ -51,14 +51,14 @@ export const defaultConfig = {
   CLOUDAGENT_ADMIN_PING_TIMEOUT_MS: envalid.num({ default: 30000 }),
   INVITATION_PIN_SECRET: pinSecretValidator({ devDefault: Buffer.from('secret', 'utf8') }),
   INVITATION_PIN_ATTEMPT_LIMIT: envalid.num({ default: 5 }),
-  INVITATION_FROM_COMPANY_NUMBER: envalid.str({ devDefault: '00102498' }), // TODO: change to LOCAL_COMPANY_NUMBER ??
+  INVITATION_FROM_COMPANY_NUMBER: envalid.str({ devDefault: '07964699' }), // TODO: change to LOCAL_COMPANY_NUMBER ??
   ISSUANCE_DID_POLICY: issuanceRecordValidator({ devDefault: 'EXISTING_OR_NEW' }),
   ISSUANCE_SCHEMA_POLICY: issuanceRecordValidator({ devDefault: 'EXISTING_OR_NEW' }),
   ISSUANCE_CRED_DEF_POLICY: issuanceRecordValidator({ devDefault: 'EXISTING_OR_NEW' }),
   DEMO_MODE: envalid.bool({ devDefault: true, default: false }),
   SOCRATA_API_URL: envalid.str({ default: 'https://data.ny.gov/resource/p66s-i79p.json' }),
   LOCAL_REGISTRY_TO_USE: envalid.str({
-    default: 'open_corporates',
+    default: 'company_house',
     devDefault: 'open_corporates',
     choices: registryTypes,
   }),
