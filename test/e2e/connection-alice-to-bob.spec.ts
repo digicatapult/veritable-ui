@@ -40,6 +40,8 @@ test.describe('Connection from Alice to Bob', () => {
       await page.waitForSelector('text=Invite New Connection')
       await page.click('a.button[href="connection/new"]')
 
+      await page.selectOption('#new-invite-country-select', 'United Kingdom')
+
       await expect(page.locator('#new-invite-country-code-display')).toHaveValue('GB')
       await page.fill('#new-invite-company-number-input', '04659351')
       await page.fill('#new-invite-email-input', 'alice@testmail.com')
