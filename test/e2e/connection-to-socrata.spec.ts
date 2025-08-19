@@ -27,8 +27,7 @@ test.describe('Connection to Socrata', () => {
 
   test('Connection from Alice to Charlie', async () => {
     await test.step('Alice invites Charlie to connect', async () => {
-      await page.goto(`${baseUrlAlice}`)
-      await page.waitForLoadState('networkidle')
+      await page.goto(`${baseUrlAlice}`, { waitUntil: 'networkidle' })
       await page.click('a[href="/connection"]', { delay: 100 })
 
       await page.waitForSelector('text=Invite New Connection')
@@ -70,8 +69,7 @@ test.describe('Connection to Socrata', () => {
     })
 
     await test.step('Charlie submits invite and pin', async () => {
-      await page.goto(`${baseUrlCharlie}/connection`)
-      await page.waitForLoadState('networkidle')
+      await page.goto(`${baseUrlCharlie}/connection`, { waitUntil: 'networkidle' })
 
       // Fill in invite without last character, then enter last character to simulate typing
       const contentWithoutLastChar = invite!.slice(0, -1)
@@ -79,7 +77,6 @@ test.describe('Connection to Socrata', () => {
 
       // Submit invite
       await page.click('text=Add from Invitation', { delay: 100 })
-      await page.waitForLoadState('networkidle')
       await page.locator('textarea[name="invite"]').waitFor({ state: 'visible' })
       await page.fill('textarea[name="invite"]', contentWithoutLastChar)
       await page.locator('textarea[name="invite"]').press(lastChar)
@@ -111,8 +108,7 @@ test.describe('Connection to Socrata', () => {
     })
 
     await test.step('Alice submits her PIN', async () => {
-      await page.goto(`${baseUrlAlice}/connection`, { waitUntil: 'load' })
-      await page.waitForLoadState('networkidle')
+      await page.goto(`${baseUrlAlice}/connection`, { waitUntil: 'networkidle' })
 
       const hrefRegex = /\/connection\/[0-9a-fA-F-]{36}\/pin-submission/
       const hrefElement = page.locator(`a[href*="/connection/"][href*="/pin-submission"]`)
@@ -125,11 +121,13 @@ test.describe('Connection to Socrata', () => {
       await page.locator('#new-connection-invite-input-pin').waitFor({ state: 'visible' })
       await page.fill('#new-connection-invite-input-pin', pinForAlice)
       const aliceButton = page.locator('button[type="submit"][name="action"][value="submitPinCode"]')
+      await expect(aliceButton).toBeVisible()
       await aliceButton.click({ delay: 100 })
+      await page.waitForLoadState('networkidle')
     })
 
     await test.step('Check connection is in state verified', async () => {
-      await page.waitForLoadState('networkidle')
+      await expect(page.locator('a[href="/connection"]')).toBeVisible()
       await page.click('a[href="/connection"]', { delay: 100 })
 
       const statusText = page.locator('div.list-item-status[data-status="success"]')
