@@ -33,11 +33,14 @@ export async function withRegisteredAccount(page: Page, context: CustomBrowserCo
 
   const button = page.locator('a[href*="/realms/veritable/login-actions/registration"]')
   await expect(button).toBeVisible()
+  await expect(button).not.toBeDisabled()
   await button.click({ delay: 100 })
   await page.waitForLoadState('networkidle')
 
   context.username = `user-${randomUUID()}`
 
+  const register = page.getByRole('heading', { name: 'Register' })
+  await expect(register).toBeVisible()
   await page.fill('#username', context.username)
   await page.fill('#password', 'password')
   await page.fill('#password-confirm', 'password')
