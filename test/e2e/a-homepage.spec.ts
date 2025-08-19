@@ -21,8 +21,7 @@ test.describe('Homepage redirect', () => {
 
   test('successful login redirect', async ({ page }) => {
     const expectedUrl = `${baseKeycloakUrl}/realms/veritable/protocol/openid-connect/auth?response_type=code&client_id=veritable-ui&redirect_uri=http`
-    await page.goto(baseUrlAlice, { waitUntil: 'load' })
-    const url = page.url()
-    expect(url).toContain(expectedUrl)
+    await page.goto(baseUrlAlice, { waitUntil: 'networkidle' })
+    expect(page.url()).toContain(expectedUrl)
   })
 })

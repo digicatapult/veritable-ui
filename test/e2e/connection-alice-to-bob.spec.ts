@@ -28,11 +28,12 @@ test.describe('Connection from Alice to Bob', () => {
   // End-to-end process: Alice registers, invites Bob, Bob submits invite & pin, Alice submits pin
   test('Connection from Alice to Bob', async () => {
     await test.step('Alice invites Bob to connect', async () => {
-      await page.goto(`${baseUrlAlice}`, { waitUntil: 'load' })
-      await page.click('a[href="/connection"]')
+      await page.goto(`${baseUrlAlice}`)
+      await page.waitForLoadState('networkidle')
+      await page.click('a[href="/connection"]', { delay: 100 })
 
       await page.waitForSelector('text=Invite New Connection')
-      await page.click('a.button[href="connection/new"]')
+      await page.click('a.button[href="connection/new"]', { delay: 100 })
       await page.locator('#new-invite-country-select').waitFor({ state: 'visible' })
       await page.selectOption('#new-invite-country-select', 'United Kingdom')
       await expect(page.locator('#new-invite-country-code-display')).toHaveValue('GB')
@@ -45,15 +46,15 @@ test.describe('Connection from Alice to Bob', () => {
       await expect(feedbackElement).toHaveAttribute('class', 'accented-container feedback-positive')
       await expect(feedbackElement).toContainText('OFFSHORE RENEWABLE ENERGY CATAPULT')
       await expect(feedbackElement).toContainText('Albert Street')
-      await page.click('button[type="submit"][name="action"][value="continue"]')
+      await page.click('button[type="submit"][name="action"][value="continue"]', { delay: 100 })
 
       const confirmationElement = page.locator('#new-connection-confirmation-text')
-      await expect(confirmationElement).toBeVisible()
-      expect(confirmationElement).toContainText('Please confirm the details of the connection before sending')
-      expect(confirmationElement).toContainText('Company Number: 04659351')
-      expect(confirmationElement).toContainText('Email Address: alice@testmail.com')
+      await expect(confirmationElement).toBeVisible({ timeout: 12000 })
+      await expect(confirmationElement).toContainText('Please confirm the details of the connection before sending')
+      await expect(confirmationElement).toContainText('Company Number: 04659351')
+      await expect(confirmationElement).toContainText('Email Address: alice@testmail.com')
 
-      await page.click('button[type="submit"][name="action"][value="submit"]')
+      await page.click('button[type="submit"][name="action"][value="submit"]', { delay: 100 })
       await expect(confirmationElement).toContainText('Your connection invitation has been sent')
     })
 
@@ -70,33 +71,34 @@ test.describe('Connection from Alice to Bob', () => {
     })
 
     await test.step('Bob submits invite and pin', async () => {
-      await page.goto(`${baseUrlBob}/connection`, { waitUntil: 'load' })
-      await page.waitForURL('**/connection')
+      await page.goto(`${baseUrlBob}/connection`)
+      await page.waitForLoadState('networkidle')
 
       // Fill in invite without last character, then enter last character to simulate typing
       const contentWithoutLastChar = invite!.slice(0, -1)
       const lastChar = invite!.slice(-1)
 
       // Submit invite
-      await page.click('text=Add from Invitation')
+      await page.click('text=Add from Invitation', { delay: 100 })
+      await page.waitForLoadState('networkidle')
       await page.locator('textarea[name="invite"]').waitFor({ state: 'visible' })
       await page.fill('textarea[name="invite"]', contentWithoutLastChar)
       await page.locator('textarea[name="invite"]').press(lastChar)
 
-      // await page.waitForSelector('.feedback-positive')
       const feedback = page.locator('#new-connection-feedback')
-      await expect(feedback).toContainText('DIGITAL CATAPULT')
+      await expect(feedback).toContainText('DIGITAL CATAPULT', { timeout: 12000 })
 
-      await page.click('button[type="submit"][name="action"][value="createConnection"]')
+      await page.click('button[type="submit"][name="action"][value="createConnection"]', { delay: 100 })
 
       // Submit pin
-      const pinInput = page.locator('#new-connection-invite-input-pin')
-      await expect(pinInput).toBeVisible()
+      await page.waitForLoadState('networkidle')
+      await page.locator('#new-connection-invite-input-pin').waitFor({ state: 'visible' })
       await page.fill('#new-connection-invite-input-pin', pinForBob)
-      await page.click('button[type="submit"][name="action"][value="submitPinCode"]')
+      const bobButton = page.locator('button[type="submit"][name="action"][value="submitPinCode"]')
+      await bobButton.click({ delay: 100 })
 
       const confirmationElement = page.locator('#new-connection-invite-input')
-      await expect(confirmationElement).toBeVisible()
+      await expect(confirmationElement).toBeVisible({ timeout: 12000 })
       await expect(confirmationElement).toContainText('PIN Code has been submitted for DIGITAL CATAPULT company ID.')
     })
 
@@ -111,6 +113,7 @@ test.describe('Connection from Alice to Bob', () => {
 
     await test.step('Alice submits her PIN', async () => {
       await page.goto(`${baseUrlAlice}/connection`, { waitUntil: 'load' })
+      await page.waitForLoadState('networkidle')
 
       const hrefRegex = /\/connection\/[0-9a-fA-F-]{36}\/pin-submission/
       const hrefElement = page.locator(`a[href*="/connection/"][href*="/pin-submission"]`)
@@ -118,18 +121,20 @@ test.describe('Connection from Alice to Bob', () => {
       const href = await hrefElement.getAttribute('href')
       expect(href).toMatch(hrefRegex)
 
-      await page.click(`a[href="${href}"]`)
+      await page.click(`a[href="${href}"]`, { delay: 100 })
+      await page.waitForLoadState('networkidle')
       await page.locator('#new-connection-invite-input-pin').waitFor({ state: 'visible' })
       await page.fill('#new-connection-invite-input-pin', pinForAlice)
-      await page.click('button[type="submit"][name="action"][value="submitPinCode"]')
+      const aliceButton = page.locator('button[type="submit"][name="action"][value="submitPinCode"]')
+      await aliceButton.click({ delay: 100 })
     })
 
     await test.step('Check connection is in state verified', async () => {
-      test.slow() // Increase timeout to wait for success message
-      await page.click('a[href="/connection"]')
-      await page.locator('div.list-item-status[data-status="success"]').waitFor({ state: 'visible' })
+      await page.waitForLoadState('networkidle')
+      await page.click('a[href="/connection"]', { delay: 100 })
 
       const statusText = page.locator('div.list-item-status[data-status="success"]')
+      await expect(statusText).toBeVisible({ timeout: 15000 })
       await expect(statusText).toContainText('Connected')
       await expect(page.locator('#search-results')).toContainText('04659351')
       await expect(page.locator('#search-results')).toContainText('GB')
