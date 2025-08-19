@@ -11,7 +11,7 @@ test.describe('Query response view', () => {
   let page: Page
 
   test.beforeEach(async ({ browser }) => {
-    test.setTimeout(30000) // Set timeout for this hook
+    test.setTimeout(30000) // withConnection() can take 12sec to complete
     context = await browser.newContext()
     page = await context.newPage()
     await withRegisteredAccount(page, context, AliceHost)
@@ -33,24 +33,26 @@ test.describe('Query response view', () => {
 
       await expect(page.getByText('OFFSHORE RENEWABLE ENERGY CATAPULT')).toBeVisible()
       await expect(page.getByText('Total Carbon Embodiment')).toBeVisible()
-      await expect(page.getByText('View Response')).not.toBeDisabled()
-      await page.getByText('View Response').click()
+      const viewResponse = page.getByText('View Response')
+      await expect(viewResponse).toBeVisible()
+      await expect(viewResponse).not.toBeDisabled()
+      await viewResponse.click({ delay: 100 })
     })
 
     await test.step('render correct CO2 emissions', async () => {
-      await expect(page).toHaveURL(new RegExp(`${AliceHost}/queries.*`))
-      const table = page.getByRole('table')
+      await page.waitForURL('**/queries/*/response', { waitUntil: 'networkidle' })
 
-      await expect(table.getByText('CO2e')).toContainText('20')
       await expect(page.getByRole('heading', { name: 'Query Information' })).toBeVisible()
+      await expect(page.getByRole('cell', { name: 'CO2e' })).toContainText('20')
+
       const button = page.getByText('Back To Queries')
       await expect(button).not.toBeDisabled()
       await expect(button).toBeVisible()
-      await button.click()
+      await button.click({ delay: 100 })
     })
 
     await test.step('returns to queries page', async () => {
-      await expect(page).toHaveURL(new RegExp(`${AliceHost}/queries.*`))
+      await page.waitForLoadState('networkidle')
       await expect(page.getByText('Total Carbon Embodiment')).toBeVisible()
       await expect(page.getByText('View Response')).not.toBeDisabled()
     })
@@ -64,7 +66,7 @@ test.describe('Query response view', () => {
     await withBavQueryResponse(AliceHost, BobHost, countryCode, name, accountId, clearingSystemId)
 
     await test.step('visits queries page and clicks on "view response" (Alice)', async () => {
-      await page.goto(`${AliceHost}/queries`, { waitUntil: 'load' })
+      await page.goto(`${AliceHost}/queries`, { waitUntil: 'networkidle' })
 
       await expect(page.getByText('OFFSHORE RENEWABLE ENERGY CATAPULT')).toBeVisible()
       await expect(page.getByText('Beneficiary Account Validation')).toBeVisible()
@@ -73,9 +75,10 @@ test.describe('Query response view', () => {
     })
 
     await test.step('render correct bank details', async () => {
+      await page.waitForLoadState('networkidle')
       await expect(page).toHaveURL(new RegExp(`${AliceHost}/queries.*`))
-      const table = page.getByRole('table')
 
+      const table = page.getByRole('table')
       await expect(table.locator('tr', { hasText: 'Country' })).toContainText('United Kingdom')
       await expect(table.locator('tr', { hasText: /^Name:/ })).toContainText(name)
       await expect(table.locator('tr', { hasText: 'Account ID' })).toContainText(accountId)
@@ -89,8 +92,9 @@ test.describe('Query response view', () => {
 
       const verifyButton = page.locator('#bav-verify-button')
       await expect(verifyButton).toBeVisible()
-      await verifyButton.click()
+      await verifyButton.click({ delay: 100 })
 
+      await page.waitForLoadState('networkidle')
       await expect(table.locator('tr', { hasText: 'Description' })).toContainText('Partial Match')
       await expect(page.getByText('Send new query')).toBeVisible()
     })
@@ -99,7 +103,9 @@ test.describe('Query response view', () => {
       const button = page.getByText('Back To Queries')
       await expect(button).not.toBeDisabled()
       await expect(button).toBeVisible()
-      await button.click()
+      await button.click({ delay: 100 })
+
+      await page.waitForLoadState('networkidle')
       await expect(page).toHaveURL(new RegExp(`${AliceHost}/queries.*`))
       await expect(page.getByText('Beneficiary Account Validation')).toBeVisible()
       await expect(page.getByText('View Response')).not.toBeDisabled()
