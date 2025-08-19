@@ -21,13 +21,14 @@ test.describe('Redirect to about page', () => {
   })
 
   test('Redirect to about page', async () => {
-    await page.waitForSelector('a[href="/about"]')
-    await page.click('a[href="/about"]')
-    await page.waitForURL(`${baseUrlAlice}/about`)
+    const selector = page.locator('#veritable-logo')
+    await expect(selector).toBeVisible()
+    await selector.click({ delay: 100 })
+    await page.waitForURL(`${baseUrlAlice}/about`, { waitUntil: 'load' })
 
     const aboutText = page.locator('#about-container')
     await expect(aboutText).toContainText('Veritable is a platform that enhances trust and transparency')
-    expect(aboutText).toContainText('Enables seamless data requests and responses')
-    expect(aboutText).toContainText('Manages and verifies digital credentials for compliance')
+    await expect(aboutText).toContainText('Enables seamless data requests and responses')
+    await expect(aboutText).toContainText('Manages and verifies digital credentials for compliance')
   })
 })
