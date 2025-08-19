@@ -133,3 +133,11 @@ export const socrataCompany = {
   dos_process_state: 'NY',
   dos_process_zip: '11215',
 }
+
+export const openCorporatesCompany = {
+  name: 'BP P.L.C.',
+  registered_address_in_full: "1 ST JAMES'S SQUARE, LONDON, SW1Y 4PD",
+  company_number: '00102498',
+  current_status: 'Active',
+  jurisdiction_code: 'gb',
+}
