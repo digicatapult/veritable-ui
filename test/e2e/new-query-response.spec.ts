@@ -11,7 +11,7 @@ test.describe('New query response', () => {
   let page: Page
 
   test.beforeEach(async ({ browser }) => {
-    test.setTimeout(30000) // Set timeout for this hook
+    test.setTimeout(30000) // withConnection() can take 12sec to complete
     context = await browser.newContext()
     page = await context.newPage()
     await withRegisteredAccount(page, context, AliceHost)
@@ -27,18 +27,21 @@ test.describe('New query response', () => {
 
   test('responds to a total carbon embodiment (CO2) query (Bob)', async () => {
     await withCarbonQueryRequest(AliceHost)
-    await test.step('visits queries page and clicks on "respond to query" (Bob)', async () => {
-      await page.goto(`${BobHost}/queries`, { waitUntil: 'load' })
-      await page.getByText('Respond to query').click()
 
+    await test.step('visits queries page and clicks on "respond to query" (Bob)', async () => {
+      await page.goto(`${BobHost}/queries`, { waitUntil: 'networkidle' })
+      await page.getByText('Respond to query').click({ delay: 100 })
+      await page.waitForLoadState('networkidle')
       await expect(page.getByRole('heading', { name: 'Total Carbon Embodiment Query' })).toBeVisible()
     })
 
     await test.step('enters emissions and submits a query response', async () => {
       await page.fill('#co2-embodiment-input', '200')
-      await expect(page.getByRole('button', { name: 'Submit Response' })).toBeVisible()
-      await expect(page.getByRole('button', { name: 'Submit Response' })).not.toBeDisabled()
-      await page.getByRole('button', { name: 'Submit Response' }).click()
+      const button = page.getByRole('button', { name: 'Submit Response' })
+      await expect(button).toBeVisible()
+      await expect(button).not.toBeDisabled()
+      await button.click({ delay: 100 })
+      await page.waitForLoadState('networkidle')
     })
 
     await test.step('updates query status to be resolved', async () => {
@@ -48,11 +51,11 @@ test.describe('New query response', () => {
       await expect(button).not.toBeDisabled()
       await expect(page.getByText('Once all supplier responses are received')).toBeVisible()
       await expect(page.getByText('You can check the status')).toBeVisible()
-      await button.click()
+      await button.click({ delay: 100 })
+      await page.waitForLoadState('networkidle')
     })
 
     await test.step('returns to home page', async () => {
-      // expect(page.url()).toContain(BobHost)
       await expect(page).toHaveURL(new RegExp(`${BobHost}/.*`))
       await expect(page.getByRole('heading', { name: 'Onboard/Refer' })).toBeVisible()
       await expect(page.getByRole('heading', { name: 'Onboard/Refer' })).not.toBeDisabled()
@@ -71,9 +74,9 @@ test.describe('New query response', () => {
   test('responds to a Beneficiary Account Validation (BAV) query (Bob)', async () => {
     await withBavQueryRequest(AliceHost)
     await test.step('visits queries page and clicks on "respond to query" (Bob)', async () => {
-      await page.goto(`${BobHost}/queries`, { waitUntil: 'load' })
-      await page.getByText('Respond to query').click()
-
+      await page.goto(`${BobHost}/queries`, { waitUntil: 'networkidle' })
+      await page.getByText('Respond to query').click({ delay: 100 })
+      await page.waitForLoadState('networkidle')
       await expect(page.getByRole('heading', { name: 'Beneficiary Account Validation Query' })).toBeVisible()
     })
 
@@ -83,18 +86,22 @@ test.describe('New query response', () => {
       await page.fill('#bav-name-input', 'Company Name')
       await page.fill('#bav-account-id-input', '12345678')
       await page.fill('#bav-clearing-system-id-input', '123456')
-      await expect(page.getByRole('button', { name: 'Submit Response' })).not.toBeDisabled()
-      await page.getByRole('button', { name: 'Submit Response' }).click()
+      const button = page.getByRole('button', { name: 'Submit Response' })
+      await expect(button).toBeVisible()
+      await expect(button).not.toBeDisabled()
+      await button.click({ delay: 100 })
+      await page.waitForLoadState('networkidle')
     })
 
     await test.step('updates query status to be resolved', async () => {
-      const button = page.getByText('Back to Home')
       await expect(page.getByRole('heading', { name: 'Thank you for your response' })).toBeVisible()
+      const button = page.getByText('Back to Home')
       await expect(button).toBeVisible()
       await expect(button).not.toBeDisabled()
       await expect(page.getByText('Once all supplier responses are received')).toBeVisible()
       await expect(page.getByText('You can check the status')).toBeVisible()
-      await button.click()
+      await button.click({ delay: 100 })
+      await page.waitForLoadState('networkidle')
     })
   })
 })

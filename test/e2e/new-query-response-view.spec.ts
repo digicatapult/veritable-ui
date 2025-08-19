@@ -29,7 +29,7 @@ test.describe('Query response view', () => {
     await withCarbonQueryResponse(AliceHost, BobHost, 20)
 
     await test.step('visits queries page and clicks on "view response" (Alice)', async () => {
-      await page.goto(`${AliceHost}/queries`, { waitUntil: 'load' })
+      await page.goto(`${AliceHost}/queries`, { waitUntil: 'networkidle' })
 
       await expect(page.getByText('OFFSHORE RENEWABLE ENERGY CATAPULT')).toBeVisible()
       await expect(page.getByText('Total Carbon Embodiment')).toBeVisible()
@@ -37,22 +37,22 @@ test.describe('Query response view', () => {
       await expect(viewResponse).toBeVisible()
       await expect(viewResponse).not.toBeDisabled()
       await viewResponse.click({ delay: 100 })
+      await page.waitForLoadState('networkidle')
     })
 
     await test.step('render correct CO2 emissions', async () => {
-      await page.waitForURL('**/queries/*/response', { waitUntil: 'networkidle' })
-
+      await expect(page).toHaveURL(new RegExp(`${AliceHost}/queries/*/response`))
       await expect(page.getByRole('heading', { name: 'Query Information' })).toBeVisible()
       await expect(page.getByRole('cell', { name: 'CO2e' })).toContainText('20')
 
       const button = page.getByText('Back To Queries')
-      await expect(button).not.toBeDisabled()
       await expect(button).toBeVisible()
+      await expect(button).not.toBeDisabled()
       await button.click({ delay: 100 })
+      await page.waitForLoadState('networkidle')
     })
 
     await test.step('returns to queries page', async () => {
-      await page.waitForLoadState('networkidle')
       await expect(page.getByText('Total Carbon Embodiment')).toBeVisible()
       await expect(page.getByText('View Response')).not.toBeDisabled()
     })
@@ -71,11 +71,11 @@ test.describe('Query response view', () => {
       await expect(page.getByText('OFFSHORE RENEWABLE ENERGY CATAPULT')).toBeVisible()
       await expect(page.getByText('Beneficiary Account Validation')).toBeVisible()
       await expect(page.getByText('View Response')).not.toBeDisabled()
-      await page.getByText('View Response').click({ delay: 500 })
+      await page.getByText('View Response').click({ delay: 100 })
+      await page.waitForLoadState('networkidle')
     })
 
     await test.step('render correct bank details', async () => {
-      await page.waitForLoadState('networkidle')
       await expect(page).toHaveURL(new RegExp(`${AliceHost}/queries.*`))
 
       const table = page.getByRole('table')
@@ -101,8 +101,8 @@ test.describe('Query response view', () => {
 
     await test.step('returns to queries page', async () => {
       const button = page.getByText('Back To Queries')
-      await expect(button).not.toBeDisabled()
       await expect(button).toBeVisible()
+      await expect(button).not.toBeDisabled()
       await button.click({ delay: 100 })
 
       await page.waitForLoadState('networkidle')
