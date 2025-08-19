@@ -6,7 +6,6 @@ import { CountryCode } from '../../src/models/stringTypes.js'
 import { cleanupCloudagent, cleanupDatabase } from '../helpers/cleanup.js'
 import { setupTwoPartyContext, TwoPartyContext } from '../helpers/connection.js'
 import { alice, socrataCompany } from '../helpers/fixtures.js'
-import { cleanupRegistries, insertCompanyHouseRegistry, insertSocrataRegistry } from '../helpers/registries.js'
 import { post } from '../helpers/routeHelper.js'
 import { delay } from '../helpers/util.js'
 const ukRegistryCountryCode = 'GB' as CountryCode
@@ -23,15 +22,12 @@ describe('NewConnectionController', () => {
 
     await cleanupCloudagent([context.localCloudagent, context.remoteCloudagent])
     await cleanupDatabase([context.localDatabase, context.remoteDatabase])
-    await insertCompanyHouseRegistry()
-    await insertSocrataRegistry()
   })
 
   afterEach(async () => {
     context.cloudagentEvents.stop()
     await cleanupCloudagent([context.localCloudagent, context.remoteCloudagent])
     await cleanupDatabase([context.localDatabase, context.remoteDatabase])
-    await cleanupRegistries()
   })
 
   describe('create invitation (happy path)', function () {
@@ -43,6 +39,7 @@ describe('NewConnectionController', () => {
         email: 'alice@testmail.com',
         action: 'submit',
         registryCountryCode: ukRegistryCountryCode,
+        selectedRegistry: 'company_house',
       })
     })
 
@@ -69,6 +66,7 @@ describe('NewConnectionController', () => {
         email: 'alice@testmail.com',
         action: 'submit',
         registryCountryCode: ukRegistryCountryCode,
+        selectedRegistry: 'company_house',
       })
       const connectionRows = await context.localDatabase.get('connection')
       expect(connectionRows.length).to.equal(1)
@@ -88,6 +86,7 @@ describe('NewConnectionController', () => {
         email: 'alice@testmail.com',
         action: 'submit',
         registryCountryCode: ukRegistryCountryCode,
+        selectedRegistry: 'company_house',
       })
       const connectionRows = await context.localDatabase.get('connection')
       expect(connectionRows.length).to.equal(1)
@@ -113,6 +112,7 @@ describe('NewConnectionController', () => {
         email: 'alice@testmail.com',
         action: 'submit',
         registryCountryCode: ukRegistryCountryCode,
+        selectedRegistry: 'company_house',
       })
       const connectionRows = await context.localDatabase.get('connection')
       expect(connectionRows.length).to.equal(1)
@@ -219,6 +219,7 @@ describe('NewConnectionController', () => {
         email: 'alice@testmail.com',
         action: 'submit',
         registryCountryCode: ukRegistryCountryCode,
+        selectedRegistry: 'company_house',
       })
 
       const invite = (emailSendStub.args.find(([name]) => name === 'connection_invite') || [])[1].invite
@@ -251,6 +252,7 @@ describe('NewConnectionController', () => {
         email: 'socrata-company@testmail.com',
         action: 'submit',
         registryCountryCode: nyRegistryCountryCode,
+        selectedRegistry: 'socrata',
       })
     })
 

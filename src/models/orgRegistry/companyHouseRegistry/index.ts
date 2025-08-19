@@ -37,7 +37,6 @@ const makeCompanyProfileRequest = async (route: string, registry: Registries[Reg
       Authorization: registry.api_key,
     }),
   })
-
   if (response.ok) {
     return response.json()
   }

@@ -3,7 +3,6 @@ import { afterEach, beforeEach, describe } from 'mocha'
 import { carbonEmbodimentResponseData } from '../../src/models/drpc.js'
 import { cleanupCloudagent, cleanupDatabase } from '../helpers/cleanup.js'
 import { setupThreePartyContext, ThreePartyContext, withBobAndCharlie } from '../helpers/connection.js'
-import { cleanupRegistries, insertCompanyHouseRegistry } from '../helpers/registries.js'
 import { fetchPost, post } from '../helpers/routeHelper.js'
 
 describe('partial query aggregation', function () {
@@ -15,14 +14,12 @@ describe('partial query aggregation', function () {
 
     await cleanupCloudagent([context.agent.alice, context.agent.bob, context.agent.charlie])
     await cleanupDatabase([context.db.alice, context.db.bob, context.db.charlie])
-    await insertCompanyHouseRegistry()
   })
 
   afterEach(async () => {
     context.cloudagentEvents.stop()
     await cleanupCloudagent([context.agent.alice, context.agent.bob, context.agent.charlie])
     await cleanupDatabase([context.db.alice, context.db.bob, context.db.charlie])
-    await cleanupRegistries()
   })
 
   describe('with established connections: Alice -> Bob -> Charlie', function () {

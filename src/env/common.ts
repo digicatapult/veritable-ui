@@ -59,7 +59,7 @@ export const defaultConfig = {
   SOCRATA_API_URL: envalid.str({ default: 'https://data.ny.gov/resource/p66s-i79p.json' }),
   LOCAL_REGISTRY_TO_USE: envalid.str({
     default: 'company_house',
-    devDefault: 'open_corporates',
+    devDefault: 'company_house',
     choices: registryTypes,
   }),
   LOCAL_REGISTRY_COUNTRY_CODE: envalid.str({
