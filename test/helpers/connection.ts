@@ -268,7 +268,7 @@ export const withVerifiedConnection = function (context: TwoPartyContext) {
       if (connectionsLocal[0].status === 'unverified' || connectionsRemote[0].status === 'unverified') {
         continue
       } else {
-        await delay(100)
+        await delay(200)
       }
 
       if (i === loopLimit) {
