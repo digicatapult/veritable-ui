@@ -87,26 +87,6 @@ export class NewInviteTemplates extends NewConnectionTemplates {
           </select>
           <input id="new-invite-country-code-display" type="text" readonly value={props.registryCountryCode} />
         </div>
-        {/* <input
-          id="new-invite-company-number-input"
-          name="companyNumber"
-          placeholder="Company Number"
-          required
-          hx-get="/connection/new/verify-company"
-          hx-trigger="keyup changed delay:200ms, change, load"
-          hx-target="#new-connection-feedback"
-          hx-select="#new-connection-feedback"
-          hx-swap="outerHTML"
-          hx-include="#new-invite-country-select"
-          pattern={
-            props.feedback.type === 'message' && props.feedback.regex ? props.feedback.regex : companyNumberRegex.source
-          }
-          minlength={props.feedback.type === 'message' && props.feedback.minlength ? props.feedback.minlength : 6}
-          maxlength={props.feedback.type === 'message' && props.feedback.maxlength ? props.feedback.maxlength : 10}
-          oninput="this.reportValidity()"
-          value={props.companyNumber}
-          type="text"
-        ></input> */}
 
         <div id="dynamic-invite-form-content">
           <p>Configured registries for this country </p>
@@ -154,7 +134,7 @@ export class NewInviteTemplates extends NewConnectionTemplates {
           <input
             id="new-invite-company-number-input"
             name="companyNumber"
-            placeholder="Company Number"
+            placeholder="Companie's Number or ID"
             required
             hx-get="/connection/new/verify-company"
             hx-trigger="keyup changed delay:200ms, change, load"

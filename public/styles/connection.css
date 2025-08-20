@@ -57,7 +57,7 @@
 }
 
 #new-connection-feedback::before {
-  content: 'Official Companies House Information';
+  content: 'Official Company Information';
   position: absolute;
   top: 0;
   left: 0;
@@ -97,7 +97,7 @@
   grid-template-columns: 34ch 6ch;
 }
 
-#new-connection-form #new-invite-country-code-display{
+#new-connection-form #new-invite-country-code-display {
   min-width: 2ch;
 }
 
