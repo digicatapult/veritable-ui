@@ -80,7 +80,6 @@ test.describe('New query request', () => {
       const button = queryRow.getByText('Respond to Query')
 
       await expect(button).toBeVisible()
-      await expect(button).toBeVisible()
       await expect(button).toBeEnabled()
       await expect(queryRow.getByText('Total Carbon Embodiment')).toBeVisible()
       await expect(queryRow.getByText('Received')).toBeVisible()
@@ -135,7 +134,6 @@ test.describe('New query request', () => {
       const button = queryRow.getByText('Respond to Query')
 
       await expect(button).toBeVisible()
-      await expect(button).toBeVisible()
       await expect(button).toBeEnabled()
       await expect(queryRow.getByText('Beneficiary Account Validation')).toBeVisible()
       await expect(queryRow.getByText('Received')).toBeVisible()
@@ -165,7 +163,6 @@ test.describe('New query request', () => {
 
       await page.getByLabel('Request Deadline').fill(expiresAt)
       await page.getByRole('button', { name: 'Submit Query' }).click({ delay: 100 })
-      await page.waitForLoadState('networkidle')
 
       const successModal = page.locator('#new-query-confirmation-text')
       await expect(successModal).toBeVisible()

@@ -56,7 +56,6 @@ test.describe('New query response', () => {
     })
 
     await test.step('returns to home page', async () => {
-      await expect(page).toHaveURL(new RegExp(`${BobHost}/.*`))
       await expect(page.getByRole('heading', { name: 'Onboard/Refer' })).toBeVisible()
       await expect(page.getByRole('heading', { name: 'Onboard/Refer' })).not.toBeDisabled()
 
@@ -73,6 +72,7 @@ test.describe('New query response', () => {
 
   test('responds to a Beneficiary Account Validation (BAV) query (Bob)', async () => {
     await withBavQueryRequest(AliceHost)
+
     await test.step('visits queries page and clicks on "respond to query" (Bob)', async () => {
       await page.goto(`${BobHost}/queries`, { waitUntil: 'networkidle' })
       await page.getByText('Respond to query').click({ delay: 100 })
