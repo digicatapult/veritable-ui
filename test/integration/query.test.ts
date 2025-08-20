@@ -29,7 +29,7 @@ describe('query submission', function () {
         connectionId: context.localConnectionId,
         productId: 'Test',
         quantity: 1,
-        expiresAt: new Date(),
+        expiresAt: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000),
       })
       expect(response.statusCode).to.equal(200)
     })
@@ -39,6 +39,7 @@ describe('query submission', function () {
         connectionId: context.localConnectionId,
         productId: 'Test',
         quantity: 1,
+        expiresAt: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000),
       })
       let queryLocal: QueryRow | null | undefined
       const pollLimit = 100
@@ -73,6 +74,7 @@ describe('query submission', function () {
         connectionId: context.localConnectionId,
         productId: 'Test',
         quantity: 1,
+        expiresAt: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000),
       })
       let queryRemote: QueryRow | null | undefined
       const pollLimit = 100
