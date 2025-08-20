@@ -4,6 +4,7 @@ import Database from '../../src/models/db/index.js'
 import { tablesList } from '../../src/models/db/types.js'
 
 // Call cleanup on all UI databases in parallel but delete tables in series
+// NB more complete cleanup than e2e reset - wipes all tables
 export async function cleanupDatabase(databases: Database[]) {
   await Promise.all(
     databases.map(async (db) => {

@@ -5,6 +5,7 @@ import { cleanupCloudagent, cleanupDatabase } from '../helpers/cleanup.js'
 import { setupThreePartyContext, ThreePartyContext, withBobAndCharlie } from '../helpers/connection.js'
 import { insertCompanyHouseRegistry } from '../helpers/registries.js'
 import { fetchPost, post } from '../helpers/routeHelper.js'
+
 describe('partial query aggregation', function () {
   const context: ThreePartyContext = {} as ThreePartyContext
   let response: Awaited<ReturnType<typeof post>>
@@ -27,6 +28,7 @@ describe('partial query aggregation', function () {
         connectionId: context.aliceConnectionId,
         productId: 'toaster-001(AliceReq)',
         quantity: 1,
+        expiresAt: new Date(),
       })
 
       const queryId = await context.db.bob.get('query').then((res) => res[0].id)

@@ -23,6 +23,8 @@ export default defineConfig({
   use: {
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: 'on-first-retry',
+    /* workaround for Webkit's strict cookie handling preventing cross-origin POST */
+    ignoreHTTPSErrors: true,
   },
   expect: {
     timeout: 10 * 1000,

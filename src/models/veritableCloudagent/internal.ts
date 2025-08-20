@@ -24,7 +24,6 @@ const oobInviteParser = z.object({
   id: z.uuid(),
   role: z.enum(['sender', 'receiver']),
 })
-
 type OutOfBandRecord = z.infer<typeof oobInviteParser>
 
 const receiveUrlParser = z.object({
@@ -212,6 +211,15 @@ export default class VeritableCloudagentInt<Config extends CloudagentConfig = De
 
   /*----------------------- Out of Band Invitations ---------------------------*/
 
+  public async getOutOfBandInvite(id: UUID): Promise<OutOfBandRecord> {
+    return this.getRequest(`/v1/oob/${id}`, this.buildParser(oobInviteParser))
+  }
+
+  // Method only used in reset controller
+  public async getOutOfBandInvites(): Promise<OutOfBandRecord[]> {
+    return this.getRequest(`/v1/oob/`, this.buildParser(outOfBandListParser))
+  }
+
   public async createOutOfBandInvite(params: {
     companyName: string
     registryCountryCode: CountryCode
@@ -246,15 +254,6 @@ export default class VeritableCloudagentInt<Config extends CloudagentConfig = De
     )
   }
 
-  // TODO: parser and method only needed for isReset() check in reset controller
-  public async getOutOfBandInvites(): Promise<OutOfBandRecord[]> {
-    return this.getRequest(`/v1/oob/`, this.buildParser(outOfBandListParser))
-  }
-
-  public async getOutOfBandInvite(id: UUID): Promise<OutOfBandRecord> {
-    return this.getRequest(`/v1/oob/${id}`, this.buildParser(oobInviteParser))
-  }
-
   public async deleteOutOfBandInvite(id: UUID): Promise<void> {
     return this.deleteRequest(`/v1/oob/${id}`, () => {})
   }
@@ -265,18 +264,38 @@ export default class VeritableCloudagentInt<Config extends CloudagentConfig = De
     return this.getRequest('/v1/connections', this.buildParser(connectionListParser))
   }
 
-  public async closeConnection(id: UUID, deleteAfterClose?: 'delete'): Promise<void> {
-    if (deleteAfterClose === 'delete') {
-      return this.deleteRequest(`/v1/connections/${id}?delete=true`, () => {})
-    } else {
-      return this.deleteRequest(`/v1/connections/${id}`, () => {})
-    }
+  public async deleteConnection(id: UUID): Promise<void> {
+    return this.deleteRequest(`/v1/connections/${id}`, () => {})
   }
 
   /*----------------------- Credentials ---------------------------------*/
 
-  public async deleteCredential(id: UUID): Promise<void> {
-    return this.deleteRequest(`/v1/credentials/${id}`, () => {})
+  public async getCredentials(): Promise<Credential[]> {
+    return this.getRequest('/v1/credentials', this.buildParser(credentialListParser))
+  }
+
+  public async proposeCredential(connectionId: UUID, proposal: CredentialProposalInput): Promise<Credential> {
+    const body = {
+      protocolVersion: 'v2',
+      credentialFormats: {
+        anoncreds: {
+          ...proposal,
+        },
+      },
+      connectionId,
+    }
+    return this.postRequest('/v1/credentials/propose-credential', body, this.buildParser(credentialParser))
+  }
+
+  public async acceptProposal(credentialId: UUID, proposal: CredentialProposalAcceptInput): Promise<Credential> {
+    const body = {
+      credentialFormats: {
+        anoncreds: {
+          ...proposal,
+        },
+      },
+    }
+    return this.postRequest(`/v1/credentials/${credentialId}/accept-proposal`, body, this.buildParser(credentialParser))
   }
 
   public async acceptCredentialOffer(credentialId: UUID): Promise<Credential> {
@@ -323,37 +342,12 @@ export default class VeritableCloudagentInt<Config extends CloudagentConfig = De
     )
   }
 
-  public async getCredentials(): Promise<Credential[]> {
-    return this.getRequest('/v1/credentials', this.buildParser(credentialListParser))
-  }
-
   public async getCredentialFormatData(credentialId: UUID): Promise<CredentialFormatData> {
     return this.getRequest(`/v1/credentials/${credentialId}/format-data`, this.buildParser(credentialFormatDataParser))
   }
 
-  public async proposeCredential(connectionId: UUID, proposal: CredentialProposalInput): Promise<Credential> {
-    const body = {
-      protocolVersion: 'v2',
-      credentialFormats: {
-        anoncreds: {
-          ...proposal,
-        },
-      },
-      connectionId,
-    }
-    return this.postRequest('/v1/credentials/propose-credential', body, this.buildParser(credentialParser))
-  }
-
-  public async acceptProposal(credentialId: UUID, proposal: CredentialProposalAcceptInput): Promise<Credential> {
-    const body = {
-      credentialFormats: {
-        anoncreds: {
-          ...proposal,
-        },
-      },
-    }
-
-    return this.postRequest(`/v1/credentials/${credentialId}/accept-proposal`, body, this.buildParser(credentialParser))
+  public async deleteCredential(id: UUID): Promise<void> {
+    return this.deleteRequest(`/v1/credentials/${id}`, () => {})
   }
 
   public async sendProblemReport(credentialId: UUID, description: string): Promise<Credential> {
@@ -468,10 +462,10 @@ export default class VeritableCloudagentInt<Config extends CloudagentConfig = De
 
     if (!response.ok) {
       if (response.status === 400) {
-        throw new BadRequestError(`${path}`)
+        throw new BadRequestError(`${method} ${path}`)
       }
       if (response.status === 404) {
-        throw new NotFoundError(`${path}`)
+        throw new NotFoundError(`${method} ${path}`)
       }
       throw new InternalError(`Unexpected error calling ${method} ${path}: ${response.statusText}`)
     }
@@ -480,9 +474,9 @@ export default class VeritableCloudagentInt<Config extends CloudagentConfig = De
       return await parse(response)
     } catch (err) {
       if (err instanceof Error) {
-        throw new InternalError(`Error parsing response from calling ${method} ${path}: ${err.name} - ${err.message}`)
+        throw new InternalError(`Error parsing response from ${method} ${path}: ${err.name} - ${err.message}`)
       }
-      throw new InternalError(`Unknown error parsing response to calling ${method} ${path}`)
+      throw new InternalError(`Unknown error parsing response from ${method} ${path}`)
     }
   }
 
@@ -507,16 +501,22 @@ export default class VeritableCloudagentInt<Config extends CloudagentConfig = De
     })
 
     if (!response.ok) {
-      throw new InternalError(`Unexpected error calling POST ${path}: ${response.statusText}`)
+      if (response.status === 400) {
+        throw new BadRequestError(`${method} ${path}`)
+      }
+      if (response.status === 404) {
+        throw new NotFoundError(`${method} ${path}`)
+      }
+      throw new InternalError(`Unexpected error calling ${method} ${path}: ${response.statusText}`)
     }
 
     try {
       return await parse(response)
     } catch (err) {
       if (err instanceof Error) {
-        throw new InternalError(`Error parsing response from calling POST ${path}: ${err.name} - ${err.message}`)
+        throw new InternalError(`Error parsing response from ${method} ${path}: ${err.name} - ${err.message}`)
       }
-      throw new InternalError(`Unknown error parsing response to calling POST ${path}`)
+      throw new InternalError(`Unknown error parsing response from ${method} ${path}`)
     }
   }
 

@@ -39,10 +39,10 @@ describe('veritableCloudagent', () => {
       })
     })
 
-    describe('error (response code)', function () {
+    describe('error (bad request)', function () {
       withCloudagentMock('POST', `/v1/oob/create-invitation`, 400, {})
 
-      it('should throw internal error', async () => {
+      it('should throw a bad request error', async () => {
         const environment = new Env()
         const cloudagent = new VeritableCloudagent(environment, mockLogger)
 
@@ -55,7 +55,7 @@ describe('veritableCloudagent', () => {
         } catch (err) {
           error = err
         }
-        expect(error).instanceOf(InternalError)
+        expect(error).instanceOf(BadRequestError)
       })
     })
 
@@ -95,10 +95,10 @@ describe('veritableCloudagent', () => {
       })
     })
 
-    describe('error (response code)', function () {
+    describe('error (bad request)', function () {
       withCloudagentMock('POST', '/v1/oob/receive-invitation-url', 400, {})
 
-      it('should throw internal error', async () => {
+      it('should throw a bad request error', async () => {
         const environment = new Env()
         const cloudagent = new VeritableCloudagent(environment, mockLogger)
 
@@ -111,7 +111,7 @@ describe('veritableCloudagent', () => {
         } catch (err) {
           error = err
         }
-        expect(error).instanceOf(InternalError)
+        expect(error).instanceOf(BadRequestError)
       })
     })
 
@@ -187,7 +187,7 @@ describe('veritableCloudagent', () => {
     describe('success', function () {
       withCloudagentMock('DELETE', '/v1/connections/42?delete=true', 204, '')
 
-      it('should success', async () => {
+      it('should succeed', async () => {
         const environment = new Env()
         const cloudagent = new VeritableCloudagent(environment, mockLogger)
         const response = await cloudagent.closeConnection('42', 'delete')
@@ -198,7 +198,7 @@ describe('veritableCloudagent', () => {
     describe('error (bad request)', function () {
       withCloudagentMock('DELETE', '/v1/connections/42?delete=true', 400, {})
 
-      it('should throw internal error', async () => {
+      it('should throw a bad request error', async () => {
         const environment = new Env()
         const cloudagent = new VeritableCloudagent(environment, mockLogger)
 
@@ -225,10 +225,10 @@ describe('veritableCloudagent', () => {
       })
     })
 
-    describe('error (response code)', function () {
+    describe('error (bad request)', function () {
       withCloudagentMock('POST', `/v1/dids/create`, 400, {})
 
-      it('should throw internal error', async () => {
+      it('should throw a bad request error', async () => {
         const environment = new Env()
         const cloudagent = new VeritableCloudagent(environment, mockLogger)
 
@@ -238,7 +238,7 @@ describe('veritableCloudagent', () => {
         } catch (err) {
           error = err
         }
-        expect(error).instanceOf(InternalError)
+        expect(error).instanceOf(BadRequestError)
       })
     })
 
@@ -275,7 +275,7 @@ describe('veritableCloudagent', () => {
     describe('error (bad request)', function () {
       withCloudagentMock('GET', `/v1/dids?createdLocally=true&method=key`, 400, {})
 
-      it('should throw internal error', async () => {
+      it('should throw a bad request error', async () => {
         const environment = new Env()
         const cloudagent = new VeritableCloudagent(environment, mockLogger)
 
@@ -319,10 +319,10 @@ describe('veritableCloudagent', () => {
       })
     })
 
-    describe('error (response code)', function () {
+    describe('error (bad request)', function () {
       withCloudagentMock('POST', `/v1/schemas`, 400, {})
 
-      it('should throw internal error', async () => {
+      it('should throw a bad request error', async () => {
         const environment = new Env()
         const cloudagent = new VeritableCloudagent(environment, mockLogger)
 
@@ -332,7 +332,7 @@ describe('veritableCloudagent', () => {
         } catch (err) {
           error = err
         }
-        expect(error).instanceOf(InternalError)
+        expect(error).instanceOf(BadRequestError)
       })
     })
 
@@ -383,7 +383,7 @@ describe('veritableCloudagent', () => {
         {}
       )
 
-      it('should throw internal error', async () => {
+      it('should throw a bad request error', async () => {
         const environment = new Env()
         const cloudagent = new VeritableCloudagent(environment, mockLogger)
 
@@ -432,10 +432,10 @@ describe('veritableCloudagent', () => {
       })
     })
 
-    describe('error (response code)', function () {
+    describe('error (bad request)', function () {
       withCloudagentMock('POST', `/v1/credential-definitions`, 400, {})
 
-      it('should throw internal error', async () => {
+      it('should throw a bad request error', async () => {
         const environment = new Env()
         const cloudagent = new VeritableCloudagent(environment, mockLogger)
 
@@ -445,7 +445,7 @@ describe('veritableCloudagent', () => {
         } catch (err) {
           error = err
         }
-        expect(error).instanceOf(InternalError)
+        expect(error).instanceOf(BadRequestError)
       })
     })
 
@@ -571,10 +571,10 @@ describe('veritableCloudagent', () => {
       })
     })
 
-    describe('error (response code)', function () {
+    describe('error (bad request)', function () {
       withCloudagentMock('POST', `/v1/drpc/connection-id/request`, 400, {})
 
-      it('should throw internal error', async () => {
+      it('should throw a bad request error', async () => {
         const environment = new Env()
         const cloudagent = new VeritableCloudagent<CloudagentConfig>(environment, mockLogger)
 
@@ -584,7 +584,7 @@ describe('veritableCloudagent', () => {
         } catch (err) {
           error = err
         }
-        expect(error).instanceOf(InternalError)
+        expect(error).instanceOf(BadRequestError)
       })
     })
 
@@ -622,10 +622,10 @@ describe('veritableCloudagent', () => {
       })
     })
 
-    describe('error (response code)', function () {
+    describe('error (bad request)', function () {
       withCloudagentMock('POST', `/v1/drpc/request-id/response`, 400, {})
 
-      it('should throw internal error', async () => {
+      it('should throw a bad request error', async () => {
         const environment = new Env()
         const cloudagent = new VeritableCloudagent(environment, mockLogger)
 
@@ -639,7 +639,7 @@ describe('veritableCloudagent', () => {
         } catch (err) {
           error = err
         }
-        expect(error).instanceOf(InternalError)
+        expect(error).instanceOf(BadRequestError)
       })
     })
   })

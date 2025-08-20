@@ -9,6 +9,8 @@ export const co2QueryContent = {
   quantity: '100',
 }
 
+export const expiresAt = '2125-08-06T15:30'
+
 const uuidRegex = /[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-4[0-9a-fA-F]{3}-[89ab][0-9a-fA-F]{3}-[0-9a-fA-F]{12}/
 
 export async function withCarbonQueryRequest(requesterUrl: string) {
@@ -17,6 +19,7 @@ export async function withCarbonQueryRequest(requesterUrl: string) {
   await fetchPost(`${requesterUrl}/queries/carbon-embodiment`, {
     connectionId,
     ...co2QueryContent,
+    expiresAt,
   })
 }
 
@@ -25,6 +28,7 @@ export async function withBavQueryRequest(requesterUrl: string) {
 
   await fetchPost(`${requesterUrl}/queries/bav`, {
     connectionId,
+    expiresAt,
   })
 }
 

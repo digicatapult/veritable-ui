@@ -3,7 +3,7 @@ import { Delete, Hidden, Produces, Request, Route, Security, SuccessResponse } f
 import { injectable } from 'tsyringe'
 
 import { Env } from '../../env/index.js'
-import { BadRequestError, InternalError } from '../../errors.js'
+import { ForbiddenError, InternalError } from '../../errors.js'
 import Database from '../../models/db/index.js'
 import type { TABLE } from '../../models/db/types.js'
 import VeritableCloudagent from '../../models/veritableCloudagent/index.js'
@@ -64,13 +64,13 @@ export class ResetController {
     const DEMO_MODE = this.env.get('DEMO_MODE')
     if (!DEMO_MODE) {
       req.log.info('bad request DEMO_MODE=%s', DEMO_MODE)
-      throw new BadRequestError('DEMO_MODE is false')
+      throw new ForbiddenError('DEMO_MODE is false')
     }
 
     const tables: TABLE[] = ['connection', 'connection_invite', 'query', 'query_rpc']
     const results = await Promise.allSettled([
       (async () => {
-        // DB cleanup of all tables (sequential)
+        // DB cleanup (sequential)
         for (const table of tables) {
           await this.db.delete(table, {})
         }
