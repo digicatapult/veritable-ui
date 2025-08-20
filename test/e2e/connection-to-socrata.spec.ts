@@ -70,6 +70,7 @@ test.describe('Connection to Socrata', () => {
     })
 
     await test.step('Charlie submits invite and pin', async () => {
+      if (!invite) throw new Error('Invitation for Charlie was not found.')
       await page.goto(`${baseUrlCharlie}/connection`, { waitUntil: 'networkidle' })
 
       // Fill in invite without last character, then enter last character to simulate typing
