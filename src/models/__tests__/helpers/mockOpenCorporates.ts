@@ -19,7 +19,6 @@ export function withOpenCorporatesMock() {
     agent = new MockAgent()
     setGlobalDispatcher(agent)
     const client = agent.get(env.get('OPEN_CORPORATES_API_URL'))
-    console.log(env.get('OPEN_CORPORATES_API_URL'))
     client
       .intercept({
         path: `/companies/${gbCountryCode.toLowerCase()}/${validCompanyNumber}?api_token=test-key`,

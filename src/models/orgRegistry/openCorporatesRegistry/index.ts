@@ -13,9 +13,7 @@ export const openCorporatesProfile = async (
 ): Promise<OrganisationProfile> => {
   logger.info(`Getting open corporates profile for ${orgReq.companyNumber}`)
   const endpoint = `${registry.url}/companies/${orgReq.registryCountryCode.toLowerCase()}/${encodeURIComponent(orgReq.companyNumber)}?api_token=${registry.api_key}`
-  console.log('openCorp endpoint', endpoint)
   const companyProfile = await makeOpenCorporatesRequest(endpoint)
-  console.log('openCorp profile', companyProfile)
   if (companyProfile === null) {
     return { type: 'notFound' }
   }
