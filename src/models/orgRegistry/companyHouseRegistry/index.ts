@@ -15,7 +15,9 @@ export const companyHouseProfile = async (
 ): Promise<OrganisationProfile> => {
   logger.info(`Getting company house profile for ${orgReq.companyNumber}`)
   const endpoint = `${registry.url}/company/${encodeURIComponent(orgReq.companyNumber)}`
+  console.log('comp endpoint', endpoint)
   const companyProfile = await makeCompanyProfileRequest(endpoint, registry)
+  console.log('comp profile', companyProfile)
   if (companyProfile === null) {
     return { type: 'notFound' }
   }

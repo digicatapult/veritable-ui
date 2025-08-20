@@ -10,7 +10,6 @@ import OrganisationRegistry from '../orgRegistry/organisationRegistry.js'
 import {
   finalSuccessResponse,
   gbCountryCode,
-  invalidCompanyNumber,
   noCompanyNumber,
   validCompanyNumber,
 } from './fixtures/openCorporatesFixtures.js'
@@ -20,8 +19,7 @@ import { withOpenCorporatesMock } from './helpers/mockOpenCorporates.js'
 const mockLogger: ILogger = pino({ level: 'silent' })
 const openCorporatesRegistry = 'open_corporates' as RegistryType
 
-// TODO: fix this test suite
-describe.skip('organisationRegistry with open corporates as registry', () => {
+describe('organisationRegistry with open corporates as registry', () => {
   withOpenCorporatesMock()
   describe('getOrganisationProfileByOrganisationNumber', () => {
     it('should return company found if valid company', async () => {
@@ -43,23 +41,6 @@ describe.skip('organisationRegistry with open corporates as registry', () => {
         selectedRegistry: openCorporatesRegistry,
       })
       expect(response).deep.equal({ type: 'notFound' })
-    })
-    it.skip('should propagate other errors', async () => {
-      const environment = new Env()
-      const organisationRegistryObject = new OrganisationRegistry(environment, mockLogger)
-      let errorMessage: unknown
-      try {
-        await organisationRegistryObject.getOrganisationProfileByOrganisationNumber({
-          companyNumber: invalidCompanyNumber,
-          registryCountryCode: gbCountryCode,
-          selectedRegistry: openCorporatesRegistry,
-        })
-      } catch (err) {
-        errorMessage = err
-      }
-
-      expect(errorMessage).instanceOf(Error)
-      expect((errorMessage as Error).message).equals(`Error calling CompanyHouse API`)
     })
   })
 

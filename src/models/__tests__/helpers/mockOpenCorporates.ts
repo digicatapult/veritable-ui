@@ -19,9 +19,10 @@ export function withOpenCorporatesMock() {
     agent = new MockAgent()
     setGlobalDispatcher(agent)
     const client = agent.get(env.get('OPEN_CORPORATES_API_URL'))
+    console.log(env.get('OPEN_CORPORATES_API_URL'))
     client
       .intercept({
-        path: `/companies/${gbCountryCode}/${validCompanyNumber}?api_token=test-key`,
+        path: `/companies/${gbCountryCode.toLowerCase()}/${validCompanyNumber}?api_token=test-key`,
         method: 'GET',
       })
       .reply(200, successResponse)
@@ -29,14 +30,14 @@ export function withOpenCorporatesMock() {
 
     client
       .intercept({
-        path: `/companies/${gbCountryCode}/${noCompanyNumber}?api_token=test-key`,
+        path: `/companies/${gbCountryCode.toLowerCase()}/${noCompanyNumber}?api_token=test-key`,
         method: 'GET',
       })
       .reply(200, [])
 
     client
       .intercept({
-        path: `/companies/${gbCountryCode}/${invalidCompanyNumber}?api_token=test-key`,
+        path: `/companies/${gbCountryCode.toLowerCase()}/${invalidCompanyNumber}?api_token=test-key`,
         method: 'GET',
       })
       .reply(404, {})
