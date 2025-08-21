@@ -13,26 +13,22 @@ import { ResetController } from '../index.js'
 
 const fixtures = {
   connection: [
-    { id: '00000000-1111-4000-a000-000000000000', agent_connection_id: '00000000-1111-4000-a000-000000001111' },
-    { id: '00000000-2222-4000-a000-000000000000', agent_connection_id: '00000000-1111-4000-a000-000000002222' },
-    { id: '00000000-3333-4000-a000-000000000000', agent_connection_id: '00000000-1111-4000-a000-000000003333' },
+    { id: 'some-connection-id-1', agent_connection_id: 'some-agent-id-1' },
+    { id: 'some-connection-id-2', agent_connection_id: 'some-agent-id-2' },
+    { id: 'some-connection-id-3', agent_connection_id: 'some-agent-id-3' },
   ],
   connection_invite: [
-    { id: '00000000-1111-4000-a000-111100001111', connection_id: '00000000-1111-4000-a000-000000000000' },
-    { id: '00000000-2222-4000-a000-222200002222', connection_id: '00000000-2222-4000-a000-000000000000' },
-    { id: '00000000-3333-4000-a000-333300003333', connection_id: '00000000-3333-4000-a000-000000000000' },
+    { id: 'some-invite-id-1', connection_id: 'some-connection-id-1' },
+    { id: 'some-invite-id-2', connection_id: 'some-connection-id-2' },
+    { id: 'some-invite-id-3', connection_id: 'some-connection-id-3' },
   ],
-  query: [{ id: '11111111-1111-4000-a000-111100001111' }],
+  query: [{ id: 'some-query-id-1' }],
   query_rpc: [
-    { id: '11111111-1111-4000-a000-000011110000', query_id: '11111111-1111-4000-a000-111100001111' },
+    { id: 'some-query_rpc-id-1', query_id: 'some-query-id-1' },
     /* TODO */
   ],
-  agent_connections: [
-    { id: '00000000-1111-4000-a000-000000001111' },
-    { id: '00000000-1111-4000-a000-000000002222' },
-    { id: '00000000-1111-4000-a000-000000003333' },
-  ],
-  agent_credentials: [{ id: '11110000-1111-4000-a000-000000000000' }, { id: '22220000-2222-4000-a000-000000000000' }],
+  agent_connections: [{ id: 'some-agent-id-1' }, { id: 'some-agent-id-2' }, { id: 'some-agent-id-3' }],
+  agent_credentials: [{ id: 'some-agent-credential-id-1' }, { id: 'some-agent-credential-id-2' }],
   settings: [],
   organisation_registries: [
     {
@@ -166,22 +162,16 @@ describe('ResetController', () => {
 
       it('deletes connections and connection_invites locally', () => {
         expect(dbMock.delete.firstCall.args).to.deep.equal(['connection', {}])
-        expect(cloudagentMock.deleteCredential.firstCall.args).to.deep.equal(['11110000-1111-4000-a000-000000000000'])
-        expect(cloudagentMock.deleteCredential.secondCall.args).to.deep.equal(['22220000-2222-4000-a000-000000000000'])
+        expect(cloudagentMock.deleteCredential.firstCall.args).to.deep.equal(['some-agent-credential-id-1'])
+        expect(cloudagentMock.deleteCredential.secondCall.args).to.deep.equal(['some-agent-credential-id-2'])
         expect(cloudagentMock.deleteCredential.callCount).to.be.equal(2)
-        expect(cloudagentMock.deleteConnection.firstCall.args).to.deep.equal(['00000000-1111-4000-a000-000000001111'])
-        expect(cloudagentMock.deleteConnection.secondCall.args).to.deep.equal(['00000000-1111-4000-a000-000000002222'])
-        expect(cloudagentMock.deleteConnection.thirdCall.args).to.deep.equal(['00000000-1111-4000-a000-000000003333'])
+        expect(cloudagentMock.deleteConnection.firstCall.args).to.deep.equal(['some-agent-id-1'])
+        expect(cloudagentMock.deleteConnection.secondCall.args).to.deep.equal(['some-agent-id-2'])
+        expect(cloudagentMock.deleteConnection.thirdCall.args).to.deep.equal(['some-agent-id-3'])
         expect(cloudagentMock.deleteConnection.callCount).to.be.equal(3)
-        expect(cloudagentMock.deleteOutOfBandInvite.firstCall.args).to.deep.equal([
-          '00000000-1111-4000-a000-111100001111',
-        ])
-        expect(cloudagentMock.deleteOutOfBandInvite.secondCall.args).to.deep.equal([
-          '00000000-2222-4000-a000-222200002222',
-        ])
-        expect(cloudagentMock.deleteOutOfBandInvite.thirdCall.args).to.deep.equal([
-          '00000000-3333-4000-a000-333300003333',
-        ])
+        expect(cloudagentMock.deleteOutOfBandInvite.firstCall.args).to.deep.equal(['some-invite-id-1'])
+        expect(cloudagentMock.deleteOutOfBandInvite.secondCall.args).to.deep.equal(['some-invite-id-2'])
+        expect(cloudagentMock.deleteOutOfBandInvite.thirdCall.args).to.deep.equal(['some-invite-id-3'])
         expect(cloudagentMock.deleteOutOfBandInvite.callCount).to.be.equal(3)
       })
 
