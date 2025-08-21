@@ -70,7 +70,7 @@ services:
       - DEMO_MODE=true
       - SMTP_SECURE=false
       - LOCAL_REGISTRY_TO_USE=company_house
-      - NY_STATE_API_URL=https://data.ny.gov/resource/p66s-i79p.json
+      - NY_STATE_API_URL=https://dev.socrata.com/foundry/data.ny.gov/p66s-i79p
       - COMPANY_PROFILE_API_KEY=${COMPANY_PROFILE_API_KEY}
       - IPID_API_URL=https://sandbox.ipid.works
       - IPID_API_KEY=${IPID_API_KEY}
@@ -166,7 +166,7 @@ services:
       - SMTP_USER=username
       - EMAIL_TRANSPORT=SMTP_EMAIL
       - SMTP_SECURE=false
-      - NY_STATE_API_URL=https://data.ny.gov/resource/p66s-i79p.json
+      - NY_STATE_API_URL=https://dev.socrata.com/foundry/data.ny.gov/p66s-i79p
       - COMPANY_PROFILE_API_KEY=${COMPANY_PROFILE_API_KEY}
       - OPEN_CORPORATES_API_URL=http://wiremock:8080
       - OPEN_CORPORATES_API_KEY=test-key
@@ -267,7 +267,7 @@ services:
       - COMPANY_PROFILE_API_KEY=${COMPANY_PROFILE_API_KEY}
       - LOCAL_REGISTRY_TO_USE=company_house
       - LOCAL_REGISTRY_COUNTRY_CODE=GB
-      - NY_STATE_API_URL=https://data.ny.gov/resource/p66s-i79p.json
+      - NY_STATE_API_URL=https://dev.socrata.com/foundry/data.ny.gov/p66s-i79p
       - IPID_API_URL=https://sandbox.ipid.works
       - IPID_API_KEY=${IPID_API_KEY}
       - IPID_CUSTOMER_ID=digicatapult-uat
