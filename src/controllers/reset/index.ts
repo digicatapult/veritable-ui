@@ -85,7 +85,7 @@ export class ResetController {
         req.log.info('items to be deleted: %j', { credentials, connections, invites })
 
         for (const connection of connections) {
-          await this.cloudagent.deleteConnection(connection.id)
+          await this.cloudagent.closeConnection(connection.id, 'delete')
         }
         for (const invite of invites) {
           await this.cloudagent.deleteOutOfBandInvite(invite.id)
