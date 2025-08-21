@@ -56,7 +56,7 @@ export const defaultConfig = {
   ISSUANCE_SCHEMA_POLICY: issuanceRecordValidator({ devDefault: 'EXISTING_OR_NEW' }),
   ISSUANCE_CRED_DEF_POLICY: issuanceRecordValidator({ devDefault: 'EXISTING_OR_NEW' }),
   DEMO_MODE: envalid.bool({ devDefault: true, default: false }),
-  NY_STATE_API_URL: envalid.str({ default: 'https://data.ny.gov/resource/p66s-i79p.json' }),
+  NY_STATE_API_URL: envalid.str({ default: 'https://dev.socrata.com/foundry/data.ny.gov/p66s-i79p' }),
   LOCAL_REGISTRY_TO_USE: envalid.str({
     default: 'company_house',
     devDefault: 'company_house',
