@@ -46,7 +46,7 @@ test.describe('Connection from Alice to Bob', () => {
       await page.fill('#new-invite-company-number-input', '04659351')
       await page.fill('#new-invite-email-input', 'alice@testmail.com')
 
-      await page.waitForTimeout(3000) // Wait for the Company House API
+      await page.waitForTimeout(3000) // Wait for the Companies House API
 
       const feedbackElement = await page.$('#new-connection-feedback')
       expect(feedbackElement).not.toBeNull()

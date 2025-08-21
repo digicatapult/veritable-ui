@@ -263,7 +263,7 @@ npm run db:migrate
 - Bring up as per [getting started](#getting-started) (docker compose, run migrations and init, then `npm run dev`) to start Alice's UI.
 - Alice: http://localhost:3000.
 - Bob: http://localhost:3001.
-- Go to Bob's [Invite New Connection](http://localhost:3001/connection/new) and enter `07964699` (default Company House Number for Alice) for the `Company House Number`. Enter any valid email and submit. The list of Bob's connections now contains a new connection with `Invite Sent` state.
+- Go to Bob's [Invite New Connection](http://localhost:3001/connection/new) and enter `07964699` (default Companies House Number for Alice) for the `Companies House Number`. Enter any valid email and submit. The list of Bob's connections now contains a new connection with `Invite Sent` state.
 - Go to the dev [email server](http://localhost:5001/) and copy the invitation text from bottom of the email sent to the email address entered in the previous step.
 - Paste the invitation text into Alice's [Add from Invitation](http://localhost:3000/connection/new?fromInvite=true). The right hand box should update to show Bob's registered address (set by the `INVITATION_FROM_COMPANY_NUMBER` env). Submit.
 - Search `Verification Code: ` in the logs of the terminal for the running Alice server. Copy this code. Select `Complete Verification` on [Bob's side](http://localhost:3001/connection) of the connection, paste the code and continue.
@@ -276,7 +276,7 @@ npm run db:migrate
 ## Registries
 
 We currently support:
-Company House: which requires an API KEY. (`COMPANY_PROFILE_API_KEY`)
+Companies House: which requires an API KEY. (`COMPANY_PROFILE_API_KEY`)
 [Socrata](https://dev.socrata.com/foundry/data.ny.gov/p66s-i79p): which does not require an API KEY. (Requests are rate-limited without an api-key)
 
 - if you want e.g. Charlie to pose as a company registered with Socrata - set `LOCAL_REGISTRY_TO_USE` to `US` and `INVITATION_FROM_COMPANY_NUMBER` to `3211809` (company number we use to test Socrata functionality).

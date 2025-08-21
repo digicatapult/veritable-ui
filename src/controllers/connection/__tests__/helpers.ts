@@ -159,7 +159,7 @@ export const withNewConnectionMocks = () => {
         company_house: {
           country_code: ['GB'],
           third_party: false,
-          registry_name: 'Company House',
+          registry_name: 'Companies House',
         },
         open_corporates: {
           country_code: ['GB', 'NL', 'JP'],

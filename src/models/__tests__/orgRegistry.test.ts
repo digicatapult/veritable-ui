@@ -20,7 +20,7 @@ import { withCompanyHouseMock } from './helpers/mockCompanyHouse.js'
 const mockLogger: ILogger = pino({ level: 'silent' })
 const ukRegistryCountryCode = 'GB' as CountryCode
 const companyHouseRegistry = 'company_house' as RegistryType
-describe('organisationRegistry with company house as registry', () => {
+describe('organisationRegistry with Companies House as registry', () => {
   withCompanyHouseMock()
 
   describe('getOrganisationProfileByOrganisationNumber', () => {

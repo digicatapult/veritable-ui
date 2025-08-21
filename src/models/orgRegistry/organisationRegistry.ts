@@ -127,7 +127,7 @@ export default class OrganisationRegistry {
     // TODO: should this be loaded conditionally in the future?
     return {
       company_house: {
-        registry_name: 'Company House',
+        registry_name: 'Companies House',
         url: this.env.get('COMPANY_HOUSE_API_URL'),
         api_key: this.env.get('COMPANY_PROFILE_API_KEY'),
         country_code: ['GB'],

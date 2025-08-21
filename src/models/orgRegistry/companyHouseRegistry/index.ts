@@ -13,7 +13,7 @@ export const companyHouseProfile = async (
   registry: Registries[RegistryType],
   logger: ILogger
 ): Promise<OrganisationProfile> => {
-  logger.info(`Getting company house profile for ${orgReq.companyNumber}`)
+  logger.info(`Getting Companies House profile for ${orgReq.companyNumber}`)
   const endpoint = `${registry.url}/company/${encodeURIComponent(orgReq.companyNumber)}`
   const companyProfile = await makeCompanyProfileRequest(endpoint, registry)
   if (companyProfile === null) {
@@ -23,7 +23,7 @@ export const companyHouseProfile = async (
     const result = companyHouseResultSchema.parse(companyProfile)
     return { type: 'found', company: result }
   } catch (error) {
-    logger.error(`Error parsing company house profile for ${orgReq.companyNumber}: ${error}`)
+    logger.error(`Error parsing Companies House profile for ${orgReq.companyNumber}: ${error}`)
     return { type: 'notFound' }
   }
 }
