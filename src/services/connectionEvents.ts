@@ -33,7 +33,7 @@ export default class ConnectionEvents {
       const [inviteRecord] = await db.get('connection_invite', { oob_invite_id: outOfBandId })
       if (!inviteRecord) {
         this.logger.warn(
-          'Connection event on unknown connection %s with state %s',
+          'Connection event on agent_connection_id %s with state %s has no invitation record',
           cloudAgentConnectionId,
           connectionState
         )
@@ -58,6 +58,7 @@ export default class ConnectionEvents {
         { id: inviteRecord.connection_id, status: connection.status },
         { status: updateStatus, agent_connection_id: cloudAgentConnectionId }
       )
+      this.logger.debug('Database state for connection %s updated to %s', connection.id, updateStatus)
       return
     })
   }

@@ -17,18 +17,15 @@ const drpcRequestParser = z.object({
   params: z.record(z.any(), z.any()).optional(),
   id: z.uuid(),
 })
+
 const eventParser = z.discriminatedUnion('type', [
   z.object({
     type: z.literal('ConnectionStateChanged'),
-    payload: z.object({
-      connectionRecord: connectionParser,
-    }),
+    payload: z.object({ connectionRecord: connectionParser }),
   }),
   z.object({
     type: z.literal('CredentialStateChanged'),
-    payload: z.object({
-      credentialRecord: credentialParser,
-    }),
+    payload: z.object({ credentialRecord: credentialParser }),
   }),
   z.object({ type: z.literal('BasicMessageStateChanged'), payload: z.object({}) }),
   z.object({ type: z.literal('ConnectionDidRotated'), payload: z.object({}) }),
