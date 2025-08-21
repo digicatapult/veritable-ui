@@ -158,6 +158,7 @@ describe('ResetController', () => {
         expect(dbMock.delete.calledWith('connection')).to.be.equal(true)
         expect(cloudagentMock.getCredentials.callCount).to.be.equal(2)
         expect(cloudagentMock.getConnections.callCount).to.be.equal(2)
+        expect(cloudagentMock.getOutOfBandInvites.callCount).to.be.equal(2)
       })
 
       it('deletes connections and connection_invites locally', () => {
