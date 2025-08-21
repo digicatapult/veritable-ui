@@ -332,7 +332,7 @@ describe('NewConnectionController', () => {
         if (connection.status === 'unverified') {
           return
         }
-        await delay(100)
+        await delay(10)
       }
       expect.fail('Expected connection to update to state unverified')
     })
