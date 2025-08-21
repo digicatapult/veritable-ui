@@ -6,8 +6,8 @@ import { type ILogger, Logger } from '../../logger.js'
 import { RegistryType } from '../db/types.js'
 import { COMPANY_NUMBER, CountryCode, NY_STATE_NUMBER } from '../stringTypes.js'
 import { companyHouseProfile } from './companyHouseRegistry/index.js'
+import { nyStateProfile } from './NYStateRegistry/index.js'
 import { openCorporatesProfile } from './openCorporatesRegistry/index.js'
-import { nyStateProfile } from './socrataRegistry/index.js'
 
 export type Registries = Record<
   RegistryType,
