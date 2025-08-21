@@ -17,20 +17,31 @@ const requiredEnvs = {
   ISSUANCE_DID_POLICY: 'CREATE_NEW',
   ISSUANCE_SCHEMA_POLICY: 'CREATE_NEW',
   PUBLIC_URL: 'http://localhost:3000',
-  COMPANY_HOUSE_API_URL: 'http://localhost:8080',
-  SOCRATA_API_URL: 'http://localhost:8080',
+  COMPANY_HOUSE_API_URL: 'http://localhost:8443',
+  NY_STATE_API_URL: 'http://localhost:8443',
   NODE_ENV: 'test',
+  OPEN_CORPORATES_API_URL: 'http://localhost:8443',
+  OPEN_CORPORATES_API_KEY: 'test-key',
 }
 
-export const socrataAsLocalRegistry = {
+export const nyStateAsLocalRegistry = {
   INVITATION_FROM_COMPANY_NUMBER: '3211809',
-  LOCAL_REGISTRY_TO_USE: 'US',
+  LOCAL_REGISTRY_COUNTRY_CODE: 'US',
+  LOCAL_REGISTRY_TO_USE: 'ny_state',
   ...requiredEnvs,
 }
 
 export const companyHouseAsLocalRegistry = {
   INVITATION_FROM_COMPANY_NUMBER: '07964699',
-  LOCAL_REGISTRY_TO_USE: 'GB',
+  LOCAL_REGISTRY_COUNTRY_CODE: 'GB',
+  LOCAL_REGISTRY_TO_USE: 'company_house',
+  ...requiredEnvs,
+}
+
+export const openCorporatesAsLocalRegistry = {
+  INVITATION_FROM_COMPANY_NUMBER: '00102498',
+  LOCAL_REGISTRY_COUNTRY_CODE: 'GB',
+  LOCAL_REGISTRY_TO_USE: 'open_corporates',
   ...requiredEnvs,
 }
 

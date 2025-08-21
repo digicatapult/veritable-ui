@@ -5,6 +5,7 @@ import { container } from 'tsyringe'
 import { RAW_ENV_TOKEN } from '../../env/common.js'
 import { Env } from '../../env/index.js'
 import type { ILogger } from '../../logger.js'
+import { RegistryType } from '../db/types.js'
 import OrganisationRegistry from '../orgRegistry/organisationRegistry.js'
 import { CountryCode } from '../stringTypes.js'
 import {
@@ -12,61 +13,61 @@ import {
   invalidCompanyNumber,
   noCompanyNumber,
   validCompanyNumber,
-} from './fixtures/companyHouseFixtures.js'
-import { mockDb } from './helpers/dbMock.js'
-import { companyHouseAsLocalRegistry, mockRegistryEnv } from './helpers/mock.js'
-import { withCompanyHouseMock } from './helpers/mockCompanyHouse.js'
-
+} from './fixtures/nyStateFixtures.js'
+import { mockRegistryEnv, nyStateAsLocalRegistry } from './helpers/mock.js'
+import { withNYStateMock } from './helpers/mockNYState.js'
 const mockLogger: ILogger = pino({ level: 'silent' })
-const ukRegistryCountryCode = 'GB' as CountryCode
+const nyRegistryCountryCode = 'US' as CountryCode
+const nyStateRegistry = 'ny_state' as RegistryType
 
-describe('organisationRegistry with company house as registry', () => {
-  withCompanyHouseMock()
-
+describe('organisationRegistry with NY state registry', () => {
+  withNYStateMock()
   describe('getOrganisationProfileByOrganisationNumber', () => {
     it('should return company found if valid company', async () => {
       const environment = container.resolve(Env)
-      const organisationRegistryObject = new OrganisationRegistry(environment, mockDb, mockLogger)
-      const response = await organisationRegistryObject.getOrganisationProfileByOrganisationNumber(
-        validCompanyNumber,
-        ukRegistryCountryCode
-      )
+
+      const organisationRegistryObject = new OrganisationRegistry(environment, mockLogger)
+      const response = await organisationRegistryObject.getOrganisationProfileByOrganisationNumber({
+        companyNumber: validCompanyNumber,
+        registryCountryCode: nyRegistryCountryCode,
+        selectedRegistry: nyStateRegistry,
+      })
       expect(response).deep.equal({ type: 'found', company: finalSuccessResponse })
     })
-
-    it('should return notFound for 404', async () => {
+    it('should return notFound if company notFound', async () => {
       const environment = new Env()
-      const organisationRegistryObject = new OrganisationRegistry(environment, mockDb, mockLogger)
-      const response = await organisationRegistryObject.getOrganisationProfileByOrganisationNumber(
-        noCompanyNumber,
-        ukRegistryCountryCode
-      )
+      const organisationRegistryObject = new OrganisationRegistry(environment, mockLogger)
+      const response = await organisationRegistryObject.getOrganisationProfileByOrganisationNumber({
+        companyNumber: noCompanyNumber,
+        registryCountryCode: nyRegistryCountryCode,
+        selectedRegistry: nyStateRegistry,
+      })
       expect(response).deep.equal({ type: 'notFound' })
     })
-
     it('should propagate other errors', async () => {
       const environment = new Env()
-      const organisationRegistryObject = new OrganisationRegistry(environment, mockDb, mockLogger)
+      const organisationRegistryObject = new OrganisationRegistry(environment, mockLogger)
       let errorMessage: unknown
       try {
-        await organisationRegistryObject.getOrganisationProfileByOrganisationNumber(
-          invalidCompanyNumber,
-          ukRegistryCountryCode
-        )
+        await organisationRegistryObject.getOrganisationProfileByOrganisationNumber({
+          companyNumber: invalidCompanyNumber,
+          registryCountryCode: nyRegistryCountryCode,
+          selectedRegistry: nyStateRegistry,
+        })
       } catch (err) {
         errorMessage = err
       }
 
       expect(errorMessage).instanceOf(Error)
-      expect((errorMessage as Error).message).equals(`Error calling CompanyHouse API`)
+      expect((errorMessage as Error).message).equals(`Error calling New York State API`)
     })
   })
 
   describe('localOrganisationProfile', () => {
-    withCompanyHouseMock()
+    withNYStateMock()
     beforeEach(() => {
       container.clearInstances()
-      mockRegistryEnv(companyHouseAsLocalRegistry)
+      mockRegistryEnv(nyStateAsLocalRegistry)
     })
     afterEach(() => {
       container.clearInstances()
@@ -76,7 +77,7 @@ describe('organisationRegistry with company house as registry', () => {
 
       container.registerInstance<OrganisationRegistry>(
         OrganisationRegistry,
-        new OrganisationRegistry(environment, mockDb, mockLogger)
+        new OrganisationRegistry(environment, mockLogger)
       )
       const organisationRegistryObject = container.resolve(OrganisationRegistry)
       const response = await organisationRegistryObject.localOrganisationProfile()

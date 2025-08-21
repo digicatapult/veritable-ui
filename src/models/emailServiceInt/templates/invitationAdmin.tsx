@@ -3,18 +3,16 @@ import { SendMailOptions } from 'nodemailer'
 
 import { Env } from '../../../env/index.js'
 import { ILogger } from '../../../logger.js'
-import Database from '../../db/index.js'
 import OrganisationRegistry from '../../orgRegistry/organisationRegistry.js'
 
 export default {
   name: 'connection_invite_admin' as const,
   template: async function (
     env: Env,
-    db: Database,
     logger: ILogger,
     params: { pin: string; receiver: string; address: string }
   ): Promise<SendMailOptions> {
-    const organisationRegistry = new OrganisationRegistry(env, db, logger)
+    const organisationRegistry = new OrganisationRegistry(env, logger)
     const localCompany = await organisationRegistry.localOrganisationProfile()
     return {
       to: env.get('EMAIL_ADMIN_ADDRESS'),

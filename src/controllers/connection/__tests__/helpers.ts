@@ -5,10 +5,10 @@ import sinon from 'sinon'
 import { Env } from '../../../env/index.js'
 import { ILogger } from '../../../logger.js'
 import Database from '../../../models/db/index.js'
-import { ConnectionRow } from '../../../models/db/types.js'
+import { ConnectionRow, RegistryType } from '../../../models/db/types.js'
 import EmailService from '../../../models/emailService/index.js'
-import OrganisationRegistry from '../../../models/orgRegistry/organisationRegistry.js'
-import { COMPANY_NUMBER, CountryCode, SOCRATA_NUMBER, UUID } from '../../../models/stringTypes.js'
+import OrganisationRegistry, { OrganisationRequest } from '../../../models/orgRegistry/organisationRegistry.js'
+import { CountryCode, UUID } from '../../../models/stringTypes.js'
 import VeritableCloudagent from '../../../models/veritableCloudagent/index.js'
 import ConnectionTemplates from '../../../views/connection/connection.js'
 import { FormFeedback } from '../../../views/newConnection/base.js'
@@ -96,6 +96,7 @@ export const withConnectionMocks = (
     templateMock,
     dbMock,
     cloudagentMock,
+    organisationRegistry,
     args: [
       dbMock as unknown as Database,
       cloudagentMock as unknown as VeritableCloudagent,
@@ -130,7 +131,7 @@ export const withNewConnectionMocks = () => {
   } as unknown as Database
 
   const mockCompanyHouseEntity = {
-    getOrganisationProfileByOrganisationNumber: async (companyNumber: COMPANY_NUMBER | SOCRATA_NUMBER) => {
+    getOrganisationProfileByOrganisationNumber: async ({ companyNumber }: OrganisationRequest) => {
       if (companyNumber === notFoundCompanyNumber) {
         return {
           type: 'notFound',
@@ -145,12 +146,32 @@ export const withNewConnectionMocks = () => {
       throw new Error('Invalid number')
     },
     localOrganisationProfile: sinon.stub().resolves({
-      number: 'COMPANY_NUMBER',
+      number: '07964699',
       name: 'COMPANY_NAME',
       registryCountryCode: 'GB' as CountryCode,
       status: 'active',
       address: 'ADDRESS',
+      selectedRegistry: 'company_house' as RegistryType,
+      registeredOfficeIsInDispute: false,
     }),
+    strippedRegistriesInfo: () =>
+      Promise.resolve({
+        company_house: {
+          country_code: ['GB'],
+          third_party: false,
+          registry_name: 'Companies House',
+        },
+        open_corporates: {
+          country_code: ['GB', 'NL', 'JP'],
+          third_party: true,
+          registry_name: 'Open Corporates',
+        },
+        ny_state: {
+          country_code: ['US'],
+          third_party: false,
+          registry_name: 'New York State',
+        },
+      }),
   } as unknown as OrganisationRegistry
 
   const mockCloudagent = {
@@ -216,8 +237,10 @@ export const withNewConnectionMocks = () => {
           return Buffer.from('secret', 'utf8')
         case 'INVITATION_FROM_COMPANY_NUMBER':
           return '07964699'
-        case 'LOCAL_REGISTRY_TO_USE':
+        case 'LOCAL_REGISTRY_COUNTRY_CODE':
           return 'GB'
+        case 'LOCAL_REGISTRY_TO_USE':
+          return 'company_house'
         default:
           throw new Error()
       }

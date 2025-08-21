@@ -24,6 +24,10 @@ const requiredProdEnvs = {
   ISSUANCE_SCHEMA_POLICY: 'CREATE_NEW',
   PUBLIC_URL: 'http://localhost:3000',
   IPID_API_KEY: 'xyz',
+  LOCAL_REGISTRY_TO_USE: 'company_house',
+  LOCAL_REGISTRY_COUNTRY_CODE: 'GB',
+  OPEN_CORPORATES_API_KEY: 'xyz',
+  OPEN_CORPORATES_API_URL: 'http://localhost:8443/companies',
 }
 
 const requiredDevEnvs = {

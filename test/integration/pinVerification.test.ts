@@ -8,7 +8,6 @@ import {
   withEstablishedConnectionFromThem,
   withEstablishedConnectionFromUs,
 } from '../helpers/connection.js'
-import { cleanupRegistries, insertCompanyHouseRegistry } from '../helpers/registries.js'
 import { post } from '../helpers/routeHelper.js'
 import { delay, delayAndReject } from '../helpers/util.js'
 
@@ -25,14 +24,12 @@ describe('pin-submission', function () {
     })
     await cleanupCloudagent([context.localCloudagent, context.remoteCloudagent])
     await cleanupDatabase([context.localDatabase, context.remoteDatabase])
-    await insertCompanyHouseRegistry()
   })
 
   afterEach(async () => {
     context.cloudagentEvents.stop()
     await cleanupCloudagent([context.localCloudagent, context.remoteCloudagent])
     await cleanupDatabase([context.localDatabase, context.remoteDatabase])
-    await cleanupRegistries()
   })
 
   describe('pin verification of sender', function () {

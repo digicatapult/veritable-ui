@@ -18,6 +18,7 @@ const connectionsExample: ConnectionRow[] = [{}, {}, {}, {}].map((_, i) => ({
   created_at: sampleDate,
   updated_at: sampleDate,
   registry_country_code: 'GB' as CountryCode,
+  registry_code: 'company_house',
 }))
 
 const queryExample: QueryRow = {
@@ -56,6 +57,7 @@ describe('Partial Query', () => {
           created_at: new Date(),
           updated_at: new Date(),
           registry_country_code: 'GB' as CountryCode,
+          registry_code: 'company_house',
         },
         type: 'total_carbon_embodiment',
         query: queryExample,
@@ -81,6 +83,7 @@ describe('Partial Query', () => {
         created_at: new Date(),
         updated_at: new Date(),
         registry_country_code: 'GB' as CountryCode,
+        registry_code: 'company_house',
       },
       type: 'total_carbon_embodiment',
       query: queryExample,

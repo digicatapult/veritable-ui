@@ -120,7 +120,7 @@ export const mockEnvCharlie = {
   },
 } as Env
 
-export const socrataCompany = {
+export const nyStateCompany = {
   dos_id: '3211809',
   current_entity_name: '00:02:59 LLC',
   initial_dos_filing_date: '2005-05-31T00:00:00.000',
@@ -132,4 +132,12 @@ export const socrataCompany = {
   dos_process_city: 'BROOKLYN',
   dos_process_state: 'NY',
   dos_process_zip: '11215',
+}
+
+export const openCorporatesCompany = {
+  name: 'BP P.L.C.',
+  registered_address_in_full: "1 ST JAMES'S SQUARE, LONDON, SW1Y 4PD",
+  company_number: '00102498',
+  current_status: 'Active',
+  jurisdiction_code: 'gb',
 }
