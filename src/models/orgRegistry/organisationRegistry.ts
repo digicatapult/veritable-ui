@@ -5,9 +5,7 @@ import { InternalError } from '../../errors.js'
 import { type ILogger, Logger } from '../../logger.js'
 import { RegistryType } from '../db/types.js'
 import { COMPANY_NUMBER, CountryCode, NY_STATE_NUMBER } from '../stringTypes.js'
-import { companyHouseProfile } from './companyHouseRegistry/index.js'
-import { nyStateProfile } from './NYStateRegistry/index.js'
-import { openCorporatesProfile } from './openCorporatesRegistry/index.js'
+import { organisationRegistryProfile } from './helpers.js'
 
 export type Registries = Record<
   RegistryType,
@@ -82,19 +80,7 @@ export default class OrganisationRegistry {
     if (!registry) {
       throw new InternalError(`Registry for ${orgReq.registryCountryCode} not set`)
     }
-    switch (orgReq.selectedRegistry) {
-      case 'company_house':
-        return await companyHouseProfile(orgReq, registry, this.logger)
-
-      case 'ny_state':
-        return await nyStateProfile(orgReq, registry, this.logger)
-
-      case 'open_corporates':
-        return await openCorporatesProfile(orgReq, registry, this.logger)
-
-      default:
-        throw new InternalError(`Registry ${orgReq.selectedRegistry} not set`)
-    }
+    return await organisationRegistryProfile(orgReq, registry, this.logger)
   }
 
   async localOrganisationProfile(): Promise<SharedOrganisationInfo> {

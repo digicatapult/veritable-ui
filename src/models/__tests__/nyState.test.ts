@@ -59,7 +59,7 @@ describe('organisationRegistry with NY state registry', () => {
       }
 
       expect(errorMessage).instanceOf(Error)
-      expect((errorMessage as Error).message).equals(`Error calling NY State Registry API`)
+      expect((errorMessage as Error).message).equals(`Error calling New York State API`)
     })
   })
 

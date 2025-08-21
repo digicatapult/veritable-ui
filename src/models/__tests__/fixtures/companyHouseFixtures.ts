@@ -1,6 +1,6 @@
 import { RegistryType } from '../../db/types.js'
-import { CompanyHouseProfile } from '../../orgRegistry/companyHouseRegistry/index.js'
 import { SharedOrganisationInfo } from '../../orgRegistry/organisationRegistry.js'
+import { CompanyHouseProfile } from '../../orgRegistry/registrySchemas/companyHouseSchema.js'
 import { CountryCode } from '../../stringTypes.js'
 
 export const validCompanyNumber = '07964699'

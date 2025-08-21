@@ -1,6 +1,6 @@
 import { RegistryType } from '../../db/types.js'
-import { OpenCorporatesProfile } from '../../orgRegistry/openCorporatesRegistry/index.js'
 import { SharedOrganisationInfo } from '../../orgRegistry/organisationRegistry.js'
+import { OpenCorporatesProfile } from '../../orgRegistry/registrySchemas/openCorporatesSchema.js'
 import { CountryCode } from '../../stringTypes.js'
 export const validCompanyNumber = '00102498'
 export const secondaryCompanyNumber = '11111111'

@@ -61,7 +61,7 @@ describe('organisationRegistry with Companies House as registry', () => {
       }
 
       expect(errorMessage).instanceOf(Error)
-      expect((errorMessage as Error).message).equals(`Error calling CompanyHouse API`)
+      expect((errorMessage as Error).message).equals(`Error calling Companies House API`)
     })
   })
 
