@@ -68,7 +68,7 @@ export async function withConnection(inviterUrl: string, receiverUrl: string) {
   await fetchPost(`${inviterUrl}/connection/${receiverConnectionIdAtInviter}/pin-submission`, {
     action: 'submitPinCode',
     pin: receiverPin,
-    stepCount: '3',
+    stepCount: '2',
   })
 
   // Confirm the connection is successful at the original inviter
