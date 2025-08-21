@@ -120,7 +120,7 @@ export const mockEnvCharlie = {
   },
 } as Env
 
-export const socrataCompany = {
+export const nyStateCompany = {
   dos_id: '3211809',
   current_entity_name: '00:02:59 LLC',
   initial_dos_filing_date: '2005-05-31T00:00:00.000',

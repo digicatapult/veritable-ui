@@ -166,10 +166,10 @@ export const withNewConnectionMocks = () => {
           third_party: true,
           registry_name: 'Open Corporates',
         },
-        socrata: {
+        ny_state: {
           country_code: ['US'],
           third_party: false,
-          registry_name: 'Socrata',
+          registry_name: 'New York State',
         },
       }),
   } as unknown as OrganisationRegistry

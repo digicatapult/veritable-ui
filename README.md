@@ -135,7 +135,7 @@ This is the list of all environment variables including brief description
 | IPID_API_URL                     | n        | https://sandbox.ipid.works                                     | URL for iPiD service. See [iPiD](#ipid)                                                                                                                                        |
 | IPID_API_KEY                     | y        | -                                                              | API key for iPiD service. See [iPiD](#ipid)                                                                                                                                    |
 | IPID_CUSTOMER_ID                 | n        | digicatapult-uat                                               | Customer ID provided by iPiD with API key. See [iPiD](#ipid)                                                                                                                   |
-| SOCRATA_API_URL                  | y        | https://data.ny.gov/resource/p66s-i79p.json                    | External service containing list of companies in NY definitions                                                                                                                |
+| NY_STATE_API_URL                 | y        | https://data.ny.gov/resource/p66s-i79p.json                    | External service containing list of companies in NY definitions                                                                                                                |
 | LOCAL_REGISTRY_TO_USE            | y        | GB                                                             | Defines which registry to use to look up info about the local instance                                                                                                         |
 
 ### SMTP transport configuration
@@ -277,6 +277,6 @@ npm run db:migrate
 
 We currently support:
 Companies House: which requires an API KEY. (`COMPANY_PROFILE_API_KEY`)
-[Socrata](https://dev.socrata.com/foundry/data.ny.gov/p66s-i79p): which does not require an API KEY. (Requests are rate-limited without an api-key)
+[NY State Registry](https://dev.socrata.com/foundry/data.ny.gov/p66s-i79p): which does not require an API KEY. (Requests are rate-limited without an api-key)
 
-- if you want e.g. Charlie to pose as a company registered with Socrata - set `LOCAL_REGISTRY_TO_USE` to `US` and `INVITATION_FROM_COMPANY_NUMBER` to `3211809` (company number we use to test Socrata functionality).
+- if you want e.g. Charlie to pose as a company registered with NY State Registry - set `LOCAL_REGISTRY_TO_USE` to `US` and `INVITATION_FROM_COMPANY_NUMBER` to `3211809` (company number we use to test NY State Registry functionality).

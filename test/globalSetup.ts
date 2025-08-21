@@ -17,7 +17,7 @@ async function globalSetup() {
   // Pass in ('name', host port for UI, 'company number', default company registry)
   await bringUpVeritableUIContainer('alice', 3000, '07964699')
   await bringUpVeritableUIContainer('bob', 3001, '04659351')
-  await bringUpVeritableUIContainer('charlie', 3002, '3211809', 'US' as CountryCode, 'socrata' as RegistryType)
+  await bringUpVeritableUIContainer('charlie', 3002, '3211809', 'US' as CountryCode, 'ny_state' as RegistryType)
   await bringUpVeritableUIContainer('dave', 3003, '00102498', 'GB' as CountryCode, 'open_corporates' as RegistryType)
 }
 

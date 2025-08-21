@@ -13,15 +13,15 @@ import {
   invalidCompanyNumber,
   noCompanyNumber,
   validCompanyNumber,
-} from './fixtures/socrataFixtures.js'
-import { mockRegistryEnv, socrataAsLocalRegistry } from './helpers/mock.js'
-import { withSocrataMock } from './helpers/mockSocrata.js'
+} from './fixtures/nyStateFixtures.js'
+import { mockRegistryEnv, nyStateAsLocalRegistry } from './helpers/mock.js'
+import { withNYStateMock } from './helpers/mockSocrata.js'
 const mockLogger: ILogger = pino({ level: 'silent' })
 const nyRegistryCountryCode = 'US' as CountryCode
-const socrataRegistry = 'socrata' as RegistryType
+const nyStateRegistry = 'ny_state' as RegistryType
 
-describe('organisationRegistry with socrata as registry', () => {
-  withSocrataMock()
+describe('organisationRegistry with NY state registry', () => {
+  withNYStateMock()
   describe('getOrganisationProfileByOrganisationNumber', () => {
     it('should return company found if valid company', async () => {
       const environment = container.resolve(Env)
@@ -30,7 +30,7 @@ describe('organisationRegistry with socrata as registry', () => {
       const response = await organisationRegistryObject.getOrganisationProfileByOrganisationNumber({
         companyNumber: validCompanyNumber,
         registryCountryCode: nyRegistryCountryCode,
-        selectedRegistry: socrataRegistry,
+        selectedRegistry: nyStateRegistry,
       })
       expect(response).deep.equal({ type: 'found', company: finalSuccessResponse })
     })
@@ -40,7 +40,7 @@ describe('organisationRegistry with socrata as registry', () => {
       const response = await organisationRegistryObject.getOrganisationProfileByOrganisationNumber({
         companyNumber: noCompanyNumber,
         registryCountryCode: nyRegistryCountryCode,
-        selectedRegistry: socrataRegistry,
+        selectedRegistry: nyStateRegistry,
       })
       expect(response).deep.equal({ type: 'notFound' })
     })
@@ -52,22 +52,22 @@ describe('organisationRegistry with socrata as registry', () => {
         await organisationRegistryObject.getOrganisationProfileByOrganisationNumber({
           companyNumber: invalidCompanyNumber,
           registryCountryCode: nyRegistryCountryCode,
-          selectedRegistry: socrataRegistry,
+          selectedRegistry: nyStateRegistry,
         })
       } catch (err) {
         errorMessage = err
       }
 
       expect(errorMessage).instanceOf(Error)
-      expect((errorMessage as Error).message).equals(`Error calling Socrata API`)
+      expect((errorMessage as Error).message).equals(`Error calling NY State Registry API`)
     })
   })
 
   describe('localOrganisationProfile', () => {
-    withSocrataMock()
+    withNYStateMock()
     beforeEach(() => {
       container.clearInstances()
-      mockRegistryEnv(socrataAsLocalRegistry)
+      mockRegistryEnv(nyStateAsLocalRegistry)
     })
     afterEach(() => {
       container.clearInstances()

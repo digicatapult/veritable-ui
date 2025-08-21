@@ -6,11 +6,11 @@ import {
   noCompanyNumber,
   successResponse,
   validCompanyNumber,
-} from '../fixtures/socrataFixtures.js'
+} from '../fixtures/nyStateFixtures.js'
 
 const env: Env = container.resolve(Env)
 
-export function withSocrataMock() {
+export function withNYStateMock() {
   let originalDispatcher: Dispatcher
   let agent: MockAgent
   beforeEach(function () {
@@ -18,7 +18,7 @@ export function withSocrataMock() {
     agent = new MockAgent()
     setGlobalDispatcher(agent)
 
-    const client = agent.get(env.get('SOCRATA_API_URL'))
+    const client = agent.get(env.get('NY_STATE_API_URL'))
     client
       .intercept({
         path: `/?dos_id=${validCompanyNumber}`,

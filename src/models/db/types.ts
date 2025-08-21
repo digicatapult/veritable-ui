@@ -4,7 +4,7 @@ import { bavResponseData, carbonEmbodimentResponseData, subjectIdParser } from '
 import { countryCodes } from '../stringTypes.js'
 
 export const tablesList = ['connection', 'connection_invite', 'query', 'query_rpc', 'settings'] as const
-export const registryTypes = ['company_house', 'open_corporates', 'socrata'] as const
+export const registryTypes = ['company_house', 'open_corporates', 'ny_state'] as const
 export const registryKeyParser = z.enum(registryTypes)
 export type RegistryType = (typeof registryTypes)[number]
 

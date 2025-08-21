@@ -7,7 +7,7 @@ import { InternalError } from '../../errors.js'
 import Database from '../../models/db/index.js'
 import { SettingsRow } from '../../models/db/types.js'
 import OrganisationRegistry from '../../models/orgRegistry/organisationRegistry.js'
-import { COMPANY_NUMBER, EMAIL, SOCRATA_NUMBER } from '../../models/stringTypes.js'
+import { COMPANY_NUMBER, EMAIL, NY_STATE_NUMBER } from '../../models/stringTypes.js'
 import SettingsTemplates from '../../views/settings/settings.js'
 import { HTML, HTMLController } from './../HTMLController.js'
 
@@ -74,7 +74,7 @@ export class SettingsController extends HTMLController {
     body: {
       admin_email: EMAIL
       company_name: string
-      companies_house_number: COMPANY_NUMBER | SOCRATA_NUMBER | string
+      companies_house_number: COMPANY_NUMBER | NY_STATE_NUMBER | string
       postal_address: string
       from_email: EMAIL
       action?: 'updateSettings'

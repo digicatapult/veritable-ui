@@ -28,5 +28,5 @@ export const finalSuccessResponse: SharedOrganisationInfo = {
   number: '3211809',
   registryCountryCode: 'US' as CountryCode,
   registeredOfficeIsInDispute: false,
-  selectedRegistry: 'socrata' as RegistryType,
+  selectedRegistry: 'ny_state' as RegistryType,
 }

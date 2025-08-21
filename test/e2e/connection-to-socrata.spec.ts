@@ -2,7 +2,7 @@ import { expect, Page, test } from '@playwright/test'
 import { cleanup, CustomBrowserContext, withLoggedInUser, withRegisteredAccount } from '../helpers/registerLogIn.js'
 import { checkEmails, extractInvite, extractPin } from '../helpers/smtpEmails.js'
 
-test.describe('Connection to Socrata', () => {
+test.describe('Connection to NY State Registry', () => {
   let context: CustomBrowserContext
   let page: Page
   let invite: string | null
@@ -46,7 +46,7 @@ test.describe('Connection to Socrata', () => {
       await page.fill('#new-invite-company-number-input', '3211809')
       await page.fill('#new-invite-email-input', 'alice@testmail.com')
 
-      await page.waitForTimeout(3000) // Wait for the Socrata API
+      await page.waitForTimeout(3000) // Wait for the NY State Registry API
 
       const feedbackElement = await page.$('#new-connection-feedback')
       expect(feedbackElement).not.toBeNull()

@@ -65,7 +65,7 @@ export async function bringUpVeritableUIContainer(
       DEMO_MODE: 'true',
       SMTP_SECURE: 'false',
       COMPANY_PROFILE_API_KEY: 'API_KEY',
-      SOCRATA_API_URL: 'http://wiremock:8080',
+      NY_STATE_API_URL: 'http://wiremock:8080',
       LOCAL_REGISTRY_TO_USE: localRegistryToUse,
       LOCAL_REGISTRY_COUNTRY_CODE: localRegistryCountryToUse,
       IPID_API_URL: 'http://wiremock:8080',

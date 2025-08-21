@@ -17,9 +17,9 @@ import {
   base64UrlRegex,
   companyNumberRegex,
   countryCodes,
+  NY_STATE_NUMBER,
+  nyStateRegex,
   PIN_CODE,
-  SOCRATA_NUMBER,
-  socrataRegex,
   type BASE_64_URL,
   type COMPANY_NUMBER,
   type CountryCode,
@@ -137,7 +137,7 @@ export class NewConnectionController extends HTMLController {
 
     req.log.trace('rendering new connection requester form')
     req.log.debug('updating pattern for country %s', registryCountryCode)
-    const pattern = registryCountryCode === 'GB' ? companyNumberRegex.source : socrataRegex.source
+    const pattern = registryCountryCode === 'GB' ? companyNumberRegex.source : nyStateRegex.source
     const minLength = registryCountryCode === 'GB' ? 8 : 7
     const maxLength = registryCountryCode === 'GB' ? 8 : 7
 
@@ -162,7 +162,7 @@ export class NewConnectionController extends HTMLController {
     @Request() req: express.Request,
     @Query() registryCountryCode: CountryCode,
     @Query() selectedRegistry: RegistryType,
-    @Query() companyNumber: COMPANY_NUMBER | SOCRATA_NUMBER
+    @Query() companyNumber: COMPANY_NUMBER | NY_STATE_NUMBER
   ): Promise<HTML> {
     req.log.debug('verifying %s company number for country %s', companyNumber, registryCountryCode)
 
@@ -239,7 +239,7 @@ export class NewConnectionController extends HTMLController {
     @Request() req: express.Request,
     @Body()
     body: {
-      companyNumber: COMPANY_NUMBER | SOCRATA_NUMBER
+      companyNumber: COMPANY_NUMBER | NY_STATE_NUMBER
       email: EMAIL
       action: 'back' | 'continue' | 'submit'
       registryCountryCode: CountryCode
@@ -406,7 +406,7 @@ export class NewConnectionController extends HTMLController {
       }
     }
 
-    if (!decodedInvite.companyNumber.match(decodedInvite.goalCode === 'GB' ? companyNumberRegex : socrataRegex)) {
+    if (!decodedInvite.companyNumber.match(decodedInvite.goalCode === 'GB' ? companyNumberRegex : nyStateRegex)) {
       logger.info('company number did not match a %s regex', companyNumberRegex)
       return {
         type: 'error',
@@ -481,7 +481,7 @@ export class NewConnectionController extends HTMLController {
     logger: pino.Logger,
     registryCountryCode: CountryCode,
     selectedRegistry: RegistryType,
-    companyNumber: COMPANY_NUMBER | SOCRATA_NUMBER
+    companyNumber: COMPANY_NUMBER | NY_STATE_NUMBER
   ): Promise<{ type: 'success'; company: SharedOrganisationInfo } | { type: 'error'; message: string }> {
     const companySearch = await this.organisationRegistry.getOrganisationProfileByOrganisationNumber({
       companyNumber,
@@ -743,7 +743,7 @@ export class NewConnectionController extends HTMLController {
     )
   }
 
-  private newInviteErrorHtml(error: string, email?: EMAIL, companyNumber?: COMPANY_NUMBER | SOCRATA_NUMBER) {
+  private newInviteErrorHtml(error: string, email?: EMAIL, companyNumber?: COMPANY_NUMBER | NY_STATE_NUMBER) {
     return this.html(
       this.newInvite.newInviteForm({
         feedback: {

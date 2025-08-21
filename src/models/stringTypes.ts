@@ -74,12 +74,11 @@ export const companyNumberRegex =
   /^(((AC|CE|CS|FC|FE|GE|GS|IC|LP|NC|NF|NI|NL|NO|NP|OC|OE|PC|R0|RC|SA|SC|SE|SF|SG|SI|SL|SO|SR|SZ|ZC|\d{2})\d{6})|((IP|SP|RS)[A-Z\d]{6})|(SL\d{5}[\dA]))$/
 
 /**
- * Socrata company number format
- * @pattern ^\d{7}$
- * @example 3211809
+ * New York State company number format
+ * 7 digits
  */
-export type SOCRATA_NUMBER = string
-export const socrataRegex = /^\d{7}$/
+export type NY_STATE_NUMBER = string
+export const nyStateRegex = /^\d{7}$/
 
 /**
  * Base64 url compatible string (see rfc4648 section-5)

@@ -37,6 +37,6 @@ export const dosEntitySchema = z
       status: 'active',
       registryCountryCode: 'US' as CountryCode,
       registeredOfficeIsInDispute: false,
-      selectedRegistry: 'socrata' as RegistryType,
+      selectedRegistry: 'ny_state' as RegistryType,
     }
   })

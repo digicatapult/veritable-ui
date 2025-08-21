@@ -4,10 +4,10 @@ import { Env } from '../../env/index.js'
 import { InternalError } from '../../errors.js'
 import { type ILogger, Logger } from '../../logger.js'
 import { RegistryType } from '../db/types.js'
-import { COMPANY_NUMBER, CountryCode, SOCRATA_NUMBER } from '../stringTypes.js'
+import { COMPANY_NUMBER, CountryCode, NY_STATE_NUMBER } from '../stringTypes.js'
 import { companyHouseProfile } from './companyHouseRegistry/index.js'
 import { openCorporatesProfile } from './openCorporatesRegistry/index.js'
-import { socrataProfile } from './socrataRegistry/index.js'
+import { nyStateProfile } from './socrataRegistry/index.js'
 
 export type Registries = Record<
   RegistryType,
@@ -29,7 +29,7 @@ export type SharedOrganisationInfo = {
   registeredOfficeIsInDispute: boolean
 }
 export type OrganisationRequest = {
-  companyNumber: SOCRATA_NUMBER | COMPANY_NUMBER
+  companyNumber: NY_STATE_NUMBER | COMPANY_NUMBER
   registryCountryCode: CountryCode
   selectedRegistry: RegistryType
 }
@@ -86,8 +86,8 @@ export default class OrganisationRegistry {
       case 'company_house':
         return await companyHouseProfile(orgReq, registry, this.logger)
 
-      case 'socrata':
-        return await socrataProfile(orgReq, registry, this.logger)
+      case 'ny_state':
+        return await nyStateProfile(orgReq, registry, this.logger)
 
       case 'open_corporates':
         return await openCorporatesProfile(orgReq, registry, this.logger)
@@ -140,9 +140,9 @@ export default class OrganisationRegistry {
         country_code: ['GB', 'NL', 'JP'],
         third_party: true,
       },
-      socrata: {
-        registry_name: 'Socrata',
-        url: this.env.get('SOCRATA_API_URL'),
+      ny_state: {
+        registry_name: 'New York State',
+        url: this.env.get('NY_STATE_API_URL'),
         api_key: '',
         country_code: ['US'],
         third_party: false,
@@ -163,10 +163,10 @@ export default class OrganisationRegistry {
         third_party: registries.open_corporates.third_party,
         registry_name: registries.open_corporates.registry_name,
       },
-      socrata: {
-        country_code: registries.socrata.country_code,
-        third_party: registries.socrata.third_party,
-        registry_name: registries.socrata.registry_name,
+      ny_state: {
+        country_code: registries.ny_state.country_code,
+        third_party: registries.ny_state.third_party,
+        registry_name: registries.ny_state.registry_name,
       },
     }
   }

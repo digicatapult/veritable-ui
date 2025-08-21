@@ -5,7 +5,7 @@ import sinon from 'sinon'
 import { CountryCode } from '../../src/models/stringTypes.js'
 import { cleanupCloudagent, cleanupDatabase } from '../helpers/cleanup.js'
 import { setupTwoPartyContext, TwoPartyContext } from '../helpers/connection.js'
-import { alice, openCorporatesCompany, socrataCompany } from '../helpers/fixtures.js'
+import { alice, nyStateCompany, openCorporatesCompany } from '../helpers/fixtures.js'
 import { post } from '../helpers/routeHelper.js'
 import { delay } from '../helpers/util.js'
 const ukRegistryCountryCode = 'GB' as CountryCode
@@ -249,10 +249,10 @@ describe('NewConnectionController', () => {
     beforeEach(async () => {
       response = await post(context.app, '/connection/new/create-invitation', {
         companyNumber: '3211809',
-        email: 'socrata-company@testmail.com',
+        email: 'ny-state-company@testmail.com',
         action: 'submit',
         registryCountryCode: nyRegistryCountryCode,
-        selectedRegistry: 'socrata',
+        selectedRegistry: 'ny_state',
       })
     })
 
@@ -264,8 +264,8 @@ describe('NewConnectionController', () => {
       const connectionRows = await context.localDatabase.get('connection')
       expect(connectionRows.length).to.equal(1)
       expect(connectionRows[0]).to.deep.contain({
-        company_name: socrataCompany.current_entity_name,
-        company_number: socrataCompany.dos_id,
+        company_name: nyStateCompany.current_entity_name,
+        company_number: nyStateCompany.dos_id,
         status: 'pending',
       })
 
@@ -278,12 +278,12 @@ describe('NewConnectionController', () => {
 
     beforeEach(async () => {
       const invite = await context.remoteCloudagent.createOutOfBandInvite({
-        companyName: socrataCompany.current_entity_name,
+        companyName: nyStateCompany.current_entity_name,
         registryCountryCode: nyRegistryCountryCode,
       })
       const inviteContent = Buffer.from(
         JSON.stringify({
-          companyNumber: socrataCompany.dos_id,
+          companyNumber: nyStateCompany.dos_id,
           inviteUrl: invite.invitationUrl,
           goalCode: nyRegistryCountryCode,
         }),
@@ -304,8 +304,8 @@ describe('NewConnectionController', () => {
       const connectionRows = await context.localDatabase.get('connection')
       expect(connectionRows.length).to.equal(1)
       expect(connectionRows[0]).to.deep.contain({
-        company_name: socrataCompany.current_entity_name,
-        company_number: socrataCompany.dos_id,
+        company_name: nyStateCompany.current_entity_name,
+        company_number: nyStateCompany.dos_id,
         status: 'pending',
       })
 
@@ -317,12 +317,12 @@ describe('NewConnectionController', () => {
   describe('connection complete for a ny based company (receive side)', function () {
     beforeEach(async () => {
       const invite = await context.remoteCloudagent.createOutOfBandInvite({
-        companyName: socrataCompany.current_entity_name,
+        companyName: nyStateCompany.current_entity_name,
         registryCountryCode: nyRegistryCountryCode,
       })
       const inviteContent = Buffer.from(
         JSON.stringify({
-          companyNumber: socrataCompany.dos_id,
+          companyNumber: nyStateCompany.dos_id,
           inviteUrl: invite.invitationUrl,
           goalCode: nyRegistryCountryCode,
         }),
