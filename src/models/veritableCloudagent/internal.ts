@@ -38,6 +38,7 @@ type ReceiveUrlResponse = z.infer<typeof receiveUrlParser>
 
 export const connectionParser = z.object({
   id: z.uuid(),
+  threadId: z.uuid(),
   state: z.enum([
     'start',
     'invitation-sent',
