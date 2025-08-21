@@ -15,7 +15,7 @@ import {
   validCompanyNumber,
 } from './fixtures/nyStateFixtures.js'
 import { mockRegistryEnv, nyStateAsLocalRegistry } from './helpers/mock.js'
-import { withNYStateMock } from './helpers/mockSocrata.js'
+import { withNYStateMock } from './helpers/mockNYState.js'
 const mockLogger: ILogger = pino({ level: 'silent' })
 const nyRegistryCountryCode = 'US' as CountryCode
 const nyStateRegistry = 'ny_state' as RegistryType
