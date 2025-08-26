@@ -4,7 +4,12 @@ import sinon from 'sinon'
 import { ConnectionRow } from '../../../models/db/types.js'
 import QueryRequestTemplates from '../queryRequest.js'
 
-const connection = { id: 'connection-id', company_name: 'company-name' } as ConnectionRow
+const connection = {
+  id: 'connection-id',
+  company_name: 'company-name',
+  company_number: '12345678',
+  registry_country_code: 'GB',
+} as ConnectionRow
 
 describe('QueryRequestTemplates', () => {
   let clock: sinon.SinonFakeTimers

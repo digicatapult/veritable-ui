@@ -606,7 +606,7 @@ describe('QueriesController', () => {
       const { args } = withQueriesMocks()
       const controller = new QueriesController(...args)
       const result = await controller.bavResponseFields('GB').then(toHTMLString)
-      expect(result).to.equal('bavForm_GB_bavForm')
+      expect(result).to.equal('bavForm_GB_bavFormISOCode_GB_ISOCode')
     })
   })
 

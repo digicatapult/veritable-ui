@@ -272,12 +272,14 @@ export default class QueryResponseTemplates {
               hx-include="[name=countryCode]"
               hx-swap="innerHTML"
               required
+              hx-on="change: js: document.querySelector('#country-select-code').value = this.value"
             >
               <option value="">Select country</option>
               {Object.entries(countries).map(([countryCode, name]) => (
                 <option value={countryCode}>{Html.escapeHtml(name)}</option>
               ))}
             </select>
+            <this.countryISOCode />
           </div>
           <form
             id="bav-form"
@@ -295,6 +297,24 @@ export default class QueryResponseTemplates {
           </form>
         </div>
       </div>
+    )
+  }
+
+  public countryISOCode = ({
+    countryCode,
+    swapOutOfBand,
+  }: {
+    countryCode?: string
+    swapOutOfBand?: boolean
+  }): JSX.Element => {
+    return (
+      <input
+        id="country-iso-code"
+        type="text"
+        readonly
+        hx-swap-oob={swapOutOfBand ? 'true' : undefined}
+        value={countryCode ? Html.escapeHtml(countryCode) : ''}
+      />
     )
   }
 
@@ -630,18 +650,14 @@ export default class QueryResponseTemplates {
   private queryResponseSuccess = (props: ResponseFormProps): JSX.Element => {
     return (
       <div id="new-query-confirmation-text">
-        <h2>Thank you for your response!</h2>
-        <p>
-          You have successfully forwarded a ${Html.escapeHtml(typeMap[props.type].name)} query to the following
-          supplier(s):
-        </p>
+        <h4>Thank you for your response!</h4>
+        <p>Your query has been successfully responded to the following supplier:</p>
         <i>
           <p>{Html.escapeHtml(props.connection.company_name)}</p>
         </i>
         <p>
-          Once all supplier responses are received, they will be automatically gathered and securely sent to Alice’s
-          Company. You do not need to take any further action. The process is fully automated, ensuring transparency and
-          trust in the final result.
+          The requester will verify your response and the result will be shared with you. No further action is needed on
+          your part. You can trust that the process is secure, transparent, and streamlined for your convenience.
         </p>
         <p>You can check the status of your forwarded queries in the Queries section of your dashboard.</p>
         <br />
