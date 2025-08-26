@@ -231,9 +231,8 @@ export const withVerifiedConnection = function (context: TwoPartyContext) {
     const inviteUrl = JSON.parse(Buffer.from(invite, 'base64url').toString('utf8')).inviteUrl
 
     const connectionInviteAdmin = emailSendStub.args.find((item) => item[0] === 'connection_invite_admin')
-    const pinCode = (connectionInviteAdmin![3] as { pin: string }).pin
+    const pinCode = (connectionInviteAdmin![2] as { pin: string }).pin
     const pinHash = await argon2.hash(pinCode, { secret: context.app.get('INVITATION_PIN_SECRET') })
-
     emailSendStub.restore()
 
     const [{ id: localConnectionId }] = await context.localDatabase.get('connection')
