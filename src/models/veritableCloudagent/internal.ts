@@ -1,7 +1,7 @@
 import { z } from 'zod'
 
 import { type PartialEnv } from '../../env/index.js'
-import { InternalError, NotFoundError } from '../../errors.js'
+import { BadRequestError, InternalError, NotFoundError } from '../../errors.js'
 import { type ILogger } from '../../logger.js'
 import { MapDiscriminatedUnion } from '../../utils/types.js'
 import { DrpcQueryRequest, DrpcQueryResponse } from '../drpc.js'
@@ -24,7 +24,6 @@ const oobInviteParser = z.object({
   id: z.uuid(),
   role: z.enum(['sender', 'receiver']),
 })
-
 type OutOfBandRecord = z.infer<typeof oobInviteParser>
 
 const receiveUrlParser = z.object({
@@ -160,6 +159,7 @@ export type DrpcResponse = z.infer<typeof drpcResponseParser>
 
 const connectionListParser = z.array(connectionParser)
 const credentialListParser = z.array(credentialParser)
+const outOfBandListParser = z.array(oobInviteParser)
 const schemaListParser = z.array(credentialSchemaParser)
 const credentialDefinitionListParser = z.array(credentialDefinitionParser)
 
@@ -209,6 +209,17 @@ export default class VeritableCloudagentInt<Config extends CloudagentConfig = De
     protected logger: ILogger
   ) {}
 
+  /*----------------------- Out of Band Invitations ---------------------------*/
+
+  public async getOutOfBandInvite(id: UUID): Promise<OutOfBandRecord> {
+    return this.getRequest(`/v1/oob/${id}`, this.buildParser(oobInviteParser))
+  }
+
+  // Method only used in reset controller
+  public async getOutOfBandInvites(): Promise<OutOfBandRecord[]> {
+    return this.getRequest(`/v1/oob/`, this.buildParser(outOfBandListParser))
+  }
+
   public async createOutOfBandInvite(params: {
     companyName: string
     registryCountryCode: CountryCode
@@ -243,69 +254,60 @@ export default class VeritableCloudagentInt<Config extends CloudagentConfig = De
     )
   }
 
-  public async getOutOfBandInvite(id: UUID): Promise<OutOfBandRecord> {
-    return this.getRequest(`/v1/oob/${id}`, this.buildParser(oobInviteParser))
-  }
-
   public async deleteOutOfBandInvite(id: UUID): Promise<void> {
     return this.deleteRequest(`/v1/oob/${id}`, () => {})
   }
 
+  /*----------------------- Connections ---------------------------------*/
+
   public async getConnections(): Promise<Connection[]> {
     return this.getRequest('/v1/connections', this.buildParser(connectionListParser))
-  }
-
-  public async deleteCredential(id: UUID): Promise<void> {
-    return this.deleteRequest(`/v1/credentials/${id}`, () => {})
   }
 
   public async deleteConnection(id: UUID): Promise<void> {
     return this.deleteRequest(`/v1/connections/${id}`, () => {})
   }
 
-  public async createDid(method: string, options: Record<string, string>): Promise<DidDocument> {
-    return this.postRequest('/v1/dids/create', { method, options }, this.buildParser(didCreateParser)).then(
-      (res) => res.didDocument
-    )
+  /*----------------------- Credentials ---------------------------------*/
+
+  public async getCredentials(): Promise<Credential[]> {
+    return this.getRequest('/v1/credentials', this.buildParser(credentialListParser))
   }
 
-  public async getCreatedDids(filters: Partial<{ method: string }> = {}): Promise<DidDocument[]> {
-    const params = new URLSearchParams({
-      createdLocally: 'true',
-      ...filters,
-    }).toString()
-
-    return this.getRequest(`/v1/dids?${params}`, this.buildParser(didListParser)).then((dids) =>
-      dids.map((did) => did.didDocument)
-    )
+  public async proposeCredential(connectionId: UUID, proposal: CredentialProposalInput): Promise<Credential> {
+    const body = {
+      protocolVersion: 'v2',
+      credentialFormats: {
+        anoncreds: {
+          ...proposal,
+        },
+      },
+      connectionId,
+    }
+    return this.postRequest('/v1/credentials/propose-credential', body, this.buildParser(credentialParser))
   }
 
-  public async createSchema(
-    issuerId: DID,
-    name: string,
-    version: Version,
-    attrNames: string[]
-  ): Promise<CredentialSchema> {
-    return this.postRequest(
-      '/v1/schemas',
-      { issuerId, name, version, attrNames },
-      this.buildParser(credentialSchemaParser)
-    )
+  public async acceptProposal(credentialId: UUID, proposal: CredentialProposalAcceptInput): Promise<Credential> {
+    const body = {
+      credentialFormats: {
+        anoncreds: {
+          ...proposal,
+        },
+      },
+    }
+    return this.postRequest(`/v1/credentials/${credentialId}/accept-proposal`, body, this.buildParser(credentialParser))
   }
 
-  public async getCreatedSchemas(
-    filters: Partial<{ issuerId: DID; schemaName: string; schemaVersion: Version }> = {}
-  ): Promise<CredentialSchema[]> {
-    const params = new URLSearchParams({
-      createdLocally: 'true',
-      ...filters,
-    }).toString()
-
-    return this.getRequest(`/v1/schemas?${params}`, this.buildParser(schemaListParser))
+  public async acceptCredentialOffer(credentialId: UUID): Promise<Credential> {
+    return this.postRequest(`/v1/credentials/${credentialId}/accept-offer`, {}, this.buildParser(credentialParser))
   }
 
-  public async getSchemaById(schemaId: SchemaId): Promise<CredentialSchema> {
-    return this.getRequest(`/v1/schemas/${encodeURIComponent(schemaId)}`, this.buildParser(credentialSchemaParser))
+  public async acceptCredentialRequest(credentialId: UUID): Promise<Credential> {
+    return this.postRequest(`/v1/credentials/${credentialId}/accept-request`, {}, this.buildParser(credentialParser))
+  }
+
+  public async acceptCredential(credentialId: UUID): Promise<Credential> {
+    return this.postRequest(`/v1/credentials/${credentialId}/accept-credential`, {}, this.buildParser(credentialParser))
   }
 
   public async createCredentialDefinition(
@@ -340,38 +342,72 @@ export default class VeritableCloudagentInt<Config extends CloudagentConfig = De
     )
   }
 
-  public async getCredentials(): Promise<Credential[]> {
-    return this.getRequest('/v1/credentials', this.buildParser(credentialListParser))
-  }
-
   public async getCredentialFormatData(credentialId: UUID): Promise<CredentialFormatData> {
     return this.getRequest(`/v1/credentials/${credentialId}/format-data`, this.buildParser(credentialFormatDataParser))
   }
 
-  public async proposeCredential(connectionId: UUID, proposal: CredentialProposalInput): Promise<Credential> {
-    const body = {
-      protocolVersion: 'v2',
-      credentialFormats: {
-        anoncreds: {
-          ...proposal,
-        },
-      },
-      connectionId,
-    }
-    return this.postRequest('/v1/credentials/propose-credential', body, this.buildParser(credentialParser))
+  public async deleteCredential(id: UUID): Promise<void> {
+    return this.deleteRequest(`/v1/credentials/${id}`, () => {})
   }
 
-  public async acceptProposal(credentialId: UUID, proposal: CredentialProposalAcceptInput): Promise<Credential> {
-    const body = {
-      credentialFormats: {
-        anoncreds: {
-          ...proposal,
-        },
-      },
-    }
-
-    return this.postRequest(`/v1/credentials/${credentialId}/accept-proposal`, body, this.buildParser(credentialParser))
+  public async sendProblemReport(credentialId: UUID, description: string): Promise<Credential> {
+    return this.postRequest(
+      `/v1/credentials/${credentialId}/send-problem-report`,
+      { description: description },
+      this.buildParser(credentialParser)
+    )
   }
+
+  /*----------------------- Schemas ---------------------------------*/
+
+  public async createSchema(
+    issuerId: DID,
+    name: string,
+    version: Version,
+    attrNames: string[]
+  ): Promise<CredentialSchema> {
+    return this.postRequest(
+      '/v1/schemas',
+      { issuerId, name, version, attrNames },
+      this.buildParser(credentialSchemaParser)
+    )
+  }
+
+  public async getCreatedSchemas(
+    filters: Partial<{ issuerId: DID; schemaName: string; schemaVersion: Version }> = {}
+  ): Promise<CredentialSchema[]> {
+    const params = new URLSearchParams({
+      createdLocally: 'true',
+      ...filters,
+    }).toString()
+
+    return this.getRequest(`/v1/schemas?${params}`, this.buildParser(schemaListParser))
+  }
+
+  public async getSchemaById(schemaId: SchemaId): Promise<CredentialSchema> {
+    return this.getRequest(`/v1/schemas/${encodeURIComponent(schemaId)}`, this.buildParser(credentialSchemaParser))
+  }
+
+  /*---------------------------- DIDs ---------------------------------*/
+
+  public async createDid(method: string, options: Record<string, string>): Promise<DidDocument> {
+    return this.postRequest('/v1/dids/create', { method, options }, this.buildParser(didCreateParser)).then(
+      (res) => res.didDocument
+    )
+  }
+
+  public async getCreatedDids(filters: Partial<{ method: string }> = {}): Promise<DidDocument[]> {
+    const params = new URLSearchParams({
+      createdLocally: 'true',
+      ...filters,
+    }).toString()
+
+    return this.getRequest(`/v1/dids?${params}`, this.buildParser(didListParser)).then((dids) =>
+      dids.map((did) => did.didDocument)
+    )
+  }
+
+  /*---------------------------- DRPC ---------------------------------*/
 
   public async submitDrpcRequest<M extends Config['drpcRequest']['method']>(
     connectionId: UUID,
@@ -407,24 +443,7 @@ export default class VeritableCloudagentInt<Config extends CloudagentConfig = De
     )
   }
 
-  public async acceptCredentialOffer(credentialId: UUID): Promise<Credential> {
-    return this.postRequest(`/v1/credentials/${credentialId}/accept-offer`, {}, this.buildParser(credentialParser))
-  }
-
-  public async acceptCredentialRequest(credentialId: UUID): Promise<Credential> {
-    return this.postRequest(`/v1/credentials/${credentialId}/accept-request`, {}, this.buildParser(credentialParser))
-  }
-
-  public async acceptCredential(credentialId: UUID): Promise<Credential> {
-    return this.postRequest(`/v1/credentials/${credentialId}/accept-credential`, {}, this.buildParser(credentialParser))
-  }
-  public async sendProblemReport(credentialId: UUID, description: string): Promise<Credential> {
-    return this.postRequest(
-      `/v1/credentials/${credentialId}/send-problem-report`,
-      { description: description },
-      this.buildParser(credentialParser)
-    )
-  }
+  /*--------------------------- Shared Methods ---------------------------------*/
 
   private async getRequest<O>(path: string, parse: parserFn<O>): Promise<O> {
     return this.noBodyRequest('GET', path, parse)
@@ -442,19 +461,22 @@ export default class VeritableCloudagentInt<Config extends CloudagentConfig = De
     })
 
     if (!response.ok) {
-      if (response.status === 404) {
-        throw new NotFoundError(`${path}`)
+      if (response.status === 400) {
+        throw new BadRequestError(`${method} ${path}`)
       }
-      throw new InternalError(`Unexpected error calling GET ${path}: ${response.statusText}`)
+      if (response.status === 404) {
+        throw new NotFoundError(`${method} ${path}`)
+      }
+      throw new InternalError(`Unexpected error calling ${method} ${path}: ${response.statusText}`)
     }
 
     try {
       return await parse(response)
     } catch (err) {
       if (err instanceof Error) {
-        throw new InternalError(`Error parsing response from calling GET ${path}: ${err.name} - ${err.message}`)
+        throw new InternalError(`Error parsing response from ${method} ${path}: ${err.name} - ${err.message}`)
       }
-      throw new InternalError(`Unknown error parsing response to calling GET ${path}`)
+      throw new InternalError(`Unknown error parsing response from ${method} ${path}`)
     }
   }
 
@@ -479,16 +501,22 @@ export default class VeritableCloudagentInt<Config extends CloudagentConfig = De
     })
 
     if (!response.ok) {
-      throw new InternalError(`Unexpected error calling POST ${path}: ${response.statusText}`)
+      if (response.status === 400) {
+        throw new BadRequestError(`${method} ${path}`)
+      }
+      if (response.status === 404) {
+        throw new NotFoundError(`${method} ${path}`)
+      }
+      throw new InternalError(`Unexpected error calling ${method} ${path}: ${response.statusText}`)
     }
 
     try {
       return await parse(response)
     } catch (err) {
       if (err instanceof Error) {
-        throw new InternalError(`Error parsing response from calling POST ${path}: ${err.name} - ${err.message}`)
+        throw new InternalError(`Error parsing response from ${method} ${path}: ${err.name} - ${err.message}`)
       }
-      throw new InternalError(`Unknown error parsing response to calling POST ${path}`)
+      throw new InternalError(`Unknown error parsing response from ${method} ${path}`)
     }
   }
 

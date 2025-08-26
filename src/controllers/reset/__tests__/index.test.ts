@@ -4,7 +4,7 @@ import sinon from 'sinon'
 
 import { Request } from 'express'
 import { Env } from '../../../env/index.js'
-import { BadRequestError, InternalError } from '../../../errors.js'
+import { ForbiddenError, InternalError } from '../../../errors.js'
 import Database from '../../../models/db/index.js'
 import { TABLE } from '../../../models/db/types.js'
 import VeritableCloudagent from '../../../models/veritableCloudagent/index.js'
@@ -49,8 +49,10 @@ const dbMock = {
 const cloudagentMock = {
   deleteConnection: sinon.stub(),
   deleteCredential: sinon.stub(),
+  deleteOutOfBandInvite: sinon.stub(),
   getCredentials: sinon.stub().callsFake(() => Promise.resolve(fixtures['agent_credentials'])),
   getConnections: sinon.stub().resolves(fixtures['agent_connections']),
+  getOutOfBandInvites: sinon.stub().resolves(fixtures['connection_invite']),
 }
 
 const withMocks = (DEMO_MODE: boolean = true) => {
@@ -73,9 +75,6 @@ const withMocks = (DEMO_MODE: boolean = true) => {
 }
 
 type ResetControllerPublic = { isReset: ResetController['isReset'] }
-const stubIsReset = (controller: ResetController, val: boolean) => {
-  sinon.stub(controller as unknown as ResetControllerPublic, 'isReset').callsFake(() => Promise.resolve(val))
-}
 
 describe('ResetController', () => {
   let result: unknown
@@ -99,8 +98,8 @@ describe('ResetController', () => {
         }
       })
 
-      it('returns 400 along with BadRequestError instance', () => {
-        expect(result).to.be.instanceOf(BadRequestError)
+      it('returns 401 along with Forbidden message', () => {
+        expect(result).to.be.instanceOf(ForbiddenError)
         expect(result).to.have.property('message').that.is.equal('DEMO_MODE is false')
       })
 
@@ -112,6 +111,7 @@ describe('ResetController', () => {
       it('doest not call any cloudagents methods too', () => {
         expect(cloudagentMock.deleteConnection.callCount).to.be.equal(0)
         expect(cloudagentMock.deleteCredential.callCount).to.be.equal(0)
+        expect(cloudagentMock.deleteOutOfBandInvite.callCount).to.be.equal(0)
       })
     })
 
@@ -138,7 +138,7 @@ describe('ResetController', () => {
         it('throws InternalError and returns error message', async () => {
           const { args } = withMocks()
           const controller = new ResetController(...args)
-          stubIsReset(controller, false)
+          sinon.stub(controller as unknown as ResetControllerPublic, 'isReset').rejects(Error)
 
           try {
             result = await controller.reset(req)
@@ -146,10 +146,11 @@ describe('ResetController', () => {
             result = err
           }
 
+          // eslint-disable-next-line prettier/prettier
           expect(result)
             .to.be.instanceOf(InternalError)
             .that.has.property('message')
-            .that.is.equal('Error: reset failed')
+            .that.includes('reset failed')
         })
       })
 
@@ -157,28 +158,34 @@ describe('ResetController', () => {
         expect(dbMock.delete.calledWith('connection')).to.be.equal(true)
         expect(cloudagentMock.getCredentials.callCount).to.be.equal(2)
         expect(cloudagentMock.getConnections.callCount).to.be.equal(2)
+        expect(cloudagentMock.getOutOfBandInvites.callCount).to.be.equal(2)
       })
 
       it('deletes connections and connection_invites locally', () => {
         expect(dbMock.delete.firstCall.args).to.deep.equal(['connection', {}])
         expect(cloudagentMock.deleteCredential.firstCall.args).to.deep.equal(['some-agent-credential-id-1'])
         expect(cloudagentMock.deleteCredential.secondCall.args).to.deep.equal(['some-agent-credential-id-2'])
+        expect(cloudagentMock.deleteCredential.callCount).to.be.equal(2)
         expect(cloudagentMock.deleteConnection.firstCall.args).to.deep.equal(['some-agent-id-1'])
         expect(cloudagentMock.deleteConnection.secondCall.args).to.deep.equal(['some-agent-id-2'])
         expect(cloudagentMock.deleteConnection.thirdCall.args).to.deep.equal(['some-agent-id-3'])
-        expect(cloudagentMock.deleteCredential.callCount).to.be.equal(2)
         expect(cloudagentMock.deleteConnection.callCount).to.be.equal(3)
+        expect(cloudagentMock.deleteOutOfBandInvite.firstCall.args).to.deep.equal(['some-invite-id-1'])
+        expect(cloudagentMock.deleteOutOfBandInvite.secondCall.args).to.deep.equal(['some-invite-id-2'])
+        expect(cloudagentMock.deleteOutOfBandInvite.thirdCall.args).to.deep.equal(['some-invite-id-3'])
+        expect(cloudagentMock.deleteOutOfBandInvite.callCount).to.be.equal(3)
       })
 
       it('confirms that records have been removed', () => {
         expect(cloudagentMock.getCredentials.callCount).to.be.equal(2)
         expect(cloudagentMock.getConnections.callCount).to.be.equal(2)
+        expect(cloudagentMock.getOutOfBandInvites.callCount).to.be.equal(2)
       })
 
-      it('return(200', async () => {
+      it('return(200)', async () => {
         const { args } = withMocks(true)
         const controller = new ResetController(...args)
-        stubIsReset(controller, true)
+        sinon.stub(controller as unknown as ResetControllerPublic, 'isReset').resolves()
         result = await controller.reset(req)
 
         expect(result).to.deep.equal({ statusCode: 200 })

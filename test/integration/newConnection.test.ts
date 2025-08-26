@@ -6,7 +6,7 @@ import { CountryCode } from '../../src/models/stringTypes.js'
 import { cleanupCloudagent, cleanupDatabase } from '../helpers/cleanup.js'
 import { setupTwoPartyContext, TwoPartyContext } from '../helpers/connection.js'
 import { alice, socrataCompany } from '../helpers/fixtures.js'
-import { cleanupRegistries, insertCompanyHouseRegistry, insertSocrataRegistry } from '../helpers/registries.js'
+import { insertCompanyHouseRegistry, insertSocrataRegistry } from '../helpers/registries.js'
 import { post } from '../helpers/routeHelper.js'
 import { delay } from '../helpers/util.js'
 const ukRegistryCountryCode = 'GB' as CountryCode
@@ -20,9 +20,6 @@ describe('NewConnectionController', () => {
 
   beforeEach(async () => {
     await setupTwoPartyContext(context)
-
-    await cleanupCloudagent([context.localCloudagent, context.remoteCloudagent])
-    await cleanupDatabase([context.localDatabase, context.remoteDatabase])
     await insertCompanyHouseRegistry()
     await insertSocrataRegistry()
   })
@@ -31,7 +28,6 @@ describe('NewConnectionController', () => {
     context.cloudagentEvents.stop()
     await cleanupCloudagent([context.localCloudagent, context.remoteCloudagent])
     await cleanupDatabase([context.localDatabase, context.remoteDatabase])
-    await cleanupRegistries()
   })
 
   describe('create invitation (happy path)', function () {
@@ -178,7 +174,7 @@ describe('NewConnectionController', () => {
   })
 
   describe('connection complete (receive side)', function () {
-    beforeEach(async () => {
+    it('should update connection to unverified once connection is established', async () => {
       const invite = await context.remoteCloudagent.createOutOfBandInvite({
         companyName: alice.company_name,
         registryCountryCode: ukRegistryCountryCode,
@@ -196,9 +192,7 @@ describe('NewConnectionController', () => {
         invite: inviteContent,
         action: 'createConnection',
       })
-    })
 
-    it('should update connection to unverified once connection is established', async () => {
       for (let i = 0; i < 100; i++) {
         const [connection] = await context.localDatabase.get('connection')
         if (connection.status === 'unverified') {
