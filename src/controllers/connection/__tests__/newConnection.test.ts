@@ -5,6 +5,7 @@ import sinon from 'sinon'
 import { toHTMLString, withNewConnectionMocks } from './helpers.js'
 
 import { Request } from 'express'
+import { RegistryType } from '../../../models/db/types.js'
 import { CountryCode } from '../../../models/stringTypes.js'
 import { mockLogger } from '../../__tests__/helpers.js'
 import { NewConnectionController } from '../newConnection.js'
@@ -61,7 +62,7 @@ describe('NewConnectionController', () => {
       const { args } = withNewConnectionMocks()
       const controller = new NewConnectionController(...args)
       const result = await controller
-        .verifyCompanyForm(req, invalidCompanyNumber, gbRegistryCountryCode)
+        .verifyCompanyForm(req, gbRegistryCountryCode, 'company_house', invalidCompanyNumber)
         .then(toHTMLString)
       expect(result).to.equal('newInvitePage_message_newInvitePage')
     })
@@ -71,7 +72,7 @@ describe('NewConnectionController', () => {
       const controller = new NewConnectionController(...args)
 
       const result = await controller
-        .verifyCompanyForm(req, notFoundCompanyNumber, gbRegistryCountryCode)
+        .verifyCompanyForm(req, gbRegistryCountryCode, 'company_house', notFoundCompanyNumber)
         .then(toHTMLString)
       expect(result).to.equal('companyFormInput_error--Company number does not exist-form--00000000_companyFormInput')
     })
@@ -80,7 +81,7 @@ describe('NewConnectionController', () => {
       const { args } = withNewConnectionMocks()
       const controller = new NewConnectionController(...args)
       const result = await controller
-        .verifyCompanyForm(req, validCompanyNumberInDispute, gbRegistryCountryCode)
+        .verifyCompanyForm(req, gbRegistryCountryCode, 'company_house', validCompanyNumberInDispute)
         .then(toHTMLString)
       expect(result).to.equal(
         'companyFormInput_error--Cannot validate company NAME3 as address is currently in dispute-form--00000003_companyFormInput'
@@ -91,7 +92,7 @@ describe('NewConnectionController', () => {
       const { args } = withNewConnectionMocks()
       const controller = new NewConnectionController(...args)
       const result = await controller
-        .verifyCompanyForm(req, validCompanyNumberInactive, gbRegistryCountryCode)
+        .verifyCompanyForm(req, gbRegistryCountryCode, 'company_house', validCompanyNumberInactive)
         .then(toHTMLString)
       expect(result).to.equal('companyFormInput_error--Company NAME4 is not active-form--00000004_companyFormInput')
     })
@@ -100,7 +101,7 @@ describe('NewConnectionController', () => {
       const { args } = withNewConnectionMocks()
       const controller = new NewConnectionController(...args)
       const result = await controller
-        .verifyCompanyForm(req, validCompanyNumber, gbRegistryCountryCode)
+        .verifyCompanyForm(req, gbRegistryCountryCode, 'company_house', validCompanyNumber)
         .then(toHTMLString)
       expect(result).to.equal('companyFormInput_companyFound-NAME--form--00000001_companyFormInput')
     })
@@ -178,6 +179,7 @@ describe('NewConnectionController', () => {
           email: 'alice@example.com',
           action: 'continue',
           registryCountryCode: gbRegistryCountryCode,
+          selectedRegistry: 'company_house' as RegistryType,
         })
         .then(toHTMLString)
       expect(result).to.equal(
@@ -194,6 +196,7 @@ describe('NewConnectionController', () => {
           email: 'alice@example.com',
           action: 'continue',
           registryCountryCode: gbRegistryCountryCode,
+          selectedRegistry: 'company_house' as RegistryType,
         })
         .then(toHTMLString)
       expect(result).to.equal(
@@ -210,6 +213,7 @@ describe('NewConnectionController', () => {
           email: 'alice@example.com',
           action: 'continue',
           registryCountryCode: gbRegistryCountryCode,
+          selectedRegistry: 'company_house' as RegistryType,
         })
         .then(toHTMLString)
       expect(result).to.equal(
@@ -226,6 +230,7 @@ describe('NewConnectionController', () => {
           email: 'alice@example.com',
           action: 'continue',
           registryCountryCode: gbRegistryCountryCode,
+          selectedRegistry: 'company_house' as RegistryType,
         })
         .then(toHTMLString)
       expect(result).to.equal(
@@ -247,6 +252,7 @@ describe('NewConnectionController', () => {
           email: 'alice@example.com',
           action: 'submit',
           registryCountryCode: gbRegistryCountryCode,
+          selectedRegistry: 'company_house' as RegistryType,
         })
         .then(toHTMLString)
       expect(result).to.equal(
@@ -266,6 +272,7 @@ describe('NewConnectionController', () => {
           email: 'alice@example.com',
           action: 'submit',
           registryCountryCode: gbRegistryCountryCode,
+          selectedRegistry: 'company_house' as RegistryType,
         })
         .then(toHTMLString)
 
@@ -291,6 +298,7 @@ describe('NewConnectionController', () => {
           email: 'alice@example.com',
           action: 'submit',
           registryCountryCode: gbRegistryCountryCode,
+          selectedRegistry: 'company_house' as RegistryType,
         })
 
         clock.restore()
@@ -322,6 +330,7 @@ describe('NewConnectionController', () => {
             pin_attempt_count: 0,
             pin_tries_remaining_count: null,
             registry_country_code: 'GB',
+            registry_code: 'company_house',
           },
         ])
       })
@@ -364,8 +373,8 @@ describe('NewConnectionController', () => {
           toCompanyName: 'NAME',
           fromCompanyName: 'COMPANY_NAME',
         })
-        expect(emailSpy.secondCall.args[3]?.pin).match(/[0-9]{6}/)
-        expect(emailSpy.secondCall.args[3]).to.deep.contain({
+        expect(emailSpy.secondCall.args[2]?.pin).match(/[0-9]{6}/)
+        expect(emailSpy.secondCall.args[2]).to.deep.contain({
           receiver: 'NAME',
           address: 'ADDRESS_LINE_1, ADDRESS_LINE_2, COUNTRY, LOCALITY, PO_BOX, POSTAL_CODE, REGION',
         })
@@ -382,6 +391,7 @@ describe('NewConnectionController', () => {
             email: 'alice@example.com',
             action: 'continue',
             registryCountryCode: gbRegistryCountryCode,
+            selectedRegistry: 'company_house' as RegistryType,
           })
           .then(toHTMLString)
         expect(result).to.equal(
@@ -398,6 +408,7 @@ describe('NewConnectionController', () => {
             email: 'alice@example.com',
             action: 'continue',
             registryCountryCode: gbRegistryCountryCode,
+            selectedRegistry: 'company_house' as RegistryType,
           })
           .then(toHTMLString)
         expect(result).to.equal(
@@ -414,6 +425,7 @@ describe('NewConnectionController', () => {
             email: 'alice@example.com',
             action: 'continue',
             registryCountryCode: gbRegistryCountryCode,
+            selectedRegistry: 'company_house' as RegistryType,
           })
           .then(toHTMLString)
         expect(result).to.equal(
@@ -430,6 +442,7 @@ describe('NewConnectionController', () => {
             email: 'alice@example.com',
             action: 'continue',
             registryCountryCode: gbRegistryCountryCode,
+            selectedRegistry: 'company_house' as RegistryType,
           })
           .then(toHTMLString)
         expect(result).to.equal(
@@ -446,6 +459,7 @@ describe('NewConnectionController', () => {
             email: 'alice@example.com',
             action: 'continue',
             registryCountryCode: gbRegistryCountryCode,
+            selectedRegistry: 'company_house' as RegistryType,
           })
           .then(toHTMLString)
         expect(result).to.equal(
@@ -462,6 +476,7 @@ describe('NewConnectionController', () => {
             email: 'alice@example.com',
             action: 'continue',
             registryCountryCode: gbRegistryCountryCode,
+            selectedRegistry: 'company_house' as RegistryType,
           })
           .then(toHTMLString)
         expect(result).to.equal(
@@ -478,6 +493,7 @@ describe('NewConnectionController', () => {
             email: 'alice@example.com',
             action: 'continue',
             registryCountryCode: gbRegistryCountryCode,
+            selectedRegistry: 'company_house' as RegistryType,
           })
           .then(toHTMLString)
         expect(result).to.equal(
@@ -495,6 +511,7 @@ describe('NewConnectionController', () => {
               email: 'alice@example.com',
               action: 'continue',
               registryCountryCode: gbRegistryCountryCode,
+              selectedRegistry: 'company_house' as RegistryType,
             })
             .then(toHTMLString)
           expect(result).to.equal(
@@ -511,6 +528,7 @@ describe('NewConnectionController', () => {
               email: 'alice@example.com',
               action: 'continue',
               registryCountryCode: gbRegistryCountryCode,
+              selectedRegistry: 'company_house' as RegistryType,
             })
             .then(toHTMLString)
           expect(result).to.equal(
@@ -527,6 +545,7 @@ describe('NewConnectionController', () => {
               email: 'alice@example.com',
               action: 'continue',
               registryCountryCode: gbRegistryCountryCode,
+              selectedRegistry: 'company_house' as RegistryType,
             })
             .then(toHTMLString)
           expect(result).to.equal(
@@ -686,6 +705,7 @@ describe('NewConnectionController', () => {
             pin_attempt_count: 0,
             pin_tries_remaining_count: null,
             registry_country_code: 'GB',
+            registry_code: 'company_house',
           },
         ])
       })
@@ -708,8 +728,8 @@ describe('NewConnectionController', () => {
 
       it('should send email to admin', () => {
         expect(emailSpy.firstCall.args[0]).equal('connection_invite_admin')
-        expect(emailSpy.firstCall.args[3]?.pin).match(/[0-9]{6}/)
-        expect(emailSpy.firstCall.args[3]).to.deep.contain({
+        expect(emailSpy.firstCall.args[2]?.pin).match(/[0-9]{6}/)
+        expect(emailSpy.firstCall.args[2]).to.deep.contain({
           receiver: 'NAME',
           address: 'ADDRESS_LINE_1, ADDRESS_LINE_2, COUNTRY, LOCALITY, PO_BOX, POSTAL_CODE, REGION',
         })

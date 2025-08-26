@@ -2,6 +2,7 @@ import dotenv from 'dotenv'
 import envalid from 'envalid'
 
 import { container } from 'tsyringe'
+import { registryTypes } from '../models/db/types.js'
 import { countryCodes } from '../models/stringTypes.js'
 import {
   emailTransportValidator,
@@ -55,12 +56,22 @@ export const defaultConfig = {
   ISSUANCE_SCHEMA_POLICY: issuanceRecordValidator({ devDefault: 'EXISTING_OR_NEW' }),
   ISSUANCE_CRED_DEF_POLICY: issuanceRecordValidator({ devDefault: 'EXISTING_OR_NEW' }),
   DEMO_MODE: envalid.bool({ devDefault: true, default: false }),
-  SOCRATA_API_URL: envalid.str({ default: 'https://data.ny.gov/resource/p66s-i79p.json' }),
+  NY_STATE_API_URL: envalid.str({ default: 'https://dev.socrata.com/foundry/data.ny.gov/p66s-i79p' }),
   LOCAL_REGISTRY_TO_USE: envalid.str({
+    default: 'company_house',
+    devDefault: 'company_house',
+    choices: registryTypes,
+  }),
+  LOCAL_REGISTRY_COUNTRY_CODE: envalid.str({
     default: 'GB',
     devDefault: 'GB',
     choices: countryCodes,
   }),
+  OPEN_CORPORATES_API_URL: envalid.str({
+    devDefault: 'http://localhost:8443',
+    default: 'https://api.opencorporates.com/v0.4',
+  }),
+  OPEN_CORPORATES_API_KEY: envalid.str({ devDefault: 'test-key' }),
   IPID_API_URL: envalid.str({ default: 'https://sandbox.ipid.works' }),
   IPID_API_KEY: envalid.str(),
   IPID_CUSTOMER_ID: envalid.str({ default: 'digicatapult-uat' }),

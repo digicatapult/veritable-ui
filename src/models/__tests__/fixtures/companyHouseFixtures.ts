@@ -1,4 +1,6 @@
-import { CompanyHouseProfile, SharedOrganisationInfo } from '../../orgRegistry/organisationRegistry.js'
+import { RegistryType } from '../../db/types.js'
+import { SharedOrganisationInfo } from '../../orgRegistry/organisationRegistry.js'
+import { CompanyHouseProfile } from '../../orgRegistry/registrySchemas/companyHouseSchema.js'
 import { CountryCode } from '../../stringTypes.js'
 
 export const validCompanyNumber = '07964699'
@@ -24,6 +26,7 @@ export const finalSuccessResponse: SharedOrganisationInfo = {
   number: '07964699',
   registryCountryCode: 'GB' as CountryCode,
   registeredOfficeIsInDispute: false,
+  selectedRegistry: 'company_house' as RegistryType,
 }
 
 export const successResponse2: SharedOrganisationInfo = {
@@ -33,4 +36,5 @@ export const successResponse2: SharedOrganisationInfo = {
   number: '11111111',
   registryCountryCode: 'GB' as CountryCode,
   registeredOfficeIsInDispute: false,
+  selectedRegistry: 'company_house' as RegistryType,
 }

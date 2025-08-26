@@ -69,12 +69,15 @@ services:
       - COMPANY_HOUSE_API_URL=https://api.company-information.service.gov.uk
       - DEMO_MODE=true
       - SMTP_SECURE=false
-      - LOCAL_REGISTRY_TO_USE=GB
-      - SOCRATA_API_URL=https://data.ny.gov/resource/p66s-i79p.json
+      - LOCAL_REGISTRY_TO_USE=company_house
+      - NY_STATE_API_URL=https://dev.socrata.com/foundry/data.ny.gov/p66s-i79p
       - COMPANY_PROFILE_API_KEY=${COMPANY_PROFILE_API_KEY}
       - IPID_API_URL=https://sandbox.ipid.works
       - IPID_API_KEY=${IPID_API_KEY}
       - IPID_CUSTOMER_ID=digicatapult-uat
+      - LOCAL_REGISTRY_COUNTRY_CODE=GB
+      - OPEN_CORPORATES_API_URL=http://wiremock:8080
+      - OPEN_CORPORATES_API_KEY=${OPEN_CORPORATES_API_KEY}
   postgres-veritable-ui-alice:
     image: postgres:17.5-alpine
     container_name: postgres-veritable-ui-alice
@@ -163,12 +166,15 @@ services:
       - SMTP_USER=username
       - EMAIL_TRANSPORT=SMTP_EMAIL
       - SMTP_SECURE=false
-      - LOCAL_REGISTRY_TO_USE=GB
-      - SOCRATA_API_URL=https://data.ny.gov/resource/p66s-i79p.json
+      - NY_STATE_API_URL=https://dev.socrata.com/foundry/data.ny.gov/p66s-i79p
       - COMPANY_PROFILE_API_KEY=${COMPANY_PROFILE_API_KEY}
+      - OPEN_CORPORATES_API_URL=http://wiremock:8080
+      - OPEN_CORPORATES_API_KEY=${OPEN_CORPORATES_API_KEY}
       - IPID_API_URL=https://sandbox.ipid.works
       - IPID_API_KEY=${IPID_API_KEY}
       - IPID_CUSTOMER_ID=digicatapult-uat
+      - LOCAL_REGISTRY_TO_USE=company_house
+      - LOCAL_REGISTRY_COUNTRY_CODE=GB
 
   postgres-veritable-ui-bob:
     image: postgres:17.5-alpine
@@ -259,11 +265,14 @@ services:
       - EMAIL_TRANSPORT=SMTP_EMAIL
       - SMTP_SECURE=false
       - COMPANY_PROFILE_API_KEY=${COMPANY_PROFILE_API_KEY}
-      - LOCAL_REGISTRY_TO_USE=GB
-      - SOCRATA_API_URL=https://data.ny.gov/resource/p66s-i79p.json
+      - LOCAL_REGISTRY_TO_USE=company_house
+      - LOCAL_REGISTRY_COUNTRY_CODE=GB
+      - NY_STATE_API_URL=https://dev.socrata.com/foundry/data.ny.gov/p66s-i79p
       - IPID_API_URL=https://sandbox.ipid.works
       - IPID_API_KEY=${IPID_API_KEY}
       - IPID_CUSTOMER_ID=digicatapult-uat
+      - OPEN_CORPORATES_API_URL=http://wiremock:8080
+      - OPEN_CORPORATES_API_KEY=${OPEN_CORPORATES_API_KEY}
 
   postgres-veritable-ui-charlie:
     image: postgres:17.5-alpine
@@ -317,7 +326,7 @@ services:
   wiremock:
     image: wiremock/wiremock:3.13.1
     container_name: wiremock
-    scale: 0
+    # scale: 0 // TODO: remove this, only for dev
     ports:
       - '8443:8080' # Port for accessing wiremock
     restart: always

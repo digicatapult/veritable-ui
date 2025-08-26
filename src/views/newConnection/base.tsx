@@ -1,4 +1,5 @@
 import Html from '@kitajs/html'
+import { CountryRegistry } from '../../controllers/connection/newConnection.js'
 import { SharedOrganisationInfo } from '../../models/orgRegistry/organisationRegistry.js'
 import { FormButton, LinkButton } from '../common.js'
 
@@ -13,6 +14,10 @@ export type FormFeedback =
       regex?: string
       minlength?: number
       maxlength?: number
+      registryOptionsPerCountry: {
+        thirdPartyRegistries: CountryRegistry[]
+        countryRegistries: CountryRegistry[]
+      }
     }
   | {
       type: 'error'
