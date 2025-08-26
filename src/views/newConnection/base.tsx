@@ -1,5 +1,5 @@
 import Html from '@kitajs/html'
-import { CountryRegistries } from '../../controllers/connection/newConnection.js'
+import { CountryRegistry } from '../../controllers/connection/newConnection.js'
 import { SharedOrganisationInfo } from '../../models/orgRegistry/organisationRegistry.js'
 import { FormButton, LinkButton } from '../common.js'
 
@@ -15,8 +15,8 @@ export type FormFeedback =
       minlength?: number
       maxlength?: number
       registryOptionsPerCountry: {
-        thirdPartyRegistries: CountryRegistries[]
-        countryRegistries: CountryRegistries[]
+        thirdPartyRegistries: CountryRegistry[]
+        countryRegistries: CountryRegistry[]
       }
     }
   | {

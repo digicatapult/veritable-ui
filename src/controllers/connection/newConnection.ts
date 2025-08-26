@@ -45,7 +45,7 @@ const inviteParser = z.object({
   inviteUrl: z.url(),
 })
 type Invite = z.infer<typeof inviteParser>
-export type CountryRegistries = {
+export type CountryRegistry = {
   country_code: string
   registry_name: string
   registry_key: string
@@ -101,16 +101,14 @@ export class NewConnectionController extends HTMLController {
     )
 
     // Transform to CountryRegistries[] type
-    const transformedThirdPartyRegistries: CountryRegistries[] = thirdPartyRegistries.map(
-      ([registryType, registry]) => ({
-        country_code: registryCountryCode,
-        registry_name: registry.registry_name,
-        registry_key: registryType,
-        third_party: registry.third_party,
-      })
-    )
+    const transformedThirdPartyRegistries: CountryRegistry[] = thirdPartyRegistries.map(([registryType, registry]) => ({
+      country_code: registryCountryCode,
+      registry_name: registry.registry_name,
+      registry_key: registryType,
+      third_party: registry.third_party,
+    }))
 
-    const transformedCountryRegistries: CountryRegistries[] = countryRegistries.map(([registryType, registry]) => ({
+    const transformedCountryRegistries: CountryRegistry[] = countryRegistries.map(([registryType, registry]) => ({
       country_code: registryCountryCode,
       registry_name: registry.registry_name,
       registry_key: registryType,
@@ -118,8 +116,8 @@ export class NewConnectionController extends HTMLController {
     }))
 
     const registryOptionsPerCountry: {
-      thirdPartyRegistries: CountryRegistries[]
-      countryRegistries: CountryRegistries[]
+      thirdPartyRegistries: CountryRegistry[]
+      countryRegistries: CountryRegistry[]
     } = {
       thirdPartyRegistries: transformedThirdPartyRegistries,
       countryRegistries: transformedCountryRegistries,
