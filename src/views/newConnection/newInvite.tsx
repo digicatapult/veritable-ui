@@ -85,7 +85,7 @@ export class NewInviteTemplates extends NewConnectionTemplates {
             <option value="GB">United Kingdom</option>
             <option value="US">United States</option>
           </select>
-          <input id="new-invite-country-code-display" type="text" readonly value={props.registryCountryCode} />
+          <input id="new-invite-country-code-display" type="text" readonly value={props.registryCountryCode ?? 'GB'} />
         </div>
 
         <div id="dynamic-invite-form-content">
@@ -134,7 +134,7 @@ export class NewInviteTemplates extends NewConnectionTemplates {
           <input
             id="new-invite-company-number-input"
             name="companyNumber"
-            placeholder="Companie's Number or ID"
+            placeholder="Company Number or ID"
             required
             hx-get="/connection/new/verify-company"
             hx-trigger="keyup changed delay:200ms, change, load"
@@ -188,7 +188,7 @@ export class NewInviteTemplates extends NewConnectionTemplates {
           value={props.companyNumber}
           type="hidden"
         ></input>
-        <input id="new-invite-email-input" name="email" value={props.email} type="hidden"></input>,
+        <input id="new-invite-email-input" name="email" value={props.email} type="hidden"></input>
         {/* todo: add this onto SharedOrgInfo */}
         <input
           id="new-invite-selected-registry-input"
@@ -204,10 +204,7 @@ export class NewInviteTemplates extends NewConnectionTemplates {
         />
         <div id="new-connection-confirmation-text">
           <p>Please confirm the details of the connection before sending</p>
-          <p>
-            {' '}
-            {Html.escapeHtml(props.feedback.type === 'companyFound' && props.feedback.company.registryCountryCode)}
-          </p>
+          <p>{Html.escapeHtml(props.feedback.type === 'companyFound' && props.feedback.company.registryCountryCode)}</p>
           <p>
             {Html.escapeHtml(
               `Company Number: ${props.feedback.type === 'companyFound' && props.feedback.company.number}`

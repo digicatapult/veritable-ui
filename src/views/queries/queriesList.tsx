@@ -1,7 +1,7 @@
 import Html from '@kitajs/html'
 import { singleton } from 'tsyringe'
 import { QueryRow } from '../../models/db/types.js'
-import { LinkButton, Page, queryStatusToClass } from '../common.js'
+import { FormattedTime, LinkButton, Page, queryStatusToClass } from '../common.js'
 
 type QueryStatus = QueryRow['status']
 type QueryRole = QueryRow['role']
@@ -121,17 +121,7 @@ export default class QueryListTemplates {
                     <td>{Html.escapeHtml(mapQueryType(query))}</td>
                     <td>{this.direction(query.role)}</td>
                     <td>
-                      <time>
-                        {Html.escapeHtml(
-                          `${query.expires_at.toLocaleDateString('en-GB')} - ${query.expires_at.toLocaleTimeString(
-                            'en-GB',
-                            {
-                              hour: '2-digit',
-                              minute: '2-digit',
-                            }
-                          )}`
-                        )}
-                      </time>
+                      <FormattedTime time={query.expires_at} />
                     </td>
                     <td>{queryStatusToClass(query.status)}</td>
 
