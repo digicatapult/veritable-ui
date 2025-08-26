@@ -42,6 +42,10 @@ before(async function () {
   chaiJestSnapshot.resetSnapshotRegistry()
 })
 
+beforeEach(function () {
+  chaiJestSnapshot.configureUsingMochaContext(this)
+})
+
 after(async function () {
   stopContainers(aliceDepsContainers)
   stopContainers(bobDepsContainers)
@@ -49,10 +53,6 @@ after(async function () {
   stopContainers(bobUIContainer)
   stopContainers(charlieUIContainer)
   stopContainers(sharedContainers)
-})
-
-beforeEach(function () {
-  chaiJestSnapshot.configureUsingMochaContext(this)
 })
 
 async function stopContainers(containers: StartedTestContainer[]) {

@@ -11,9 +11,6 @@ describe('query submission', function () {
 
   beforeEach(async function () {
     await setupTwoPartyContext(context)
-
-    await cleanupCloudagent([context.localCloudagent, context.remoteCloudagent])
-    await cleanupDatabase([context.localDatabase, context.remoteDatabase])
   })
 
   afterEach(async () => {
@@ -23,24 +20,25 @@ describe('query submission', function () {
   })
 
   describe('Carbon embodiment query success', function () {
-    let response: Awaited<ReturnType<typeof post>>
-
     withVerifiedConnection(context)
 
-    beforeEach(async function () {
-      response = await post(context.app, `/queries/carbon-embodiment`, {
+    it('should respond 200 to a post query', async function () {
+      const response = await post(context.app, `/queries/carbon-embodiment`, {
         connectionId: context.localConnectionId,
         productId: 'Test',
         quantity: 1,
-        expiresAt: new Date(),
+        expiresAt: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000),
       })
-    })
-
-    it('should response 200', async function () {
       expect(response.statusCode).to.equal(200)
     })
 
     it('should set local query state to pending_their_input', async function () {
+      await post(context.app, `/queries/carbon-embodiment`, {
+        connectionId: context.localConnectionId,
+        productId: 'Test',
+        quantity: 1,
+        expiresAt: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000),
+      })
       let queryLocal: QueryRow | null | undefined
       const pollLimit = 100
       for (let i = 1; i <= pollLimit; i++) {
@@ -70,6 +68,12 @@ describe('query submission', function () {
     })
 
     it('should set local query state to pending_your_input', async function () {
+      await post(context.app, `/queries/carbon-embodiment`, {
+        connectionId: context.localConnectionId,
+        productId: 'Test',
+        quantity: 1,
+        expiresAt: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000),
+      })
       let queryRemote: QueryRow | null | undefined
       const pollLimit = 100
       for (let i = 1; i <= pollLimit; i++) {

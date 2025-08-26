@@ -19,9 +19,6 @@ describe('NewConnectionController', () => {
 
   beforeEach(async () => {
     await setupTwoPartyContext(context)
-
-    await cleanupCloudagent([context.localCloudagent, context.remoteCloudagent])
-    await cleanupDatabase([context.localDatabase, context.remoteDatabase])
   })
 
   afterEach(async () => {
@@ -178,7 +175,7 @@ describe('NewConnectionController', () => {
   })
 
   describe('connection complete (receive side)', function () {
-    beforeEach(async () => {
+    it('should update connection to unverified once connection is established', async () => {
       const invite = await context.remoteCloudagent.createOutOfBandInvite({
         companyName: alice.company_name,
         registryCountryCode: ukRegistryCountryCode,
@@ -196,9 +193,7 @@ describe('NewConnectionController', () => {
         invite: inviteContent,
         action: 'createConnection',
       })
-    })
 
-    it('should update connection to unverified once connection is established', async () => {
       for (let i = 0; i < 100; i++) {
         const [connection] = await context.localDatabase.get('connection')
         if (connection.status === 'unverified') {

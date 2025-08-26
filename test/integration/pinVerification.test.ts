@@ -14,7 +14,7 @@ import { delay, delayAndReject } from '../helpers/util.js'
 describe('pin-submission', function () {
   const context: TwoPartyContext = {} as TwoPartyContext
 
-  beforeEach(async function () {
+  beforeEach(async () => {
     await setupTwoPartyContext(context)
     Object.assign(context, {
       localConnectionId: '',
@@ -22,8 +22,6 @@ describe('pin-submission', function () {
       remoteConnectionId: '',
       remoteVerificationPin: '',
     })
-    await cleanupCloudagent([context.localCloudagent, context.remoteCloudagent])
-    await cleanupDatabase([context.localDatabase, context.remoteDatabase])
   })
 
   afterEach(async () => {

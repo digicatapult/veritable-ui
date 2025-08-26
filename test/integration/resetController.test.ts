@@ -13,9 +13,6 @@ describe('integration test for /reset endpoint', function () {
 
   beforeEach(async function () {
     await setupTwoPartyContext(context)
-
-    await cleanupCloudagent([context.localCloudagent, context.remoteCloudagent])
-    await cleanupDatabase([context.localDatabase, context.remoteDatabase])
   })
 
   afterEach(async () => {

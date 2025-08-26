@@ -9,11 +9,8 @@ describe('partial query aggregation', function () {
   const context: ThreePartyContext = {} as ThreePartyContext
   let response: Awaited<ReturnType<typeof post>>
 
-  beforeEach(async function () {
+  beforeEach(async () => {
     await setupThreePartyContext(context)
-
-    await cleanupCloudagent([context.agent.alice, context.agent.bob, context.agent.charlie])
-    await cleanupDatabase([context.db.alice, context.db.bob, context.db.charlie])
   })
 
   afterEach(async () => {
