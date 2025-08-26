@@ -4,7 +4,7 @@ import { ILogger } from '../../logger.js'
 import { RegistryType } from '../db/types.js'
 import { OrganisationProfile, OrganisationRequest, Registries, SharedOrganisationInfo } from './organisationRegistry.js'
 import { companyHouseResultSchema } from './registrySchemas/companyHouseSchema.js'
-import { dosEntitySchema } from './registrySchemas/NYStateSchema.js'
+import { nyStateResultSchema } from './registrySchemas/NYStateSchema.js'
 import { openCorporatesResultSchema } from './registrySchemas/openCorporatesSchema.js'
 
 export const makeOrganisationRegistryRequest = async (
@@ -46,7 +46,7 @@ const retrieveEndpointAndSchema = (
       }
 
     case 'ny_state':
-      return { url: `${registry.url}?dos_id=${orgReq.companyNumber}`, schema: dosEntitySchema }
+      return { url: `${registry.url}?dos_id=${orgReq.companyNumber}`, schema: nyStateResultSchema }
 
     case 'open_corporates':
       return {
