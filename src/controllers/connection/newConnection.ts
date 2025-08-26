@@ -93,12 +93,8 @@ export class NewConnectionController extends HTMLController {
     const filteredRegistries = Object.fromEntries(registriesForCountry) as typeof availableRegistries
 
     // Filter registries into two arrays based on third_party field
-    const thirdPartyRegistries = Object.entries(filteredRegistries).filter(
-      ([, registry]) => registry.third_party === true
-    )
-    const countryRegistries = Object.entries(filteredRegistries).filter(
-      ([, registry]) => registry.third_party === false
-    )
+    const thirdPartyRegistries = Object.entries(filteredRegistries).filter(([, registry]) => registry.third_party)
+    const countryRegistries = Object.entries(filteredRegistries).filter(([, registry]) => !registry.third_party)
 
     // Transform to CountryRegistries[] type
     const transformedThirdPartyRegistries: CountryRegistry[] = thirdPartyRegistries.map(([registryType, registry]) => ({
@@ -429,12 +425,8 @@ export class NewConnectionController extends HTMLController {
     const filteredRegistries = Object.fromEntries(registriesForCountry) as typeof availableRegistries
 
     // Filter registries into two arrays based on third_party field
-    const thirdPartyRegistries = Object.entries(filteredRegistries).filter(
-      ([, registry]) => registry.third_party === true
-    )
-    const countryRegistries = Object.entries(filteredRegistries).filter(
-      ([, registry]) => registry.third_party === false
-    )
+    const thirdPartyRegistries = Object.entries(filteredRegistries).filter(([, registry]) => registry.third_party)
+    const countryRegistries = Object.entries(filteredRegistries).filter(([, registry]) => !registry.third_party)
     const orderedRegistry = [...countryRegistries, ...thirdPartyRegistries]
 
     let companyOrError: { type: 'success'; company: SharedOrganisationInfo } | { type: 'error'; message: string } = {
