@@ -277,14 +277,15 @@ export default class QueryRequestTemplates {
   private newQuerySuccess = (props: SuccessProps): JSX.Element => {
     return (
       <div id="new-query-confirmation-text">
-        <h4>Your Request has been sent!</h4>
+        <h4>Your Query has been sent!</h4>
         <p>Your query has been successfully shared with the following supplier:</p>
         <i>
           <p>{Html.escapeHtml(props.company.companyName)}</p>
         </i>
         <p>
-          The requester will verify your response and the result will be shared with you. No further action is needed on
-          your part. You can trust that the process is secure, transparent, and streamlined for your convenience.
+          Once all responses are received, the information will be automatically gathered and shared with you. No
+          further action is needed on your part. You can trust that the process is secure, transparent, and streamlined
+          for your convenience.
         </p>
         <p>You can check the status of your query in the Queries section of your dashboard.</p>
         <LinkButton disabled={false} text="Back to Home" href="/queries" icon={''} style="filled" />

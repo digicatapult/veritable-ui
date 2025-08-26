@@ -160,6 +160,7 @@ export const withQueriesMocks = (testOptions: Partial<QueryMockOptions> = {}) =>
   const queryResponseTemplateMock = {
     queryResponsePage: (props: ResponseFormProps) => templateFake('queriesResponse', props),
     bavForm: ({ countryCode }: { countryCode: CountryCode }) => templateListFake('bavForm', countryCode),
+    countryISOCode: ({ countryCode }: { countryCode: CountryCode }) => templateListFake('ISOCode', countryCode),
     bavVerificationResults: ({
       score,
       description,
