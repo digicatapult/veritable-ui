@@ -45,7 +45,7 @@ describe('NewConnectionController', () => {
     it('should return rendered form template (fromInvite = false)', async () => {
       const { args } = withNewConnectionMocks()
       const controller = new NewConnectionController(...args)
-      const result = await controller.newConnectionForm(req).then(toHTMLString) // here
+      const result = await controller.newConnectionForm(req).then(toHTMLString)
       expect(result).to.equal('newInvitePage_message_newInvitePage')
     })
 

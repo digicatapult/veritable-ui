@@ -281,5 +281,7 @@ npm run db:migrate
 We currently support:
 Companies House: which requires an API KEY. (`COMPANY_PROFILE_API_KEY`)
 [NY State Registry](https://dev.socrata.com/foundry/data.ny.gov/p66s-i79p): which does not require an API KEY. (Requests are rate-limited without an api-key)
+[Open Corporates](https://api.opencorporates.com/): which requires an API Key. In dev mode we develop against wiremock which has a company with an identifier `00102498` that you can test against.
 
-- if you want e.g. Charlie to pose as a company registered with NY State Registry - set `LOCAL_REGISTRY_TO_USE` to `US` and `INVITATION_FROM_COMPANY_NUMBER` to `3211809` (company number we use to test NY State Registry functionality).
+- if you want e.g. Charlie to pose as a company registered with NY State Registry - set `LOCAL_REGISTRY_TO_USE` to `ny_state` and `INVITATION_FROM_COMPANY_NUMBER` to `3211809` (company number we use to test NY State Registry functionality).
+- if you want e.g. Charlie to pose as a company registered with Open Corporates - set `LOCAL_REGISTRY_TO_USE` to `open_corporates` and `INVITATION_FROM_COMPANY_NUMBER` to `00102498` (company number we use to test Open Corporates functionality).
