@@ -95,7 +95,7 @@ test.describe('Query response view', () => {
 
       await page.waitForLoadState('networkidle')
       await expect(table.locator('tr', { hasText: 'Result' })).toContainText('Partial Match')
-      await expect(page.getByText('Send new query')).toBeVisible()
+      await expect(page.getByText('Request new BAV query')).toBeVisible()
     })
 
     await test.step('returns to queries page', async () => {

@@ -613,7 +613,7 @@ export default class QueryResponseTemplates {
                       data-variant="action"
                       href={`/queries/new?type=beneficiary_account_validation&connectionId=${connectionId}`}
                     >
-                      Send new query
+                      Request new BAV query
                     </a>
                   )}
                 </>
