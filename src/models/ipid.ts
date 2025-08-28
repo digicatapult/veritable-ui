@@ -83,7 +83,7 @@ export default class IpidBav implements IBav {
       return { score: validateResponse.data.match_score, description: validateResponse.data.match_score_description }
     } catch (error) {
       if (error instanceof IpidError) {
-        log.info('expected IPID error %j', error.internalMessage)
+        log.info('expected IPID error %s', error.internalMessage)
         return { score: 0, description: error.userMessage }
       }
       log.error(error)

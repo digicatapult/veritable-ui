@@ -1,7 +1,7 @@
 import argon2 from 'argon2'
 import express from 'express'
 import { randomInt } from 'node:crypto'
-import { pino } from 'pino'
+import pino from 'pino'
 import { Body, Get, Post, Produces, Query, Request, Route, Security, SuccessResponse } from 'tsoa'
 import { inject, injectable } from 'tsyringe'
 import { z } from 'zod'
@@ -161,7 +161,7 @@ export class NewConnectionController extends HTMLController {
     req.log.debug('verifying %s company number for country %s', companyNumber, registryCountryCode)
 
     if (registryCountryCode === 'GB' && !companyNumber.match(companyNumberRegex)) {
-      req.log.info('company %s number did not match %s regex', companyNumber, companyNumberRegex)
+      req.log.info('company %s number did not match %s regex', companyNumber, companyNumberRegex.toString())
       return this.newConnectionForm(req)
     }
 
@@ -393,7 +393,7 @@ export class NewConnectionController extends HTMLController {
     try {
       decodedInvite = inviteParser.parse(JSON.parse(Buffer.from(invite, 'base64url').toString('utf8')))
     } catch (err) {
-      logger.info('unknown error occurred %j', err)
+      logger.info(err, 'unknown error occurred')
       return {
         type: 'error',
         message: 'Invitation is not valid, the invite is not in the correct format',
@@ -401,7 +401,7 @@ export class NewConnectionController extends HTMLController {
     }
 
     if (!decodedInvite.companyNumber.match(decodedInvite.goalCode === 'GB' ? companyNumberRegex : nyStateRegex)) {
-      logger.info('company number did not match a %s regex', companyNumberRegex)
+      logger.info('company number did not match a %s regex', companyNumberRegex.toString())
       return {
         type: 'error',
         message: 'Invitation is not valid',
@@ -453,7 +453,7 @@ export class NewConnectionController extends HTMLController {
         }
       } catch (err) {
         // let it silently fail if not found in registry
-        logger.info('error looking up company in registry %s %j', registry[1].registry_name, err)
+        logger.info(err, 'error looking up company in registry %s', registry[1].registry_name)
       }
     }
     if (companyOrError.type === 'error') {
@@ -479,7 +479,7 @@ export class NewConnectionController extends HTMLController {
       selectedRegistry,
     })
     if (companySearch.type === 'notFound') {
-      logger.info('%s company not found', companySearch)
+      logger.info('%o company not found', companySearch)
       return {
         type: 'error',
         message: 'Company number does not exist',

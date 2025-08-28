@@ -72,7 +72,7 @@ export default class CredentialEvents {
     if (this.isCredentialError(record)) {
       this.logger.debug('There was an error in credential issuance of credential %s', record.id)
       if (!record.errorMessage) {
-        this.logger.debug('Errror message in error report is missing for credential', record.id)
+        this.logger.debug('Error message in error report is missing for credential %s', record.id)
         return
       }
       try {
@@ -94,8 +94,8 @@ export default class CredentialEvents {
           throw new Error(`ErrorMessage string is null.`)
         }
       } catch (err) {
-        this.logger.debug('There has been an error receiving problem report %s', record)
-        this.logger.debug('Problem report error o%', err)
+        this.logger.debug('There has been an error receiving problem report %o', record)
+        this.logger.debug(err, 'Problem report error')
         return
       }
 

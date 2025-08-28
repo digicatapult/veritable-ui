@@ -117,8 +117,8 @@ export default class VeritableCloudagentEvents extends IndexedAsyncEventEmitter<
         try {
           data = eventParser.parse(JSON.parse(ev.data.toString()))
         } catch (err) {
-          this.logger.warn('Unusable event received %o', ev.data)
-          this.logger.debug('Parser error %o', err)
+          this.logger.warn('Unusable event received %s', ev.data.toString())
+          this.logger.debug(err, 'Parser error')
           return
         }
 

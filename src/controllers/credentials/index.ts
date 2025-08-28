@@ -54,7 +54,7 @@ export class CredentialsController extends HTMLController {
     if (!connection) return null
 
     const schemaId = credential.metadata?.['_anoncreds/credential']?.schemaId
-    req.log.trace('Schema Id for credential %s: %s', credential.id, schemaId)
+    req.log.trace('Schema Id for credential %s: %s', credential.id, schemaId ?? 'no schemaId found')
     if (!schemaId) return null
 
     const schema = await this.cloudagent.getSchemaById(schemaId)

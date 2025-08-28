@@ -50,8 +50,8 @@ export default abstract class IndexedAsyncEventEmitter<
 
   // handle if async handlers throw. Non indexed events will follow what's in `options.retryExhaustedBehaviour`
   [captureRejectionSymbol]<E>(err: Error, eventName: E | K, ...args: object[]) {
-    this.logger.warn('Error processing %s event: %s', eventName, err.message)
-    this.logger.debug('Error processing %s event: %o stack: %s', eventName, args[0], err.stack)
+    this.logger.warn('Error processing %s event: %s', String(eventName), err.message)
+    this.logger.debug('Error processing %s event: %o stack: %s', String(eventName), args[0], err.stack ?? 'no stack')
 
     const data = args[0]
     if (this.isIndexedEvent(data) && this.isTrackedEventName(eventName)) {
@@ -66,7 +66,7 @@ export default abstract class IndexedAsyncEventEmitter<
     }
 
     if (this.options.retryExhaustedBehaviour === 'THROW') {
-      this.logger.fatal('Error processing %s event: %o stack: %s', eventName, args[0], err.stack)
+      this.logger.fatal('Error processing %s event: %o stack: %s', String(eventName), args[0], err.stack ?? 'no stack')
       throw err
     }
   }
@@ -126,7 +126,7 @@ export default abstract class IndexedAsyncEventEmitter<
     // get the latest retry count. We need to provide some default in case it's not in the weak map so just make sure we don't retry if somehow that happens
     const retryCount = this.retryCount.get(data[eventIdentifierSymbol]) ?? this.options.maxRetryCount
     if (retryCount >= this.options.maxRetryCount) {
-      this.logger.error('Recount limit exceeded for ConnectionStateChanged id=%s', index)
+      this.logger.error('Recount limit exceeded for ConnectionStateChanged id=%s', String(index))
       if (this.options.retryExhaustedBehaviour === 'THROW') {
         throw err
       }

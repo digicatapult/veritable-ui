@@ -137,9 +137,9 @@ export default async (startEvents: boolean = true) => {
   ): void {
     if (err instanceof Error) {
       req.log.debug('API error: %s', err.message)
-      req.log.trace('API error: stack %j', err.stack)
+      req.log.trace('API error: stack %s', err.stack ?? 'no stack trace')
     } else {
-      req.log.debug('API error: %s', err?.toString())
+      req.log.debug(err, 'API error')
     }
 
     if (err instanceof ForbiddenError || err instanceof OauthError) {
@@ -166,7 +166,7 @@ export default async (startEvents: boolean = true) => {
     }
 
     if (err instanceof ValidateError) {
-      req.log.warn(`Caught Validation Error for ${req.path}:`, err.fields)
+      req.log.warn(`Caught Validation Error for ${req.path}: %o`, err.fields)
       res.status(422).json({
         message: 'Validation Failed',
         details: err?.fields,

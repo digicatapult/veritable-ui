@@ -20,7 +20,7 @@ import Database from './models/db/index.js'
     await initializeSettings(logger, env, db)
     logger.info('Settings initialized successfully.')
   } catch (error) {
-    logger.error('Error initializing settings:', error)
+    logger.error(error, 'Error initializing settings')
   }
 
   const { app } = await Server()
@@ -54,7 +54,7 @@ async function initializeSettings(logger: ILogger, env: Env, db: Database) {
         await db.insert('settings', setting) // Insert row by row
         logger.debug(`Inserted new setting: ${setting.setting_key}: ${setting.setting_value}`)
       } catch (error) {
-        logger.error(`Error inserting setting with key ${setting.setting_key}:`, error)
+        logger.error(error, `Error inserting setting with key ${setting.setting_key}`)
       }
     }
   } else {

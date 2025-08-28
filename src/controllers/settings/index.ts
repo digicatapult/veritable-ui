@@ -83,7 +83,7 @@ export class SettingsController extends HTMLController {
   ) {
     req.log.debug('settings update POST request body %o', { body })
     if (edit === false) {
-      req.log.error('Failed to edit settings, edit is set to %s', edit)
+      req.log.error('Failed to edit settings, edit is set to false')
       throw new InternalError('Edit failed.')
     }
     if (edit === true) {
