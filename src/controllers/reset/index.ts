@@ -63,7 +63,6 @@ export class ResetController {
   public async reset(@Request() req: express.Request): Promise<{ statusCode: number }> {
     const DEMO_MODE = this.env.get('DEMO_MODE')
     if (!DEMO_MODE) {
-      req.log.info('bad request DEMO_MODE=%s', DEMO_MODE)
       throw new ForbiddenError('DEMO_MODE is false')
     }
 

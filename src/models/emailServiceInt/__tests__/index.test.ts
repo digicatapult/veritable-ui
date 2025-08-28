@@ -1,7 +1,7 @@
 import { expect } from 'chai'
 import { describe } from 'mocha'
 
-import { pino } from 'pino'
+import pino from 'pino'
 import sinon from 'sinon'
 
 import nodemailer from 'nodemailer'
