@@ -227,7 +227,6 @@
 /* this should be narrowed down  */
 .htmx-indicator {
   opacity: 0;
-  transition: opacity 500ms ease-in;
 }
 .htmx-request .htmx-indicator {
   opacity: 1;
