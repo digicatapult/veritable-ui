@@ -117,7 +117,7 @@ test.describe('New query request', () => {
     await test.step('submits a new BAV query request', async () => {
       await expect(page.locator('#content-main')).toContainText('OFFSHORE RENEWABLE ENERGY CATAPULT')
 
-      await page.getByLabel('Request Deadline').fill(expiresAt)
+      await page.getByPlaceholder('01/01/2025, 00:00 am').fill(expiresAt)
       await page.getByRole('button', { name: 'Submit Query' }).click({ delay: 100 })
       await page.waitForLoadState('networkidle')
 

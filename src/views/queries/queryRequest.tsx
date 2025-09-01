@@ -262,6 +262,7 @@ export default class QueryRequestTemplates {
                 name="expiresAt"
                 required
                 min={new Date().toISOString().slice(0, -8)}
+                placeholder="01/01/2025, 00:00 am"
               />
             </div>
             <p class="form-helper">
