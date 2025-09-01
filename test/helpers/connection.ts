@@ -5,7 +5,7 @@ import { container } from 'tsyringe'
 
 import sinon from 'sinon'
 import Database from '../../src/models/db/index.js'
-import { ConnectionRow } from '../../src/models/db/types.js'
+import { ConnectionRow, RegistryType } from '../../src/models/db/types.js'
 import EmailService from '../../src/models/emailService/index.js'
 import { CountryCode, UUID } from '../../src/models/stringTypes.js'
 import VeritableCloudagent from '../../src/models/veritableCloudagent/index.js'
@@ -96,6 +96,7 @@ export const withEstablishedConnectionFromUs = function (context: TwoPartyContex
       email: 'alice@testmail.com',
       action: 'submit',
       registryCountryCode: 'GB' as CountryCode,
+      selectedRegistry: 'company_house' as RegistryType,
     })
     const invite = (emailSendStub.args.find(([name]) => name === 'connection_invite') || [])[1].invite
     const inviteUrl = JSON.parse(Buffer.from(invite, 'base64url').toString('utf8')).inviteUrl
@@ -118,6 +119,7 @@ export const withEstablishedConnectionFromUs = function (context: TwoPartyContex
       pin_attempt_count: 0,
       pin_tries_remaining_count: 4,
       registry_country_code: 'GB' as CountryCode,
+      registry_code: 'company_house' as RegistryType,
     })
 
     await context.remoteDatabase.insert('connection_invite', {
@@ -172,6 +174,7 @@ export const withEstablishedConnectionFromThem = function (context: TwoPartyCont
       pin_attempt_count: 0,
       pin_tries_remaining_count: 4,
       registry_country_code: 'GB' as CountryCode,
+      registry_code: 'company_house' as RegistryType,
     })
 
     context.remoteConnectionId = remoteConnectionId
@@ -220,6 +223,7 @@ export const withVerifiedConnection = function (context: TwoPartyContext) {
       email: 'alice@testmail.com',
       action: 'submit',
       registryCountryCode: 'GB' as CountryCode,
+      selectedRegistry: 'company_house' as RegistryType,
     })
 
     const connectionInvite = emailSendStub.args.find((item) => item[0] === 'connection_invite')
@@ -227,9 +231,8 @@ export const withVerifiedConnection = function (context: TwoPartyContext) {
     const inviteUrl = JSON.parse(Buffer.from(invite, 'base64url').toString('utf8')).inviteUrl
 
     const connectionInviteAdmin = emailSendStub.args.find((item) => item[0] === 'connection_invite_admin')
-    const pinCode = (connectionInviteAdmin![3] as { pin: string }).pin
+    const pinCode = (connectionInviteAdmin![2] as { pin: string }).pin
     const pinHash = await argon2.hash(pinCode, { secret: context.app.get('INVITATION_PIN_SECRET') })
-
     emailSendStub.restore()
 
     const [{ id: localConnectionId }] = await context.localDatabase.get('connection')
@@ -248,6 +251,7 @@ export const withVerifiedConnection = function (context: TwoPartyContext) {
       pin_attempt_count: 0,
       pin_tries_remaining_count: 4,
       registry_country_code: 'GB' as CountryCode,
+      registry_code: 'company_house' as RegistryType,
     })
     context.remoteConnectionId = withAlice.id
 
@@ -288,6 +292,7 @@ export async function withBobAndCharlie(context: ThreePartyContext) {
     email: 'alice@testmail.com',
     action: 'submit',
     registryCountryCode: 'GB' as CountryCode,
+    selectedRegistry: 'company_house' as RegistryType,
   })
   const invite = (emailSendStub.args.find(([name]) => name === 'connection_invite') || [])[1].invite
   const bobsInvite = JSON.parse(Buffer.from(invite, 'base64url').toString('utf8')).inviteUrl
@@ -310,6 +315,7 @@ export async function withBobAndCharlie(context: ThreePartyContext) {
     pin_attempt_count: 0,
     pin_tries_remaining_count: 4,
     registry_country_code: 'GB' as CountryCode,
+    registry_code: 'company_house' as RegistryType,
   })
 
   await context.db.bob.insert('connection_invite', {
@@ -337,6 +343,7 @@ export async function withBobAndCharlie(context: ThreePartyContext) {
     pin_attempt_count: 0,
     pin_tries_remaining_count: 4,
     registry_country_code: 'GB' as CountryCode,
+    registry_code: 'company_house' as RegistryType,
   })
 
   await context.db.bob.insert('connection_invite', {
@@ -355,6 +362,7 @@ export async function withBobAndCharlie(context: ThreePartyContext) {
     pin_attempt_count: 0,
     pin_tries_remaining_count: 4,
     registry_country_code: 'GB' as CountryCode,
+    registry_code: 'company_house' as RegistryType,
   })
 
   await context.db.charlie.insert('connection_invite', {

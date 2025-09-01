@@ -1,3 +1,4 @@
+import { RegistryType } from '../../../models/db/types.js'
 import { SharedOrganisationInfo } from '../../../models/orgRegistry/organisationRegistry.js'
 import { CountryCode } from '../../../models/stringTypes.js'
 import { FormFeedback } from '../base.js'
@@ -8,6 +9,7 @@ export const successResponse: SharedOrganisationInfo = {
   status: 'active',
   number: '07964699',
   registryCountryCode: 'GB' as CountryCode,
+  selectedRegistry: 'company_house' as RegistryType,
   registeredOfficeIsInDispute: false,
 }
 
@@ -19,6 +21,10 @@ export const testErrorTargetBox: FormFeedback = {
 export const testMessageTargetBox: FormFeedback = {
   type: 'message',
   message: 'This is a message',
+  registryOptionsPerCountry: {
+    countryRegistries: [],
+    thirdPartyRegistries: [],
+  },
 }
 
 export const testSuccessTargetBox: FormFeedback = {

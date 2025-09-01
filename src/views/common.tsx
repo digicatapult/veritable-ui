@@ -1,5 +1,5 @@
 /// <reference types="@kitajs/html/all-types.d.ts" />
-import { escapeHtml, type PropsWithChildren } from '@kitajs/html'
+import { escapeHtml, Html, type PropsWithChildren } from '@kitajs/html'
 import { container } from 'tsyringe'
 
 import { Env } from '../env/index.js'
@@ -81,7 +81,12 @@ const SideBar = ({ activePage }: { activePage: PageProps['activePage'] }): JSX.E
         title="connections"
         href="/connection"
         data-active={activePage === 'connections'}
-        style={{ ['--background-image' as string]: "url('/public/images/connection.svg')" }}
+        style={{
+          ['--background-image' as string]:
+            activePage === 'connections'
+              ? "url('/public/images/connection-active.svg')"
+              : "url('/public/images/connection.svg')",
+        }}
       />
       <a
         title="queries"
@@ -308,3 +313,14 @@ export const credentialStatusToClass = (status: CredentialStatus): JSX.Element =
       )
   }
 }
+
+export const FormattedTime = ({ time }: { time: Date }) => (
+  <time>
+    {Html.escapeHtml(
+      `${time.toLocaleDateString('en-GB')} - ${time.toLocaleTimeString('en-GB', {
+        hour: '2-digit',
+        minute: '2-digit',
+      })}`
+    )}
+  </time>
+)

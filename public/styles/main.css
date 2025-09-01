@@ -430,7 +430,8 @@ main {
   border-radius: 50%;
   border-top-color: #fff;
   animation: spin 1s ease-in-out infinite;
-  justify-self: center;
+  left: 4rem;
+  align-self: center;
 }
 
 @keyframes spin {
@@ -602,7 +603,6 @@ main {
 .container-query-form {
   display: flex;
   flex-direction: row;
-  flex-wrap: wrap;
   overflow: hidden;
   min-height: 50em;
 }
@@ -615,7 +615,18 @@ main {
   gap: 50px;
   min-height: 425px;
   max-width: 325px;
-  padding-right: 20px;
+  padding-right: 3rem;
+  position: relative;
+}
+
+.query-form-left::after {
+  content: "";
+  position: absolute;
+  top: 0.5rem;
+  bottom: 0.5rem;
+  right: 2rem;
+  width: 1px;
+  background-color: #5570f1;
 }
 
 .query-form-right {
@@ -676,6 +687,11 @@ main {
   margin-top: 75px;
 }
 
+.query-form-right h5 {
+  margin: 0 0 1rem 0;
+  font-weight: normal;
+}
+
 .query-form-left #co2-embodiment-heading {
   margin-bottom: 150px;
 }
@@ -692,9 +708,6 @@ main {
   padding-bottom: 10px;
 }
 
-.query-response-view td:first-child {
-  width: 10rem;
-}
 
 .row {
   display: flex;
@@ -704,8 +717,39 @@ main {
 }
 
 .query-results-left-padding-table {
-  padding-left: 30px;
+  font-weight: bold;
 }
+
+#bav-verify-key {
+  background-color: #5570F11F;
+  border-radius: 12px;
+  padding: 1rem;
+  font-size: 0.7rem;
+  display: grid;
+  gap: 1rem;
+}
+
+#bav-verify-key p { 
+  margin: 0.4rem 0;
+}
+
+.bav-verify-key-icon {
+  background-repeat: no-repeat;
+  background-position: center;
+  padding: 0.5rem;
+  vertical-align: middle;
+  margin-right: 1rem;
+  background-size: 100%;
+  background-image: url('/public/images/info2.svg');
+}
+
+#bav-verify-info {
+  max-width: 30rem;
+  font-size: 0.6rem;
+  margin: 1rem 0 2rem 0;
+}
+
+
 
 #bav-verification-results {
   position: relative;
@@ -717,34 +761,26 @@ main {
   line-height: 1rem;  
 }
 
-#bav-verify-button {
-  margin-left: 2.25rem;
-}
-
 .bav-verify-icon {
   background-repeat: no-repeat;
   background-position: center;
   display: inline-flex;
-  border-radius: 4px;
   margin: 0 2rem 0 0.5rem;
   padding: 0.5rem;
   vertical-align: middle;
-  background-size: 70%;
+  background-size: 100%;
 }
 
 .tick {
-  background-color: var(--positive-accent);
-  background-image: url('/public/images/tick-white.svg');
+  background-image: url('/public/images/tick.svg');
 }
 
-.tilde {
-  background-color: var(--warning-accent);
-  background-image: url('/public/images/tilde-white.svg');
+.info {
+  background-image: url('/public/images/info.svg');
 }
 
 .cross {
-  background-color: var(--negative-accent);
-  background-image: url('/public/images/cross-white.svg');
+  background-image: url('/public/images/cross.svg');
 }
 
 

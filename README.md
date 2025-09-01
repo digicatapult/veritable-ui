@@ -135,8 +135,11 @@ This is the list of all environment variables including brief description
 | IPID_API_URL                     | n        | https://sandbox.ipid.works                                     | URL for iPiD service. See [iPiD](#ipid)                                                                                                                                        |
 | IPID_API_KEY                     | y        | -                                                              | API key for iPiD service. See [iPiD](#ipid)                                                                                                                                    |
 | IPID_CUSTOMER_ID                 | n        | digicatapult-uat                                               | Customer ID provided by iPiD with API key. See [iPiD](#ipid)                                                                                                                   |
-| SOCRATA_API_URL                  | y        | https://data.ny.gov/resource/p66s-i79p.json                    | External service containing list of companies in NY definitions                                                                                                                |
-| LOCAL_REGISTRY_TO_USE            | y        | GB                                                             | Defines which registry to use to look up info about the local instance                                                                                                         |
+| NY_STATE_API_URL                 | y        | https://dev.socrata.com/foundry/data.ny.gov/p66s-i79p          | External service containing list of companies in NY definitions                                                                                                                |
+| LOCAL_REGISTRY_TO_USE            | y        | company_house                                                  | Defines which registry to use to look up info about the local instance                                                                                                         |
+| LOCAL_REGISTRY_COUNTRY_CODE      | y        | GB                                                             | Defines which country local instance is based in                                                                                                                               |
+| OPEN_CORPORATES_API_URL          | y        | https://api.opencorporates.com/v0.4                            | External service containing list of companies in GB, NL and Japan                                                                                                              |
+| OPEN_CORPORATES_API_KEY          | y        | -                                                              | Api key for Open Corporates registry                                                                                                                                           |
 
 ### SMTP transport configuration
 
@@ -263,7 +266,7 @@ npm run db:migrate
 - Bring up as per [getting started](#getting-started) (docker compose, run migrations and init, then `npm run dev`) to start Alice's UI.
 - Alice: http://localhost:3000.
 - Bob: http://localhost:3001.
-- Go to Bob's [Invite New Connection](http://localhost:3001/connection/new) and enter `07964699` (default Company House Number for Alice) for the `Company House Number`. Enter any valid email and submit. The list of Bob's connections now contains a new connection with `Invite Sent` state.
+- Go to Bob's [Invite New Connection](http://localhost:3001/connection/new) and enter `07964699` (default Companies House Number for Alice) for the `Companies House Number`. Enter any valid email and submit. The list of Bob's connections now contains a new connection with `Invite Sent` state.
 - Go to the dev [email server](http://localhost:5001/) and copy the invitation text from bottom of the email sent to the email address entered in the previous step.
 - Paste the invitation text into Alice's [Add from Invitation](http://localhost:3000/connection/new?fromInvite=true). The right hand box should update to show Bob's registered address (set by the `INVITATION_FROM_COMPANY_NUMBER` env). Submit.
 - Search `Verification Code: ` in the logs of the terminal for the running Alice server. Copy this code. Select `Complete Verification` on [Bob's side](http://localhost:3001/connection) of the connection, paste the code and continue.
@@ -276,7 +279,9 @@ npm run db:migrate
 ## Registries
 
 We currently support:
-Company House: which requires an API KEY. (`COMPANY_PROFILE_API_KEY`)
-[Socrata](https://dev.socrata.com/foundry/data.ny.gov/p66s-i79p): which does not require an API KEY. (Requests are rate-limited without an api-key)
+Companies House: which requires an API KEY. (`COMPANY_PROFILE_API_KEY`)
+[NY State Registry](https://dev.socrata.com/foundry/data.ny.gov/p66s-i79p): which does not require an API KEY. (Requests are rate-limited without an api-key)
+[Open Corporates](https://api.opencorporates.com/): which requires an API Key. In dev mode we develop against wiremock which has a company with an identifier `00102498` that you can test against.
 
-- if you want e.g. Charlie to pose as a company registered with Socrata - set `LOCAL_REGISTRY_TO_USE` to `US` and `INVITATION_FROM_COMPANY_NUMBER` to `3211809` (company number we use to test Socrata functionality).
+- if you want e.g. Charlie to pose as a company registered with NY State Registry - set `LOCAL_REGISTRY_TO_USE` to `ny_state` and `INVITATION_FROM_COMPANY_NUMBER` to `3211809` (company number we use to test NY State Registry functionality).
+- if you want e.g. Charlie to pose as a company registered with Open Corporates - set `LOCAL_REGISTRY_TO_USE` to `open_corporates` and `INVITATION_FROM_COMPANY_NUMBER` to `00102498` (company number we use to test Open Corporates functionality).

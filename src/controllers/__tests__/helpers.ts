@@ -3,7 +3,7 @@ import { pino } from 'pino'
 
 import { Env } from '../../env/index.js'
 
-export const mockLogger = pino({ level: 'silent' })
+export const mockLogger = pino({ level: 'debug' }) // TODO: change back to silent
 
 export const mockEnv = {
   get: (name: string) => {

@@ -3,7 +3,6 @@ import { afterEach, beforeEach, describe } from 'mocha'
 import { carbonEmbodimentResponseData } from '../../src/models/drpc.js'
 import { cleanupCloudagent, cleanupDatabase } from '../helpers/cleanup.js'
 import { setupThreePartyContext, ThreePartyContext, withBobAndCharlie } from '../helpers/connection.js'
-import { insertCompanyHouseRegistry } from '../helpers/registries.js'
 import { fetchPost, post } from '../helpers/routeHelper.js'
 
 describe('partial query aggregation', function () {
@@ -12,7 +11,6 @@ describe('partial query aggregation', function () {
 
   beforeEach(async () => {
     await setupThreePartyContext(context)
-    await insertCompanyHouseRegistry()
   })
 
   afterEach(async () => {

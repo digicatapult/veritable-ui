@@ -79,23 +79,23 @@ test.describe('Query response view', () => {
 
       const table = page.getByRole('table')
       await expect(table.locator('tr', { hasText: 'Country' })).toContainText('United Kingdom')
-      await expect(table.locator('tr', { hasText: /^Name:/ })).toContainText(name)
+      await expect(table.locator('tr', { hasText: /^Company Name:/ })).toContainText(name)
       await expect(table.locator('tr', { hasText: 'Account ID' })).toContainText(accountId)
       await expect(table.locator('tr', { hasText: 'Clearing System ID' })).toContainText(clearingSystemId)
-      await expect(page.getByRole('heading', { name: 'Query Information' })).toBeVisible()
+      await expect(page.getByRole('heading', { name: 'Response Information' })).toBeVisible()
     })
 
     await test.step('verify bank details', async () => {
       const table = page.getByRole('table')
-      await expect(table.locator('tr', { hasText: 'Description' })).toContainText('Awaiting request')
+      await expect(table.locator('tr', { hasText: 'Result' })).toContainText('Awaiting request')
 
       const verifyButton = page.locator('#bav-verify-button')
       await expect(verifyButton).toBeVisible()
       await verifyButton.click({ delay: 100 })
 
       await page.waitForLoadState('networkidle')
-      await expect(table.locator('tr', { hasText: 'Description' })).toContainText('Partial Match')
-      await expect(page.getByText('Send new query')).toBeVisible()
+      await expect(table.locator('tr', { hasText: 'Result' })).toContainText('Partial Match')
+      await expect(page.getByText('Request new BAV query')).toBeVisible()
     })
 
     await test.step('returns to queries page', async () => {
