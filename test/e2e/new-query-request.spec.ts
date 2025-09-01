@@ -154,8 +154,7 @@ test.describe('New query request', () => {
     })
 
     await test.step('connection select page skipped - submits a new BAV query request', async () => {
-      const content = page.locator('#content-main')
-      await expect(content).toContainText('Request financial details from OFFSHORE RENEWABLE ENERGY CATAPULT')
+      await expect(page.locator('#content-main')).toContainText('OFFSHORE RENEWABLE ENERGY CATAPULT')
 
       await page.getByPlaceholder('01/01/2025, 00:00 am').fill(expiresAt)
       await page.getByRole('button', { name: 'Submit Query' }).click({ delay: 100 })
