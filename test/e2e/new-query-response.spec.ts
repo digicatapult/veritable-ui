@@ -49,7 +49,7 @@ test.describe('New query response', () => {
       await expect(page.getByRole('heading', { name: 'Thank you for your response' })).toBeVisible()
       await expect(button).toBeVisible()
       await expect(button).not.toBeDisabled()
-      await expect(page.getByText('Once all supplier responses are received')).toBeVisible()
+      await expect(page.getByText('Once all responses are received')).toBeVisible()
       await expect(page.getByText('You can check the status')).toBeVisible()
       await button.click({ delay: 100 })
       await page.waitForLoadState('networkidle')
