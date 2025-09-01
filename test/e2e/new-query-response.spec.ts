@@ -98,7 +98,7 @@ test.describe('New query response', () => {
       const button = page.getByText('Back to Home')
       await expect(button).toBeVisible()
       await expect(button).not.toBeDisabled()
-      await expect(page.getByText('Once all supplier responses are received')).toBeVisible()
+      await expect(page.getByText('Once all responses are received')).toBeVisible()
       await expect(page.getByText('You can check the status')).toBeVisible()
       await button.click({ delay: 100 })
       await page.waitForLoadState('networkidle')
