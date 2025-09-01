@@ -100,7 +100,7 @@ services:
       - POSTGRES_PASSWORD=postgres
       - POSTGRES_DB=postgres-veritable-cloudagent
   veritable-cloudagent-alice:
-    image: digicatapult/veritable-cloudagent:v0.13.36
+    image: digicatapult/veritable-cloudagent:v0.13.37
     container_name: veritable-cloudagent-alice
     restart: always
     depends_on:
@@ -198,7 +198,7 @@ services:
       - POSTGRES_PASSWORD=postgres
       - POSTGRES_DB=postgres-veritable-cloudagent
   veritable-cloudagent-bob:
-    image: digicatapult/veritable-cloudagent:v0.13.36
+    image: digicatapult/veritable-cloudagent:v0.13.37
     container_name: veritable-cloudagent-bob
     restart: always
     depends_on:
@@ -296,7 +296,7 @@ services:
       - POSTGRES_PASSWORD=postgres
       - POSTGRES_DB=postgres-veritable-cloudagent
   veritable-cloudagent-charlie:
-    image: digicatapult/veritable-cloudagent:v0.13.36
+    image: digicatapult/veritable-cloudagent:v0.13.37
     container_name: veritable-cloudagent-charlie
     restart: always
     depends_on:
@@ -314,7 +314,7 @@ services:
 
   # -------------------- email -------------------------------#
   smtp4dev:
-    image: rnwood/smtp4dev:3.8.6
+    image: rnwood/smtp4dev:3.9.0
     container_name: smtp4dev
     ports:
       - '5001:80' # Port for accessing smtp4dev's web interface
