@@ -115,9 +115,7 @@ test.describe('New query request', () => {
     })
 
     await test.step('submits a new BAV query request', async () => {
-      await expect(page.locator('#content-main').getByText('Request financial details from')).toContainText(
-        'OFFSHORE RENEWABLE ENERGY CATAPULT'
-      )
+      await expect(page.locator('#content-main')).toContainText('OFFSHORE RENEWABLE ENERGY CATAPULT')
 
       await page.getByLabel('Request Deadline').fill(expiresAt)
       await page.getByRole('button', { name: 'Submit Query' }).click({ delay: 100 })

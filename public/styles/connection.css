@@ -84,12 +84,12 @@
 #new-connection-actions {
   grid-row: -1/-1;
   display: flex;
-  justify-content: space-evenly;
+  justify-content: space-between;
   width: 100%;
 }
 
 #new-connection-actions > * {
-  width: 18ch;
+  width: 20ch;
 }
 
 #new-invite-country-with-code {

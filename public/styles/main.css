@@ -300,9 +300,9 @@ main {
   gap: 10px;
   align-items: center;
   justify-content: center;
-  font-size: 1.3rem;
+  font-size: 1rem;
   font-weight: 300;
-  padding: 7px 40px;
+  padding: 7px 10px;
   border-radius: 15px;
   transition: all 0.3s;
   border: 1px solid var(--accent-color);
@@ -608,14 +608,13 @@ main {
 }
 
 .query-form-left {
-  border-right: var(--accent-color) 1px solid;
   display: flex;
   flex: 1;
   flex-direction: column;
   gap: 50px;
   min-height: 425px;
   max-width: 325px;
-  padding-right: 3rem;
+  padding-right: 4rem;
   position: relative;
 }
 
@@ -672,7 +671,7 @@ main {
 }
 
 #bav input {
-  font-size: 1.4rem;
+  font-size: 1.2rem;
   padding-block: 10px;
 }
 
