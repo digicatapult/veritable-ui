@@ -321,6 +321,9 @@ export class QueriesController extends HTMLController {
     req.log.info('query page requested %j', { body })
 
     const connection = await this.verifyConnection(req.log, companyId)
+    const forwardConnections = await Promise.all(
+      partial.connectionIds?.map((id) => this.verifyConnection(req.log, id)) || []
+    )
     const queryRow = await this.getQuery(queryId)
     if (!queryRow.response_id) {
       req.log.warn('missing DRPC response_id to respond to %j', queryRow)
@@ -395,6 +398,7 @@ export class QueriesController extends HTMLController {
         formStage: 'success',
         connection,
         query: queryRow,
+        connections: forwardConnections,
       })
     )
   }
@@ -639,11 +643,7 @@ export class QueriesController extends HTMLController {
   }
 
   private async getConnection(connectionId: UUID, status?: ConnectionRow['status']): Promise<ConnectionRow> {
-    const [connection] = await this.db.get(
-      'connection',
-      { id: connectionId, ...(status !== undefined && { status }) },
-      [['updated_at', 'desc']]
-    )
+    const [connection] = await this.db.get('connection', { id: connectionId, ...(status !== undefined && { status }) })
     if (!connection) {
       throw new InvalidInputError(`Invalid connection ${connectionId}`)
     }

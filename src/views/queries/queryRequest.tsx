@@ -239,7 +239,7 @@ export default class QueryRequestTemplates {
         <div class="query-form-right">
           <p class="heading">Request financial details from:</p>
           <p class="heading">{Html.escapeHtml(props.connection.company_name)}</p>
-          <p>
+          <p class="no-margin">
             Country:{' '}
             <b>
               {Html.escapeHtml(
@@ -248,7 +248,7 @@ export default class QueryRequestTemplates {
               {'(' + Html.escapeHtml(props.connection.registry_country_code) + ')'}
             </b>
           </p>
-          <p>
+          <p class="no-margin">
             Company Number: <b>{Html.escapeHtml(props.connection.company_number)}</b>
           </p>
           <form id="bav" hx-post="/queries/bav" hx-select="main > *" hx-target="main" hx-swap="innerHTML">
