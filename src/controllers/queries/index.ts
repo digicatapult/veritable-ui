@@ -227,7 +227,8 @@ export class QueriesController extends HTMLController {
     return this.html(
       this.responseTemplates.bavForm({
         countryCode,
-      })
+      }),
+      this.responseTemplates.countryISOCode({ countryCode, swapOutOfBand: true })
     )
   }
 
