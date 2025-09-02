@@ -20,6 +20,7 @@ export const getConnectionsSuccessResponse = [
   {
     id: '00000000-7672-470e-a803-a2f8feb52944',
     state: 'completed',
+    threadId: '00000000-7672-470e-a803-a2f8feb52944',
     outOfBandId: '00000001-7672-470e-a803-a2f8feb52944',
   },
 ]
