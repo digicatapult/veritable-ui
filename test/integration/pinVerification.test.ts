@@ -8,7 +8,6 @@ import {
   withEstablishedConnectionFromThem,
   withEstablishedConnectionFromUs,
 } from '../helpers/connection.js'
-import { insertCompanyHouseRegistry } from '../helpers/registries.js'
 import { post } from '../helpers/routeHelper.js'
 import { delay, delayAndReject } from '../helpers/util.js'
 
@@ -23,7 +22,6 @@ describe('pin-submission', function () {
       remoteConnectionId: '',
       remoteVerificationPin: '',
     })
-    await insertCompanyHouseRegistry()
   })
 
   afterEach(async () => {

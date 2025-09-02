@@ -1,7 +1,7 @@
 services:
   # -------------------- shared -------------------------------#
   keycloak:
-    image: quay.io/keycloak/keycloak:26.3.2
+    image: quay.io/keycloak/keycloak:26.3.3
     container_name: keycloak
     environment:
       - KC_BOOTSTRAP_ADMIN_USERNAME=admin
@@ -69,14 +69,17 @@ services:
       - COMPANY_HOUSE_API_URL=https://api.company-information.service.gov.uk
       - DEMO_MODE=true
       - SMTP_SECURE=false
-      - LOCAL_REGISTRY_TO_USE=GB
-      - SOCRATA_API_URL=https://data.ny.gov/resource/p66s-i79p.json
+      - LOCAL_REGISTRY_TO_USE=company_house
+      - NY_STATE_API_URL=https://dev.socrata.com/foundry/data.ny.gov/p66s-i79p
       - COMPANY_PROFILE_API_KEY=${COMPANY_PROFILE_API_KEY}
       - IPID_API_URL=https://sandbox.ipid.works
       - IPID_API_KEY=${IPID_API_KEY}
       - IPID_CUSTOMER_ID=digicatapult-uat
+      - LOCAL_REGISTRY_COUNTRY_CODE=GB
+      - OPEN_CORPORATES_API_URL=http://wiremock:8080
+      - OPEN_CORPORATES_API_KEY=${OPEN_CORPORATES_API_KEY}
   postgres-veritable-ui-alice:
-    image: postgres:17.5-alpine
+    image: postgres:17.6-alpine
     container_name: postgres-veritable-ui-alice
     ports:
       - 5432:5432
@@ -88,7 +91,7 @@ services:
       - POSTGRES_DB=veritable-ui
   postgres-veritable-cloudagent-alice:
     container_name: postgres-veritable-cloudagent-alice
-    image: postgres:17.5-alpine
+    image: postgres:17.6-alpine
     restart: on-failure
     volumes:
       - postgres-veritable-cloudagent-alice:/var/lib/postgresql/data
@@ -97,7 +100,7 @@ services:
       - POSTGRES_PASSWORD=postgres
       - POSTGRES_DB=postgres-veritable-cloudagent
   veritable-cloudagent-alice:
-    image: digicatapult/veritable-cloudagent:v0.13.30
+    image: digicatapult/veritable-cloudagent:v0.13.37
     container_name: veritable-cloudagent-alice
     restart: always
     depends_on:
@@ -163,15 +166,18 @@ services:
       - SMTP_USER=username
       - EMAIL_TRANSPORT=SMTP_EMAIL
       - SMTP_SECURE=false
-      - LOCAL_REGISTRY_TO_USE=GB
-      - SOCRATA_API_URL=https://data.ny.gov/resource/p66s-i79p.json
+      - NY_STATE_API_URL=https://dev.socrata.com/foundry/data.ny.gov/p66s-i79p
       - COMPANY_PROFILE_API_KEY=${COMPANY_PROFILE_API_KEY}
+      - OPEN_CORPORATES_API_URL=http://wiremock:8080
+      - OPEN_CORPORATES_API_KEY=${OPEN_CORPORATES_API_KEY}
       - IPID_API_URL=https://sandbox.ipid.works
       - IPID_API_KEY=${IPID_API_KEY}
       - IPID_CUSTOMER_ID=digicatapult-uat
+      - LOCAL_REGISTRY_TO_USE=company_house
+      - LOCAL_REGISTRY_COUNTRY_CODE=GB
 
   postgres-veritable-ui-bob:
-    image: postgres:17.5-alpine
+    image: postgres:17.6-alpine
     container_name: postgres-veritable-ui-bob
     ports:
       - 5433:5432
@@ -183,7 +189,7 @@ services:
       - POSTGRES_DB=veritable-ui
   postgres-veritable-cloudagent-bob:
     container_name: postgres-veritable-cloudagent-bob
-    image: postgres:17.5-alpine
+    image: postgres:17.6-alpine
     restart: on-failure
     volumes:
       - postgres-veritable-cloudagent-bob:/var/lib/postgresql/data
@@ -192,7 +198,7 @@ services:
       - POSTGRES_PASSWORD=postgres
       - POSTGRES_DB=postgres-veritable-cloudagent
   veritable-cloudagent-bob:
-    image: digicatapult/veritable-cloudagent:v0.13.30
+    image: digicatapult/veritable-cloudagent:v0.13.37
     container_name: veritable-cloudagent-bob
     restart: always
     depends_on:
@@ -259,14 +265,17 @@ services:
       - EMAIL_TRANSPORT=SMTP_EMAIL
       - SMTP_SECURE=false
       - COMPANY_PROFILE_API_KEY=${COMPANY_PROFILE_API_KEY}
-      - LOCAL_REGISTRY_TO_USE=GB
-      - SOCRATA_API_URL=https://data.ny.gov/resource/p66s-i79p.json
+      - LOCAL_REGISTRY_TO_USE=company_house
+      - LOCAL_REGISTRY_COUNTRY_CODE=GB
+      - NY_STATE_API_URL=https://dev.socrata.com/foundry/data.ny.gov/p66s-i79p
       - IPID_API_URL=https://sandbox.ipid.works
       - IPID_API_KEY=${IPID_API_KEY}
       - IPID_CUSTOMER_ID=digicatapult-uat
+      - OPEN_CORPORATES_API_URL=http://wiremock:8080
+      - OPEN_CORPORATES_API_KEY=${OPEN_CORPORATES_API_KEY}
 
   postgres-veritable-ui-charlie:
-    image: postgres:17.5-alpine
+    image: postgres:17.6-alpine
     container_name: postgres-veritable-ui-charlie
     ports:
       - 5434:5432
@@ -278,7 +287,7 @@ services:
       - POSTGRES_DB=veritable-ui
   postgres-veritable-cloudagent-charlie:
     container_name: postgres-veritable-cloudagent-charlie
-    image: postgres:17.5-alpine
+    image: postgres:17.6-alpine
     restart: on-failure
     volumes:
       - postgres-veritable-cloudagent-charlie:/var/lib/postgresql/data
@@ -287,7 +296,7 @@ services:
       - POSTGRES_PASSWORD=postgres
       - POSTGRES_DB=postgres-veritable-cloudagent
   veritable-cloudagent-charlie:
-    image: digicatapult/veritable-cloudagent:v0.13.30
+    image: digicatapult/veritable-cloudagent:v0.13.37
     container_name: veritable-cloudagent-charlie
     restart: always
     depends_on:
@@ -305,7 +314,7 @@ services:
 
   # -------------------- email -------------------------------#
   smtp4dev:
-    image: rnwood/smtp4dev:3.8.6
+    image: rnwood/smtp4dev:3.9.0
     container_name: smtp4dev
     ports:
       - '5001:80' # Port for accessing smtp4dev's web interface
@@ -317,7 +326,7 @@ services:
   wiremock:
     image: wiremock/wiremock:3.13.1
     container_name: wiremock
-    scale: 0
+    # scale: 0 // TODO: remove this, only for dev
     ports:
       - '8443:8080' # Port for accessing wiremock
     restart: always

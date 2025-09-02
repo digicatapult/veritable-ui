@@ -1,11 +1,12 @@
-import { SharedOrganisationInfo, SocrataProfile } from '../../orgRegistry/organisationRegistry'
-import { CountryCode } from '../../stringTypes'
+import { RegistryType } from '../../db/types.js'
+import { SharedOrganisationInfo } from '../../orgRegistry/organisationRegistry.js'
+import { CountryCode } from '../../stringTypes.js'
 export const validCompanyNumber = '3211809'
 export const secondaryCompanyNumber = '11111111'
 export const invalidCompanyNumber = '079646992'
 export const noCompanyNumber = ''
 
-export const successResponse: SocrataProfile = [
+export const successResponse = [
   {
     dos_id: '3211809',
     current_entity_name: '00:02:59 LLC',
@@ -22,9 +23,10 @@ export const successResponse: SocrataProfile = [
 ]
 export const finalSuccessResponse: SharedOrganisationInfo = {
   name: '00:02:59 LLC',
-  address: '656 UNION STREET, APT. 2, BROOKLYN, NY, 11215',
+  address: '00:02:59 LLC, 656 UNION STREET, APT. 2, BROOKLYN, NY 11215',
   status: 'active',
   number: '3211809',
   registryCountryCode: 'US' as CountryCode,
   registeredOfficeIsInDispute: false,
+  selectedRegistry: 'ny_state' as RegistryType,
 }

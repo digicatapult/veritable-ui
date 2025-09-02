@@ -1,5 +1,8 @@
 import { z } from 'zod'
-import { companyNumberRegex } from '../../stringTypes.js'
+import { RegistryType } from '../../db/types.js'
+import { companyNumberRegex, CountryCode } from '../../stringTypes.js'
+
+export type CompanyHouseProfile = z.infer<typeof companyHouseProfileSchema>
 
 export const companyHouseProfileSchema = z.object({
   company_number: z.string().regex(new RegExp(companyNumberRegex)).min(8).max(8),
@@ -30,4 +33,33 @@ export const companyHouseProfileSchema = z.object({
     'registered',
     'removed',
   ]),
+})
+
+export const companyHouseResultSchema = companyHouseProfileSchema.transform((c) => {
+  const a = c.registered_office_address
+
+  const address = [
+    c.company_name,
+    a.address_line_1,
+    a.address_line_2,
+    a.care_of,
+    a.locality,
+    a.po_box,
+    a.postal_code,
+    a.country,
+    a.premises,
+    a.region,
+  ]
+    .filter(Boolean)
+    .join(', ')
+
+  return {
+    name: c.company_name,
+    address,
+    number: c.company_number,
+    status: c.company_status,
+    registryCountryCode: 'GB' as CountryCode,
+    registeredOfficeIsInDispute: c.registered_office_is_in_dispute ?? false,
+    selectedRegistry: 'company_house' as RegistryType,
+  }
 })
