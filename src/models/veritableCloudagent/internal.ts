@@ -265,11 +265,11 @@ export default class VeritableCloudagentInt<Config extends CloudagentConfig = De
     return this.getRequest('/v1/connections', this.buildParser(connectionListParser))
   }
 
-  public async closeConnection(id: UUID, deleteConnectionRecord?: 'delete'): Promise<void> {
+  public async closeConnection(connectionId: UUID, deleteConnectionRecord?: 'delete'): Promise<void> {
     if (deleteConnectionRecord === 'delete') {
-      return this.deleteRequest(`/v1/connections/${id}?deleteConnectionRecord=true`, () => {})
+      return this.deleteRequest(`/v1/connections/${connectionId}?deleteConnectionRecord=true`, () => {})
     } else {
-      return this.deleteRequest(`/v1/connections/${id}`, () => {})
+      return this.deleteRequest(`/v1/connections/${connectionId}`, () => {})
     }
   }
 
