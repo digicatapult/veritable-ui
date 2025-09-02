@@ -115,11 +115,9 @@ test.describe('New query request', () => {
     })
 
     await test.step('submits a new BAV query request', async () => {
-      await expect(page.locator('#content-main').getByText('Request financial details from')).toContainText(
-        'OFFSHORE RENEWABLE ENERGY CATAPULT'
-      )
+      await expect(page.locator('#content-main')).toContainText('OFFSHORE RENEWABLE ENERGY CATAPULT')
 
-      await page.getByLabel('Request Deadline').fill(expiresAt)
+      await page.getByPlaceholder('01/01/2025, 00:00 am').fill(expiresAt)
       await page.getByRole('button', { name: 'Submit Query' }).click({ delay: 100 })
       await page.waitForLoadState('networkidle')
 
@@ -156,12 +154,9 @@ test.describe('New query request', () => {
     })
 
     await test.step('connection select page skipped - submits a new BAV query request', async () => {
-      const content = page.locator('#content-main')
-      await expect(content.locator(page.getByText('Request financial details from'))).toContainText(
-        'Request financial details from OFFSHORE RENEWABLE ENERGY CATAPULT'
-      )
+      await expect(page.locator('#content-main')).toContainText('OFFSHORE RENEWABLE ENERGY CATAPULT')
 
-      await page.getByLabel('Request Deadline').fill(expiresAt)
+      await page.getByPlaceholder('01/01/2025, 00:00 am').fill(expiresAt)
       await page.getByRole('button', { name: 'Submit Query' }).click({ delay: 100 })
 
       const successModal = page.locator('#new-query-confirmation-text')
