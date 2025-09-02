@@ -60,8 +60,8 @@ export default class ConnectionEvents {
       const updateStatus = connectionState === 'completed' ? 'unverified' : 'disconnected'
       await db.update(
         'connection',
-        { id: connection.id, status: connection.status },
-        { agent_connection_id: cloudAgentConnectionId, status: updateStatus }
+        { id: inviteRecord.connection_id, status: connection.status },
+        { status: updateStatus, agent_connection_id: cloudAgentConnectionId }
       )
       this.logger.debug('Database state for connection %s updated to %s', connection.id, updateStatus)
       return
