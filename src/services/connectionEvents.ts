@@ -43,8 +43,6 @@ export default class ConnectionEvents {
         this.cloudagent.closeConnection(cloudAgentConnectionId)
         this.logger.warn('Hangup message automatically sent to connection %s', cloudAgentConnectionId)
         return
-        // throw new Error('Connection event on unknown connection')
-        // TODO: tests
       }
 
       const [connection] = await db.get('connection', { id: inviteRecord.connection_id })
@@ -59,11 +57,10 @@ export default class ConnectionEvents {
         return
       }
 
-      // TODO: more uniform use of connection.id vs. inviteRecord.connection_id
       const updateStatus = connectionState === 'completed' ? 'unverified' : 'disconnected'
       await db.update(
         'connection',
-        { id: inviteRecord.connection_id, status: connection.status },
+        { id: connection.id, status: connection.status },
         { agent_connection_id: cloudAgentConnectionId, status: updateStatus }
       )
       this.logger.debug('Database state for connection %s updated to %s', connection.id, updateStatus)
