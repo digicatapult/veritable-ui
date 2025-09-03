@@ -373,7 +373,7 @@ export async function withBobAndCharlie(context: ThreePartyContext) {
     validity: 'valid',
   })
 
-  await delay(300)
+  await delay(1000)
 
   await context.db.alice.update('connection', { id: context.aliceConnectionId }, { status: 'verified_both' })
   await context.db.bob.update('connection', { id: withAlice.id }, { status: 'verified_both' })
