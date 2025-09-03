@@ -42,7 +42,12 @@ export class EmailServiceInt {
       const info = await this.sendMail(options)
 
       logger.info('Sending email with message id %s', info.messageId)
-      logger.debug(`email envelope %s (from: %s, to %s)`, info.messageId, info.envelope.from, info.envelope.to)
+      logger.debug(
+        `email envelope %s (from: %s, to %o)`,
+        info.messageId,
+        info.envelope.from.toString(),
+        info.envelope.to
+      )
       logger.debug(`email contents %s: %s`, info.messageId, info.message.toString('utf8'))
 
       return info
@@ -77,7 +82,12 @@ export class EmailServiceInt {
       const info = await this.sendMail(options)
 
       logger.info('Sending email via SMTP with message id %s', info.messageId)
-      logger.trace('email envelope %s (from: %s, to: %s)', info.messageId, info.envelope.from, info.envelope.to)
+      logger.trace(
+        'email envelope %s (from: %s, to: %o)',
+        info.messageId,
+        info.envelope.from.toString(),
+        info.envelope.to
+      )
       logger.trace('email contents %s: %s', info.messageId, info.response.toString())
 
       return info
