@@ -590,7 +590,6 @@ export class NewConnectionController extends HTMLController {
           }
         })
         // Make sure we're only deleting invitations we've sent
-        // TODO: review need to delete OOB invite in this workflow
         if (exists && exists.role === 'sender') {
           await this.cloudagent.deleteOutOfBandInvite(invite.oob_invite_id)
           logger.debug('OOB invitation deleted %s', invite.oob_invite_id)
