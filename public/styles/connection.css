@@ -30,7 +30,6 @@
 #new-connection-feedback {
   display: flex;
   position: relative;
-  justify-content: space-evenly;
   padding: 1rem;
   border: 2px solid var(--feedback-accent);
   border-radius: 7px;
@@ -38,7 +37,7 @@
   gap: 6px;
   width: 100%;
   max-width: 40ch;
-  min-height: 15rem;
+  min-height: 16rem;
 
   --feedback-annotation-text-height: 1.5rem;
   margin-top: var(--feedback-annotation-text-height);
@@ -71,7 +70,6 @@
 #new-connection-feedback > div {
   display: flex;
   flex-direction: column;
-  justify-content: space-around;
 }
 
 #new-connection-feedback span:first-child {
@@ -84,12 +82,12 @@
 #new-connection-actions {
   grid-row: -1/-1;
   display: flex;
-  justify-content: space-evenly;
+  justify-content: space-between;
   width: 100%;
 }
 
 #new-connection-actions > * {
-  width: 18ch;
+  width: 20ch;
 }
 
 #new-invite-country-with-code {
@@ -239,6 +237,7 @@
 #dynamic-invite-form-content {
   display: flex;
   flex-direction: column;
+  margin-bottom: 2rem;
 }
 .registry-selection {
   display: flex;

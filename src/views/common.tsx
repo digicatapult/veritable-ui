@@ -81,7 +81,12 @@ const SideBar = ({ activePage }: { activePage: PageProps['activePage'] }): JSX.E
         title="connections"
         href="/connection"
         data-active={activePage === 'connections'}
-        style={{ ['--background-image' as string]: "url('/public/images/connection.svg')" }}
+        style={{
+          ['--background-image' as string]:
+            activePage === 'connections'
+              ? "url('/public/images/connection-active.svg')"
+              : "url('/public/images/connection.svg')",
+        }}
       />
       <a
         title="queries"
