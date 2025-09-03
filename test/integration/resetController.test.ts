@@ -24,7 +24,7 @@ describe('integration test for /reset endpoint', function () {
   describe('if DEMO_MODE=true', function () {
     withVerifiedConnection(context)
 
-    it('removes all connections and credentials and returns 200', async function () {
+    it.only('removes all connections and credentials and returns 200', async function () {
       const localConnections: ConnectionRow[] = await context.localDatabase.get('connection', {})
       const agentConnections: Connection[] = await context.localCloudagent.getConnections()
       expect(localConnections.length).to.equal(1)

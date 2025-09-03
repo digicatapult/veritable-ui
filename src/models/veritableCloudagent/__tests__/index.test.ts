@@ -190,7 +190,7 @@ describe('veritableCloudagent', () => {
       it('should succeed', async () => {
         const environment = new Env()
         const cloudagent = new VeritableCloudagent(environment, mockLogger)
-        const response = await cloudagent.closeConnection('42', 'delete')
+        const response = await cloudagent.closeConnection('42', true)
         expect(response).deep.equal(undefined)
       })
     })
@@ -204,7 +204,7 @@ describe('veritableCloudagent', () => {
 
         let error: unknown = null
         try {
-          await cloudagent.closeConnection('42', 'delete')
+          await cloudagent.closeConnection('42', true)
         } catch (err) {
           error = err
         }
