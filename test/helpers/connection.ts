@@ -267,13 +267,12 @@ export const withVerifiedConnection = function (context: TwoPartyContext) {
     // Await completion of did exchange process
     const loopLimit = 100
     for (let i = 1; i <= loopLimit; i++) {
-      const connectionsLocal = await context.localDatabase.get('connection')
-      const connectionsRemote = await context.remoteDatabase.get('connection')
-      if (connectionsLocal[0].status === 'unverified' || connectionsRemote[0].status === 'unverified') {
-        continue
-      } else {
-        await delay(200)
+      const [connectionsLocal] = await context.localDatabase.get('connection')
+      const [connectionsRemote] = await context.remoteDatabase.get('connection')
+      if (connectionsLocal.status === 'unverified' && connectionsRemote.status === 'unverified') {
+        break
       }
+      await delay(200)
       if (i === loopLimit) {
         throw new Error('Timeout Error initialising connection')
       }
