@@ -43,7 +43,7 @@ const tokenStore: AuthOptions = {
       res.cookie('VERITABLE_REFRESH_TOKEN', refresh_token, tokenCookieOpts)
       return access_token
     } catch (err) {
-      logger.debug('Error refreshing token o%', err)
+      logger.debug(err, 'Error refreshing token o%')
       return false
     }
   },
