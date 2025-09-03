@@ -662,15 +662,30 @@ export default class QueryResponseTemplates {
     return (
       <div id="new-query-confirmation-text">
         <h4>Thank you for your response!</h4>
-        <p>Your query has been successfully responded to the following supplier:</p>
-        <i>
-          <p>{Html.escapeHtml(props.connection.company_name)}</p>
-        </i>
-        <p>
-          The requester will verify your response and the result will be shared with you. No further action is needed on
-          your part. You can trust that the process is secure, transparent, and streamlined for your convenience.
-        </p>
-        <p>You can check the status of your forwarded queries in the Queries section of your dashboard.</p>
+        {props.connections ? (
+          <>
+            <p>Your query has been forwarded to the following supplier(s):</p>
+            <i>
+              {props.connections.map((conn) => (
+                <p>{Html.escapeHtml(conn.company_name)}</p>
+              ))}
+            </i>
+          </>
+        ) : (
+          <>
+            <p>Your query has been successfully shared with the following supplier:</p>
+            <i>
+              <p>{Html.escapeHtml(props.connection.company_name)}</p>
+            </i>
+            <p>
+              The requester will verify your response and the result will be shared with you. No further action is
+              needed on your part. You can trust that the process is secure, transparent, and streamlined for your
+              convenience.
+            </p>
+          </>
+        )}
+
+        <p>You can check the status of your query in the Queries section of your dashboard.</p>
         <br />
         <LinkButton disabled={false} text="Back to Home" href="/" icon={''} style="filled" />
       </div>

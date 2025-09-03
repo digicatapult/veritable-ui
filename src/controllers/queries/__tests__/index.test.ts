@@ -315,7 +315,7 @@ describe('QueriesController', () => {
     it('retrieves connections and query details from a database', async () => {
       expect(dbMock.get.args).to.deep.equal([
         ['query', { id: '00000000-0000-4000-8000-d8ae0805059e' }],
-        ['connection', { id: 'cccccccc-0001-4000-8000-d8ae0805059e' }, [['updated_at', 'desc']]],
+        ['connection', { id: 'cccccccc-0001-4000-8000-d8ae0805059e' }],
         ['connection', { status: 'verified_both' }],
       ])
     })
@@ -509,10 +509,14 @@ describe('QueriesController', () => {
             expires_at: expiresAt,
           },
         ])
-        expect(
-          dbMock.get.firstCall.calledWith('connection', { id: 'some-company-id', status: 'verified_both' })
-        ).to.equal(true)
-        expect(dbMock.get.secondCall.calledWith('query', { id: 'query-partial-id-test' })).to.equal(true)
+        expect(dbMock.get.getCall(0).args).to.deep.equal([
+          'connection',
+          { id: 'some-company-id', status: 'verified_both' },
+        ])
+
+        expect(dbMock.get.getCall(1).args).to.deep.equal(['connection', { id: 'conn-id-1', status: 'verified_both' }])
+        expect(dbMock.get.getCall(2).args).to.deep.equal(['connection', { id: 'conn-id-2', status: 'verified_both' }])
+        expect(dbMock.get.getCall(3).args).to.deep.equal(['query', { id: 'query-partial-id-test' }])
         expect(result).to.be.equal('queriesResponse_success_template')
       })
 
@@ -575,6 +579,33 @@ describe('QueriesController', () => {
             }
             expect((err as Error).toString()).to.be.equal('Error: missing a property in the request body')
           }
+        })
+
+        it('throws if connectionsIds are not verified', async () => {
+          const { args, dbMock } = withQueriesMocks()
+          dbMock.get
+            .onFirstCall()
+            .resolves([{ status: 'verified_both', agent_connection_id: 'some-agent-conn-id' }])
+            .onSecondCall()
+            .resolves([{ status: 'unverified', agent_connection_id: 'some-agent-conn-id' }]) // first connection ok
+          const controller = new QueriesController(...args)
+
+          await expect(
+            controller.carbonEmbodimentResponseSubmit(req, 'query-partial-id-test', {
+              companyId: 'some-company-id',
+              connectionIds: ['not-verified'],
+              emissions: 10,
+            })
+          ).to.be.rejectedWith(InvalidInputError, `Cannot query unverified connection`)
+
+          expect(dbMock.get.getCall(0).args).to.deep.equal([
+            'connection',
+            { id: 'some-company-id', status: 'verified_both' },
+          ])
+          expect(dbMock.get.getCall(1).args).to.deep.equal([
+            'connection',
+            { id: 'not-verified', status: 'verified_both' },
+          ])
         })
 
         it('throws if arrays are not the same size', async () => {
