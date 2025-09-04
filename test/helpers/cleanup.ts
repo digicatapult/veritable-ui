@@ -15,23 +15,23 @@ export async function cleanupDatabase(databases: Database[]) {
   )
 }
 
-// Cleanup all agents in parallel
+// Cleanup all agents in series
 // Delete all connections and OOB invitations in series
 export async function cleanupCloudagent(cloudagents: VeritableCloudagent[]) {
-  await Promise.all(
-    cloudagents.map(async (agent) => {
-      const connections = await agent.getConnections()
-      for (const connection of connections) {
-        await agent.deleteConnection(connection.id)
-      }
-      const invites = await agent.getOutOfBandInvites()
-      for (const invite of invites) {
-        await agent.deleteOutOfBandInvite(invite.id)
-      }
-      const credentials = await agent.getCredentials()
-      for (const credential of credentials) {
-        await agent.deleteCredential(credential.id)
-      }
-    })
-  )
+  for (const agent of cloudagents) {
+    const connections = await agent.getConnections()
+    for (const connection of connections) {
+      await agent.closeConnection(connection.id, true)
+    }
+
+    const invites = await agent.getOutOfBandInvites()
+    for (const invite of invites) {
+      await agent.deleteOutOfBandInvite(invite.id)
+    }
+
+    const credentials = await agent.getCredentials()
+    for (const credential of credentials) {
+      await agent.deleteCredential(credential.id)
+    }
+  }
 }

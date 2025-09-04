@@ -24,11 +24,17 @@ const eventParser = z.discriminatedUnion('type', [
     payload: z.object({ connectionRecord: connectionParser }),
   }),
   z.object({
+    type: z.literal('ConnectionDidRotated'),
+    payload: z.object({
+      connectionRecord: connectionParser,
+      theirDid: z.object({ from: z.string(), to: z.string() }).optional(),
+    }),
+  }),
+  z.object({
     type: z.literal('CredentialStateChanged'),
     payload: z.object({ credentialRecord: credentialParser }),
   }),
   z.object({ type: z.literal('BasicMessageStateChanged'), payload: z.object({}) }),
-  z.object({ type: z.literal('ConnectionDidRotated'), payload: z.object({}) }),
   z.object({ type: z.literal('RevocationNotificationReceived'), payload: z.object({}) }),
   z.object({
     type: z.literal('DrpcRequestStateChanged'),
@@ -117,8 +123,8 @@ export default class VeritableCloudagentEvents extends IndexedAsyncEventEmitter<
         try {
           data = eventParser.parse(JSON.parse(ev.data.toString()))
         } catch (err) {
-          this.logger.warn('Unusable event received %o', ev.data)
-          this.logger.debug('Parser error %o', err)
+          this.logger.warn('Unusable event received %s', ev.data.toString())
+          this.logger.debug(err, 'Parser error')
           return
         }
 
@@ -129,6 +135,10 @@ export default class VeritableCloudagentEvents extends IndexedAsyncEventEmitter<
           case 'ConnectionStateChanged':
             id = data.payload.connectionRecord.id
             connectionSeen.add(id)
+            break
+          case 'ConnectionDidRotated':
+            id = data.payload.connectionRecord.id
+            this.logger.trace('DID rotation event on connection %s', id)
             break
           case 'CredentialStateChanged':
             id = data.payload.credentialRecord.id

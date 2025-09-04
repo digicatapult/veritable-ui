@@ -1,5 +1,5 @@
 import express from 'express'
-import { pino } from 'pino'
+import pino from 'pino'
 import { Body, Get, Path, Post, Produces, Query, Request, Route, Security, SuccessResponse } from 'tsoa'
 import { injectable } from 'tsyringe'
 
@@ -126,7 +126,7 @@ export class ConnectionController extends HTMLController {
     @Path() connectionId: UUID,
     @Query() pin?: PIN_CODE | string
   ): Promise<HTML> {
-    req.log.debug('pin submission form', { connectionId, pin })
+    req.log.debug('pin submission form %o', { connectionId, pin })
 
     const [connection]: ConnectionRow[] = await this.db.get('connection', { id: connectionId })
     if (!connection) {
@@ -154,7 +154,7 @@ export class ConnectionController extends HTMLController {
     const { pin } = body
 
     if (!pin.match(pinCodeRegex)) {
-      req.log.info('pin %s did not match a %s regex', pin, pinCodeRegex)
+      req.log.info('pin %s did not match a %s regex', pin, pinCodeRegex.toString())
       return this.html(this.pinSubmission.renderPinForm({ connectionId, pin, continuationFromInvite: false }))
     }
 
@@ -167,7 +167,7 @@ export class ConnectionController extends HTMLController {
     if (!agentConnectionId) throw new InvalidInputError('Cannot verify PIN on a pending connection')
     //check initial db state of pin_tries_remaining_counts
 
-    req.log.info('verifying a new connection', { agentConnectionId, profile, pin })
+    req.log.info('verifying a new connection %o', { agentConnectionId, profile, pin })
     await this.verifyReceiveConnection(req.log, agentConnectionId, profile, pin)
 
     // loading spinner for htmx
@@ -212,7 +212,7 @@ export class ConnectionController extends HTMLController {
     profile: SharedOrganisationInfo,
     pin: PIN_CODE
   ) {
-    logger.debug('verifyReceiveConnection(): called for credential proposal', { agentConnectionId, profile, pin })
+    logger.debug('verifyReceiveConnection(): called for credential proposal %o', { agentConnectionId, profile, pin })
 
     await this.cloudagent.proposeCredential(agentConnectionId, {
       schemaName: 'COMPANY_DETAILS',
@@ -249,7 +249,7 @@ export class ConnectionController extends HTMLController {
       }
       return finalState
     } catch (err) {
-      logger.warn('unknown error occured %s', err?.toString())
+      logger.warn(err, 'unknown error occurred')
 
       if (err instanceof DatabaseTimeoutError) {
         return {

@@ -65,7 +65,7 @@ export class QueriesController extends HTMLController {
     const query: Where<'connection'> = []
     if (search !== '') {
       query.push(['company_name', 'ILIKE', `%${search}%`])
-      req.log.info('retrieving data... %j', JSON.stringify(query))
+      req.log.info('retrieving data... %j', query)
     }
     const connections = await this.db.get('connection', query, [['updated_at', 'desc']])
 
@@ -104,7 +104,7 @@ export class QueriesController extends HTMLController {
     const query: Where<'connection'> = []
     if (search) {
       query.push(['company_name', 'ILIKE', `%${search}%`])
-      req.log.info('retrieving data... %j', JSON.stringify(query))
+      req.log.info('retrieving data... %j', query)
     }
 
     const connections = await this.db.get('connection', query, [['updated_at', 'desc']])
@@ -227,7 +227,8 @@ export class QueriesController extends HTMLController {
     return this.html(
       this.responseTemplates.bavForm({
         countryCode,
-      })
+      }),
+      this.responseTemplates.countryISOCode({ countryCode, swapOutOfBand: true })
     )
   }
 
@@ -320,6 +321,9 @@ export class QueriesController extends HTMLController {
     req.log.info('query page requested %j', { body })
 
     const connection = await this.verifyConnection(req.log, companyId)
+    const forwardConnections = await Promise.all(
+      partial.connectionIds?.map((id) => this.verifyConnection(req.log, id)) || []
+    )
     const queryRow = await this.getQuery(queryId)
     if (!queryRow.response_id) {
       req.log.warn('missing DRPC response_id to respond to %j', queryRow)
@@ -394,6 +398,7 @@ export class QueriesController extends HTMLController {
         formStage: 'success',
         connection,
         query: queryRow,
+        connections: forwardConnections,
       })
     )
   }
@@ -611,7 +616,7 @@ export class QueriesController extends HTMLController {
 
     if (!rpcResponse) throw new Error('failed to retrieve rpc response')
     log.debug('DRPC response %j', { rpcResponse, rpcRequest })
-    log.info('persisting query_rpc response', rpcResponse)
+    log.info('persisting query_rpc response %o', rpcResponse)
 
     const { id: agent_rpc_id, jsonrpc: _, ...resultOrError } = rpcResponse
 
@@ -638,11 +643,7 @@ export class QueriesController extends HTMLController {
   }
 
   private async getConnection(connectionId: UUID, status?: ConnectionRow['status']): Promise<ConnectionRow> {
-    const [connection] = await this.db.get(
-      'connection',
-      { id: connectionId, ...(status !== undefined && { status }) },
-      [['updated_at', 'desc']]
-    )
+    const [connection] = await this.db.get('connection', { id: connectionId, ...(status !== undefined && { status }) })
     if (!connection) {
       throw new InvalidInputError(`Invalid connection ${connectionId}`)
     }
@@ -652,7 +653,11 @@ export class QueriesController extends HTMLController {
   private async verifyConnection(log: Logger, connectionId: UUID): Promise<ConnectionRow> {
     const connection = await this.getConnection(connectionId, 'verified_both')
     if (!connection.agent_connection_id || connection.status !== 'verified_both') {
-      log.warn('connection agent id is %s or invalid status - %s', connection.agent_connection_id, connection.status)
+      log.warn(
+        'connection agent id is %s or invalid status - %s',
+        connection.agent_connection_id ?? 'null',
+        connection.status
+      )
       throw new InvalidInputError(`Cannot query unverified connection`)
     }
     return connection

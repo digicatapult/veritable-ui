@@ -92,7 +92,7 @@ export abstract class NewConnectionTemplates {
     return (
       <div id="new-connection-feedback" class="accented-container feedback-positive">
         <div>
-          <p>
+          <p class="no-margin">
             <span>Registered Office Address</span>
             {addressLines.map((line, i) => (
               <span class="address-line">

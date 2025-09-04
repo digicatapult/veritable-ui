@@ -47,7 +47,7 @@ const dbMock = {
 }
 
 const cloudagentMock = {
-  deleteConnection: sinon.stub(),
+  closeConnection: sinon.stub(),
   deleteCredential: sinon.stub(),
   deleteOutOfBandInvite: sinon.stub(),
   getCredentials: sinon.stub().callsFake(() => Promise.resolve(fixtures['agent_credentials'])),
@@ -109,7 +109,7 @@ describe('ResetController', () => {
       })
 
       it('doest not call any cloudagents methods too', () => {
-        expect(cloudagentMock.deleteConnection.callCount).to.be.equal(0)
+        expect(cloudagentMock.closeConnection.callCount).to.be.equal(0)
         expect(cloudagentMock.deleteCredential.callCount).to.be.equal(0)
         expect(cloudagentMock.deleteOutOfBandInvite.callCount).to.be.equal(0)
       })
@@ -166,10 +166,10 @@ describe('ResetController', () => {
         expect(cloudagentMock.deleteCredential.firstCall.args).to.deep.equal(['some-agent-credential-id-1'])
         expect(cloudagentMock.deleteCredential.secondCall.args).to.deep.equal(['some-agent-credential-id-2'])
         expect(cloudagentMock.deleteCredential.callCount).to.be.equal(2)
-        expect(cloudagentMock.deleteConnection.firstCall.args).to.deep.equal(['some-agent-id-1'])
-        expect(cloudagentMock.deleteConnection.secondCall.args).to.deep.equal(['some-agent-id-2'])
-        expect(cloudagentMock.deleteConnection.thirdCall.args).to.deep.equal(['some-agent-id-3'])
-        expect(cloudagentMock.deleteConnection.callCount).to.be.equal(3)
+        expect(cloudagentMock.closeConnection.firstCall.args).to.deep.equal(['some-agent-id-1', true])
+        expect(cloudagentMock.closeConnection.secondCall.args).to.deep.equal(['some-agent-id-2', true])
+        expect(cloudagentMock.closeConnection.thirdCall.args).to.deep.equal(['some-agent-id-3', true])
+        expect(cloudagentMock.closeConnection.callCount).to.be.equal(3)
         expect(cloudagentMock.deleteOutOfBandInvite.firstCall.args).to.deep.equal(['some-invite-id-1'])
         expect(cloudagentMock.deleteOutOfBandInvite.secondCall.args).to.deep.equal(['some-invite-id-2'])
         expect(cloudagentMock.deleteOutOfBandInvite.thirdCall.args).to.deep.equal(['some-invite-id-3'])

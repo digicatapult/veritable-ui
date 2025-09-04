@@ -2,6 +2,7 @@ import { inject, injectable, singleton } from 'tsyringe'
 
 import { Logger, type ILogger } from '../logger.js'
 import Database from '../models/db/index.js'
+import VeritableCloudagent from '../models/veritableCloudagent/index.js'
 import VeritableCloudagentEvents from './veritableCloudagentEvents.js'
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -13,12 +14,14 @@ type eventData<T> = Parameters<typeof CloudagentOn<T>>[1]
 export default class ConnectionEvents {
   constructor(
     private db: Database,
-    private cloudagent: VeritableCloudagentEvents,
+    private cloudagent: VeritableCloudagent,
+    private cloudagentEvents: VeritableCloudagentEvents,
     @inject(Logger) protected logger: ILogger
   ) {}
 
   public start() {
-    this.cloudagent.on('ConnectionStateChanged', this.connectionStateChangedHandler)
+    this.cloudagentEvents.on('ConnectionStateChanged', this.connectionStateChangedHandler)
+    this.cloudagentEvents.on('ConnectionDidRotated', this.connectionDidRotatedHandler)
   }
 
   private connectionStateChangedHandler: eventData<'ConnectionStateChanged'> = async (event) => {
@@ -37,7 +40,9 @@ export default class ConnectionEvents {
           cloudAgentConnectionId,
           connectionState
         )
-        throw new Error('Connection event on unknown connection')
+        this.cloudagent.closeConnection(cloudAgentConnectionId)
+        this.logger.warn('Hangup message automatically sent to connection %s', cloudAgentConnectionId)
+        return
       }
 
       const [connection] = await db.get('connection', { id: inviteRecord.connection_id })
@@ -61,5 +66,30 @@ export default class ConnectionEvents {
       this.logger.debug('Database state for connection %s updated to %s', connection.id, updateStatus)
       return
     })
+  }
+
+  /*
+  Hangup protocol: ConnectionRecord (NB OOB record doesn't change)
+  Message sender:
+  - Rotates their own Did into previousDids
+  - Did is blank
+  - Keeps theirDid active
+  
+  Message recipient:
+  - Rotates theirDid into previousTheirDid
+  - theirDid is blank
+  - Keeps Did active
+  */
+  private connectionDidRotatedHandler: eventData<'ConnectionDidRotated'> = async (event) => {
+    this.logger.debug(`new DID rotation event %j`, event.payload)
+    const { id: cloudAgentConnectionId } = event.payload.connectionRecord
+
+    // If this is a disconnection event (ie theirDid rotated to undefined)
+    if (!event.payload.theirDid?.to) {
+      this.logger.warn('Connection %s has disconnected from us', cloudAgentConnectionId)
+      await this.db.update('connection', { agent_connection_id: cloudAgentConnectionId }, { status: 'disconnected' })
+    }
+
+    return
   }
 }
