@@ -52,18 +52,18 @@ describe('QueriesController', () => {
       const { dbMock, args } = withQueriesMocks()
       const controller = new QueriesController(...args)
       const spy = dbMock.get
-      await controller.new(req, 'total_carbon_embodiment').then(toHTMLString)
-      expect(spy.firstCall.calledWith('connection', [], [['updated_at', 'desc']])).to.equal(true)
+      await controller.new(req, 'total_carbon_embodiment')
+      expect(spy.getCall(0).args).to.deep.equal(['connection', [{ status: 'verified_both' }], [['updated_at', 'desc']]])
     })
 
     it('should call db as expected', async () => {
       const { dbMock, args } = withQueriesMocks()
       const controller = new QueriesController(...args)
       const spy = dbMock.get
-      await controller.new(req, 'total_carbon_embodiment', 'VER123').then(toHTMLString)
       const search = 'VER123'
-      const query = search ? [['company_name', 'ILIKE', `%${search}%`]] : {}
-      expect(spy.firstCall.calledWith('connection', query, [['updated_at', 'desc']])).to.equal(true)
+      await controller.new(req, 'total_carbon_embodiment', search)
+      const query = [{ status: 'verified_both' }, ['company_name', 'ILIKE', `%${search}%`]]
+      expect(spy.getCall(0).args).to.deep.equal(['connection', query, [['updated_at', 'desc']]])
     })
 
     it('should call page with stage carbonEmbodiment as expected', async () => {
