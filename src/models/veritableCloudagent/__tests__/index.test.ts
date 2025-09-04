@@ -183,20 +183,20 @@ describe('veritableCloudagent', () => {
     })
   })
 
-  describe('deleteConnection', () => {
+  describe('closeConnection', () => {
     describe('success', function () {
-      withCloudagentMock('DELETE', '/v1/connections/42', 204, '')
+      withCloudagentMock('DELETE', '/v1/connections/42?deleteConnectionRecord=true', 204, '')
 
       it('should succeed', async () => {
         const environment = new Env()
         const cloudagent = new VeritableCloudagent(environment, mockLogger)
-        const response = await cloudagent.deleteConnection('42')
+        const response = await cloudagent.closeConnection('42', true)
         expect(response).deep.equal(undefined)
       })
     })
 
     describe('error (bad request)', function () {
-      withCloudagentMock('DELETE', '/v1/connections/42', 400, {})
+      withCloudagentMock('DELETE', '/v1/connections/42?deleteConnectionRecord=true', 400, {})
 
       it('should throw a bad request error', async () => {
         const environment = new Env()
@@ -204,7 +204,7 @@ describe('veritableCloudagent', () => {
 
         let error: unknown = null
         try {
-          await cloudagent.deleteConnection('42')
+          await cloudagent.closeConnection('42', true)
         } catch (err) {
           error = err
         }
