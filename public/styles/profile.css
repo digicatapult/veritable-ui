@@ -1,0 +1,99 @@
+.container-profile-form {
+  display: flex;
+  flex-direction: row;
+  overflow: hidden;
+  min-height: 33em;
+}
+.profile-form-left {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 50px;
+  min-height: 425px;
+  max-width: 325px;
+  padding-right: 3rem;
+  position: relative;
+}
+.profile-form-right {
+  display: flex;
+  padding-top: 5px;
+  flex-direction: column;
+}
+.profile-form-right > div {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+.profile-form-left::after {
+  content: '';
+  position: absolute;
+  top: 0.5rem;
+  bottom: 0.5rem;
+  right: 2rem;
+  width: 1px;
+  background-color: #5570f1;
+}
+#disconnect-btn {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  justify-content: center;
+  padding: 7px 15px;
+  border-radius: 12px;
+  transition: all 0.3s;
+  color: white;
+  background-color: var(--negative-accent);
+  width: max-content;
+  max-width: 300px;
+  margin: 10px 0px;
+
+  &:hover {
+    opacity: 0.7;
+  }
+}
+
+#disconnect-btn:hover {
+  opacity: 0.8;
+}
+
+#profile-form-left-info p {
+  margin-bottom: 5px;
+}
+.profile-form-left p {
+  font-size: 0.85rem;
+}
+
+.connection-status {
+  font-size: 0.85rem;
+  width: max-content;
+  border-radius: 8px;
+  line-height: 1rem;
+  padding: 5px 8px;
+  background-color: hsl(from var(--status-color) h s l / 0.2);
+  margin: 0px 20px;
+}
+.connection-status[data-status='error'] {
+  --status-color: var(--negative-accent);
+}
+
+.connection-status[data-status='success'] {
+  --status-color: var(--positive-accent);
+}
+.connection-status[data-status='disabled'] {
+  --status-color: var(--disabled-accent);
+}
+
+#disconnect-btn-warning {
+  color: var(--text-color-secondary);
+  margin-bottom: 50px;
+}
+#profile-form-bank {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+#profile-form-bank-info p {
+  font-size: 0.85rem;
+  margin: 2px 0px;
+}

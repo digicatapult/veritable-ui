@@ -9,7 +9,8 @@ import ConnectionTemplates from '../../views/connection/connection.js'
 import { DatabaseTimeoutError, InternalError, InvalidInputError, NotFoundError } from '../../errors.js'
 import { ILogger } from '../../logger.js'
 import Database from '../../models/db/index.js'
-import { ConnectionRow } from '../../models/db/types.js'
+import { ConnectionRow, QueryRow } from '../../models/db/types.js'
+import { BavResFields, bavResponseData } from '../../models/drpc.js'
 import OrganisationRegistry, { SharedOrganisationInfo } from '../../models/orgRegistry/organisationRegistry.js'
 import VeritableCloudagent from '../../models/veritableCloudagent/index.js'
 import { PinSubmissionTemplates } from '../../views/newConnection/pinSubmission.js'
@@ -45,6 +46,71 @@ export class ConnectionController extends HTMLController {
     req.log.debug('returning connections page %j', { connections, search })
     this.setHeader('HX-Replace-Url', search ? `/connection?search=${encodeURIComponent(search)}` : `/connection`)
     return this.html(this.connectionTemplates.listPage(connections, search))
+  }
+  /**
+   * Retrieves the connection profile page
+   */
+  @SuccessResponse(200)
+  @Get('/profile/{connectionId}')
+  public async connectionProfile(@Request() req: express.Request, @Path() connectionId: UUID): Promise<HTML> {
+    const [connection]: ConnectionRow[] = await this.db.get('connection', { id: connectionId })
+    console.log('connection', connection)
+    if (!connection) throw new NotFoundError(`[connection]: ${connectionId}`)
+    const [accountDetails]: QueryRow[] = await this.db.get(
+      'query',
+      {
+        connection_id: connectionId,
+        type: 'beneficiary_account_validation',
+        role: 'requester',
+      },
+      [['updated_at', 'desc']]
+    )
+    if (accountDetails && accountDetails.status === 'resolved') {
+      console.log('accountDetails', accountDetails)
+
+      const response = bavResponseData.parse(accountDetails.response)
+      const object: BavResFields = {
+        countryCode: response.countryCode,
+        name: response.name ?? 'Not Found',
+        accountId: response.accountId ?? 'Not Found',
+        clearingSystemId: response.clearingSystemId ?? 'Not Found',
+      }
+      // Don't show account details if score is less than 0.95
+      if (response.score && response.score >= 0.95) {
+        req.log.debug('returning connections page with account details %j', { connection })
+        return this.html(this.connectionTemplates.profilePage(connection, object))
+      }
+    }
+
+    req.log.debug('returning connections page %j', { connection })
+    return this.html(this.connectionTemplates.profilePage(connection))
+  }
+
+  /**
+   * Retrieves the disconnect connection page
+   */
+  @SuccessResponse(200)
+  @Get('/disconnect/{connectionId}') // TOD0: change to delete?
+  public async disconnectConnection(
+    @Request() req: express.Request,
+    @Path() connectionId: UUID,
+    @Query() disconnect: boolean = false
+  ): Promise<HTML> {
+    req.log.debug('disconnecting connection %j', { connectionId })
+    const [connection]: ConnectionRow[] = await this.db.get('connection', { id: connectionId })
+    if (!connection) throw new NotFoundError(`[connection]: ${connectionId}`)
+    if (disconnect === false) {
+      return this.html(this.connectionTemplates.disconnectPage(connection))
+    }
+
+    // delete connection from cloudagent
+
+    await this.cloudagent.deleteConnection(connectionId)
+    // mark connection as disconnected in db
+    await this.db.update('connection', { id: connectionId }, { status: 'disconnected' })
+
+    req.log.debug('returning connections page %j', { connection })
+    return this.html(this.connectionTemplates.profilePage(connection))
   }
 
   /**

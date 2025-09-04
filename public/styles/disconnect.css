@@ -1,0 +1,25 @@
+#disconnect-container {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  cursor: pointer;
+  background-color: #fff;
+  border-radius: 12px;
+
+  padding: 8rem 15rem;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  text-align: center;
+}
+#disconnect-buttons {
+  display: column;
+  margin-top: 50px;
+}
+#disconnect-buttons a {
+  margin: 10px;
+}
+#disconnect-buttons > * {
+  width: 100%;
+}

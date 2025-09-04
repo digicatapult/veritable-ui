@@ -668,6 +668,7 @@ export class NewConnectionController extends HTMLController {
           pin_tries_remaining_count: null,
           registry_country_code: registryCountryCode,
           registry_code: registryCode,
+          address: company.address,
         })
 
         await db.insert('connection_invite', {

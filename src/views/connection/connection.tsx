@@ -1,6 +1,7 @@
 import Html from '@kitajs/html'
 import { injectable, singleton } from 'tsyringe'
 import { ConnectionRow } from '../../models/db/types.js'
+import { BavResFields } from '../../models/drpc.js'
 import { connectionStatusToClass, LinkButton, Page } from '../common.js'
 
 const statusToAction = (
@@ -39,9 +40,22 @@ const statusToAction = (
     case 'verified_both':
       return {
         disabled: false,
-        href: `/queries/choose?connectionId=${connectionId}`,
-        text: 'Send Query',
+        href: `/connection/profile/${connectionId}`,
+        text: 'View Connection',
       }
+  }
+}
+const statusToString = (status: ConnectionRow['status']) => {
+  switch (status) {
+    case 'pending':
+    case 'verified_us':
+    case 'unverified':
+    case 'verified_them':
+      return 'Unverified'
+    case 'verified_both':
+      return 'Verified'
+    case 'disconnected':
+      return 'Disconnected'
   }
 }
 
@@ -118,6 +132,122 @@ export default class ConnectionTemplates {
               )}
             </tbody>
           </table>
+        </div>
+      </Page>
+    )
+  }
+
+  public profilePage = (connection: ConnectionRow, bankDetails?: BavResFields) => {
+    return (
+      <Page
+        title="Veritable - Connection Profile"
+        heading="Connection Profile"
+        activePage="connections"
+        headerLinks={[{ name: 'Connection Management', url: '#' }]}
+        stylesheets={['profile.css']}
+      >
+        <div class="card-body">
+          <div class="container-profile-form">
+            <div class="profile-form-left">
+              <h1>{Html.escapeHtml(connection.company_name)}</h1>
+              <div id="profile-form-left-info">
+                <p>
+                  Country: <b>{Html.escapeHtml(connection.registry_country_code)}</b>
+                </p>
+                <p>
+                  Address: <b>{Html.escapeHtml(connection.address)}</b>
+                </p>
+                <p>
+                  Company Number: <b>{Html.escapeHtml(connection.company_number)}</b>
+                </p>
+              </div>
+
+              <p>
+                Joined Veritable: <b>{Html.escapeHtml(connection.created_at.toLocaleDateString())}</b>
+              </p>
+            </div>
+            <div class="profile-form-right">
+              <div>
+                <h3>Connection: </h3>
+                <b
+                  class="connection-status"
+                  data-status={statusToString(connection.status) == 'Verified' ? 'success' : 'disabled'}
+                >
+                  {statusToString(connection.status)}
+                </b>
+                {Html.escapeHtml(connection.updated_at.toLocaleDateString())}
+              </div>
+
+              <a
+                id="disconnect-btn"
+                href={`/connection/disconnect/${Html.escapeHtml(connection.id)}`}
+                data-variant={'filled'}
+              >
+                <span>Disconnect</span>
+              </a>
+              <small id="disconnect-btn-warning">
+                This action will revoke connection with {Html.escapeHtml(connection.company_name)}
+              </small>
+              {bankDetails ? (
+                <safe>
+                  <div id="profile-form-bank">
+                    <h3>Bank Details: </h3>
+                    <b class="connection-status" data-status="success">
+                      Resolved
+                    </b>
+                    {Html.escapeHtml(connection.updated_at.toLocaleDateString())}
+                  </div>
+                  <div id="profile-form-bank-info">
+                    <p>
+                      Company Name: <b>{Html.escapeHtml(bankDetails.name)}</b>
+                    </p>
+                    <p>
+                      Country: <b>{Html.escapeHtml(bankDetails.countryCode)}</b>
+                    </p>
+                    <p>
+                      Account number: <b>{Html.escapeHtml(bankDetails.accountId)}</b>
+                    </p>
+                    <p>
+                      Clearing System ID: <b>{Html.escapeHtml(bankDetails.clearingSystemId)}</b>
+                    </p>
+                  </div>
+                </safe>
+              ) : (
+                <h3>
+                  Bank Details:
+                  <b class="connection-status" data-status="disabled">
+                    Unresolved
+                  </b>
+                </h3>
+              )}
+            </div>
+          </div>
+        </div>
+      </Page>
+    )
+  }
+
+  public disconnectPage = (connection: ConnectionRow) => {
+    return (
+      <Page
+        title="Veritable - Disconnect Connection"
+        heading="Disconnect Connection"
+        activePage="connections"
+        headerLinks={[{ name: 'Connection Management', url: '#' }]}
+        stylesheets={['disconnect.css']}
+      >
+        <div id="disconnect-container">
+          <h2>Are you sure you want to revoke connection with {Html.escapeHtml(connection.company_name)}?</h2>
+
+          <p>
+            This action is irreversible: you wil loose the ability to send or receive queries and credentials with this
+            company, and all ongoing exchanges will be terminated.
+          </p>
+          <p>If you wish to reconnect later, you will need to restart the verification process.</p>
+          <div id="disconnect-buttons">
+            <LinkButton style="outlined" text="Disconnect" href={`/connection/disconnect/${connection.id}`} />
+            <LinkButton style="filled" text="Cancel" href={`/connection/disconnect/${connection.id}?disconnect=true`} />
+          </div>
         </div>
       </Page>
     )
