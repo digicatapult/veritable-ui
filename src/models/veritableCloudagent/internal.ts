@@ -264,12 +264,9 @@ export default class VeritableCloudagentInt<Config extends CloudagentConfig = De
     return this.getRequest('/v1/connections', this.buildParser(connectionListParser))
   }
 
-  public async closeConnection(connectionId: UUID, deleteConnectionRecord?: boolean): Promise<void> {
-    let url = `/v1/connections/${connectionId}`
-    if (typeof deleteConnectionRecord === 'boolean') {
-      url += `?deleteConnectionRecord=${deleteConnectionRecord}`
-    }
-    await this.deleteRequest(url, () => {})
+  public async closeConnection(connectionId: UUID, deleteConnectionRecord: boolean = false): Promise<void> {
+    const url = `/v1/connections/${connectionId}?deleteConnectionRecord=${deleteConnectionRecord}`
+    return this.deleteRequest(url, () => {})
   }
 
   /*----------------------- Credentials ---------------------------------*/
@@ -471,7 +468,7 @@ export default class VeritableCloudagentInt<Config extends CloudagentConfig = De
       if (response.status === 404) {
         throw new NotFoundError(`${method} ${path}`)
       }
-      throw new InternalError(`Unexpected error calling ${method} ${path}: ${response.statusText}`)
+      throw new InternalError(`Unexpected ${response.status} error calling ${method} ${path}: ${await response.text()}`)
     }
 
     try {
