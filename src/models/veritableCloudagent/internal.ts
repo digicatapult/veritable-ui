@@ -455,25 +455,25 @@ export default class VeritableCloudagentInt<Config extends CloudagentConfig = De
   }
 
   private async noBodyRequest<O>(method: 'GET' | 'DELETE', path: string, parse: parserFn<O>): Promise<O> {
-    const url = `${this.env.get('CLOUDAGENT_ADMIN_ORIGIN')}${path}`
-
-    const response = await fetch(url, {
-      method,
-    })
-
-    if (!response.ok) {
-      if (response.status === 400) {
-        throw new BadRequestError(`${method} ${path}`)
-      }
-      if (response.status === 404) {
-        throw new NotFoundError(`${method} ${path}`)
-      }
-      console.log(response)
-      console.log(await response.text())
-      throw new InternalError(`Unexpected ${response.status} error calling ${method} ${path}: ${response.statusText}`)
-    }
-
     try {
+      const url = `${this.env.get('CLOUDAGENT_ADMIN_ORIGIN')}${path}`
+
+      const response = await fetch(url, {
+        method,
+      })
+
+      if (!response.ok) {
+        if (response.status === 400) {
+          throw new BadRequestError(`${method} ${path}`)
+        }
+        if (response.status === 404) {
+          throw new NotFoundError(`${method} ${path}`)
+        }
+        console.log(response)
+        console.log(await response.text())
+        throw new InternalError(`Unexpected ${response.status} error calling ${method} ${path}: ${response.statusText}`)
+      }
+
       return await parse(response)
     } catch (err) {
       if (err instanceof Error) {
