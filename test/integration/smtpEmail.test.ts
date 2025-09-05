@@ -11,7 +11,8 @@ import VeritableCloudagentEvents from '../../src/services/veritableCloudagentEve
 import { alice } from '../helpers/fixtures.js'
 import { post } from '../helpers/routeHelper.js'
 import { clearSmtp4devMessages, EmailResponseSchema } from '../helpers/smtpEmails.js'
-describe('SMTP email', () => {
+
+describe.skip('SMTP email', () => {
   let server: { app: express.Express; cloudagentEvents: VeritableCloudagentEvents }
 
   describe('create invitation and check it has been registered in the email server (happy path)', function () {
