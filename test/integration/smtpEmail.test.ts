@@ -13,6 +13,7 @@ import { clearSmtp4devMessages, EmailResponseSchema } from '../helpers/smtpEmail
 
 describe('SMTP email', () => {
   const context: TwoPartyContext = {} as TwoPartyContext
+  const transport = process.env.EMAIL_TRANSPORT
   const username = process.env.SMTP_USER
   const password = process.env.SMTP_PASS
 
@@ -29,7 +30,7 @@ describe('SMTP email', () => {
   })
 
   after(async () => {
-    process.env.EMAIL_TRANSPORT = 'STREAM'
+    process.env.EMAIL_TRANSPORT = transport
     process.env.SMTP_USER = username
     process.env.SMTP_PASS = password
     context.cloudagentEvents.stop()
