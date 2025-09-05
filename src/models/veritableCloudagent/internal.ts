@@ -468,7 +468,9 @@ export default class VeritableCloudagentInt<Config extends CloudagentConfig = De
       if (response.status === 404) {
         throw new NotFoundError(`${method} ${path}`)
       }
-      throw new InternalError(`Unexpected ${response.status} error calling ${method} ${path}: ${await response.text()}`)
+      console.log(response)
+      console.log(await response.text())
+      throw new InternalError(`Unexpected ${response.status} error calling ${method} ${path}: ${response.statusText}`)
     }
 
     try {
