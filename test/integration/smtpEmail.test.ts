@@ -12,7 +12,7 @@ import { alice } from '../helpers/fixtures.js'
 import { post } from '../helpers/routeHelper.js'
 import { clearSmtp4devMessages, EmailResponseSchema } from '../helpers/smtpEmails.js'
 
-describe.skip('SMTP email', () => {
+describe('SMTP email', () => {
   const context: TwoPartyContext = {} as TwoPartyContext
   const username = process.env.SMTP_USER
   const password = process.env.SMTP_PASS
