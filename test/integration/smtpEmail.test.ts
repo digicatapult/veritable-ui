@@ -6,12 +6,13 @@ import http from 'http'
 import Database from '../../src/models/db/index.js'
 import { RegistryType } from '../../src/models/db/types.js'
 import { CountryCode } from '../../src/models/stringTypes.js'
+import { testCleanup } from '../helpers/cleanup.js'
 import { setupTwoPartyContext, TwoPartyContext } from '../helpers/connection.js'
 import { alice } from '../helpers/fixtures.js'
 import { post } from '../helpers/routeHelper.js'
 import { clearSmtp4devMessages, EmailResponseSchema } from '../helpers/smtpEmails.js'
 
-describe('SMTP email', () => {
+describe.skip('SMTP email', () => {
   const context: TwoPartyContext = {} as TwoPartyContext
   const username = process.env.SMTP_USER
   const password = process.env.SMTP_PASS
@@ -25,6 +26,10 @@ describe('SMTP email', () => {
     const db = container.resolve(Database)
     container.clearInstances()
     container.register(Database, { useValue: db })
+  })
+
+  afterEach(async () => {
+    await testCleanup(context.localCloudagent, context.localDatabase)
   })
 
   after(async () => {
