@@ -14,7 +14,7 @@ const nyRegistryCountryCode = 'US' as CountryCode
 chai.use(chaiAsPromised)
 const expect = chai.expect
 
-describe.only('NewConnectionController', () => {
+describe('NewConnectionController', () => {
   const context: TwoPartyContext = {} as TwoPartyContext
 
   beforeEach(async () => {
