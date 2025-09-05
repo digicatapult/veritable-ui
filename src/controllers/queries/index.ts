@@ -101,10 +101,9 @@ export class QueriesController extends HTMLController {
       )
     }
 
-    const query: Where<'connection'> = []
+    const query: Where<'connection'> = [{ status: 'verified_both' }]
     if (search) {
       query.push(['company_name', 'ILIKE', `%${search}%`])
-      req.log.info('retrieving data... %j', query)
     }
 
     const connections = await this.db.get('connection', query, [['updated_at', 'desc']])
