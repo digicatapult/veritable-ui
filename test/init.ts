@@ -47,12 +47,12 @@ beforeEach(function () {
 })
 
 after(async function () {
-  stopContainers(aliceDepsContainers)
-  stopContainers(bobDepsContainers)
-  stopContainers(charlieDepsContainers)
-  stopContainers(bobUIContainer)
-  stopContainers(charlieUIContainer)
-  stopContainers(sharedContainers)
+  await stopContainers(aliceDepsContainers)
+  await stopContainers(bobDepsContainers)
+  await stopContainers(charlieDepsContainers)
+  await stopContainers(bobUIContainer)
+  await stopContainers(charlieUIContainer)
+  await stopContainers(sharedContainers)
 })
 
 async function stopContainers(containers: StartedTestContainer[]) {

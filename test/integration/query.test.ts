@@ -1,7 +1,7 @@
 import { expect } from 'chai'
-import { afterEach, beforeEach, describe } from 'mocha'
+import { afterEach, describe } from 'mocha'
 import { QueryRow } from '../../src/models/db/types.js'
-import { cleanupCloudagent, cleanupDatabase } from '../helpers/cleanup.js'
+import { testCleanup } from '../helpers/cleanup.js'
 import { setupTwoPartyContext, TwoPartyContext, withVerifiedConnection } from '../helpers/connection.js'
 import { post } from '../helpers/routeHelper.js'
 import { delay } from '../helpers/util.js'
@@ -9,14 +9,17 @@ import { delay } from '../helpers/util.js'
 describe('query submission', function () {
   const context: TwoPartyContext = {} as TwoPartyContext
 
-  beforeEach(async function () {
+  before(async function () {
     await setupTwoPartyContext(context)
   })
 
   afterEach(async () => {
+    await testCleanup(context.localCloudagent, context.localDatabase)
+    await testCleanup(context.remoteCloudagent, context.remoteDatabase)
+  })
+
+  after(async () => {
     context.cloudagentEvents.stop()
-    await cleanupCloudagent([context.localCloudagent, context.remoteCloudagent])
-    await cleanupDatabase([context.localDatabase, context.remoteDatabase])
   })
 
   describe('Carbon embodiment query success', function () {

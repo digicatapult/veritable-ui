@@ -1,35 +1,52 @@
 import { expect } from 'chai'
-import express from 'express'
 import { describe, it } from 'mocha'
 
 import http from 'http'
 import { resetContainer } from '../../src/ioc.js'
 import { RegistryType } from '../../src/models/db/types.js'
 import { CountryCode } from '../../src/models/stringTypes.js'
-import createHttpServer from '../../src/server.js'
-import VeritableCloudagentEvents from '../../src/services/veritableCloudagentEvents.js'
+import { testCleanup } from '../helpers/cleanup.js'
+import { setupTwoPartyContext, TwoPartyContext } from '../helpers/connection.js'
 import { alice } from '../helpers/fixtures.js'
 import { post } from '../helpers/routeHelper.js'
 import { clearSmtp4devMessages, EmailResponseSchema } from '../helpers/smtpEmails.js'
+
 describe('SMTP email', () => {
-  let server: { app: express.Express; cloudagentEvents: VeritableCloudagentEvents }
+  const context: TwoPartyContext = {} as TwoPartyContext
+  const transport = process.env.EMAIL_TRANSPORT
+  const username = process.env.SMTP_USER
+  const password = process.env.SMTP_PASS
+
+  before(async () => {
+    process.env.EMAIL_TRANSPORT = 'SMTP_EMAIL'
+    process.env.SMTP_USER = 'username'
+    process.env.SMTP_PASS = 'password'
+    await setupTwoPartyContext(context)
+    resetContainer()
+  })
+
+  afterEach(async () => {
+    await testCleanup(context.localCloudagent, context.localDatabase)
+  })
+
+  after(async () => {
+    process.env.EMAIL_TRANSPORT = transport
+    process.env.SMTP_USER = username
+    process.env.SMTP_PASS = password
+    context.cloudagentEvents.stop()
+    await clearSmtp4devMessages()
+    resetContainer()
+  })
 
   describe('create invitation and check it has been registered in the email server (happy path)', function () {
-    setupSmtpTestEnvironment()
     beforeEach(async () => {
-      server = await createHttpServer()
-      await post(server.app, '/connection/new/create-invitation', {
+      await post(context.app, '/connection/new/create-invitation', {
         companyNumber: alice.company_number,
         email: 'alice@testmail.com',
         action: 'submit',
         registryCountryCode: 'GB' as CountryCode,
         selectedRegistry: 'company_house' as RegistryType,
       })
-    })
-
-    afterEach(async () => {
-      server.cloudagentEvents.stop()
-      await clearSmtp4devMessages()
     })
 
     it('should send an email via SMTP', async () => {
@@ -108,25 +125,3 @@ describe('SMTP email', () => {
     })
   })
 })
-
-function setupSmtpTestEnvironment() {
-  let username: string | undefined
-  let password: string | undefined
-
-  beforeEach(async () => {
-    username = process.env.SMTP_USER
-    password = process.env.SMTP_PASS
-
-    process.env.EMAIL_TRANSPORT = 'SMTP_EMAIL'
-    process.env.SMTP_USER = 'username'
-    process.env.SMTP_PASS = 'password'
-    resetContainer()
-  })
-
-  afterEach(async () => {
-    process.env.EMAIL_TRANSPORT = 'STREAM'
-    process.env.SMTP_USER = username
-    process.env.SMTP_PASS = password
-    resetContainer()
-  })
-}

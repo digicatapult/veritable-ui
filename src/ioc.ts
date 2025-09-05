@@ -10,8 +10,9 @@ export const iocContainer: IocContainer = {
     return container.resolve(controller as never)
   },
 }
+
 container.register<IBav>(Bav, {
-  useValue: new IpidBav(),
+  useClass: IpidBav,
 })
 
 export function resetContainer() {

@@ -1,9 +1,9 @@
 import { expect } from 'chai'
-import { afterEach, beforeEach, describe } from 'mocha'
+import { afterEach, describe } from 'mocha'
 
 import { ConnectionRow } from '../../src/models/db/types.js'
 import { Connection } from '../../src/models/veritableCloudagent/internal.js'
-import { cleanupCloudagent, cleanupDatabase } from '../helpers/cleanup.js'
+import { testCleanup } from '../helpers/cleanup.js'
 import { setupTwoPartyContext, TwoPartyContext, withVerifiedConnection } from '../helpers/connection.js'
 import { del } from '../helpers/routeHelper.js'
 
@@ -11,14 +11,17 @@ describe('integration test for /reset endpoint', function () {
   const context: TwoPartyContext = {} as TwoPartyContext
   let response: Awaited<ReturnType<typeof del>>
 
-  beforeEach(async function () {
+  before(async function () {
     await setupTwoPartyContext(context)
   })
 
   afterEach(async () => {
+    await testCleanup(context.localCloudagent, context.localDatabase)
+    await testCleanup(context.remoteCloudagent, context.remoteDatabase)
+  })
+
+  after(async () => {
     context.cloudagentEvents.stop()
-    await cleanupCloudagent([context.localCloudagent, context.remoteCloudagent])
-    await cleanupDatabase([context.localDatabase, context.remoteDatabase])
   })
 
   describe('if DEMO_MODE=true', function () {

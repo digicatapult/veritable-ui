@@ -1,7 +1,7 @@
 import { expect } from 'chai'
 import { afterEach, beforeEach, describe } from 'mocha'
 import { carbonEmbodimentResponseData } from '../../src/models/drpc.js'
-import { cleanupCloudagent, cleanupDatabase } from '../helpers/cleanup.js'
+import { testCleanup } from '../helpers/cleanup.js'
 import { setupThreePartyContext, ThreePartyContext, withBobAndCharlie } from '../helpers/connection.js'
 import { fetchPost, post } from '../helpers/routeHelper.js'
 
@@ -9,14 +9,18 @@ describe('partial query aggregation', function () {
   const context: ThreePartyContext = {} as ThreePartyContext
   let response: Awaited<ReturnType<typeof post>>
 
-  beforeEach(async () => {
+  before(async () => {
     await setupThreePartyContext(context)
   })
 
   afterEach(async () => {
+    await testCleanup(context.agent.alice, context.db.alice)
+    await testCleanup(context.agent.bob, context.db.bob)
+    await testCleanup(context.agent.charlie, context.db.charlie)
+  })
+
+  after(async () => {
     context.cloudagentEvents.stop()
-    await cleanupCloudagent([context.agent.alice, context.agent.bob, context.agent.charlie])
-    await cleanupDatabase([context.db.alice, context.db.bob, context.db.charlie])
   })
 
   describe('with established connections: Alice -> Bob -> Charlie', function () {

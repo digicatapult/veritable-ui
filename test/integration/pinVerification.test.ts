@@ -1,7 +1,7 @@
 import { expect } from 'chai'
 import { afterEach, beforeEach, describe } from 'mocha'
 
-import { cleanupCloudagent, cleanupDatabase } from '../helpers/cleanup.js'
+import { testCleanup } from '../helpers/cleanup.js'
 import {
   setupTwoPartyContext,
   TwoPartyContext,
@@ -14,8 +14,11 @@ import { delay, delayAndReject } from '../helpers/util.js'
 describe('pin-submission', function () {
   const context: TwoPartyContext = {} as TwoPartyContext
 
-  beforeEach(async () => {
+  before(async () => {
     await setupTwoPartyContext(context)
+  })
+
+  beforeEach(async () => {
     Object.assign(context, {
       localConnectionId: '',
       localVerificationPin: '',
@@ -25,9 +28,12 @@ describe('pin-submission', function () {
   })
 
   afterEach(async () => {
+    await testCleanup(context.localCloudagent, context.localDatabase)
+    await testCleanup(context.remoteCloudagent, context.remoteDatabase)
+  })
+
+  after(async () => {
     context.cloudagentEvents.stop()
-    await cleanupCloudagent([context.localCloudagent, context.remoteCloudagent])
-    await cleanupDatabase([context.localDatabase, context.remoteDatabase])
   })
 
   describe('pin verification of sender', function () {
