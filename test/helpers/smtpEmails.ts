@@ -104,51 +104,6 @@ export async function extractInvite(emailId: string): Promise<string | null> {
   }
 }
 
-export async function findNewAdminEmail(oldAdminEmailId: string): Promise<TestEmail> {
-  return new Promise((resolve, reject) => {
-    const options = {
-      hostname: 'localhost',
-      port: '5001',
-      path: '/api/messages',
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    }
-
-    const req = http.request(options, (res) => {
-      let data = ''
-      res.on('data', (chunk) => (data += chunk))
-      res.on('end', async () => {
-        try {
-          const messages = JSON.parse(data)
-          const parsedMessages = EmailResponseSchema.parse(messages)
-          const results = parsedMessages.results
-
-          if (!Array.isArray(results)) {
-            return reject(new Error('Unexpected response format, expected an array of messages.'))
-          }
-
-          const newAdminEmail = results.find(
-            (msg: TestEmail) => msg.subject === 'Postal Code for Verification:' && msg.id !== oldAdminEmailId
-          )
-
-          if (!newAdminEmail) {
-            return reject(new Error('New admin email not found or it has the same ID as the old one.'))
-          }
-
-          resolve(newAdminEmail)
-        } catch (error) {
-          reject(error)
-        }
-      })
-    })
-
-    req.on('error', (error) => reject(error))
-    req.end()
-  })
-}
-
 export async function clearSmtp4devMessages() {
   return new Promise((resolve, reject) => {
     const options = {
