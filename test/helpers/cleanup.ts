@@ -21,7 +21,7 @@ export async function cleanupCloudagent(cloudagents: VeritableCloudagent[]) {
   for (const agent of cloudagents) {
     const connections = await agent.getConnections()
     for (const connection of connections) {
-      await agent.closeConnection(connection.id, true)
+      await agent.closeConnection(connection.id, false)
     }
 
     const invites = await agent.getOutOfBandInvites()
