@@ -1,9 +1,8 @@
 import { expect } from 'chai'
 import { describe, it } from 'mocha'
-import { container } from 'tsyringe'
 
 import http from 'http'
-import Database from '../../src/models/db/index.js'
+import { resetContainer } from '../../src/ioc.js'
 import { RegistryType } from '../../src/models/db/types.js'
 import { CountryCode } from '../../src/models/stringTypes.js'
 import { testCleanup } from '../helpers/cleanup.js'
@@ -22,10 +21,7 @@ describe('SMTP email', () => {
     process.env.SMTP_USER = 'username'
     process.env.SMTP_PASS = 'password'
     await setupTwoPartyContext(context)
-    // TODO: No idea why Alice's database container needs to be reset for this test to run
-    const db = container.resolve(Database)
-    container.clearInstances()
-    container.register(Database, { useValue: db })
+    resetContainer()
   })
 
   afterEach(async () => {
@@ -36,9 +32,9 @@ describe('SMTP email', () => {
     process.env.EMAIL_TRANSPORT = 'STREAM'
     process.env.SMTP_USER = username
     process.env.SMTP_PASS = password
-
     context.cloudagentEvents.stop()
     await clearSmtp4devMessages()
+    resetContainer()
   })
 
   describe('create invitation and check it has been registered in the email server (happy path)', function () {
