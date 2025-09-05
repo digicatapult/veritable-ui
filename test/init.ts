@@ -11,6 +11,7 @@ import {
   bringUpDependenciesContainers,
   bringUpSharedContainers,
   bringUpVeritableUIContainer,
+  network,
 } from './testcontainers/testcontainersSetup.js'
 
 let sharedContainers: StartedTestContainer[]
@@ -47,12 +48,15 @@ beforeEach(function () {
 })
 
 after(async function () {
-  stopContainers(aliceDepsContainers)
-  stopContainers(bobDepsContainers)
-  stopContainers(charlieDepsContainers)
-  stopContainers(bobUIContainer)
-  stopContainers(charlieUIContainer)
-  stopContainers(sharedContainers)
+  if (process.env.REUSE === 'true') return
+
+  await stopContainers(aliceDepsContainers)
+  await stopContainers(bobDepsContainers)
+  await stopContainers(charlieDepsContainers)
+  await stopContainers(bobUIContainer)
+  await stopContainers(charlieUIContainer)
+  await stopContainers(sharedContainers)
+  await network.stop()
 })
 
 async function stopContainers(containers: StartedTestContainer[]) {
