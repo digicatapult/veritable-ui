@@ -2,7 +2,6 @@ import { inject, injectable, singleton } from 'tsyringe'
 
 import { Logger, type ILogger } from '../logger.js'
 import Database from '../models/db/index.js'
-import VeritableCloudagent from '../models/veritableCloudagent/index.js'
 import VeritableCloudagentEvents from './veritableCloudagentEvents.js'
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -14,7 +13,6 @@ type eventData<T> = Parameters<typeof CloudagentOn<T>>[1]
 export default class ConnectionEvents {
   constructor(
     private db: Database,
-    private cloudagent: VeritableCloudagent,
     private cloudagentEvents: VeritableCloudagentEvents,
     @inject(Logger) protected logger: ILogger
   ) {}
