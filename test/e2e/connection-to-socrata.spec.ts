@@ -81,10 +81,10 @@ test.describe('Connection to NY State Registry', () => {
       await page.click('text=Add from Invitation', { delay: 100 })
       await page.locator('textarea[name="invite"]').waitFor({ state: 'visible' })
       await page.fill('textarea[name="invite"]', contentWithoutLastChar)
-      await page.locator('textarea[name="invite"]').press(lastChar)
+      await page.locator('textarea[name="invite"]').press(lastChar, { delay: 100 })
 
       const feedback = page.locator('#new-connection-feedback')
-      await expect(feedback).toContainText('DIGITAL CATAPULT', { timeout: 12000 })
+      await expect(feedback).toContainText('DIGITAL CATAPULT')
 
       await page.click('button[type="submit"][name="action"][value="createConnection"]', { delay: 100 })
 
