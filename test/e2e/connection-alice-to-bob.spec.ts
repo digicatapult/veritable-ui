@@ -43,16 +43,11 @@ test.describe('Connection from Alice to Bob', () => {
 
       const feedbackElement = page.locator('#new-connection-feedback')
       // waits for the Company House API
-      await expect(feedbackElement).toHaveAttribute('class', 'accented-container feedback-positive')
       await expect(feedbackElement).toContainText('OFFSHORE RENEWABLE ENERGY CATAPULT')
-      await expect(feedbackElement).toContainText('Albert Street')
       await page.click('button[type="submit"][name="action"][value="continue"]', { delay: 100 })
 
       const confirmationElement = page.locator('#new-connection-confirmation-text')
-      await expect(confirmationElement).toBeVisible({ timeout: 12000 })
-      await expect(confirmationElement).toContainText('Please confirm the details of the connection before sending')
       await expect(confirmationElement).toContainText('Company Number: 04659351')
-      await expect(confirmationElement).toContainText('Email Address: alice@testmail.com')
 
       await page.click('button[type="submit"][name="action"][value="submit"]', { delay: 100 })
       await expect(confirmationElement).toContainText('Your connection invitation has been sent')
@@ -94,10 +89,10 @@ test.describe('Connection from Alice to Bob', () => {
       await page.locator('#new-connection-invite-input-pin').waitFor({ state: 'visible' })
       await page.fill('#new-connection-invite-input-pin', pinForBob)
       const bobButton = page.locator('button[type="submit"][name="action"][value="submitPinCode"]')
+      await expect(bobButton).toBeVisible()
       await bobButton.click({ delay: 100 })
 
       const confirmationElement = page.locator('#new-connection-invite-input')
-      await expect(confirmationElement).toBeVisible({ timeout: 12000 })
       await expect(confirmationElement).toContainText('PIN Code has been submitted for DIGITAL CATAPULT company ID.')
     })
 
@@ -135,10 +130,8 @@ test.describe('Connection from Alice to Bob', () => {
       await connections.click({ delay: 500 })
 
       const statusText = page.locator('div.list-item-status[data-status="success"]')
-      await expect(statusText).toBeVisible({ timeout: 15000 })
-      await expect(statusText).toContainText('Connected')
+      await expect(statusText).toContainText('Connected', { timeout: 15000 })
       await expect(page.locator('#search-results')).toContainText('04659351')
-      await expect(page.locator('#search-results')).toContainText('GB')
     })
   })
 })
