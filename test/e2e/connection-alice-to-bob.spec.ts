@@ -132,7 +132,7 @@ test.describe('Connection from Alice to Bob', () => {
     await test.step('Check connection is in state verified', async () => {
       const connections = page.getByRole('link', { name: 'connections', exact: true })
       await expect(connections).toBeVisible()
-      await connections.click({ delay: 100 })
+      await connections.click({ delay: 500 })
 
       const statusText = page.locator('div.list-item-status[data-status="success"]')
       await expect(statusText).toBeVisible({ timeout: 15000 })
