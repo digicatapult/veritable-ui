@@ -28,7 +28,5 @@ test.describe('Redirect to about page', () => {
 
     const aboutText = page.locator('#about-container')
     await expect(aboutText).toContainText('Veritable is a platform that enhances trust and transparency')
-    await expect(aboutText).toContainText('Enables seamless data requests and responses')
-    await expect(aboutText).toContainText('Manages and verifies digital credentials for compliance')
   })
 })

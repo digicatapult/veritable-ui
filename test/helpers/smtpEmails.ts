@@ -149,7 +149,7 @@ export async function findNewAdminEmail(oldAdminEmailId: string): Promise<TestEm
   })
 }
 
-export async function clearSmtp4devMessages() {
+export async function clearSmtp4devMessages(): Promise<boolean> {
   return new Promise((resolve, reject) => {
     const options = {
       hostname: 'localhost',

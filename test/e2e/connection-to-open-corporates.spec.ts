@@ -20,6 +20,7 @@ test.describe('Connection via Open Corporates', () => {
   })
 
   test.afterAll(async () => {
+    await clearSmtp4devMessages()
     await cleanup([AliceHost, DaveHost])
     await page.close()
     await context.close()
@@ -70,6 +71,7 @@ test.describe('Connection via Open Corporates', () => {
 
     await test.step('Dave submits invite and pin', async () => {
       if (!invite) throw new Error('Invitation for Dave was not found.')
+      await clearSmtp4devMessages()
       await page.goto(`${DaveHost}/connection`, { waitUntil: 'networkidle' })
 
       // Fill in invite without last character, then enter last character to simulate typing

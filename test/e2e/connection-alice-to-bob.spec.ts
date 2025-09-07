@@ -20,7 +20,7 @@ test.describe('Connection from Alice to Bob', () => {
   })
 
   test.afterAll(async () => {
-    await cleanup([baseUrlAlice, baseUrlBob])
+    await clearSmtp4devMessages()
     await page.close()
     await context.close()
   })
@@ -67,7 +67,7 @@ test.describe('Connection from Alice to Bob', () => {
 
     await test.step('Bob submits invite and pin', async () => {
       if (!invite) throw new Error('Invitation for Charlie was not found.')
-      await page.goto(`${baseUrlBob}/connection`, { waitUntil: 'networkidle' })
+      await clearSmtp4devMessages()
 
       // Fill in invite without last character, then enter last character to simulate typing
       const contentWithoutLastChar = invite!.slice(0, -1)

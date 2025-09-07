@@ -3,7 +3,7 @@ import 'reflect-metadata'
 import { RegistryType } from '../../src/models/db/types.js'
 import { CountryCode } from '../../src/models/stringTypes.js'
 import { fetchGet, fetchPost } from './routeHelper.js'
-import { checkEmails, extractInvite, extractPin } from './smtpEmails.js'
+import { checkEmails, clearSmtp4devMessages, extractInvite, extractPin } from './smtpEmails.js'
 import { delay } from './util.js'
 
 export async function withConnection(inviterUrl: string, receiverUrl: string) {
@@ -27,6 +27,8 @@ export async function withConnection(inviterUrl: string, receiverUrl: string) {
   const inviteEmail = await checkEmails('alice@testmail.com')
   const inviteBase64 = await extractInvite(inviteEmail.id)
   if (!inviteBase64) throw new Error(`Invitation for ${receiverUrl} was not found`)
+
+  await clearSmtp4devMessages()
 
   // Counterparty receives the invitation
   await fetchPost(`${receiverUrl}/connection/new/receive-invitation`, {
@@ -64,6 +66,8 @@ export async function withConnection(inviterUrl: string, receiverUrl: string) {
   const receiverEmail = await checkEmails('admin@veritable.com')
   const receiverPin = await extractPin(receiverEmail.id)
   if (!receiverPin) throw new Error(`PIN for ${inviterUrl} was not found.`)
+
+  await clearSmtp4devMessages()
 
   // Get the connection id for the counterparty at the original inviter
   const connections = await fetchGet(`${inviterUrl}/connection?search=OFFSHORE`)

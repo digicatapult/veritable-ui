@@ -12,15 +12,15 @@ test.describe('Connection via NY State Registry', () => {
   const baseUrlAlice = process.env.VERITABLE_ALICE_PUBLIC_URL || 'http://localhost:3000'
   const baseUrlCharlie = process.env.VERITABLE_CHARLIE_PUBLIC_URL || 'http://localhost:3002'
 
-  test.beforeEach(async ({ browser }) => {
+  test.beforeAll(async ({ browser }) => {
     context = await browser.newContext()
     page = await context.newPage()
     await withRegisteredAccount(page, context, baseUrlAlice)
     await withLoggedInUser(page, context, baseUrlAlice)
   })
 
-  test.afterEach(async () => {
-    await cleanup([baseUrlAlice, baseUrlCharlie])
+  test.afterAll(async () => {
+    await clearSmtp4devMessages()
     await page.close()
     await context.close()
   })
@@ -66,7 +66,7 @@ test.describe('Connection via NY State Registry', () => {
 
     await test.step('Charlie submits invite and pin', async () => {
       if (!invite) throw new Error('Invitation for Charlie was not found.')
-      await page.goto(`${baseUrlCharlie}/connection`, { waitUntil: 'networkidle' })
+      await clearSmtp4devMessages()
 
       // Fill in invite without last character, then enter last character to simulate typing
       const contentWithoutLastChar = invite!.slice(0, -1)
