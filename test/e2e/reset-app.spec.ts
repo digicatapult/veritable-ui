@@ -7,27 +7,27 @@ test.describe('Resetting app', () => {
   let context: CustomBrowserContext
   let page: Page
 
-  const baseUrlAlice = process.env.VERITABLE_ALICE_PUBLIC_URL || 'http://localhost:3000'
-  const baseUrlBob = process.env.VERITABLE_BOB_PUBLIC_URL || 'http://localhost:3001'
+  const AliceHost = process.env.VERITABLE_ALICE_PUBLIC_URL || 'http://localhost:3000'
+  const BobHost = process.env.VERITABLE_BOB_PUBLIC_URL || 'http://localhost:3001'
 
   test.beforeEach(async ({ browser }) => {
     test.setTimeout(15000) // withConnection() can take 7sec to complete
     context = await browser.newContext()
     page = await context.newPage()
-    await withRegisteredAccount(page, context, baseUrlAlice)
-    await withLoggedInUser(page, context, baseUrlAlice)
-    await withConnection(baseUrlAlice, baseUrlBob)
+    await withRegisteredAccount(page, context, AliceHost)
+    await withLoggedInUser(page, context, AliceHost)
+    await withConnection(AliceHost, BobHost)
   })
 
   test.afterEach(async () => {
-    await cleanup([baseUrlAlice, baseUrlBob])
+    await cleanup([AliceHost, BobHost])
     await page.close()
     await context.close()
   })
 
   test('Reset all on Alice', async () => {
     await test.step('Check there is a connection', async () => {
-      await page.goto(`${baseUrlAlice}`, { waitUntil: 'networkidle' })
+      await page.goto(`${AliceHost}`, { waitUntil: 'networkidle' })
 
       const selector = page.getByRole('link', { name: 'connections', exact: true })
       await expect(selector).toBeVisible()
@@ -54,7 +54,7 @@ test.describe('Resetting app', () => {
     })
 
     await test.step('Check there are no connections on Alice', async () => {
-      await page.goto(`${baseUrlAlice}/connection`, { waitUntil: 'networkidle' })
+      await page.goto(`${AliceHost}/connection`, { waitUntil: 'networkidle' })
       await page.waitForSelector('text=No Connections for that search query. Try again or add a new connection')
     })
   })

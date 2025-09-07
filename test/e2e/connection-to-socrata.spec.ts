@@ -1,6 +1,6 @@
 import { expect, Page, test } from '@playwright/test'
 import { cleanup, CustomBrowserContext, withLoggedInUser, withRegisteredAccount } from '../helpers/registerLogIn.js'
-import { checkEmails, extractInvite, extractPin } from '../helpers/smtpEmails.js'
+import { checkEmails, clearSmtp4devMessages, extractInvite, extractPin } from '../helpers/smtpEmails.js'
 
 test.describe('Connection via NY State Registry', () => {
   let context: CustomBrowserContext
@@ -9,25 +9,26 @@ test.describe('Connection via NY State Registry', () => {
   let pinForCharlie: string
   let pinForAlice: string
 
-  const baseUrlAlice = process.env.VERITABLE_ALICE_PUBLIC_URL || 'http://localhost:3000'
-  const baseUrlCharlie = process.env.VERITABLE_CHARLIE_PUBLIC_URL || 'http://localhost:3002'
+  const AliceHost = process.env.VERITABLE_ALICE_PUBLIC_URL || 'http://localhost:3000'
+  const CharlieHost = process.env.VERITABLE_CHARLIE_PUBLIC_URL || 'http://localhost:3002'
 
   test.beforeAll(async ({ browser }) => {
     context = await browser.newContext()
     page = await context.newPage()
-    await withRegisteredAccount(page, context, baseUrlAlice)
-    await withLoggedInUser(page, context, baseUrlAlice)
+    await withRegisteredAccount(page, context, AliceHost)
+    await withLoggedInUser(page, context, AliceHost)
   })
 
   test.afterAll(async () => {
     await clearSmtp4devMessages()
+    await cleanup([AliceHost, CharlieHost])
     await page.close()
     await context.close()
   })
 
   test('Connection from Alice to Charlie', async () => {
     await test.step('Alice invites Charlie to connect', async () => {
-      await page.goto(`${baseUrlAlice}`, { waitUntil: 'networkidle' })
+      await page.goto(`${AliceHost}`, { waitUntil: 'networkidle' })
       await page.click('a[href="/connection"]', { delay: 100 })
 
       const button = page.getByRole('link', { name: 'Invite New Connection' })
@@ -67,6 +68,7 @@ test.describe('Connection via NY State Registry', () => {
     await test.step('Charlie submits invite and pin', async () => {
       if (!invite) throw new Error('Invitation for Charlie was not found.')
       await clearSmtp4devMessages()
+      await page.goto(`${CharlieHost}/connection`, { waitUntil: 'networkidle' })
 
       // Fill in invite without last character, then enter last character to simulate typing
       const contentWithoutLastChar = invite!.slice(0, -1)
@@ -105,7 +107,7 @@ test.describe('Connection via NY State Registry', () => {
     })
 
     await test.step('Alice submits her PIN', async () => {
-      await page.goto(`${baseUrlAlice}/connection`, { waitUntil: 'networkidle' })
+      await page.goto(`${AliceHost}/connection`, { waitUntil: 'networkidle' })
 
       const hrefRegex = /\/connection\/[0-9a-fA-F-]{36}\/pin-submission/
       const hrefElement = page.locator(`a[href*="/connection/"][href*="/pin-submission"]`)
