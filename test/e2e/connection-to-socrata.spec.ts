@@ -2,7 +2,7 @@ import { expect, Page, test } from '@playwright/test'
 import { cleanup, CustomBrowserContext, withLoggedInUser, withRegisteredAccount } from '../helpers/registerLogIn.js'
 import { checkEmails, extractInvite, extractPin } from '../helpers/smtpEmails.js'
 
-test.describe('Connection to NY State Registry', () => {
+test.describe('Connection via NY State Registry', () => {
   let context: CustomBrowserContext
   let page: Page
   let invite: string | null
