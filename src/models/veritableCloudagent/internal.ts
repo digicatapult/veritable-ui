@@ -266,7 +266,7 @@ export default class VeritableCloudagentInt<Config extends CloudagentConfig = De
 
   public async closeConnection(connectionId: UUID, deleteConnectionRecord?: boolean): Promise<void> {
     let url = `/v1/connections/${connectionId}`
-    if (typeof deleteConnectionRecord === 'boolean') {
+    if (deleteConnectionRecord !== undefined) {
       url += `?deleteConnectionRecord=${deleteConnectionRecord}`
     }
     return this.deleteRequest(url, () => {})
