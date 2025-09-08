@@ -269,7 +269,7 @@ export default class VeritableCloudagentInt<Config extends CloudagentConfig = De
     if (deleteConnectionRecord !== undefined) {
       url += `?deleteConnectionRecord=${deleteConnectionRecord}`
     }
-    await this.deleteRequest(url, () => {})
+    return this.deleteRequest(url, () => {})
   }
 
   /*----------------------- Credentials ---------------------------------*/
