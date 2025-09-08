@@ -144,7 +144,9 @@ export const Page = (props: PropsWithChildren<PageProps>): JSX.Element => (
       <head>
         <script src="/lib/htmx.org/htmx.min.js"></script>
         <script src="/lib/htmx-ext-json-enc/json-enc.js"></script>
+        <script src="/lib/htmx-ext-response-targets/response-targets.js"></script>
         <script src="/public/scripts/auth-redirect.js"></script>
+        <script src="/public/scripts/events.js" type="module"></script>
         <link rel="icon" type="image/ico" href="/public/images/favicon-dark.ico" media="(prefers-color-scheme: dark)" />
         <link
           rel="icon"
@@ -153,12 +155,14 @@ export const Page = (props: PropsWithChildren<PageProps>): JSX.Element => (
           media="(prefers-color-scheme: light), (prefers-color-scheme: no-preference)"
         />
         <link rel="stylesheet" type="text/css" href="/public/styles/main.css" />
+        <link rel="stylesheet" type="text/css" href="/public/styles/toast.css" />
         {(props.stylesheets || []).map((sheetName: JSX.Element) => (
           <link rel="stylesheet" type="text/css" href={`/public/styles/${sheetName}`} />
         ))}
         <title>{escapeHtml(props.title)}</title>
       </head>
-      <body hx-ext="json-enc">
+      <body hx-ext="json-enc, response-targets" hx-target-error="#toast-container">
+        <div id="toast-container"></div>
         <SideBar activePage={props.activePage} />
         <main>
           {props.heading ? (

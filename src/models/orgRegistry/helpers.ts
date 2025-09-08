@@ -23,8 +23,12 @@ export const makeOrganisationRegistryRequest = async (
     method: 'GET',
     headers,
   })
+  const contentType = response.headers.get('content-type')
   if (response.ok) {
-    return response.json()
+    if (contentType && contentType.includes('application/json')) {
+      return response.json()
+    }
+    throw new InternalError(`Unexpected content-type ${contentType} from ${registryName} API`)
   }
 
   if (response.status === 404) {
