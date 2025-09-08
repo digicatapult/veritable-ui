@@ -20,7 +20,6 @@ test.describe('Connection via Open Corporates', () => {
   })
 
   test.afterAll(async () => {
-    await clearSmtp4devMessages()
     await cleanup([AliceHost, DaveHost])
     await page.close()
     await context.close()
@@ -67,11 +66,11 @@ test.describe('Connection via Open Corporates', () => {
       pinForDave = extractedPin
       invite = await extractInvite(inviteEmail.id)
       if (!invite) throw new Error('Invitation for Dave was not found.')
+      await clearSmtp4devMessages()
     })
 
     await test.step('Dave submits invite and pin', async () => {
       if (!invite) throw new Error('Invitation for Dave was not found.')
-      await clearSmtp4devMessages()
       await page.goto(`${DaveHost}/connection`, { waitUntil: 'networkidle' })
 
       // Fill in invite without last character, then enter last character to simulate typing
@@ -106,7 +105,7 @@ test.describe('Connection via Open Corporates', () => {
       const extractedPin = await extractPin(newAdminEmail.id)
       expect(extractedPin).toHaveLength(6)
       if (!extractedPin) throw new Error('PIN from admin email was not found.')
-
+      await clearSmtp4devMessages()
       pinForAlice = extractedPin
     })
 

@@ -20,7 +20,6 @@ test.describe('Connection from Alice to Bob', () => {
   })
 
   test.afterAll(async () => {
-    await clearSmtp4devMessages()
     await cleanup([AliceHost, BobHost])
     await page.close()
     await context.close()
@@ -64,11 +63,11 @@ test.describe('Connection from Alice to Bob', () => {
       pinForBob = extractedPin
       invite = await extractInvite(inviteEmail.id)
       if (!invite) throw new Error('Invitation for Bob was not found.')
+      await clearSmtp4devMessages()
     })
 
     await test.step('Bob submits invite and pin', async () => {
       if (!invite) throw new Error('Invitation for Charlie was not found.')
-      await clearSmtp4devMessages()
       await page.goto(`${BobHost}/connection`, { waitUntil: 'networkidle' })
 
       // Fill in invite without last character, then enter last character to simulate typing
@@ -103,7 +102,7 @@ test.describe('Connection from Alice to Bob', () => {
       const extractedPin = await extractPin(newAdminEmail.id)
       expect(extractedPin).toHaveLength(6)
       if (!extractedPin) throw new Error('PIN from admin email was not found.')
-
+      await clearSmtp4devMessages()
       pinForAlice = extractedPin
     })
 
