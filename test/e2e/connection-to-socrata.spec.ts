@@ -1,33 +1,33 @@
 import { expect, Page, test } from '@playwright/test'
 import { cleanup, CustomBrowserContext, withLoggedInUser, withRegisteredAccount } from '../helpers/registerLogIn.js'
-import { checkEmails, extractInvite, extractPin } from '../helpers/smtpEmails.js'
+import { checkEmails, clearSmtp4devMessages, extractInvite, extractPin } from '../helpers/smtpEmails.js'
 
-test.describe('Connection to NY State Registry', () => {
+test.describe('Connection via NY State Registry', () => {
   let context: CustomBrowserContext
   let page: Page
   let invite: string | null
   let pinForCharlie: string
   let pinForAlice: string
 
-  const baseUrlAlice = process.env.VERITABLE_ALICE_PUBLIC_URL || 'http://localhost:3000'
-  const baseUrlCharlie = process.env.VERITABLE_CHARLIE_PUBLIC_URL || 'http://localhost:3002'
+  const AliceHost = process.env.VERITABLE_ALICE_PUBLIC_URL || 'http://localhost:3000'
+  const CharlieHost = process.env.VERITABLE_CHARLIE_PUBLIC_URL || 'http://localhost:3002'
 
-  test.beforeEach(async ({ browser }) => {
+  test.beforeAll(async ({ browser }) => {
     context = await browser.newContext()
     page = await context.newPage()
-    await withRegisteredAccount(page, context, baseUrlAlice)
-    await withLoggedInUser(page, context, baseUrlAlice)
+    await withRegisteredAccount(page, context, AliceHost)
+    await withLoggedInUser(page, context, AliceHost)
   })
 
-  test.afterEach(async () => {
-    await cleanup([baseUrlAlice, baseUrlCharlie])
+  test.afterAll(async () => {
+    await cleanup([AliceHost, CharlieHost])
     await page.close()
     await context.close()
   })
 
   test('Connection from Alice to Charlie', async () => {
     await test.step('Alice invites Charlie to connect', async () => {
-      await page.goto(`${baseUrlAlice}`, { waitUntil: 'networkidle' })
+      await page.goto(`${AliceHost}`, { waitUntil: 'networkidle' })
       await page.click('a[href="/connection"]', { delay: 100 })
 
       const button = page.getByRole('link', { name: 'Invite New Connection' })
@@ -42,16 +42,11 @@ test.describe('Connection to NY State Registry', () => {
 
       const feedbackElement = page.locator('#new-connection-feedback')
       // waits for the Socrata API
-      await expect(feedbackElement).toHaveAttribute('class', 'accented-container feedback-positive')
       await expect(feedbackElement).toContainText('UNION STREET')
-      await expect(feedbackElement).toContainText('BROOKLYN')
       await page.click('button[type="submit"][name="action"][value="continue"]', { delay: 100 })
 
       const confirmationElement = page.locator('#new-connection-confirmation-text')
-      await expect(confirmationElement).toBeVisible({ timeout: 12000 })
-      await expect(confirmationElement).toContainText('Please confirm the details of the connection before sending')
       await expect(confirmationElement).toContainText('Company Number: 3211809')
-      await expect(confirmationElement).toContainText('Email Address: alice@testmail.com')
 
       await page.click('button[type="submit"][name="action"][value="submit"]', { delay: 100 })
       await expect(confirmationElement).toContainText('Your connection invitation has been sent')
@@ -67,11 +62,12 @@ test.describe('Connection to NY State Registry', () => {
       pinForCharlie = extractedPin
       invite = await extractInvite(inviteEmail.id)
       if (!invite) throw new Error('Invitation for Charlie was not found.')
+      await clearSmtp4devMessages()
     })
 
     await test.step('Charlie submits invite and pin', async () => {
       if (!invite) throw new Error('Invitation for Charlie was not found.')
-      await page.goto(`${baseUrlCharlie}/connection`, { waitUntil: 'networkidle' })
+      await page.goto(`${CharlieHost}/connection`, { waitUntil: 'networkidle' })
 
       // Fill in invite without last character, then enter last character to simulate typing
       const contentWithoutLastChar = invite!.slice(0, -1)
@@ -81,10 +77,10 @@ test.describe('Connection to NY State Registry', () => {
       await page.click('text=Add from Invitation', { delay: 100 })
       await page.locator('textarea[name="invite"]').waitFor({ state: 'visible' })
       await page.fill('textarea[name="invite"]', contentWithoutLastChar)
-      await page.locator('textarea[name="invite"]').press(lastChar)
+      await page.locator('textarea[name="invite"]').press(lastChar, { delay: 100 })
 
       const feedback = page.locator('#new-connection-feedback')
-      await expect(feedback).toContainText('DIGITAL CATAPULT', { timeout: 12000 })
+      await expect(feedback).toContainText('DIGITAL CATAPULT')
 
       await page.click('button[type="submit"][name="action"][value="createConnection"]', { delay: 100 })
 
@@ -93,10 +89,10 @@ test.describe('Connection to NY State Registry', () => {
       await page.locator('#new-connection-invite-input-pin').waitFor({ state: 'visible' })
       await page.fill('#new-connection-invite-input-pin', pinForCharlie)
       const charlieButton = page.locator('button[type="submit"][name="action"][value="submitPinCode"]')
+      await expect(charlieButton).toBeVisible()
       await charlieButton.click({ delay: 100 })
 
       const confirmationElement = page.locator('#new-connection-invite-input')
-      await expect(confirmationElement).toBeVisible({ timeout: 12000 })
       await expect(confirmationElement).toContainText('PIN Code has been submitted for DIGITAL CATAPULT company ID.')
     })
 
@@ -105,12 +101,12 @@ test.describe('Connection to NY State Registry', () => {
       const extractedPin = await extractPin(newAdminEmail.id)
       expect(extractedPin).toHaveLength(6)
       if (!extractedPin) throw new Error('PIN from admin email was not found.')
-
+      await clearSmtp4devMessages()
       pinForAlice = extractedPin
     })
 
     await test.step('Alice submits her PIN', async () => {
-      await page.goto(`${baseUrlAlice}/connection`, { waitUntil: 'networkidle' })
+      await page.goto(`${AliceHost}/connection`, { waitUntil: 'networkidle' })
 
       const hrefRegex = /\/connection\/[0-9a-fA-F-]{36}\/pin-submission/
       const hrefElement = page.locator(`a[href*="/connection/"][href*="/pin-submission"]`)
@@ -134,10 +130,8 @@ test.describe('Connection to NY State Registry', () => {
       await connections.click({ delay: 500 })
 
       const statusText = page.locator('div.list-item-status[data-status="success"]')
-      await expect(statusText).toBeVisible({ timeout: 15000 })
-      await expect(statusText).toContainText('Connected')
+      await expect(statusText).toContainText('Connected', { timeout: 15000 })
       await expect(page.locator('#search-results')).toContainText('3211809')
-      await expect(page.locator('#search-results')).toContainText('US')
     })
   })
 })

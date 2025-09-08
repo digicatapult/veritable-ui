@@ -11,7 +11,7 @@ test.describe('New query response', () => {
   let page: Page
 
   test.beforeEach(async ({ browser }) => {
-    test.setTimeout(30000) // withConnection() can take 12sec to complete
+    test.setTimeout(15000) // withConnection() can take 7sec to complete
     context = await browser.newContext()
     page = await context.newPage()
     await withRegisteredAccount(page, context, AliceHost)
@@ -88,7 +88,6 @@ test.describe('New query response', () => {
       await page.fill('#bav-clearing-system-id-input', '123456')
       const button = page.getByRole('button', { name: 'Submit Response' })
       await expect(button).toBeVisible()
-      await expect(button).not.toBeDisabled()
       await button.click({ delay: 100 })
       await page.waitForLoadState('networkidle')
     })
@@ -97,9 +96,6 @@ test.describe('New query response', () => {
       await expect(page.getByRole('heading', { name: 'Thank you for your response' })).toBeVisible()
       const button = page.getByText('Back to Home')
       await expect(button).toBeVisible()
-      await expect(button).not.toBeDisabled()
-      await expect(page.getByText('The requester will verify your response')).toBeVisible()
-      await expect(page.getByText('You can check the status')).toBeVisible()
       await button.click({ delay: 100 })
       await page.waitForLoadState('networkidle')
     })

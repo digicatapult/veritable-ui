@@ -11,7 +11,7 @@ test.describe('New query request', () => {
   let page: Page
 
   test.beforeEach(async ({ browser }) => {
-    test.setTimeout(30000) // withConnection() can take 12sec to complete
+    test.setTimeout(15000) // withConnection() can take 7sec to complete
     context = await browser.newContext()
     page = await context.newPage()
     await withRegisteredAccount(page, context, AliceHost)

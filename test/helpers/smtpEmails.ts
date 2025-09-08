@@ -104,7 +104,7 @@ export async function extractInvite(emailId: string): Promise<string | null> {
   }
 }
 
-export async function clearSmtp4devMessages() {
+export async function clearSmtp4devMessages(): Promise<boolean> {
   return new Promise((resolve, reject) => {
     const options = {
       hostname: 'localhost',
