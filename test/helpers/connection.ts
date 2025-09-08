@@ -57,6 +57,7 @@ export type ThreePartyContext = {
 }
 
 export async function setupTwoPartyContext(context: TwoPartyContext) {
+  context.cloudagentEvents = container.resolve(VeritableCloudagentEvents)
   context.smtpServer = container.resolve(EmailService)
   context.localCloudagent = container.resolve(VeritableCloudagent)
   context.localDatabase = container.resolve(Database)
@@ -69,6 +70,7 @@ export async function setupTwoPartyContext(context: TwoPartyContext) {
 }
 
 export async function setupThreePartyContext(context: ThreePartyContext) {
+  context.cloudagentEvents = container.resolve(VeritableCloudagentEvents)
   context.smtpServer = container.resolve(EmailService)
   context.agent = {
     alice: container.resolve(VeritableCloudagent),

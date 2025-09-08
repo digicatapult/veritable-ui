@@ -3,7 +3,7 @@ import chaiAsPromised from 'chai-as-promised'
 import { afterEach, beforeEach, describe, it } from 'mocha'
 import sinon from 'sinon'
 import { CountryCode } from '../../src/models/stringTypes.js'
-import { cleanupCloudagent, cleanupDatabase } from '../helpers/cleanup.js'
+import { testCleanup } from '../helpers/cleanup.js'
 import { setupTwoPartyContext, TwoPartyContext } from '../helpers/connection.js'
 import { alice, nyStateCompany, openCorporatesCompany } from '../helpers/fixtures.js'
 import { post } from '../helpers/routeHelper.js'
@@ -17,14 +17,17 @@ const expect = chai.expect
 describe('NewConnectionController', () => {
   const context: TwoPartyContext = {} as TwoPartyContext
 
-  beforeEach(async () => {
+  before(async () => {
     await setupTwoPartyContext(context)
   })
 
   afterEach(async () => {
+    await testCleanup(context.localCloudagent, context.localDatabase)
+    await testCleanup(context.remoteCloudagent, context.remoteDatabase)
+  })
+
+  after(async () => {
     context.cloudagentEvents.stop()
-    await cleanupCloudagent([context.localCloudagent, context.remoteCloudagent])
-    await cleanupDatabase([context.localDatabase, context.remoteDatabase])
   })
 
   describe('create invitation (happy path)', function () {
