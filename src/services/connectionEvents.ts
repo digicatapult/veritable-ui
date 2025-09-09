@@ -40,8 +40,6 @@ export default class ConnectionEvents {
           cloudAgentConnectionId,
           connectionState
         )
-        this.cloudagent.closeConnection(cloudAgentConnectionId)
-        this.logger.warn('Hangup message automatically sent to connection %s', cloudAgentConnectionId)
         return
       }
 

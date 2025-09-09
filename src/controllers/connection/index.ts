@@ -90,7 +90,7 @@ export class ConnectionController extends HTMLController {
    * Retrieves the disconnect connection page
    */
   @SuccessResponse(200)
-  @Get('/disconnect/{connectionId}') // TOD0: change to delete?
+  @Get('/disconnect/{connectionId}')
   public async disconnectConnection(
     @Request() req: express.Request,
     @Path() connectionId: UUID,
@@ -104,13 +104,15 @@ export class ConnectionController extends HTMLController {
     }
 
     // delete connection from cloudagent
-
-    await this.cloudagent.deleteConnection(connectionId)
+    if (!connection.agent_connection_id)
+      throw new InvalidInputError('Cannot disconnect connection with no agent connection id')
+    await this.cloudagent.closeConnection(connection.agent_connection_id, disconnect)
     // mark connection as disconnected in db
     await this.db.update('connection', { id: connectionId }, { status: 'disconnected' })
+    const [disconnectedConnection]: ConnectionRow[] = await this.db.get('connection', { id: connectionId })
 
-    req.log.debug('returning connections page %j', { connection })
-    return this.html(this.connectionTemplates.profilePage(connection))
+    req.log.debug('returning connections page %j', { disconnectedConnection })
+    return this.html(this.connectionTemplates.profilePage(disconnectedConnection))
   }
 
   /**

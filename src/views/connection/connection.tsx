@@ -12,10 +12,12 @@ const statusToAction = (
   switch (status) {
     case 'pending':
     case 'verified_us':
+    case 'disconnected':
+    case 'verified_both':
       return {
-        disabled: true,
-        href: '#',
-        text: 'Waiting for Response',
+        disabled: false,
+        href: `/connection/profile/${connectionId}`,
+        text: 'View Connection',
       }
     case 'unverified':
     case 'verified_them':
@@ -27,21 +29,9 @@ const statusToAction = (
         }
       }
       return {
-        disabled: true,
-        href: '#',
-        text: 'Pin Attempts Exhausted',
-      }
-    case 'disconnected':
-      return {
-        disabled: true,
-        href: '#',
-        text: 'Disconnected',
-      }
-    case 'verified_both':
-      return {
         disabled: false,
         href: `/connection/profile/${connectionId}`,
-        text: 'View Connection',
+        text: 'Pin Attempts Exhausted',
       }
   }
 }
@@ -177,17 +167,23 @@ export default class ConnectionTemplates {
                 </b>
                 {Html.escapeHtml(connection.updated_at.toLocaleDateString())}
               </div>
+              {connection.status == 'disconnected' ? (
+                <small id="disconnect-btn-warning">This connection has been disconnected</small>
+              ) : (
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: '10px' }}>
+                  <a
+                    id="disconnect-btn"
+                    href={`/connection/disconnect/${Html.escapeHtml(connection.id)}`}
+                    data-variant={'filled'}
+                  >
+                    <span>Disconnect</span>
+                  </a>
+                  <small id="disconnect-btn-warning">
+                    This action will revoke connection with {Html.escapeHtml(connection.company_name)}
+                  </small>
+                </div>
+              )}
 
-              <a
-                id="disconnect-btn"
-                href={`/connection/disconnect/${Html.escapeHtml(connection.id)}`}
-                data-variant={'filled'}
-              >
-                <span>Disconnect</span>
-              </a>
-              <small id="disconnect-btn-warning">
-                This action will revoke connection with {Html.escapeHtml(connection.company_name)}
-              </small>
               {bankDetails ? (
                 <safe>
                   <div id="profile-form-bank">
@@ -245,8 +241,19 @@ export default class ConnectionTemplates {
           </p>
           <p>If you wish to reconnect later, you will need to restart the verification process.</p>
           <div id="disconnect-buttons">
-            <LinkButton style="outlined" text="Disconnect" href={`/connection/disconnect/${connection.id}`} />
-            <LinkButton style="filled" text="Cancel" href={`/connection/disconnect/${connection.id}?disconnect=true`} />
+            {/* <LinkButton
+              style="outlined"
+              text="Disconnect"
+              href={`/connection/disconnect/${connection.id}?disconnect=true`}
+            /> */}
+            <a
+              id="disconnect-btn"
+              href={`/connection/disconnect/${connection.id}?disconnect=true`}
+              data-variant={'filled'}
+            >
+              <span>Disconnect</span>
+            </a>
+            <LinkButton style="filled" text="Cancel" href={`/connection/profile/${connection.id}`} />
           </div>
         </div>
       </Page>

@@ -126,6 +126,7 @@ export const validConnection: ConnectionRow = {
   pin_tries_remaining_count: 0,
   registry_country_code: 'GB' as CountryCode,
   registry_code: 'company_house' as RegistryType,
+  address: 'ADDRESS_LINE_1, ADDRESS_LINE_2, COUNTRY, LOCALITY, PO_BOX, POSTAL_CODE, REGION',
 }
 
 export const validCompanyMap: Record<string, typeof validCompany> = {
