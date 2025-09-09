@@ -16,6 +16,9 @@ export async function up(knex: Knex): Promise<void> {
   await knex.schema.alterTable('connection', (def) => {
     def.string('registry_country_code').defaultTo('GB').nullable()
   })
+  await knex.schema.alterTable('connection', (def) => {
+    def.string('registry_country_code').notNullable().alter()
+  })
 }
 
 export async function down(knex: Knex): Promise<void> {
