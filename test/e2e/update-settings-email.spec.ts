@@ -6,17 +6,17 @@ test.describe('Updating Settings - email', () => {
   let context: CustomBrowserContext
   let page: Page
 
-  const baseUrlAlice = process.env.VERITABLE_ALICE_PUBLIC_URL || 'http://localhost:3000'
+  const AliceHost = process.env.VERITABLE_ALICE_PUBLIC_URL || 'http://localhost:3000'
 
   test.beforeEach(async ({ browser }) => {
     context = await browser.newContext()
     page = await context.newPage()
-    await withRegisteredAccount(page, context, baseUrlAlice)
-    await withLoggedInUser(page, context, baseUrlAlice)
+    await withRegisteredAccount(page, context, AliceHost)
+    await withLoggedInUser(page, context, AliceHost)
   })
 
   test.afterEach(async () => {
-    await cleanup([baseUrlAlice])
+    await cleanup([AliceHost])
     await page.close()
     await context.close()
   })
@@ -24,7 +24,7 @@ test.describe('Updating Settings - email', () => {
   test('Update admin email on alice', async () => {
     await page.waitForSelector('a[href="/settings"]')
     await page.click('a[href="/settings"]', { delay: 100 })
-    await page.waitForURL(`${baseUrlAlice}/settings`)
+    await page.waitForURL(`${AliceHost}/settings`)
 
     await page.waitForSelector('input.edit-button')
     await page.click('input.edit-button', { delay: 100 })
@@ -43,7 +43,7 @@ test.describe('Updating Settings - email', () => {
   test('Check version id', async () => {
     await page.waitForSelector('a[href="/settings"]')
     await page.click('a[href="/settings"]', { delay: 100 })
-    await page.waitForURL(`${baseUrlAlice}/settings`)
+    await page.waitForURL(`${AliceHost}/settings`)
 
     await page.waitForSelector('#version-id')
     const versionId = await page.textContent('#version-id')

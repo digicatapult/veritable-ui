@@ -3,11 +3,12 @@ import 'reflect-metadata'
 import { RegistryType } from '../../src/models/db/types.js'
 import { CountryCode } from '../../src/models/stringTypes.js'
 import { fetchGet, fetchPost } from './routeHelper.js'
-import { checkEmails, extractInvite, extractPin } from './smtpEmails.js'
+import { checkEmails, clearSmtp4devMessages, extractInvite, extractPin } from './smtpEmails.js'
 import { delay } from './util.js'
 
 export async function withConnection(inviterUrl: string, receiverUrl: string) {
   const uuidRegex = /[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-4[0-9a-fA-F]{3}-[89ab][0-9a-fA-F]{3}-[0-9a-fA-F]{12}/g
+  let SEARCH_TERM: string
 
   // Create the invitation
   await fetchPost(`${inviterUrl}/connection/new/create-invitation`, {
@@ -27,6 +28,8 @@ export async function withConnection(inviterUrl: string, receiverUrl: string) {
   const inviteBase64 = await extractInvite(inviteEmail.id)
   if (!inviteBase64) throw new Error(`Invitation for ${receiverUrl} was not found`)
 
+  await clearSmtp4devMessages()
+
   // Counterparty receives the invitation
   await fetchPost(`${receiverUrl}/connection/new/receive-invitation`, {
     invite: inviteBase64,
@@ -34,18 +37,21 @@ export async function withConnection(inviterUrl: string, receiverUrl: string) {
   })
 
   // Confirm the local connection record has been created
-  let attempt = 0
+  SEARCH_TERM = 'DIGI'
   let inviterConnectionIdAtReceiver: string | undefined
-  while (attempt < 10) {
-    attempt++
-    await delay(1000)
-    const receiverConnection = await fetchGet(`${receiverUrl}/connection?search=DIGI`)
-    ;[inviterConnectionIdAtReceiver] = (await receiverConnection.text()).match(uuidRegex) || []
+
+  for (let attempt = 1; attempt <= 100; attempt++) {
+    await delay(100)
+    const res = await fetchGet(`${receiverUrl}/connection?search=${SEARCH_TERM}`)
+    const text = await res.text()
+    inviterConnectionIdAtReceiver = text.match(uuidRegex)?.[0]
+
     if (inviterConnectionIdAtReceiver) {
       break
     }
-    if (attempt === 10) {
-      throw new Error(`No connection ID after 10 retries at ${receiverUrl}`)
+
+    if (attempt === 100) {
+      throw new Error(`No connection ID after 100 retries at ${receiverUrl}`)
     }
   }
 
@@ -61,6 +67,8 @@ export async function withConnection(inviterUrl: string, receiverUrl: string) {
   const receiverPin = await extractPin(receiverEmail.id)
   if (!receiverPin) throw new Error(`PIN for ${inviterUrl} was not found.`)
 
+  await clearSmtp4devMessages()
+
   // Get the connection id for the counterparty at the original inviter
   const connections = await fetchGet(`${inviterUrl}/connection?search=OFFSHORE`)
   const [receiverConnectionIdAtInviter] = (await connections.text()).match(uuidRegex) || []
@@ -74,17 +82,19 @@ export async function withConnection(inviterUrl: string, receiverUrl: string) {
   })
 
   // Confirm the connection is successful at the original inviter
-  attempt = 0
-  while (attempt < 20) {
-    attempt++
-    await delay(2000) // Can take 10-12 seconds to connect
-    const inviterConnection = await fetchGet(`${inviterUrl}/connection?search=OFFSHORE`)
-    const [inviterConnectionStatus] = (await inviterConnection.text()).match(/data-status="success"/) || []
-    if (inviterConnectionStatus) {
-      break
+  SEARCH_TERM = 'OFFSHORE'
+
+  for (let attempt = 1; attempt <= 100; attempt++) {
+    await delay(100)
+    const res = await fetchGet(`${inviterUrl}/connection?search=${SEARCH_TERM}`)
+    const text = await res.text()
+
+    if (/data-status="success"/.test(text)) {
+      return
     }
-    if (attempt === 10) {
-      throw new Error(`Connection unsuccessful after 10 retries: ${inviterUrl}`)
+
+    if (attempt === 100) {
+      throw new Error(`Connection unsuccessful after 100 retries: ${inviterUrl}`)
     }
   }
 }

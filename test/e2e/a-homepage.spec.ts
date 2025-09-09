@@ -5,7 +5,7 @@ test.describe('Homepage redirect', () => {
   let context: CustomBrowserContext
   let page: Page
 
-  const baseUrlAlice = process.env.VERITABLE_ALICE_PUBLIC_URL || 'http://localhost:3000'
+  const AliceHost = process.env.VERITABLE_ALICE_PUBLIC_URL || 'http://localhost:3000'
   const baseKeycloakUrl = process.env.VERITABLE_KEYCLOAK_URL_PREFIX || 'http://localhost:3080'
 
   test.beforeEach(async ({ browser }) => {
@@ -14,14 +14,14 @@ test.describe('Homepage redirect', () => {
   })
 
   test.afterEach(async () => {
-    await cleanup([baseUrlAlice])
+    await cleanup([AliceHost])
     await page.close()
     await context.close()
   })
 
   test('successful login redirect', async ({ page }) => {
     const expectedUrl = `${baseKeycloakUrl}/realms/veritable/protocol/openid-connect/auth?response_type=code&client_id=veritable-ui&redirect_uri=http`
-    await page.goto(baseUrlAlice, { waitUntil: 'networkidle' })
+    await page.goto(AliceHost, { waitUntil: 'networkidle' })
     expect(page.url()).toContain(expectedUrl)
   })
 })

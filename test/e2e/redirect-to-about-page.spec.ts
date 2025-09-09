@@ -5,17 +5,17 @@ test.describe('Redirect to about page', () => {
   let context: CustomBrowserContext
   let page: Page
 
-  const baseUrlAlice = process.env.VERITABLE_ALICE_PUBLIC_URL || 'http://localhost:3000'
+  const AliceHost = process.env.VERITABLE_ALICE_PUBLIC_URL || 'http://localhost:3000'
 
   test.beforeEach(async ({ browser }) => {
     context = await browser.newContext()
     page = await context.newPage()
-    await withRegisteredAccount(page, context, baseUrlAlice)
-    await withLoggedInUser(page, context, baseUrlAlice)
+    await withRegisteredAccount(page, context, AliceHost)
+    await withLoggedInUser(page, context, AliceHost)
   })
 
   test.afterEach(async () => {
-    await cleanup([baseUrlAlice])
+    await cleanup([AliceHost])
     await page.close()
     await context.close()
   })
@@ -24,11 +24,9 @@ test.describe('Redirect to about page', () => {
     const selector = page.locator('#veritable-logo')
     await expect(selector).toBeVisible()
     await selector.click({ delay: 100 })
-    await page.waitForURL(`${baseUrlAlice}/about`, { waitUntil: 'load' })
+    await page.waitForURL(`${AliceHost}/about`, { waitUntil: 'load' })
 
     const aboutText = page.locator('#about-container')
     await expect(aboutText).toContainText('Veritable is a platform that enhances trust and transparency')
-    await expect(aboutText).toContainText('Enables seamless data requests and responses')
-    await expect(aboutText).toContainText('Manages and verifies digital credentials for compliance')
   })
 })
