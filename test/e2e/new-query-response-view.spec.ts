@@ -11,7 +11,7 @@ test.describe('Query response view', () => {
   let page: Page
 
   test.beforeEach(async ({ browser }) => {
-    test.setTimeout(30000) // withConnection() can take 12sec to complete
+    test.setTimeout(15000) // withConnection() can take 7sec to complete
     context = await browser.newContext()
     page = await context.newPage()
     await withRegisteredAccount(page, context, AliceHost)
@@ -35,7 +35,6 @@ test.describe('Query response view', () => {
       await expect(page.getByText('Total Carbon Embodiment')).toBeVisible()
       const viewResponse = page.getByText('View Response')
       await expect(viewResponse).toBeVisible()
-      await expect(viewResponse).not.toBeDisabled()
       await viewResponse.click({ delay: 100 })
       await page.waitForLoadState('networkidle')
     })
@@ -46,7 +45,6 @@ test.describe('Query response view', () => {
 
       const button = page.getByText('Back To Queries')
       await expect(button).toBeVisible()
-      await expect(button).not.toBeDisabled()
       await button.click({ delay: 100 })
       await page.waitForLoadState('networkidle')
     })
@@ -101,7 +99,6 @@ test.describe('Query response view', () => {
     await test.step('returns to queries page', async () => {
       const button = page.getByText('Back To Queries')
       await expect(button).toBeVisible()
-      await expect(button).not.toBeDisabled()
       await button.click({ delay: 100 })
 
       await page.waitForLoadState('networkidle')

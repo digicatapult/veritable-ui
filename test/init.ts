@@ -56,6 +56,7 @@ after(async function () {
   await stopContainers(bobUIContainer)
   await stopContainers(charlieUIContainer)
   await stopContainers(sharedContainers)
+
   await network.stop()
 })
 
