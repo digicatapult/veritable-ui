@@ -6,6 +6,7 @@ import { Env } from '../../../env/index.js'
 import { ILogger } from '../../../logger.js'
 import Database from '../../../models/db/index.js'
 import { ConnectionRow, RegistryType } from '../../../models/db/types.js'
+import { BavResFields } from '../../../models/drpc.js'
 import EmailService from '../../../models/emailService/index.js'
 import OrganisationRegistry, { OrganisationRequest } from '../../../models/orgRegistry/organisationRegistry.js'
 import { CountryCode, UUID } from '../../../models/stringTypes.js'
@@ -35,7 +36,7 @@ export const withConnectionMocks = (
   const templateMock = {
     listPage: (connections: ConnectionRow[]) =>
       templateFake('list', connections[0].company_name, connections[0].status),
-    profilePage: (connection: ConnectionRow, bankDetails?: any) =>
+    profilePage: (connection: ConnectionRow, bankDetails?: BavResFields) =>
       templateFake(
         'profilePage',
         connection.id,
@@ -47,7 +48,7 @@ export const withConnectionMocks = (
   }
   let connectionCallCount = 0
   const dbMock = {
-    get: (tableName: string, where?: Record<string, any>) => {
+    get: (tableName: string, where?: Record<string, string>) => {
       if (tableName === 'query' && where?.connection_id === 'someVerifiedId') {
         return [
           {

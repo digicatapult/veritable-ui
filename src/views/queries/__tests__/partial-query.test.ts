@@ -19,6 +19,7 @@ const connectionsExample: ConnectionRow[] = [{}, {}, {}, {}].map((_, i) => ({
   updated_at: sampleDate,
   registry_country_code: 'GB' as CountryCode,
   registry_code: 'company_house',
+  address: '123 Test Street, London, UK',
 }))
 
 const queryExample: QueryRow = {

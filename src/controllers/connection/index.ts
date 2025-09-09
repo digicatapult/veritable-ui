@@ -54,7 +54,6 @@ export class ConnectionController extends HTMLController {
   @Get('/profile/{connectionId}')
   public async connectionProfile(@Request() req: express.Request, @Path() connectionId: UUID): Promise<HTML> {
     const [connection]: ConnectionRow[] = await this.db.get('connection', { id: connectionId })
-    console.log('connection', connection)
     if (!connection) throw new NotFoundError(`[connection]: ${connectionId}`)
     const [accountDetails]: QueryRow[] = await this.db.get(
       'query',
@@ -66,8 +65,6 @@ export class ConnectionController extends HTMLController {
       [['updated_at', 'desc']]
     )
     if (accountDetails && accountDetails.status === 'resolved') {
-      console.log('accountDetails', accountDetails)
-
       const response = bavResponseData.parse(accountDetails.response)
       const object: BavResFields = {
         countryCode: response.countryCode,

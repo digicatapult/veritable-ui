@@ -3,7 +3,7 @@ import { testCleanup } from '../helpers/cleanup.js'
 import { setupTwoPartyContext, withEstablishedConnectionFromUs, type TwoPartyContext } from '../helpers/connection.js'
 import { get } from '../helpers/routeHelper.js'
 
-describe.only('integration tests for profile and disconnect page', function () {
+describe('integration tests for profile and disconnect page', function () {
   const context: TwoPartyContext = {} as TwoPartyContext
 
   before(async () => {
