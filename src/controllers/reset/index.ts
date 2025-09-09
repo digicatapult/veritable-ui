@@ -63,7 +63,6 @@ export class ResetController {
   public async reset(@Request() req: express.Request): Promise<{ statusCode: number }> {
     const DEMO_MODE = this.env.get('DEMO_MODE')
     if (!DEMO_MODE) {
-      req.log.info('bad request DEMO_MODE=%s', DEMO_MODE)
       throw new ForbiddenError('DEMO_MODE is false')
     }
 
@@ -85,7 +84,7 @@ export class ResetController {
         req.log.info('items to be deleted: %j', { credentials, connections, invites })
 
         for (const connection of connections) {
-          await this.cloudagent.deleteConnection(connection.id)
+          await this.cloudagent.closeConnection(connection.id, true)
         }
         for (const invite of invites) {
           await this.cloudagent.deleteOutOfBandInvite(invite.id)

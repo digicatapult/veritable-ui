@@ -1,5 +1,5 @@
 import { expect } from 'chai'
-import { cleanupCloudagent, cleanupDatabase } from '../helpers/cleanup.js'
+import { testCleanup } from '../helpers/cleanup.js'
 import { setupTwoPartyContext, type TwoPartyContext } from '../helpers/connection.js'
 import { get, post } from '../helpers/routeHelper.js'
 
@@ -22,8 +22,11 @@ describe('integration tests for settings page', function () {
     action: 'updateSettings',
   }
 
-  beforeEach(async () => {
+  before(async () => {
     await setupTwoPartyContext(context)
+  })
+
+  beforeEach(async () => {
     await context.localDatabase.insert('settings', {
       setting_key: 'admin_email',
       setting_value: 'admin@testmail.com',
@@ -31,9 +34,12 @@ describe('integration tests for settings page', function () {
   })
 
   afterEach(async () => {
+    await testCleanup(context.localCloudagent, context.localDatabase)
+    await testCleanup(context.remoteCloudagent, context.remoteDatabase)
+  })
+
+  after(async () => {
     context.cloudagentEvents.stop()
-    await cleanupCloudagent([context.localCloudagent, context.remoteCloudagent])
-    await cleanupDatabase([context.localDatabase, context.remoteDatabase])
   })
 
   describe('happy path', function () {

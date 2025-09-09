@@ -92,7 +92,7 @@ export class AuthController extends HTMLController {
       scope: 'openid',
     }).toString()
 
-    req.log.debug('login redirect to %s', redirect)
+    req.log.debug('login redirect to %s', redirect.toString())
     res.redirect(302, redirect.toString())
   }
 
@@ -117,7 +117,7 @@ export class AuthController extends HTMLController {
       ...(error ? { error } : {}),
     }).toString()
 
-    req.log.debug('Login callback will redirect to %s', redirect)
+    req.log.debug('Login callback will redirect to %s', redirect.toString())
 
     this.setHeader('Refresh', `0; url=${redirect.toString()}`)
     this.setStatus(200)
@@ -152,7 +152,7 @@ export class AuthController extends HTMLController {
     const redirect = cookieRedirect || `${this.env.get('PUBLIC_URL')}`
 
     if (error || !code) {
-      req.log.warn('unexpected error returned from keycloak error: %s code: %s', error, code)
+      req.log.warn(error, 'unexpected error returned from keycloak error or no code')
       // redirect to essentially retry the login flow. At some point we should maintain a count for these to then redirect to an error page
       res.redirect(302, redirect)
       return

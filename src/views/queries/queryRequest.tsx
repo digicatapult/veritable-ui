@@ -1,4 +1,5 @@
 import Html from '@kitajs/html'
+import isoCountries from 'i18n-iso-countries'
 import { singleton } from 'tsyringe'
 import { ConnectionRow, QueryType } from '../../models/db/types.js'
 import { FormButton, LinkButton, Page } from '../common.js'
@@ -95,7 +96,7 @@ export default class QueryRequestTemplates {
                 type="search"
                 name="search"
                 value={Html.escapeHtml(props.search)}
-                placeholder="Search"
+                placeholder="Search by company name"
                 hx-get={`/queries/new?type=${props.type}`}
                 hx-trigger="input changed delay:50ms, search"
                 hx-target="#search-results"
@@ -135,7 +136,7 @@ export default class QueryRequestTemplates {
                             name="connectionId"
                             value={connection.id}
                             disabled={connection.status !== 'verified_both'}
-                            aria-label="select connection id"
+                            aria-label={'Select ' + Html.escapeHtml(connection.company_name)}
                           />
                         </td>
                         <td>{Html.escapeHtml(connection.company_name)}</td>
@@ -236,22 +237,37 @@ export default class QueryRequestTemplates {
           <p class="query-form-text">Creates a query to verify a company's financial details.</p>
         </div>
         <div class="query-form-right">
-          <p>Request financial details from {Html.escapeHtml(props.connection.company_name)}</p>
+          <p class="heading">Request financial details from:</p>
+          <p class="heading">{Html.escapeHtml(props.connection.company_name)}</p>
+          <p class="no-margin">
+            Country:{' '}
+            <b>
+              {Html.escapeHtml(
+                isoCountries.getName(props.connection.registry_country_code, 'en', { select: 'official' })
+              )}
+              {'(' + Html.escapeHtml(props.connection.registry_country_code) + ')'}
+            </b>
+          </p>
+          <p class="no-margin">
+            Company Number: <b>{Html.escapeHtml(props.connection.company_number)}</b>
+          </p>
           <form id="bav" hx-post="/queries/bav" hx-select="main > *" hx-target="main" hx-swap="innerHTML">
             <input type="hidden" name="connectionId" value={props.connection.id} />
+            <p class="heading">Request Deadline</p>
             <div class="input-container">
-              <label for="datetime-input" class="input-label">
-                Request Deadline
-              </label>
               <input
                 id="datetime-input"
-                class="input-with-label"
+                class="input-basic"
                 type="datetime-local"
                 name="expiresAt"
                 required
                 min={new Date().toISOString().slice(0, -8)}
+                placeholder="01/01/2025, 00:00 am"
               />
             </div>
+            <p class="form-helper">
+              After clicking submit, a Beneficiary Account Validation request will be sent to the requested company
+            </p>
             <FormButton text="Submit Query" style="filled" />
           </form>
         </div>
@@ -262,7 +278,7 @@ export default class QueryRequestTemplates {
   private newQuerySuccess = (props: SuccessProps): JSX.Element => {
     return (
       <div id="new-query-confirmation-text">
-        <h1>Your Query has been sent!</h1>
+        <h4>Your Query has been sent!</h4>
         <p>Your query has been successfully shared with the following supplier:</p>
         <i>
           <p>{Html.escapeHtml(props.company.companyName)}</p>
@@ -273,7 +289,7 @@ export default class QueryRequestTemplates {
           for your convenience.
         </p>
         <p>You can check the status of your query in the Queries section of your dashboard.</p>
-        <LinkButton disabled={false} text="Back to Queries" href="/queries" icon={''} style="filled" />
+        <LinkButton disabled={false} text="Back to Home" href="/queries" icon={''} style="filled" />
       </div>
     )
   }

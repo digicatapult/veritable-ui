@@ -57,6 +57,7 @@ export type ThreePartyContext = {
 }
 
 export async function setupTwoPartyContext(context: TwoPartyContext) {
+  context.cloudagentEvents = container.resolve(VeritableCloudagentEvents)
   context.smtpServer = container.resolve(EmailService)
   context.localCloudagent = container.resolve(VeritableCloudagent)
   context.localDatabase = container.resolve(Database)
@@ -69,6 +70,7 @@ export async function setupTwoPartyContext(context: TwoPartyContext) {
 }
 
 export async function setupThreePartyContext(context: ThreePartyContext) {
+  context.cloudagentEvents = container.resolve(VeritableCloudagentEvents)
   context.smtpServer = container.resolve(EmailService)
   context.agent = {
     alice: container.resolve(VeritableCloudagent),
@@ -267,14 +269,12 @@ export const withVerifiedConnection = function (context: TwoPartyContext) {
     // Await completion of did exchange process
     const loopLimit = 100
     for (let i = 1; i <= loopLimit; i++) {
-      const connectionsLocal = await context.localDatabase.get('connection')
-      const connectionsRemote = await context.remoteDatabase.get('connection')
-      if (connectionsLocal[0].status === 'unverified' || connectionsRemote[0].status === 'unverified') {
-        continue
-      } else {
-        await delay(200)
+      const [connectionsLocal] = await context.localDatabase.get('connection')
+      const [connectionsRemote] = await context.remoteDatabase.get('connection')
+      if (connectionsLocal.status === 'unverified' && connectionsRemote.status === 'unverified') {
+        break
       }
-
+      await delay(200)
       if (i === loopLimit) {
         throw new Error('Timeout Error initialising connection')
       }
@@ -296,6 +296,8 @@ export async function withBobAndCharlie(context: ThreePartyContext) {
   })
   const invite = (emailSendStub.args.find(([name]) => name === 'connection_invite') || [])[1].invite
   const bobsInvite = JSON.parse(Buffer.from(invite, 'base64url').toString('utf8')).inviteUrl
+
+  emailSendStub.restore()
 
   const [{ id: aliceConnectionId }] = await context.db.alice.get('connection')
   context.aliceConnectionId = aliceConnectionId
@@ -373,7 +375,18 @@ export async function withBobAndCharlie(context: ThreePartyContext) {
     validity: 'valid',
   })
 
-  await delay(300)
+  // Await completion of did exchange process (Charlie comes last)
+  const loopLimit = 100
+  for (let i = 1; i <= loopLimit; i++) {
+    const [connectionsCharlie] = await context.db.charlie.get('connection', { id: withBob.id })
+    if (connectionsCharlie.status === 'unverified') {
+      break
+    }
+    await delay(200)
+    if (i === loopLimit) {
+      throw new Error('Timeout Error initialising connection')
+    }
+  }
 
   await context.db.alice.update('connection', { id: context.aliceConnectionId }, { status: 'verified_both' })
   await context.db.bob.update('connection', { id: withAlice.id }, { status: 'verified_both' })
@@ -382,6 +395,4 @@ export async function withBobAndCharlie(context: ThreePartyContext) {
 
   context.bobsConnections = { withAlice, withCharlie }
   context.charliesConnections = { withBob }
-
-  emailSendStub.restore()
 }
