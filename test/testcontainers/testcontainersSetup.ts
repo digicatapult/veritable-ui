@@ -23,9 +23,10 @@ export const network = await startNetwork()
 
 async function startNetwork() {
   const network = containerRuntimeClient.network.getById(networkName)
+  // only way to check network exists + running is to try to inspect it
   try {
     await network.inspect()
-  } catch (e) {
+  } catch {
     await containerRuntimeClient.network.create({ Name: networkName })
   }
 
