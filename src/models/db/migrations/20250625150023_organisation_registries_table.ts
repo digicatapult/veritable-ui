@@ -14,10 +14,7 @@ export async function up(knex: Knex): Promise<void> {
     def.datetime('updated_at').notNullable().defaultTo(now())
   })
   await knex.schema.alterTable('connection', (def) => {
-    def.string('registry_country_code').defaultTo('GB').nullable()
-  })
-  await knex.schema.alterTable('connection', (def) => {
-    def.string('registry_country_code').notNullable().alter()
+    def.string('registry_country_code').defaultTo('GB').notNullable()
   })
 }
 
