@@ -7,8 +7,10 @@ export async function up(knex: Knex): Promise<void> {
         useNative: true,
         enumName: 'registry_type',
       })
-      .notNullable()
+      .defaultTo('company_house')
+      .nullable()
   })
+
   await knex.schema.dropTable('organisation_registries')
 }
 
