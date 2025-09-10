@@ -14,8 +14,7 @@
 }
 @font-face {
   font-family: 'Roboto';
-  src: url('/public/fonts/Roboto-ThinItalic.woff2') format('woff2'),
-       url('/public/fonts/Roboto-ThinItalic.woff') format('woff');
+  src: url('/public/fonts/Roboto-ThinItalic.woff2') format('woff2');
   font-weight: 100;
   font-style: italic;
 }
@@ -30,8 +29,7 @@
 }
 @font-face {
   font-family: 'Roboto';
-  src: url('/public/fonts/Roboto-LightItalic.woff2') format('woff2'),
-       url('/public/fonts/Roboto-LightItalic.woff') format('woff');
+  src: url('/public/fonts/Roboto-LightItalic.woff2') format('woff2');
   font-weight: 300;
   font-style: italic;
 }
@@ -46,8 +44,7 @@
 }
 @font-face {
   font-family: 'Roboto';
-  src: url('/public/fonts/Roboto-Italic.woff2') format('woff2'),
-       url('/public/fonts/Roboto-Italic.woff') format('woff');
+  src: url('/public/fonts/Roboto-Italic.woff2') format('woff2');
   font-weight: 400;
   font-style: italic;
 }
@@ -62,8 +59,7 @@
 }
 @font-face {
   font-family: 'Roboto';
-  src: url('/public/fonts/Roboto-MediumItalic.woff2') format('woff2'),
-       url('/public/fonts/Roboto-MediumItalic.woff') format('woff');
+  src: url('/public/fonts/Roboto-MediumItalic.woff2') format('woff2');
   font-weight: 500;
   font-style: italic;
 }
@@ -78,8 +74,7 @@
 }
 @font-face {
   font-family: 'Roboto';
-  src: url('/public/fonts/Roboto-BoldItalic.woff2') format('woff2'),
-       url('/public/fonts/Roboto-BoldItalic.woff') format('woff');
+  src: url('/public/fonts/Roboto-BoldItalic.woff2') format('woff2');
   font-weight: 700;
   font-style: italic;
 }
@@ -87,15 +82,13 @@
 /* Roboto Black (900) */
 @font-face {
   font-family: 'Roboto';
-  src: url('/public/fonts/Roboto-Black.woff2') format('woff2'),
-       url('/public/fonts/Roboto-Black.woff') format('woff');
+  src: url('/public/fonts/Roboto-Black.woff2') format('woff2');
   font-weight: 900;
   font-style: normal;
 }
 @font-face {
   font-family: 'Roboto';
-  src: url('/public/fonts/Roboto-BlackItalic.woff2') format('woff2'),
-       url('/public/fonts/Roboto-BlackItalic.woff') format('woff');
+  src: url('/public/fonts/Roboto-BlackItalic.woff2') format('woff2');
   font-weight: 900;
   font-style: italic;
 }
