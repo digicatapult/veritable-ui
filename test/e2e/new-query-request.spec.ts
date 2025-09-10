@@ -139,7 +139,7 @@ test.describe('New query request', () => {
     })
   })
 
-  test('requests a nwe query from queries page (Alice)', async () => {
+  test('requests a new query from queries page (Alice)', async () => {
     await test.step('creates a new query request from connections', async () => {
       await page.goto(`${AliceHost}/queries`, { waitUntil: 'networkidle' })
       await page.waitForLoadState('networkidle')
