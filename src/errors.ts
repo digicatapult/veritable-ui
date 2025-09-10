@@ -89,6 +89,6 @@ export class InternalError extends HttpError {
   }
 
   public get code(): number {
-    return 501
+    return 500
   }
 }

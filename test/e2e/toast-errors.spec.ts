@@ -1,6 +1,6 @@
 import { expect, Page, test } from '@playwright/test'
 import { cleanup, CustomBrowserContext, withLoggedInUser, withRegisteredAccount } from '../helpers/registerLogIn.js'
-import { waitFor501Response } from '../helpers/waitForHelper.js'
+import { waitFor500Response } from '../helpers/waitForHelper.js'
 
 test.describe('Toast on error', () => {
   let context: CustomBrowserContext
@@ -28,14 +28,14 @@ test.describe('Toast on error', () => {
     await page.selectOption('#new-invite-country-select', 'United Kingdom')
     await expect(page.locator('#new-invite-country-code-display')).toHaveValue('GB')
 
-    await waitFor501Response(page, () => page.fill('#new-invite-company-number-input', '12345678'), '/verify-company?')
+    await waitFor500Response(page, () => page.fill('#new-invite-company-number-input', '12345678'), '/verify-company?')
 
     await expect(page.locator('#toast-container dialog')).toBeVisible()
     await expect(page.locator('#toast-container')).toContainText('Internal Error')
     await expect(page.locator('#toast-container')).toContainText('Please contact the technical team or try again later')
     await expect(page.locator('#toast-container')).toContainText('Error calling Companies House API')
 
-    await waitFor501Response(
+    await waitFor500Response(
       page,
       () => page.selectOption('#new-invite-country-select', 'United States'),
       '/verify-company?'

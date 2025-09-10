@@ -13,9 +13,9 @@ export const waitForSuccessResponse = async <T>(page: Page, action: () => Promis
   await response
 }
 
-export const waitFor501Response = async <T>(page: Page, action: () => Promise<T>, includeRoute: string) => {
+export const waitFor500Response = async <T>(page: Page, action: () => Promise<T>, includeRoute: string) => {
   const response = page.waitForResponse((resp) => {
-    return resp.url().includes(includeRoute) && resp.status() === 501
+    return resp.url().includes(includeRoute) && resp.status() === 500
   })
   await action()
   await response
