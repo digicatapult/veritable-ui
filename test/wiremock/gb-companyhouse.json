@@ -7,9 +7,6 @@
       },
       "response": {
         "status": 200,
-        "headers": {
-          "Content-Type": "application/json"
-        },
         "jsonBody": {
           "registered_office_address": {
             "address_line_1": "Level 9, 101 Euston Road",
@@ -30,9 +27,6 @@
       },
       "response": {
         "status": 200,
-        "headers": {
-          "Content-Type": "application/json"
-        },
         "jsonBody": {
           "registered_office_address": {
             "address_line_1": "Offshore House",
@@ -55,9 +49,6 @@
       },
       "response": {
         "status": 200,
-        "headers": {
-          "Content-Type": "application/json"
-        },
         "jsonBody": {
           "registered_office_address": {
             "address_line_1": "12th Floor Tower Wing Guy's Hospital",
@@ -80,9 +71,6 @@
       },
       "response": {
         "status": 500,
-        "headers": {
-          "Content-Type": "application/json"
-        },
         "jsonBody": {
           "registered_office_address": {
             "address_line_1": "Invalid",
