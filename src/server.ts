@@ -172,11 +172,11 @@ export default async (startEvents: boolean = true) => {
     }
 
     if (err instanceof ValidateError) {
-      req.log.error(`Caught Validation Error for ${req.path}:`, err.fields)
+      req.log.error(`Caught Validation Error for ${req.path}:`)
     }
 
     if (err instanceof Error) {
-      req.log.error(`Caught Unknown Error for ${req.path}: ${err.message}`, err)
+      req.log.error(`Caught Unknown Error for ${req.path}: ${err.message}`)
     }
 
     const code = err instanceof HttpError ? err.code : 500

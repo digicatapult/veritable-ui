@@ -5,6 +5,7 @@ ignores: [
   'concurrently',
   'htmx.org',
   'htmx-ext-json-enc',
+  'htmx-ext-response-targets',
   'prettier-plugin-organize-imports',
   'reflect-metadata',
   'pg',
