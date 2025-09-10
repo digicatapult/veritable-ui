@@ -59,7 +59,10 @@ export default class ConnectionEvents {
         { id: inviteRecord.connection_id, status: connection.status },
         { status: updateStatus, agent_connection_id: cloudAgentConnectionId }
       )
+      await db.update('connection_invite', { connection_id: connection.id }, { validity: 'used' })
+
       this.logger.debug('Database state for connection %s updated to %s', connection.id, updateStatus)
+      this.logger.debug('OOB invitation with connection_id %s updated to used', connection.id)
       return
     })
   }

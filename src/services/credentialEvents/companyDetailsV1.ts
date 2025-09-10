@@ -211,10 +211,6 @@ export default class CompanyDetailsV1Handler implements CredentialEventHandler<'
       }
 
       await db.update('connection', { id: connection.id }, { status: newState })
-
-      if (credential.role === 'issuer') {
-        await db.update('connection_invite', { connection_id: connection.id, validity: 'valid' }, { validity: 'used' })
-      }
     })
   }
 }
