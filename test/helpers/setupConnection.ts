@@ -112,7 +112,7 @@ export async function withConnection(inviter: E2ETestCompany, receiver: E2ETestC
   // Get the responding pin code from the counterparty to the original inviter
   const receiverEmail = await checkEmails('admin@veritable.com')
   const receiverPin = await extractPin(receiverEmail.id)
-  if (!receiverPin) throw new Error(`PIN for ${inviter} was not found.`)
+  if (!receiverPin) throw new Error(`PIN for ${inviter.url} was not found.`)
 
   await clearSmtp4devMessages()
 
