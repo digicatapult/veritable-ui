@@ -28,7 +28,11 @@ test.describe('Toast on error', () => {
     await page.selectOption('#new-invite-country-select', 'United Kingdom')
     await expect(page.locator('#new-invite-country-code-display')).toHaveValue('GB')
 
-    await waitFor500Response(page, () => page.fill('#new-invite-company-number-input', '12345678'), '/verify-company?')
+    await waitFor500Response(
+      page,
+      () => page.locator('#new-invite-company-number-input').pressSequentially('12345678', { delay: 100 }),
+      '/verify-company?'
+    )
 
     await expect(page.locator('#toast-container dialog')).toBeVisible()
     await expect(page.locator('#toast-container')).toContainText('Internal Error')
