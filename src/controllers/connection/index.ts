@@ -72,8 +72,8 @@ export class ConnectionController extends HTMLController {
         accountId: response.accountId ?? 'Not Found',
         clearingSystemId: response.clearingSystemId ?? 'Not Found',
       }
-      // Don't show account details if score is less than 0.95
-      if (response.score && response.score >= 0.95) {
+      // Don't show account details if score is less than 0.95 or if we have disconnected
+      if (response.score && response.score >= 0.95 && connection.status !== 'disconnected') {
         req.log.debug('returning connections page with account details %j', { connection })
         return this.html(this.connectionTemplates.profilePage(connection, object))
       }

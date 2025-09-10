@@ -242,7 +242,7 @@ export default class ConnectionTemplates {
           <p>If you wish to reconnect later, you will need to restart the verification process.</p>
           <div id="disconnect-buttons">
             <a
-              id="disconnect-button"
+              id="final-disconnect-button"
               href={`/connection/disconnect/${connection.id}?disconnect=true`}
               data-variant={'filled'}
             >
