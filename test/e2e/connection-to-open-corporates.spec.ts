@@ -40,7 +40,7 @@ test.describe('Connection via Open Corporates', () => {
 
       const companyNumber = daveE2E.companyNumber
 
-      await page.locator('#new-invite-company-number-input').pressSequentially(companyNumber, { delay: 50 })
+      await page.locator('#new-invite-company-number-input').pressSequentially(companyNumber, { delay: 20 })
       await page.fill('#new-invite-email-input', 'alice@testmail.com')
 
       const feedbackElement = page.locator('#new-connection-feedback')
@@ -89,7 +89,7 @@ test.describe('Connection via Open Corporates', () => {
 
       // Submit pin
       await page.waitForLoadState('networkidle')
-      await page.locator('#new-connection-invite-input-pin').pressSequentially(pinForDave, { delay: 50 })
+      await page.locator('#new-connection-invite-input-pin').pressSequentially(pinForDave, { delay: 20 })
       const daveButton = page.locator('button[type="submit"][name="action"][value="submitPinCode"]')
       await expect(daveButton).toBeVisible()
       await daveButton.click({ delay: 50 })
@@ -121,7 +121,7 @@ test.describe('Connection via Open Corporates', () => {
       await page.click(`a[href="${href}"]`, { delay: 50 })
       await page.waitForLoadState('networkidle')
 
-      await page.locator('#new-connection-invite-input-pin').pressSequentially(pinForAlice, { delay: 50 })
+      await page.locator('#new-connection-invite-input-pin').pressSequentially(pinForAlice, { delay: 20 })
       const aliceButton = page.locator('button[type="submit"][name="action"][value="submitPinCode"]')
       await expect(aliceButton).toBeVisible()
       await aliceButton.click({ delay: 50 })

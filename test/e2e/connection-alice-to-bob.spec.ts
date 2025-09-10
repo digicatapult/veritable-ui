@@ -39,7 +39,7 @@ test.describe('Connection from Alice to Bob', () => {
 
       const companyNumber = bobE2E.companyNumber
 
-      await page.locator('#new-invite-company-number-input').pressSequentially(companyNumber, { delay: 50 })
+      await page.locator('#new-invite-company-number-input').pressSequentially(companyNumber, { delay: 20 })
       await page.fill('#new-invite-email-input', 'alice@testmail.com')
 
       const feedbackElement = page.locator('#new-connection-feedback')
