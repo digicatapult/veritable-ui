@@ -56,6 +56,7 @@ export async function withConnection(inviter: E2ETestCompany, receiver: E2ETestC
   const uuidRegex = /[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-4[0-9a-fA-F]{3}-[89ab][0-9a-fA-F]{3}-[0-9a-fA-F]{12}/g
 
   await clearSmtp4devMessages()
+  await delay(100)
 
   // Create the invitation
   await fetchPost(`${inviter.url}/connection/new/create-invitation`, {
@@ -65,6 +66,8 @@ export async function withConnection(inviter: E2ETestCompany, receiver: E2ETestC
     registryCountryCode: receiver.registryCountryCode,
     selectedRegistry: receiver.selectedRegistry,
   })
+
+  await delay(100)
 
   // Get pin and invite for the counterparty
   const adminEmail = await checkEmails('admin@veritable.com')
