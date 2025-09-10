@@ -144,7 +144,12 @@ test.describe('New query request', () => {
       await page.goto(`${AliceHost}/queries`, { waitUntil: 'networkidle' })
       await page.waitForLoadState('networkidle')
 
-      await expect(page).toHaveURL(new RegExp(`${AliceHost}/queries/choose.*`))
+      // Click the Query Request button
+      const queryRequestButton = page.locator('a.button[href="/queries/choose"][data-variant="filled"]')
+      await expect(queryRequestButton).toBeVisible()
+      await queryRequestButton.click({ delay: 100 })
+      await page.waitForLoadState('networkidle')
+
       const bavCard = page.locator('a[href^="/queries/new?type=beneficiary_account_validation"]')
       await expect(bavCard).toBeVisible()
       await bavCard.click({ delay: 100 })
