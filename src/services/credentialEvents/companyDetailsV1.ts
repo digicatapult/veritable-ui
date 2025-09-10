@@ -95,6 +95,7 @@ export default class CompanyDetailsV1Handler implements CredentialEventHandler<'
     const isPinValid = (
       await Promise.all(
         pinInvites.map(async ({ pin_hash, expires_at, id }) => {
+          // TODO: we shouldn't be expiring OOB invitations during PIN checking - this should happen during DID exchange
           if (expires_at < new Date()) {
             await this.db.update('connection_invite', { id }, { validity: 'expired' })
             return false
