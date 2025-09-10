@@ -126,6 +126,7 @@ test.describe('New query request', () => {
     })
 
     await test.step('Charlie responds to the query', async () => {
+      // TODO: The 'No' radio button is currently disabled due to a known issue (see PR description). Re-enable this line when the issue is resolved.
       // await page.getByRole('radio', { name: 'No' }).check()
       await page.locator('#co2-embodiment-input').fill(String(charlieCO2))
 
