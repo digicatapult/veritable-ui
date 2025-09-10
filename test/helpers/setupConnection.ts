@@ -137,7 +137,7 @@ export async function withConnection(inviter: E2ETestCompany, receiver: E2ETestC
       return
     }
     if (attempt === 100) {
-      throw new Error(`Connection unsuccessful after 100 retries: ${inviter}`)
+      throw new Error(`Connection unsuccessful after 100 retries: ${inviter.url}`)
     }
   }
 }
