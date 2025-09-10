@@ -157,6 +157,17 @@ test.describe('New query request', () => {
     })
 
     await test.step('connection select page skipped - submits a new BAV query request', async () => {
+      const aliceConnections = page.locator('#search-results')
+      await expect(aliceConnections).toContainText('OFFSHORE RENEWABLE ENERGY CATAPULT')
+
+      const checkbox = page.getByRole('checkbox')
+      await expect(checkbox).toBeVisible()
+      await expect(checkbox).not.toBeDisabled()
+      await checkbox.check()
+      await expect(checkbox).toBeChecked()
+
+      await page.getByRole('button', { name: 'Next' }).click({ delay: 100 })
+      await page.waitForLoadState('networkidle')
       await expect(page.locator('#content-main')).toContainText('OFFSHORE RENEWABLE ENERGY CATAPULT')
 
       await page.getByPlaceholder('01/01/2025, 00:00 am').fill(expiresAt)
