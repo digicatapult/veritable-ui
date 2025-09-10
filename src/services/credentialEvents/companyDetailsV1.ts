@@ -86,10 +86,10 @@ export default class CompanyDetailsV1Handler implements CredentialEventHandler<'
       return
     }
 
-    // check the pin number provided is valid
+    // check the pin number provided is valid - should only allow PIN entry after DID exchange (ie OOB marked as used)
     const pinInvites = await this.db.get('connection_invite', {
       connection_id: connection.id,
-      validity: 'valid',
+      validity: 'used',
     })
 
     const isPinValid = (
