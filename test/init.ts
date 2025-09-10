@@ -4,9 +4,10 @@ import 'reflect-metadata'
 import chaiJestSnapshot from 'chai-jest-snapshot'
 import knex from 'knex'
 import { after, before, beforeEach } from 'mocha'
-import { StartedTestContainer, StoppedTestContainer } from 'testcontainers'
+import { StartedTestContainer } from 'testcontainers'
 import { RegistryType } from '../src/models/db/types.js'
 import { CountryCode } from '../src/models/stringTypes.js'
+import { stopContainers } from './helpers/container.js'
 import { aliceDbConfig } from './helpers/fixtures.js'
 import {
   bringUpDependenciesContainers,
@@ -60,15 +61,3 @@ after(async function () {
 
   await network.stop()
 })
-
-async function stopContainers(containers: StartedTestContainer[]) {
-  await processPromises(await Promise.allSettled(containers.map((container) => container.stop())))
-}
-
-async function processPromises(results: PromiseSettledResult<StoppedTestContainer>[]) {
-  const rejected = results.filter((r) => r.status === 'rejected').map((r) => (r as PromiseRejectedResult).reason)
-
-  if (rejected.length > 0) {
-    throw new Error(`${rejected.length} container shutdown unsuccessful with error: ${rejected[0]}`)
-  }
-}
