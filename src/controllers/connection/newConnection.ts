@@ -195,7 +195,7 @@ export class NewConnectionController extends HTMLController {
    */
   @SuccessResponse(200)
   @Get('/verify-invite')
-  public async verifyInviteForm(@Request() req: express.Request, @Query() invite: BASE_64_URL): Promise<HTML> {
+  public async verifyInviteForm(@Request() req: express.Request, @Query() invite: string): Promise<HTML> {
     if (invite === '') {
       return this.newConnectionForm(req, true)
     }
