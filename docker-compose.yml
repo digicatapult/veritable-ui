@@ -135,8 +135,8 @@ services:
         npm i -g pino-pretty
         node ./node_modules/.bin/knex migrate:latest
         npm start | pino-pretty -c -S"
-    env_file:
-      - .env
+    # env_file:
+    #   - .env
     environment:
       - NODE_ENV=production
       - LOG_LEVEL=debug
@@ -228,8 +228,8 @@ services:
         condition: service_healthy
     ports:
       - 3002:3000
-    env_file:
-      - .env
+    # env_file:
+    #   - .env
     command: >
       sh -c "
         npm i -g pino-pretty

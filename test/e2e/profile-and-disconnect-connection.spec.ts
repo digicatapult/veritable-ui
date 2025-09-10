@@ -43,17 +43,17 @@ test.describe('Disconnect connection', () => {
       await expect(page.getByText('Verified')).toBeVisible()
 
       // Check disconnect button and warning are visible
-      await expect(page.locator('#disconnect-btn')).toBeVisible()
+      await expect(page.locator('#disconnect-button')).toBeVisible()
       await expect(page.getByText('Disconnect')).toBeVisible()
-      await expect(page.locator('#disconnect-btn-warning')).toBeVisible()
+      await expect(page.locator('#disconnect-button-warning')).toBeVisible()
       await expect(page.getByText('This action will revoke connection with OFFSHORE RENEWABLE')).toBeVisible()
     })
 
     await test.step('click disconnect button', async () => {
-      await page.click('#disconnect-btn')
+      await page.click('#disconnect-button')
       await page.waitForLoadState('networkidle')
       await expect(page.getByText('Are you sure you want to revoke connection with OFFSHORE RENEWABLE')).toBeVisible()
-      await page.click('#disconnect-btn')
+      await page.click('#disconnect-button')
       await page.waitForLoadState('networkidle')
     })
 

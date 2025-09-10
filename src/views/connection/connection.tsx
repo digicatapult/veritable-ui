@@ -168,17 +168,17 @@ export default class ConnectionTemplates {
                 {Html.escapeHtml(connection.updated_at.toLocaleDateString())}
               </div>
               {connection.status == 'disconnected' ? (
-                <small id="disconnect-btn-warning">This connection has been disconnected</small>
+                <small id="disconnect-button-warning">This connection has been disconnected</small>
               ) : (
                 <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: '10px' }}>
                   <a
-                    id="disconnect-btn"
+                    id="disconnect-button"
                     href={`/connection/disconnect/${Html.escapeHtml(connection.id)}`}
                     data-variant={'filled'}
                   >
                     <span>Disconnect</span>
                   </a>
-                  <small id="disconnect-btn-warning">
+                  <small id="disconnect-button-warning">
                     This action will revoke connection with {Html.escapeHtml(connection.company_name)}
                   </small>
                 </div>
@@ -242,7 +242,7 @@ export default class ConnectionTemplates {
           <p>If you wish to reconnect later, you will need to restart the verification process.</p>
           <div id="disconnect-buttons">
             <a
-              id="disconnect-btn"
+              id="disconnect-button"
               href={`/connection/disconnect/${connection.id}?disconnect=true`}
               data-variant={'filled'}
             >

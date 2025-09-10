@@ -34,7 +34,7 @@
   width: 1px;
   background-color: #5570f1;
 }
-#disconnect-btn {
+#disconnect-button {
   display: flex;
   gap: 10px;
   align-items: center;
@@ -53,7 +53,7 @@
   }
 }
 
-#disconnect-btn:hover {
+#disconnect-button:hover {
   opacity: 0.8;
 }
 
@@ -84,7 +84,7 @@
   --status-color: var(--disabled-accent);
 }
 
-#disconnect-btn-warning {
+#disconnect-button-warning {
   color: var(--text-color-secondary);
   margin-bottom: 50px;
 }
