@@ -31,14 +31,6 @@ export default class CredentialListTemplates {
   }
 
   public listPage = (credentials: ExtendedCredential[], search: string = '') => {
-    // function adjustInputWidth(input: any) {
-    //   const span = document.getElementById('width-span')
-
-    //   // span.textContent = input.value || input.placeholder
-
-    //   return '200px'
-    // }
-
     return (
       <Page
         title="Veritable - Credentials"

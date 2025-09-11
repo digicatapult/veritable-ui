@@ -122,6 +122,7 @@ export const withEstablishedConnectionFromUs = function (context: TwoPartyContex
       pin_tries_remaining_count: 4,
       registry_country_code: 'GB' as CountryCode,
       registry_code: 'company_house' as RegistryType,
+      address: 'ADDRESS_LINE_1, ADDRESS_LINE_2, COUNTRY, LOCALITY, PO_BOX, POSTAL_CODE, REGION',
     })
 
     await context.remoteDatabase.insert('connection_invite', {
@@ -177,6 +178,7 @@ export const withEstablishedConnectionFromThem = function (context: TwoPartyCont
       pin_tries_remaining_count: 4,
       registry_country_code: 'GB' as CountryCode,
       registry_code: 'company_house' as RegistryType,
+      address: 'ADDRESS_LINE_1, ADDRESS_LINE_2, COUNTRY, LOCALITY, PO_BOX, POSTAL_CODE, REGION',
     })
 
     context.remoteConnectionId = remoteConnectionId
@@ -254,6 +256,7 @@ export const withVerifiedConnection = function (context: TwoPartyContext) {
       pin_tries_remaining_count: 4,
       registry_country_code: 'GB' as CountryCode,
       registry_code: 'company_house' as RegistryType,
+      address: 'ADDRESS_LINE_1, ADDRESS_LINE_2, COUNTRY, LOCALITY, PO_BOX, POSTAL_CODE, REGION',
     })
     context.remoteConnectionId = withAlice.id
 
@@ -318,6 +321,7 @@ export async function withBobAndCharlie(context: ThreePartyContext) {
     pin_tries_remaining_count: 4,
     registry_country_code: 'GB' as CountryCode,
     registry_code: 'company_house' as RegistryType,
+    address: 'ADDRESS_LINE_1, ADDRESS_LINE_2, COUNTRY, LOCALITY, PO_BOX, POSTAL_CODE, REGION',
   })
 
   await context.db.bob.insert('connection_invite', {
@@ -346,6 +350,7 @@ export async function withBobAndCharlie(context: ThreePartyContext) {
     pin_tries_remaining_count: 4,
     registry_country_code: 'GB' as CountryCode,
     registry_code: 'company_house' as RegistryType,
+    address: 'ADDRESS_LINE_1, ADDRESS_LINE_2, COUNTRY, LOCALITY, PO_BOX, POSTAL_CODE, REGION',
   })
 
   await context.db.bob.insert('connection_invite', {
@@ -365,6 +370,7 @@ export async function withBobAndCharlie(context: ThreePartyContext) {
     pin_tries_remaining_count: 4,
     registry_country_code: 'GB' as CountryCode,
     registry_code: 'company_house' as RegistryType,
+    address: 'ADDRESS_LINE_1, ADDRESS_LINE_2, COUNTRY, LOCALITY, PO_BOX, POSTAL_CODE, REGION',
   })
 
   await context.db.charlie.insert('connection_invite', {
