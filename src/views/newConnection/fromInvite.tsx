@@ -53,7 +53,7 @@ export class FromInviteTemplates extends NewConnectionTemplates {
             placeholder="Invitation Text"
             required
             hx-get="/connection/new/verify-invite"
-            hx-trigger="keyup changed delay:20ms, change, load"
+            hx-trigger="keyup changed delay:20ms, change"
             hx-target="#new-connection-feedback"
             hx-select="#new-connection-feedback"
             hx-swap="outerHTML"

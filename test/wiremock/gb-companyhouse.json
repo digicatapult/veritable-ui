@@ -63,6 +63,28 @@
           "registered_office_is_in_dispute": false
         }
       }
+    },
+    {
+      "request": {
+        "method": "GET",
+        "url": "/company/12345678"
+      },
+      "response": {
+        "status": 500,
+        "jsonBody": {
+          "registered_office_address": {
+            "address_line_1": "Invalid",
+            "address_line_2": "Invalid",
+            "country": "invalid",
+            "locality": "invalid",
+            "postal_code": "Invalid"
+          },
+          "company_name": "Error",
+          "company_number": "Error",
+          "company_status": "Inactive",
+          "registered_office_is_in_dispute": true
+        }
+      }
     }
   ]
 }

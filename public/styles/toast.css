@@ -1,0 +1,97 @@
+#toast-container {
+  --open-close-duration: 200ms;
+  --dialog-shift-duration: 300ms;
+  --dialog-height: 6lh;
+
+  position: fixed;
+  top: 10rem;
+  right: 0rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  z-index: 10;
+}
+
+#toast-container dialog[open] {
+  position: relative;       /* avoids stacking overlap */
+  display: flex;
+  padding: 0.75rem 1rem;
+  margin: 0;
+  border: none;
+  /* round only the left side */
+  border-top-left-radius: 1rem;
+  border-bottom-left-radius: 1rem;
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+
+  background: #bc3627;
+  color: #fff;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+
+  transform: translateX(110%); /* start off-screen */
+  opacity: 0;
+  animation: slideIn 300ms ease forwards;
+  transition: transform 1s ease, margin 1s ease;
+}
+
+#toast-container dialog[open].closing {
+  position: relative;       /* avoids stacking overlap */
+  display: flex;
+  animation: slideOut 300ms ease forwards;
+}
+
+#toast-container dialog img {
+  flex-shrink: 0;           /* prevent image from shrinking */
+}
+
+#toast-container .toast-content {
+  flex: 1;                  /* take up remaining space */
+  width: 30ch;
+}
+
+#toast-container .toast-content h1 {
+  margin: 0 0 0.25rem 0;
+  justify-self: center;
+}
+
+#toast-container .toast-detail {
+  margin-top: 0.25rem;
+}
+
+#toast-container .modal-button {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  margin-left: auto;        /* push button to far right */
+  color: #fff;
+}
+
+#toast-container pre {
+  background-color: #f2f2f2;
+  color: #333;
+  padding: 1rem;
+  border-radius: 0.2rem;
+  overflow-x: auto;
+  margin-top: 0.5rem;
+  font-family: monospace;
+  white-space: pre-wrap;
+  max-height: calc((var(--dialog-height) * 4) - 1lh);
+}
+
+@keyframes slideIn {
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideOut {
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+}
