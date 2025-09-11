@@ -212,6 +212,10 @@ export default class CompanyDetailsV1Handler implements CredentialEventHandler<'
       }
 
       await db.update('connection', { id: connection.id }, { status: newState })
+
+      this.logger.trace('credential role is %s', credential.role)
+      this.logger.debug('connection state was %s', connection.status)
+      this.logger.debug('new connection state is %s', newState)
     })
   }
 }
