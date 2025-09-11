@@ -195,16 +195,22 @@ export default class CompanyDetailsV1Handler implements CredentialEventHandler<'
       }
 
       let newState: typeof connection.status | null = null
-      if (connection.status === 'unverified') {
-        newState = credential.role === 'holder' ? 'verified_us' : 'verified_them'
-      }
-
-      if (connection.status === 'verified_them' && credential.role === 'holder') {
-        newState = 'verified_both'
-      }
-
-      if (connection.status === 'verified_us' && credential.role === 'issuer') {
-        newState = 'verified_both'
+      switch (connection.status) {
+        case 'unverified':
+          newState = credential.role === 'holder' ? 'verified_us' : 'verified_them'
+          break
+        case 'verified_them':
+          if (credential.role === 'holder') {
+            newState = 'verified_both'
+          }
+          break
+        case 'verified_us':
+          if (credential.role === 'issuer') {
+            newState = 'verified_both'
+          }
+          break
+        default:
+          break
       }
 
       if (newState === null) {
