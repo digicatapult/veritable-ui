@@ -1,12 +1,9 @@
 import { expect, Page, test } from '@playwright/test'
 import { withBavQueryRequest, withCarbonQueryRequest } from '../helpers/query.js'
 import { cleanup, CustomBrowserContext, withLoggedInUser, withRegisteredAccount } from '../helpers/registerLogIn.js'
-import { withConnection } from '../helpers/setupConnection.js'
+import { aliceE2E, bobE2E, withConnection } from '../helpers/setupConnection.js'
 
 test.describe('New query response', () => {
-  const AliceHost = process.env.VERITABLE_ALICE_PUBLIC_URL || 'http://localhost:3000'
-  const BobHost = process.env.VERITABLE_BOB_PUBLIC_URL || 'http://localhost:3001'
-
   let context: CustomBrowserContext
   let page: Page
 
@@ -14,23 +11,23 @@ test.describe('New query response', () => {
     test.setTimeout(15000) // withConnection() can take 7sec to complete
     context = await browser.newContext()
     page = await context.newPage()
-    await withRegisteredAccount(page, context, AliceHost)
-    await withLoggedInUser(page, context, AliceHost)
-    await withConnection(AliceHost, BobHost)
+    await withRegisteredAccount(page, context, aliceE2E.url)
+    await withLoggedInUser(page, context, aliceE2E.url)
+    await withConnection(aliceE2E, bobE2E)
   })
 
   test.afterEach(async () => {
-    await cleanup([AliceHost, BobHost])
+    await cleanup([aliceE2E.url, bobE2E.url])
     await page.close()
     await context.close()
   })
 
   test('responds to a total carbon embodiment (CO2) query (Bob)', async () => {
-    await withCarbonQueryRequest(AliceHost)
+    await withCarbonQueryRequest(aliceE2E.url)
 
     await test.step('visits queries page and clicks on "respond to query" (Bob)', async () => {
-      await page.goto(`${BobHost}/queries`, { waitUntil: 'networkidle' })
-      await page.getByText('Respond to query').click({ delay: 100 })
+      await page.goto(`${bobE2E.url}/queries`, { waitUntil: 'networkidle' })
+      await page.getByText('Respond to query').click({ delay: 50 })
       await page.waitForLoadState('networkidle')
       await expect(page.getByRole('heading', { name: 'Total Carbon Embodiment Query' })).toBeVisible()
     })
@@ -40,7 +37,7 @@ test.describe('New query response', () => {
       const button = page.getByRole('button', { name: 'Submit Response' })
       await expect(button).toBeVisible()
       await expect(button).not.toBeDisabled()
-      await button.click({ delay: 100 })
+      await button.click({ delay: 50 })
       await page.waitForLoadState('networkidle')
     })
 
@@ -51,7 +48,7 @@ test.describe('New query response', () => {
       await expect(button).not.toBeDisabled()
       await expect(page.getByText('The requester will verify your response')).toBeVisible()
       await expect(page.getByText('You can check the status')).toBeVisible()
-      await button.click({ delay: 100 })
+      await button.click({ delay: 50 })
       await page.waitForLoadState('networkidle')
     })
 
@@ -71,11 +68,11 @@ test.describe('New query response', () => {
   })
 
   test('responds to a Beneficiary Account Validation (BAV) query (Bob)', async () => {
-    await withBavQueryRequest(AliceHost)
+    await withBavQueryRequest(aliceE2E.url)
 
     await test.step('visits queries page and clicks on "respond to query" (Bob)', async () => {
-      await page.goto(`${BobHost}/queries`, { waitUntil: 'networkidle' })
-      await page.getByText('Respond to query').click({ delay: 100 })
+      await page.goto(`${bobE2E.url}/queries`, { waitUntil: 'networkidle' })
+      await page.getByText('Respond to query').click({ delay: 50 })
       await page.waitForLoadState('networkidle')
       await expect(page.getByRole('heading', { name: 'Beneficiary Account Validation Query' })).toBeVisible()
     })
@@ -88,7 +85,7 @@ test.describe('New query response', () => {
       await page.fill('#bav-clearing-system-id-input', '123456')
       const button = page.getByRole('button', { name: 'Submit Response' })
       await expect(button).toBeVisible()
-      await button.click({ delay: 100 })
+      await button.click({ delay: 50 })
       await page.waitForLoadState('networkidle')
     })
 
@@ -96,7 +93,7 @@ test.describe('New query response', () => {
       await expect(page.getByRole('heading', { name: 'Thank you for your response' })).toBeVisible()
       const button = page.getByText('Back to Home')
       await expect(button).toBeVisible()
-      await button.click({ delay: 100 })
+      await button.click({ delay: 50 })
       await page.waitForLoadState('networkidle')
     })
   })
