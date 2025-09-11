@@ -553,7 +553,7 @@ export class NewConnectionController extends HTMLController {
           (connection.status === 'disconnected' && invitation.validity === 'too_many_attempts') ||
           (connection.status === 'pending' && invitation.validity === 'used')
         ) {
-          logger.info('edge case database state detected, aborting %s', connection.id)
+          logger.info('Edge case database state detected, aborting %s', connection.id)
           return {
             type: 'error',
             message: `Edge case database state detected for connection ${connection.id}, aborting`,
@@ -668,6 +668,7 @@ export class NewConnectionController extends HTMLController {
           pin_tries_remaining_count: null,
           registry_country_code: registryCountryCode,
           registry_code: registryCode,
+          address: company.address,
         })
 
         await db.insert('connection_invite', {

@@ -139,14 +139,17 @@ test.describe('New query request', () => {
     })
   })
 
-  test('requests a query from connection page (Alice)', async () => {
+  test('requests a new query from queries page (Alice)', async () => {
     await test.step('creates a new query request from connections', async () => {
-      await page.goto(`${AliceHost}/connection`, { waitUntil: 'networkidle' })
-      await expect(page.locator('text=Send Query')).toBeVisible()
-      await page.click('text=Send Query', { delay: 100 })
+      await page.goto(`${AliceHost}/queries`, { waitUntil: 'networkidle' })
       await page.waitForLoadState('networkidle')
 
-      await expect(page).toHaveURL(new RegExp(`${AliceHost}/queries/choose.*`))
+      // Click the Query Request button
+      const queryRequestButton = page.locator('a.button[href="/queries/choose"][data-variant="filled"]')
+      await expect(queryRequestButton).toBeVisible()
+      await queryRequestButton.click({ delay: 100 })
+      await page.waitForLoadState('networkidle')
+
       const bavCard = page.locator('a[href^="/queries/new?type=beneficiary_account_validation"]')
       await expect(bavCard).toBeVisible()
       await bavCard.click({ delay: 100 })
@@ -154,6 +157,17 @@ test.describe('New query request', () => {
     })
 
     await test.step('connection select page skipped - submits a new BAV query request', async () => {
+      const aliceConnections = page.locator('#search-results')
+      await expect(aliceConnections).toContainText('OFFSHORE RENEWABLE ENERGY CATAPULT')
+
+      const checkbox = page.getByRole('checkbox')
+      await expect(checkbox).toBeVisible()
+      await expect(checkbox).not.toBeDisabled()
+      await checkbox.check()
+      await expect(checkbox).toBeChecked()
+
+      await page.getByRole('button', { name: 'Next' }).click({ delay: 100 })
+      await page.waitForLoadState('networkidle')
       await expect(page.locator('#content-main')).toContainText('OFFSHORE RENEWABLE ENERGY CATAPULT')
 
       await page.getByPlaceholder('01/01/2025, 00:00 am').fill(expiresAt)

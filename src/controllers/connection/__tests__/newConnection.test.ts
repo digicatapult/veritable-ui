@@ -331,6 +331,7 @@ describe('NewConnectionController', () => {
             pin_tries_remaining_count: null,
             registry_country_code: 'GB',
             registry_code: 'company_house',
+            address: 'ADDRESS_LINE_1, ADDRESS_LINE_2, COUNTRY, LOCALITY, PO_BOX, POSTAL_CODE, REGION',
           },
         ])
       })
@@ -376,7 +377,6 @@ describe('NewConnectionController', () => {
         expect(emailSpy.secondCall.args[2]?.pin).match(/[0-9]{6}/)
         expect(emailSpy.secondCall.args[2]).to.deep.contain({
           receiver: 'NAME',
-          address: 'ADDRESS_LINE_1, ADDRESS_LINE_2, COUNTRY, LOCALITY, PO_BOX, POSTAL_CODE, REGION',
         })
       })
     })
@@ -706,6 +706,7 @@ describe('NewConnectionController', () => {
             pin_tries_remaining_count: null,
             registry_country_code: 'GB',
             registry_code: 'company_house',
+            address: 'ADDRESS_LINE_1, ADDRESS_LINE_2, COUNTRY, LOCALITY, PO_BOX, POSTAL_CODE, REGION',
           },
         ])
       })
