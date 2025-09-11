@@ -70,6 +70,13 @@
 ## Copilot PR Review Instructions
 You are reviewing as a **critical software engineering peer**. Read the PR description, the diff, and repository docs/configs. Think step-by-step, cite file paths/lines, and propose concrete fixes or commits. Assume a human will validate before merge.
 
+### Language & Style
+- Use **British English** for review text, comments, and documentation suggestions (e.g. authorise, optimise, behaviour).
+- Do not alter code identifiers, external API contracts, third-party docs, or tooling defaults that use American English (e.g. authorization, behavior, npm package names, JSON keys).
+- When in doubt:
+  - Code/config: preserve existing American English spelling.
+  - Explanations, review notes, and internal documentation: use British English spelling.
+
 ### Repository guard-rails & constraints
 - Language/stack standards: TypeScript, Node.js (>=22), TSOA, HTMX, @kitajs/html, SWC. See `/README.md`, `/package.json`.
 - Style/lint rules: enforced by CI (`npm run lint`, ESLint, Prettier, TypeScript checks). Treat violations as issues.
