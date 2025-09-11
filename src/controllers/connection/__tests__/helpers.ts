@@ -6,6 +6,7 @@ import { Env } from '../../../env/index.js'
 import { ILogger } from '../../../logger.js'
 import Database from '../../../models/db/index.js'
 import { ConnectionRow, RegistryType } from '../../../models/db/types.js'
+import { BavResFields } from '../../../models/drpc.js'
 import EmailService from '../../../models/emailService/index.js'
 import OrganisationRegistry, { OrganisationRequest } from '../../../models/orgRegistry/organisationRegistry.js'
 import { CountryCode, UUID } from '../../../models/stringTypes.js'
@@ -35,16 +36,95 @@ export const withConnectionMocks = (
   const templateMock = {
     listPage: (connections: ConnectionRow[]) =>
       templateFake('list', connections[0].company_name, connections[0].status),
+    profilePage: (connection: ConnectionRow, bankDetails?: BavResFields) =>
+      templateFake(
+        'profilePage',
+        connection.id,
+        connection.status,
+        bankDetails ? JSON.stringify(bankDetails) : 'noBankDetails'
+      ),
+    disconnectPage: (connection: ConnectionRow, disconnect: boolean = false) =>
+      templateFake('disconnectPage', connection.id, connection.status, disconnect),
   }
+  let connectionCallCount = 0
   const dbMock = {
-    get: () => [
-      {
-        company_name: 'foo',
-        status: 'unverified',
-        agent_connection_id: 'AGENT_CONNECTION_ID',
-        pin_tries_remaining_count: initialPinAttemptTries,
-      },
-    ],
+    get: (tableName: string, where?: Record<string, string>) => {
+      if (tableName === 'query' && where?.connection_id === 'someVerifiedId') {
+        return [
+          {
+            id: 'e3148c39-17f4-4c5f-9189-2a22c1a33283',
+            connection_id: 'someVerifiedId',
+            status: 'resolved',
+            created_at: '2025-09-08 15:53:58.079669+00',
+            updated_at: '2025-09-08 15:54:13.578613+00',
+            request: '{"subjectId": {"idType": "bav"}}',
+            response: {
+              name: 'Harry Potter',
+              score: 1,
+              accountId: '12345678',
+              subjectId: { idType: 'bav' },
+              countryCode: 'GB',
+              description: 'Strong Match',
+              clearingSystemId: '123456',
+            },
+            role: 'requester',
+            type: 'beneficiary_account_validation',
+            expires_at: '2025-09-10 15:53:00+00',
+          },
+        ]
+      }
+      if (tableName === 'connection' && where?.id === 'someVerifiedId') {
+        return [
+          {
+            id: 'someVerifiedId',
+            status: 'verified_both',
+            address: 'ADDRESS_LINE_1, ADDRESS_LINE_2, COUNTRY, LOCALITY, PO_BOX, POSTAL_CODE, REGION',
+            company_name: 'foo',
+            agent_connection_id: 'AGENT_CONNECTION_ID',
+            pin_tries_remaining_count: initialPinAttemptTries,
+          },
+        ]
+      } else if (tableName === 'connection' && where?.id === 'someId') {
+        connectionCallCount++
+        // First call: return original connection, second call: return disconnected connection
+        if (connectionCallCount === 1) {
+          return [
+            {
+              id: 'someId',
+              address: 'ADDRESS_LINE_1, ADDRESS_LINE_2, COUNTRY, LOCALITY, PO_BOX, POSTAL_CODE, REGION',
+              company_name: 'foo',
+              status: 'unverified',
+              agent_connection_id: 'AGENT_CONNECTION_ID',
+              pin_tries_remaining_count: initialPinAttemptTries,
+            },
+          ]
+        } else {
+          return [
+            {
+              id: 'someId',
+              address: 'ADDRESS_LINE_1, ADDRESS_LINE_2, COUNTRY, LOCALITY, PO_BOX, POSTAL_CODE, REGION',
+              company_name: 'foo',
+              status: 'disconnected',
+              agent_connection_id: 'AGENT_CONNECTION_ID',
+              pin_tries_remaining_count: initialPinAttemptTries,
+            },
+          ]
+        }
+      } else if (tableName === 'connection') {
+        return [
+          {
+            id: 'someId',
+            address: 'ADDRESS_LINE_1, ADDRESS_LINE_2, COUNTRY, LOCALITY, PO_BOX, POSTAL_CODE, REGION',
+            company_name: 'foo',
+            status: 'unverified',
+            agent_connection_id: 'AGENT_CONNECTION_ID',
+            pin_tries_remaining_count: initialPinAttemptTries,
+          },
+        ]
+      }
+      return []
+    },
+
     waitForCondition: () => [
       {
         id: 'someId',
@@ -58,9 +138,11 @@ export const withConnectionMocks = (
         pin_tries_remaining_count: finalPinAttemptTries,
       },
     ],
+    update: sinon.stub().resolves(),
   }
   const cloudagentMock = {
     proposeCredential: sinon.stub().resolves(),
+    closeConnection: sinon.stub().resolves(),
   }
   const organisationRegistry = {
     localOrganisationProfile: () =>
