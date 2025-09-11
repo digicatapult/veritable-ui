@@ -12,7 +12,7 @@ document.body.addEventListener('veritableError', (ev) => {
     if (detailsElement && detailsElement.open) return
 
     if (dialog.open === false) return
-    closeToast(id)
+    closeToast(dialog)
   }, 10000)
 
   // Close all open details elements when the toast is closed
@@ -36,13 +36,10 @@ document.getElementById('toast-container').addEventListener('click', (e) => {
   // Prevent instant browser close
   e.preventDefault()
 
-  closeToast(dialog.id)
+  closeToast(dialog)
 })
 
-function closeToast(id) {
-  const dialog = document.getElementById(id)
-  if (!dialog) return
-
+function closeToast(dialog) {
   dialog.classList.add('closing')
 
   dialog.addEventListener("animationend", () => {

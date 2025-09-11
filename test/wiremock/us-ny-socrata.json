@@ -48,6 +48,25 @@
           }
         ]
       }
+    },
+    {
+      "request": {
+        "method": "GET",
+        "url": "/?dos_id=4040404"
+      },
+      "response": {
+        "status": 404,
+        "jsonBody": [
+          {
+            "dos_id": "4040404",
+            "current_entity_name": "NOT FOUND",
+            "initial_dos_filing_date": "DATE NOT FOUND",
+            "county": "COUNTY NOT FOUND",
+            "jurisdiction": "JURISDICTION NOT FOUND",
+            "entity_type": "ENTITY TYPE NOT FOUND"
+          }
+        ]
+      }
     }
   ]
 }

@@ -92,23 +92,3 @@ export class InternalError extends HttpError {
     return 500
   }
 }
-
-export class MethodNotImplementedError extends HttpError {
-  constructor(error?: Error | string | unknown) {
-    if (error instanceof Error) {
-      super('Internal', 501, 'Not Implemented', 'Please contact the technical team or try again later', error.message)
-      return
-    }
-
-    if (typeof error === 'string') {
-      super('Internal', 501, 'Not Implemented', 'Please contact the technical team or try again later', error)
-      return
-    }
-
-    super('Internal', 501, 'Not Implemented', 'Please contact the technical team or try again later', `${error}`)
-  }
-
-  public get code(): number {
-    return 501
-  }
-}
