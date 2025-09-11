@@ -74,7 +74,7 @@ You are reviewing as a **critical software engineering peer**. Read the PR descr
 - Language/stack standards: TypeScript, Node.js (>=22), TSOA, HTMX, @kitajs/html, SWC. See `/README.md`, `/package.json`.
 - Style/lint rules: enforced by CI (`npm run lint`, ESLint, Prettier, TypeScript checks). Treat violations as issues.
 - Security baseline: OWASP Top 10, secret scanning, dependency updates must be pinned & reviewed. See `.github/workflows/test.yml`, Dockerfile, and SOPS for secrets.
-- Testing thresholds: **unit/integration/e2e tests required**; regression below current coverage is a **Must‑Fix**. See `test/unit/`, `test/integration/`, `test/e2e/`, CI coverage artefacts.
+- Testing thresholds: **unit/integration/e2e tests required**; regression below current coverage is a **Must-Fix**. See `test/unit/`, `test/integration/`, `test/e2e/`, CI coverage artefacts.
 - Performance budgets: UI and API endpoint P95 latency must not worsen by >10% without justification.
 - Backwards compatibility required unless explicitly stated (REST endpoints, DB schema, UI contracts).
 
@@ -105,7 +105,7 @@ Provide a **score out of 10** and a short reason per category. Flag any **Must�
 
 ### Required output format
 1. **Executive summary (≤10 lines):** what changed, key risks, merge recommendation.
-2. **Blockers (Must‑Fix):** bullet list with file:line and rationale.
+2. **Blockers (Must-Fix):** bullet list with file:line and rationale.
 3. **Targeted suggestions:** concrete patches or pseudo‑diffs.
 4. **Test gap analysis:** missing cases and suggested test names (unit, integration, e2e, visual regression).
 5. **Integration risks:** API/DB/infra implications, rollout/rollback notes.
