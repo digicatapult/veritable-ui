@@ -1,4 +1,4 @@
-# Copilot Coding Agent Onboarding: veritable-ui
+# GitHub Copilot Coding Agent Onboarding: veritable-ui
 
 ## Repository Summary
 - **Purpose:** Frontend UI for Veritable SSI platform, managing supply chain connections, credential issuance, and queries. Integrates with veritable-cloudagent, Keycloak, IPFS, and external registries (Companies House, NY State, OpenCorporates, iPiD).
