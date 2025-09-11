@@ -129,18 +129,18 @@ export const withEstablishedConnectionFromUs = function (context: TwoPartyContex
       oob_invite_id: outOfBandRecord.id,
       pin_hash: pinHash,
       expires_at: new Date(new Date().getTime() + 60 * 1000),
-      validity: 'valid',
+      validity: 'used',
     })
     context.remoteConnectionId = remoteConnectionId
 
     // wait for status to not be pending
     for (let i = 0; i < 100; i++) {
-      const connections = await context.localDatabase.get('connection')
-      if (connections[0].status === 'pending') {
+      const [connection] = await context.localDatabase.get('connection')
+      if (connection.status === 'pending') {
         await delay(10)
         continue
       }
-      context.localConnectionId = connections[0].id
+      context.localConnectionId = connection.id
       return
     }
     throw new Error('Timeout Error initialising connection')
