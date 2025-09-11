@@ -55,6 +55,8 @@ export const daveE2E: E2ETestCompany = {
 export async function withConnection(inviter: E2ETestCompany, receiver: E2ETestCompany) {
   const uuidRegex = /[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-4[0-9a-fA-F]{3}-[89ab][0-9a-fA-F]{3}-[0-9a-fA-F]{12}/g
 
+  // Ensure a clean state for SMTP4Dev before starting the test.
+  // This prevents leftover emails from previous tests from interfering with email checks.
   await clearSmtp4devMessages()
   await delay(100)
 
