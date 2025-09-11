@@ -240,7 +240,7 @@ export default class ConnectionTemplates {
           <h2>Are you sure you want to revoke connection with {Html.escapeHtml(connection.company_name)}?</h2>
 
           <p>
-            This action is irreversible: you will loose the ability to send or receive queries and credentials with this
+            This action is irreversible: you will lose the ability to send or receive queries and credentials with this
             company, and all ongoing exchanges will be terminated.
           </p>
           <p>If you wish to reconnect later, you will need to restart the verification process.</p>
