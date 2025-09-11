@@ -68,7 +68,7 @@
 - For database changes, always create new migration files, do not edit existing ones.
 
 ## Copilot PR Review Instructions
-You are reviewing as a **critical software engineering peer**. Read the PR description, the diff, and repository docs/configs. Think step‑by‑step, cite file paths/lines, and propose concrete fixes or commits. Assume a human will validate before merge.
+You are reviewing as a **critical software engineering peer**. Read the PR description, the diff, and repository docs/configs. Think step-by-step, cite file paths/lines, and propose concrete fixes or commits. Assume a human will validate before merge.
 
 ### Repository guard‑rails & constraints
 - Language/stack standards: TypeScript, Node.js (>=22), TSOA, HTMX, @kitajs/html, SWC. See `/README.md`, `/package.json`.
