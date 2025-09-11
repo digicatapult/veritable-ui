@@ -39,11 +39,11 @@ test.describe('Toast on error', () => {
     await expect(page.locator('#toast-container')).toContainText('Please contact the technical team or try again later')
     await expect(page.locator('#toast-container')).toContainText('Error calling Companies House API')
 
-      await page.selectOption('#new-invite-country-select', 'United States')
+    await page.selectOption('#new-invite-country-select', 'United States')
 
     await waitFor500Response(
       page,
-        () => page.locator('#new-invite-company-number-input').pressSequentially('4040404', { delay: 100 }),
+      () => page.locator('#new-invite-company-number-input').pressSequentially('4040404', { delay: 100 }),
       '/verify-company?'
     )
 
