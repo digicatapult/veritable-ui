@@ -53,7 +53,7 @@ test.describe('Disconnect connection', () => {
       await page.click('#disconnect-button')
       await page.waitForLoadState('networkidle')
       await expect(page.getByText('Are you sure you want to revoke connection with OFFSHORE RENEWABLE')).toBeVisible()
-      await page.click('#disconnect-button')
+      await page.click('#final-disconnect-button')
       await page.waitForLoadState('networkidle')
     })
 
