@@ -23,10 +23,10 @@ export default class ConnectionEvents {
   }
 
   private connectionStateChangedHandler: eventData<'ConnectionStateChanged'> = async (event) => {
-    this.logger.debug(`new connection event %j`, event.payload)
+    this.logger.debug('new connection event %j', event.payload)
     const connectionState = event.payload.connectionRecord.state
     if (connectionState !== 'abandoned' && connectionState !== 'completed') {
-      this.logger.debug('connection state is %s, not abandoned or completed', connectionState)
+      this.logger.trace('with state %s', connectionState)
       return
     }
 
@@ -43,14 +43,19 @@ export default class ConnectionEvents {
       }
 
       const [connection] = await db.get('connection', { id: inviteRecord.connection_id })
+      this.logger.debug('UI DB connection state is %s', connection.status)
 
       if (connectionState === 'abandoned' && connection.status === 'disconnected') {
-        this.logger.debug('Connection abandoned and disconnected')
+        this.logger.debug('connection abandoned and disconnected')
         return
       }
 
+      if (connectionState === 'completed' && connection.status === 'pending') {
+        this.logger.debug('connection state completed and UI DB record pending')
+      }
+
       if (connectionState === 'completed' && connection.status !== 'pending') {
-        this.logger.debug('connection completed with status not pending')
+        this.logger.debug('connection completed with UI DB record not pending')
         this.logger.trace('cloudagent connectionRecord: %o', event.payload.connectionRecord)
         this.logger.trace('UI DB connection: %o', connection)
         this.logger.trace('UI DB connection_invite: %o', inviteRecord)
