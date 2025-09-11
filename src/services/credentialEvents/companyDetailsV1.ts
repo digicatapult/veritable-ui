@@ -209,6 +209,12 @@ export default class CompanyDetailsV1Handler implements CredentialEventHandler<'
             newState = 'verified_both'
           }
           break
+        case 'verified_both':
+          this.logger.warn('PIN event when already verified_both')
+          break
+        case 'disconnected':
+          this.logger.warn('PIN event from disconnected peer %s', connection.id)
+          break
         default:
           break
       }
