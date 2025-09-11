@@ -70,7 +70,7 @@
 ## Copilot PR Review Instructions
 You are reviewing as a **critical software engineering peer**. Read the PR description, the diff, and repository docs/configs. Think step-by-step, cite file paths/lines, and propose concrete fixes or commits. Assume a human will validate before merge.
 
-### Repository guard‑rails & constraints
+### Repository guard-rails & constraints
 - Language/stack standards: TypeScript, Node.js (>=22), TSOA, HTMX, @kitajs/html, SWC. See `/README.md`, `/package.json`.
 - Style/lint rules: enforced by CI (`npm run lint`, ESLint, Prettier, TypeScript checks). Treat violations as issues.
 - Security baseline: OWASP Top 10, secret scanning, dependency updates must be pinned & reviewed. See `.github/workflows/test.yml`, Dockerfile, and SOPS for secrets.
@@ -81,13 +81,13 @@ You are reviewing as a **critical software engineering peer**. Read the PR descr
 ### What to inspect (exhaustive checklist)
 1. **Correctness & API contracts** — Inputs/outputs, edge cases, error handling, idempotency. Check OpenAPI spec (`/build/swagger.json`, `/tsoa.json`).
 2. **Security** — Secrets, authZ/authN flows, crypto, unsafe deserialisation, injection, path traversal, SSRF, XSS. Validate env usage (`src/env/`), Docker secrets, SOPS.
-3. **Data & schema** — Migrations reversible; zero‑downtime; index/constraints; data retention. See `src/models/db/`, `knexfile.js`.
-4. **Concurrency & reliability** — Timeouts, retries, circuit‑breakers, race conditions, deadlocks.
+3. **Data & schema** — Migrations reversible; zero-downtime; index/constraints; data retention. See `src/models/db/`, `knexfile.js`.
+4. **Concurrency & reliability** — Timeouts, retries, circuit-breakers, race conditions, deadlocks.
 5. **Performance** — Hot paths; N+1; allocations; cache usage; pagination; batch sizes; UI responsiveness.
 6. **Testing** — Adequacy, flakiness, negative tests, mocking correctness, fixture realism; **note precise uncovered cases**. See `test/unit/`, `test/integration/`, `test/e2e/`.
 7. **Observability** — Metrics, logs (no PII), trace spans; meaningful error messages. See `pino` usage, error handling in `src/`.
 8. **Maintainability** — Naming, cohesion, coupling, duplication, complexity; public surface area minimal.
-9. **Dependencies & licences** — Added/updated deps necessary, pinned, licence compatible; supply‑chain risk noted. See `package.json`.
+9. **Dependencies & licences** — Added/updated deps necessary, pinned, licence compatible; supply-chain risk noted. See `package.json`.
 10. **Infra/DevEx** — CI steps, build reproducibility, container/Helm/K8s changes, resource requests/limits. See `.github/workflows/`, `Dockerfile`, Helm charts.
 11. **UI/UX** — Accessibility (WCAG), responsiveness, semantic HTML, ARIA roles, keyboard navigation, error states, loading indicators, user feedback, cross-browser compatibility.
 12. **Visual regression** — If UI changes, ensure Playwright or other e2e tests cover visual/interaction changes. Suggest new test cases for major UI changes.
@@ -101,12 +101,12 @@ You are reviewing as a **critical software engineering peer**. Read the PR descr
 - Integration/Infra 10%
 - UI/UX 10%
 
-Provide a **score out of 10** and a short reason per category. Flag any **Must‑Fix** items (blockers) vs **Should‑Fix** (non‑blocking) vs **Nice‑to‑Have**.
+Provide a **score out of 10** and a short reason per category. Flag any **Must-Fix** items (blockers) vs **Should-Fix** (non-blocking) vs **Nice-to-Have**.
 
 ### Required output format
 1. **Executive summary (≤10 lines):** what changed, key risks, merge recommendation.
 2. **Blockers (Must-Fix):** bullet list with file:line and rationale.
-3. **Targeted suggestions:** concrete patches or pseudo‑diffs.
+3. **Targeted suggestions:** concrete patches or pseudo-diffs.
 4. **Test gap analysis:** missing cases and suggested test names (unit, integration, e2e, visual regression).
 5. **Integration risks:** API/DB/infra implications, rollout/rollback notes.
 6. **Scores:** rubric table with /10 per category + overall.
