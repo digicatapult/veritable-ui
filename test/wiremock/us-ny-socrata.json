@@ -52,13 +52,13 @@
     {
       "request": {
         "method": "GET",
-        "url": "/?dos_id=4040404"
+        "url": "/?dos_id=5001500"
       },
       "response": {
-        "status": 404,
+        "status": 500,
         "jsonBody": [
           {
-            "dos_id": "4040404",
+            "dos_id": "5001500",
             "current_entity_name": "NOT FOUND",
             "initial_dos_filing_date": "DATE NOT FOUND",
             "county": "COUNTY NOT FOUND",

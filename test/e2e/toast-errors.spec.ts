@@ -43,7 +43,7 @@ test.describe('Toast on error', () => {
 
     await waitFor500Response(
       page,
-      () => page.locator('#new-invite-company-number-input').pressSequentially('4040404', { delay: 100 }),
+        () => page.locator('#new-invite-company-number-input').pressSequentially('5001500', { delay: 100 }),
       '/verify-company?'
     )
 
