@@ -92,6 +92,21 @@ You are reviewing as a **critical software engineering peer**. Read the PR descr
 11. **UI/UX** — Accessibility (WCAG), responsiveness, semantic HTML, ARIA roles, keyboard navigation, error states, loading indicators, user feedback, cross-browser compatibility.
 12. **Visual regression** — If UI changes, ensure Playwright or other e2e tests cover visual/interaction changes. Suggest new test cases for major UI changes.
 
+### Package Version Bumping & Semver Guidance
+- This repository uses [Semantic Versioning (semver)](https://semver.org/).
+- Copilot should always comment on whether the PR includes breaking changes, new features, or bug fixes, and whether the version bump matches the change type:
+  - **Breaking changes** (API, DB, UI contract, or major dependency changes):
+    - If current major version is 0 (e.g., 0.x.x), breaking changes should bump the minor version (0.x.x → 0.y.0).
+    - If major version is ≥1, breaking changes should bump the major version (x.y.z → (x+1).0.0).
+  - **New features** (backwards compatible):
+    - Minor version bump (x.y.z → x.(y+1).0).
+  - **Bug fixes** (backwards compatible):
+    - Patch version bump (x.y.z → x.y.(z+1)).
+- PR reviews should explicitly call out if the version bump in `package.json` matches the nature of the change, and suggest corrections if not.
+- For breaking changes, ensure clear documentation in the PR and CHANGELOG, and highlight migration/rollout risks.
+- For minor/patch changes, ensure backwards compatibility and regression tests are present.
+- If the PR does not update the version appropriately, flag as **Must-Fix**.
+
 ### Scoring rubric (weightings)
 - Correctness 25%
 - Security 15%
