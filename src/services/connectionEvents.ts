@@ -26,6 +26,7 @@ export default class ConnectionEvents {
     this.logger.debug(`new connection event %j`, event.payload)
     const connectionState = event.payload.connectionRecord.state
     if (connectionState !== 'abandoned' && connectionState !== 'completed') {
+      this.logger.debug('connection state is %s, not abandoned or completed', connectionState)
       return
     }
 
@@ -34,7 +35,7 @@ export default class ConnectionEvents {
       const [inviteRecord] = await db.get('connection_invite', { oob_invite_id: outOfBandId })
       if (!inviteRecord) {
         this.logger.warn(
-          'Connection event on agent_connection_id %s with state %s has no invitation record',
+          'connection event on agent_connection_id %s with state %s has no invitation record',
           cloudAgentConnectionId,
           connectionState
         )
@@ -49,7 +50,10 @@ export default class ConnectionEvents {
       }
 
       if (connectionState === 'completed' && connection.status !== 'pending') {
-        this.logger.debug('Connection completed with status not pending')
+        this.logger.debug('connection completed with status not pending')
+        this.logger.trace('cloudagent connectionRecord: %o', event.payload.connectionRecord)
+        this.logger.trace('UI DB connection: %o', connection)
+        this.logger.trace('UI DB connection_invite: %o', inviteRecord)
         return
       }
 
@@ -61,7 +65,7 @@ export default class ConnectionEvents {
       )
       await db.update('connection_invite', { connection_id: connection.id }, { validity: 'used' })
 
-      this.logger.debug('Database state for connection %s updated to %s', connection.id, updateStatus)
+      this.logger.debug('database state for connection %s updated to %s', connection.id, updateStatus)
       this.logger.debug('OOB invitation with connection_id %s updated to used', connection.id)
       return
     })
