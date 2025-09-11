@@ -84,8 +84,8 @@ test.describe('New query request', () => {
     })
   })
 
-  test('creates a Beneficiary Account Validation (BAV) query (Alice)', async () => {
-    await test.step('creates a new query request for total BAV', async () => {
+  test('creates a Beneficiary Account Validation (BAV) query (Alice) from queries page', async () => {
+    await test.step('creates a new query request from queries page', async () => {
       await page.goto(`${aliceE2E.url}/queries`, { waitUntil: 'networkidle' })
       await page.click('text=Query Request', { delay: 50 })
       await page.waitForLoadState('networkidle')
@@ -116,7 +116,6 @@ test.describe('New query request', () => {
 
       await page.getByPlaceholder('01/01/2025, 00:00 am').fill(expiresAt)
       await page.getByRole('button', { name: 'Submit Query' }).click({ delay: 50 })
-      await page.waitForLoadState('networkidle')
 
       const successModal = page.locator('#new-query-confirmation-text')
       await expect(successModal).toBeVisible()
@@ -136,8 +135,8 @@ test.describe('New query request', () => {
     })
   })
 
-  test('requests a query from connection page (Alice)', async () => {
-    await test.step('creates a new query request from connections', async () => {
+  test('creates a Beneficiary Account Validation (BAV) query (Alice) from connections page', async () => {
+    await test.step('creates a new query request from connections page', async () => {
       await page.goto(`${aliceE2E.url}/connection`, { waitUntil: 'networkidle' })
       await expect(page.locator('text=Send Query')).toBeVisible()
       await page.click('text=Send Query', { delay: 50 })
@@ -148,9 +147,10 @@ test.describe('New query request', () => {
       await expect(bavCard).toBeVisible()
       await bavCard.click({ delay: 50 })
       await page.waitForLoadState('networkidle')
+      await expect(page.getByRole('heading', { name: 'Beneficiary Account Validation Query' })).toBeVisible()
     })
 
-    await test.step('connection select page skipped - submits a new BAV query request', async () => {
+    await test.step('submits a new BAV query request', async () => {
       await expect(page.locator('#content-main')).toContainText(bobE2E.companyName)
 
       await page.getByPlaceholder('01/01/2025, 00:00 am').fill(expiresAt)
@@ -159,6 +159,18 @@ test.describe('New query request', () => {
       const successModal = page.locator('#new-query-confirmation-text')
       await expect(successModal).toBeVisible()
       await expect(successModal.getByRole('heading')).toContainText('Your Query has been sent!')
+    })
+
+    await test.step('new query is visible on other node (Bob) and can be responded to', async () => {
+      await page.goto(`${bobE2E.url}/queries`, { waitUntil: 'networkidle' })
+      const queryRow = page.getByRole('table').getByRole('row', { name: aliceE2E.companyName })
+      const button = queryRow.getByText('Respond to Query')
+
+      await expect(button).toBeVisible()
+      await expect(button).toBeEnabled()
+      await expect(queryRow.getByText('Beneficiary Account Validation')).toBeVisible()
+      await expect(queryRow.getByText('Received')).toBeVisible()
+      await expect(queryRow.getByText('Pending Your Input')).toHaveClass('list-item-status')
     })
   })
 })
