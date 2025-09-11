@@ -167,8 +167,12 @@ export default class ConnectionTemplates {
                 </b>
                 {Html.escapeHtml(connection.updated_at.toLocaleDateString())}
               </div>
-              {connection.status == 'disconnected' ? (
-                <small id="disconnect-button-warning">This connection has been disconnected</small>
+              {connection.status !== 'verified_both' ? (
+                <small id="disconnect-button-warning">
+                  {connection.status == 'disconnected'
+                    ? 'This connection has been disconnected'
+                    : 'This connection is not yet verified'}
+                </small>
               ) : (
                 <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: '10px' }}>
                   <a
