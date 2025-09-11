@@ -137,7 +137,7 @@ export class NewInviteTemplates extends NewConnectionTemplates {
             placeholder="Company Number or ID"
             required
             hx-get="/connection/new/verify-company"
-            hx-trigger="keyup changed delay:200ms, change, load"
+            hx-trigger="keyup changed delay:200ms, change"
             hx-target="#new-connection-feedback"
             hx-select="#new-connection-feedback"
             hx-swap="outerHTML"

@@ -23,6 +23,7 @@ export const makeOrganisationRegistryRequest = async (
     method: 'GET',
     headers,
   })
+
   if (response.ok) {
     return response.json()
   }

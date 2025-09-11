@@ -139,4 +139,54 @@ describe('ConnectionController', () => {
       )
     })
   })
+  describe('profilePage', () => {
+    it('should return rendered profile page', async () => {
+      const { args } = withConnectionMocks(null, null, 'verified_both')
+      const controller = new ConnectionController(...args)
+      const result = await controller.connectionProfile(req, 'someId').then(toHTMLString)
+      expect(result).to.equal('profilePage_someId-unverified-noBankDetails_profilePage')
+    })
+    it('should call db as expected', async () => {
+      const { dbMock, args } = withConnectionMocks(null, null, 'pending')
+      const controller = new ConnectionController(...args)
+      const spy: sinon.SinonSpy = sinon.spy(dbMock, 'get')
+      await controller.connectionProfile(req, 'someId').then(toHTMLString)
+      expect(spy.calledWith('connection', { id: 'someId' })).to.equal(true)
+    })
+    it('should return rendered profile page', async () => {
+      const { args } = withConnectionMocks(null, null, 'verified_both')
+      const controller = new ConnectionController(...args)
+      const result = await controller.connectionProfile(req, 'someVerifiedId').then(toHTMLString)
+      expect(result).to.equal(
+        'profilePage_someVerifiedId-verified_both-{"countryCode":"GB","name":"Harry Potter","accountId":"12345678","clearingSystemId":"123456"}_profilePage'
+      )
+    })
+  })
+  describe('disconnectConnection', () => {
+    it('should return rendered disconnect page', async () => {
+      const { args } = withConnectionMocks(null, null, 'unverified')
+      const controller = new ConnectionController(...args)
+      const result = await controller.disconnectConnection(req, 'someId').then(toHTMLString)
+      expect(result).to.equal('disconnectPage_someId-unverified-false_disconnectPage')
+    })
+    it('should return rendered profile page with disconnect set to true', async () => {
+      const { args } = withConnectionMocks(null, null, 'unverified')
+      const controller = new ConnectionController(...args)
+      const result = await controller.disconnectConnection(req, 'someId', true).then(toHTMLString)
+      expect(result).to.equal('profilePage_someId-disconnected-noBankDetails_profilePage')
+    })
+    it('should call db as expected', async () => {
+      const { dbMock, args } = withConnectionMocks(null, null, 'unverified')
+      const controller = new ConnectionController(...args)
+      const spy: sinon.SinonSpy = sinon.spy(dbMock, 'get')
+      await controller.disconnectConnection(req, 'someId').then(toHTMLString)
+      expect(spy.calledWith('connection', { id: 'someId' })).to.equal(true)
+    })
+    it('should return rendered disconnect page', async () => {
+      const { args } = withConnectionMocks(null, null, 'verified_both')
+      const controller = new ConnectionController(...args)
+      const result = await controller.disconnectConnection(req, 'someVerifiedId').then(toHTMLString)
+      expect(result).to.equal('disconnectPage_someVerifiedId-verified_both-false_disconnectPage')
+    })
+  })
 })

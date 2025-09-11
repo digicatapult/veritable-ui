@@ -48,6 +48,25 @@
           }
         ]
       }
+    },
+    {
+      "request": {
+        "method": "GET",
+        "url": "/?dos_id=5001500"
+      },
+      "response": {
+        "status": 500,
+        "jsonBody": [
+          {
+            "dos_id": "5001500",
+            "current_entity_name": "NOT FOUND",
+            "initial_dos_filing_date": "DATE NOT FOUND",
+            "county": "COUNTY NOT FOUND",
+            "jurisdiction": "JURISDICTION NOT FOUND",
+            "entity_type": "ENTITY TYPE NOT FOUND"
+          }
+        ]
+      }
     }
   ]
 }

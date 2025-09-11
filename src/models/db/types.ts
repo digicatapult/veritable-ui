@@ -17,6 +17,7 @@ const insertConnection = z.object({
   pin_tries_remaining_count: z.number().int().gte(0).lte(255).nullable(),
   registry_country_code: z.enum(countryCodes),
   registry_code: registryKeyParser,
+  address: z.string(),
 })
 
 const insertConnectionInvite = z.object({

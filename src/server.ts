@@ -9,7 +9,7 @@ import { container } from 'tsyringe'
 import { randomUUID } from 'crypto'
 import { ValidateError } from 'tsoa'
 import { Env } from './env/index.js'
-import { ForbiddenError, HttpError } from './errors.js'
+import { ForbiddenError, HttpError, InternalError } from './errors.js'
 import { ILogger, Logger } from './logger.js'
 import { UUID } from './models/stringTypes.js'
 import { RegisterRoutes } from './routes.js'
@@ -18,6 +18,7 @@ import CredentialEvents from './services/credentialEvents/index.js'
 import DrpcEvents from './services/drpcEvents/index.js'
 import VeritableCloudagentEvents from './services/veritableCloudagentEvents.js'
 import loadApiSpec from './swagger.js'
+import { errorToast } from './views/errors/errors.js'
 
 const env = container.resolve(Env)
 
@@ -120,6 +121,10 @@ export default async (startEvents: boolean = true) => {
   app.use('/public', express.static('public'))
   app.use('/lib/htmx.org', express.static('node_modules/htmx.org/dist'))
   app.use('/lib/htmx-ext-json-enc/json-enc.js', express.static('node_modules/htmx-ext-json-enc/json-enc.js'))
+  app.use(
+    '/lib/htmx-ext-response-targets/response-targets.js',
+    express.static('node_modules/htmx-ext-response-targets/response-targets.js')
+  )
 
   const apiSpec = await loadApiSpec(env)
   app.get('/api-docs', (_req, res) => {
@@ -159,26 +164,30 @@ export default async (startEvents: boolean = true) => {
     }
 
     if (err instanceof HttpError) {
-      res.status(err.code).send({
-        message: err.message,
-      })
-      return
+      req.log.error(`Caught HttpError for ${req.path}: ${err.message}`)
+    }
+
+    if (err instanceof InternalError) {
+      req.log.error(`Caught Internal Error for ${req.path}: ${err.message}`)
     }
 
     if (err instanceof ValidateError) {
-      req.log.warn(`Caught Validation Error for ${req.path}: %o`, err.fields)
-      res.status(422).json({
-        message: 'Validation Failed',
-        details: err?.fields,
-      })
-      return
+      req.log.error(`Caught Validation Error for ${req.path}:`)
     }
+
     if (err instanceof Error) {
-      res.status(500).json({
-        message: 'Internal Server Error',
-      })
-      return
+      req.log.error(`Caught Unknown Error for ${req.path}: ${err.message}`)
     }
+
+    const code = err instanceof HttpError ? err.code : 500
+    const toast = errorToast(err)
+
+    res.setHeader('HX-Reswap', 'afterbegin')
+    // // really ugly workaround for https://github.com/bigskysoftware/htmx/issues/2518
+    res.setHeader('HX-Reselect', ':not(* > *)')
+    res.setHeader('Content-Type', 'text/html')
+    res.setHeader('HX-Trigger-After-Settle', JSON.stringify({ veritableError: { dialogId: toast.dialogId } }))
+    res.status(code).send(toast.response)
 
     next()
   })
