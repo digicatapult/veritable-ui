@@ -38,9 +38,7 @@ test.describe('Connection via Open Corporates', () => {
       await expect(page.locator('#new-invite-country-code-display')).toHaveValue(daveE2E.registryCountryCode)
       await page.locator('#third-party-registry-radio').click({ delay: 50 })
 
-      const companyNumber = daveE2E.companyNumber
-
-      await page.locator('#new-invite-company-number-input').pressSequentially(companyNumber, { delay: 20 })
+      await page.locator('#new-invite-company-number-input').pressSequentially(daveE2E.companyNumber, { delay: 20 })
       await page.fill('#new-invite-email-input', 'alice@testmail.com')
 
       const feedbackElement = page.locator('#new-connection-feedback')

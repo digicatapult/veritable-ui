@@ -36,9 +36,7 @@ test.describe('Connection via NY State Registry', () => {
       await page.selectOption('#new-invite-country-select', 'United States')
       await expect(page.locator('#new-invite-country-code-display')).toHaveValue(charlieE2E.registryCountryCode)
 
-      const companyNumber = charlieE2E.companyNumber
-
-      await page.locator('#new-invite-company-number-input').pressSequentially(companyNumber, { delay: 20 })
+      await page.locator('#new-invite-company-number-input').pressSequentially(charlieE2E.companyNumber, { delay: 20 })
       await page.fill('#new-invite-email-input', 'alice@testmail.com')
 
       const feedbackElement = page.locator('#new-connection-feedback')
