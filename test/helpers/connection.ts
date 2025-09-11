@@ -113,6 +113,8 @@ export const withEstablishedConnectionFromUs = function (context: TwoPartyContex
       invitationUrl: inviteUrl,
     })
 
+    // NB the DID handshake & exchange happens within milliseconds before the local DB can be updated
+    // so need to insert records as if already consumed (OOB = used)
     const [{ id: remoteConnectionId }] = await context.remoteDatabase.insert('connection', {
       company_name: alice.company_name,
       company_number: alice.company_number,
