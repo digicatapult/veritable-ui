@@ -11,6 +11,7 @@ test.describe('New query request', () => {
   const bobCO2 = 2
   const bobToCharlieQuantity = 5
   const charlieCO2 = 1
+  // TODO: The total CO2 test is currently disabled due to a known issue (see PR description). Re-enable this line when the issue is resolved.
   // const totalCO2 = bobToCharlieQuantity * charlieCO2 + aliceToBobQuantity * bobCO2
 
   test.beforeEach(async ({ browser }) => {
@@ -157,6 +158,7 @@ test.describe('New query request', () => {
       await button.click({ delay: 50 })
 
       await page.waitForLoadState('networkidle')
+      // TODO: The total CO2 test is currently disabled due to a known issue (see PR description). Re-enable this line when the issue is resolved.
       // await expect(page.getByRole('cell', { name: 'kg CO2e' })).toContainText(String(totalCO2))
     })
   })
