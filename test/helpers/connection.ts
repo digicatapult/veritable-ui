@@ -113,6 +113,8 @@ export const withEstablishedConnectionFromUs = function (context: TwoPartyContex
       invitationUrl: inviteUrl,
     })
 
+    // NB the DID handshake & exchange happens within milliseconds before the local DB can be updated
+    // so need to insert records as if already consumed (OOB = used)
     const [{ id: remoteConnectionId }] = await context.remoteDatabase.insert('connection', {
       company_name: alice.company_name,
       company_number: alice.company_number,
@@ -130,18 +132,18 @@ export const withEstablishedConnectionFromUs = function (context: TwoPartyContex
       oob_invite_id: outOfBandRecord.id,
       pin_hash: pinHash,
       expires_at: new Date(new Date().getTime() + 60 * 1000),
-      validity: 'valid',
+      validity: 'used',
     })
     context.remoteConnectionId = remoteConnectionId
 
     // wait for status to not be pending
     for (let i = 0; i < 100; i++) {
-      const connections = await context.localDatabase.get('connection')
-      if (connections[0].status === 'pending') {
+      const [connection] = await context.localDatabase.get('connection')
+      if (connection.status === 'pending') {
         await delay(10)
         continue
       }
-      context.localConnectionId = connections[0].id
+      context.localConnectionId = connection.id
       return
     }
     throw new Error('Timeout Error initialising connection')

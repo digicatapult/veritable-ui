@@ -610,7 +610,7 @@ export class NewConnectionController extends HTMLController {
           { connection_id: connectionId, validity: 'used' },
           { expires_at: new Date(), validity: 'expired' }
         )
-        // reset pin count and invite status to 'pending'
+        // reset pin count and connection status to 'pending'
         await db.update(
           'connection',
           { company_number: company.number },
