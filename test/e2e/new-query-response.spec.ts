@@ -36,11 +36,19 @@ test.describe('New query response', () => {
     await test.step('enters emissions and submits a query response', async () => {
       await page.fill('#co2-embodiment-input', '200')
 
-      await waitForSuccessResponse(page, () => page.getByLabel('Yes').check(), '/partial')
+      await waitForSuccessResponse(
+        page,
+        () => page.locator('#partial-response-input-yes').click({ delay: 20 }),
+        '/partial'
+      )
       await expect(page.getByText('Select which suppliers contributed to the carbon embodiment')).toBeVisible()
       await expect(page.getByPlaceholder('Value in kg CO2e (to be aggregated)')).toHaveValue('200')
 
-      await waitForSuccessResponse(page, () => page.getByLabel('No').first().check({ force: true }), '/partial')
+      await waitForSuccessResponse(
+        page,
+        () => page.locator('#partial-response-input-no').click({ delay: 20 }),
+        '/partial'
+      )
       await expect(page.getByText('Select which suppliers contributed to the carbon embodiment')).not.toBeVisible()
       await expect(page.getByPlaceholder('Value in kg CO2e (to be aggregated)')).toHaveValue('200')
 
