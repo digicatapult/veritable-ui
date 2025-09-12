@@ -2,13 +2,14 @@ import { expect, Page, test } from '@playwright/test'
 import { withBavQueryRequest, withCarbonQueryRequest } from '../helpers/query.js'
 import { cleanup, CustomBrowserContext, withLoggedInUser, withRegisteredAccount } from '../helpers/registerLogIn.js'
 import { aliceE2E, bobE2E, withConnection } from '../helpers/setupConnection.js'
+import { waitForSuccessResponse } from '../helpers/waitForHelper.js'
 
 test.describe('New query response', () => {
   let context: CustomBrowserContext
   let page: Page
 
   test.beforeEach(async ({ browser }) => {
-    test.setTimeout(15000) // withConnection() can take 7sec to complete
+    test.setTimeout(20000) // withConnection() can take 7sec to complete
     context = await browser.newContext()
     page = await context.newPage()
     await withRegisteredAccount(page, context, aliceE2E.url)
@@ -34,6 +35,15 @@ test.describe('New query response', () => {
 
     await test.step('enters emissions and submits a query response', async () => {
       await page.fill('#co2-embodiment-input', '200')
+
+      await waitForSuccessResponse(page, () => page.getByLabel('Yes').check(), '/partial')
+      await expect(page.getByText('Select which suppliers contributed to the carbon embodiment')).toBeVisible()
+      await expect(page.getByPlaceholder('Value in kg CO2e (to be aggregated)')).toHaveValue('200')
+
+      await waitForSuccessResponse(page, () => page.getByLabel('No').check(), '/partial')
+      await expect(page.getByText('Select which suppliers contributed to the carbon embodiment')).not.toBeVisible()
+      await expect(page.getByPlaceholder('Value in kg CO2e (to be aggregated)')).toHaveValue('200')
+
       const button = page.getByRole('button', { name: 'Submit Response' })
       await expect(button).toBeVisible()
       await expect(button).not.toBeDisabled()
