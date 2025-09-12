@@ -1,12 +1,9 @@
 import { expect, Page, test } from '@playwright/test'
 import { expiresAt } from '../helpers/query.js'
 import { cleanup, CustomBrowserContext, withLoggedInUser, withRegisteredAccount } from '../helpers/registerLogIn.js'
-import { withConnection } from '../helpers/setupConnection.js'
+import { aliceE2E, bobE2E, withConnection } from '../helpers/setupConnection.js'
 
 test.describe('New query request', () => {
-  const AliceHost = process.env.VERITABLE_ALICE_PUBLIC_URL || 'http://localhost:3000'
-  const BobHost = process.env.VERITABLE_BOB_PUBLIC_URL || 'http://localhost:3001'
-
   let context: CustomBrowserContext
   let page: Page
 
@@ -14,21 +11,21 @@ test.describe('New query request', () => {
     test.setTimeout(15000) // withConnection() can take 7sec to complete
     context = await browser.newContext()
     page = await context.newPage()
-    await withRegisteredAccount(page, context, AliceHost)
-    await withLoggedInUser(page, context, AliceHost)
-    await withConnection(AliceHost, BobHost)
+    await withRegisteredAccount(page, context, aliceE2E.url)
+    await withLoggedInUser(page, context, aliceE2E.url)
+    await withConnection(aliceE2E, bobE2E)
   })
 
   test.afterEach(async () => {
-    await cleanup([AliceHost, BobHost])
+    await cleanup([aliceE2E.url, bobE2E.url])
     await page.close()
     await context.close()
   })
 
   test('creates a total carbon embodiment (CO2) query (Alice)', async () => {
     await test.step('creates a new query request for total co2 emissions', async () => {
-      await page.goto(`${AliceHost}/queries`, { waitUntil: 'networkidle' })
-      await page.click('text=Query Request', { delay: 100 })
+      await page.goto(`${aliceE2E.url}/queries`, { waitUntil: 'networkidle' })
+      await page.click('text=Query Request', { delay: 50 })
 
       const queryTypes = page.locator('.query-item')
       expect(queryTypes.nth(0)).not.toHaveClass('query-item disabled')
@@ -38,13 +35,13 @@ test.describe('New query request', () => {
 
       const co2Card = page.locator('a[href="/queries/new?type=total_carbon_embodiment"]')
       await expect(co2Card).toContainText('Total Carbon Embodiment')
-      await co2Card.click({ delay: 100 })
+      await co2Card.click({ delay: 50 })
       await page.waitForLoadState('networkidle')
     })
 
     await test.step('selects company from already established connections', async () => {
       const aliceConnections = page.locator('#search-results')
-      await expect(aliceConnections).toContainText('OFFSHORE RENEWABLE ENERGY CATAPULT')
+      await expect(aliceConnections).toContainText(bobE2E.companyName)
 
       const checkbox = page.getByRole('checkbox')
       await expect(checkbox).toBeVisible()
@@ -52,7 +49,7 @@ test.describe('New query request', () => {
       await checkbox.check()
       await expect(checkbox).toBeChecked()
 
-      await page.getByRole('button', { name: 'Next' }).click({ delay: 100 })
+      await page.getByRole('button', { name: 'Next' }).click({ delay: 50 })
       await page.waitForLoadState('networkidle')
       await expect(page.getByRole('heading', { name: 'Total Carbon Embodiment Query' })).toBeVisible()
     })
@@ -65,18 +62,18 @@ test.describe('New query request', () => {
       await page.getByPlaceholder('BX20001').fill('E2E-Product-id')
       await page.getByLabel('Quantity').fill('10')
       await page.getByLabel('Request Deadline').fill(expiresAt)
-      await page.getByRole('button', { name: 'Submit Query' }).click({ delay: 100 })
+      await page.getByRole('button', { name: 'Submit Query' }).click({ delay: 50 })
       await page.waitForLoadState('networkidle')
 
       const successModal = page.locator('#new-query-confirmation-text')
       await expect(successModal).toBeVisible()
       await expect(successModal.getByRole('heading')).toContainText('Your Query has been sent!')
-      await expect(successModal).toContainText('OFFSHORE RENEWABLE ENERGY CATAPULT')
+      await expect(successModal).toContainText(bobE2E.companyName)
     })
 
     await test.step('new query is visible on other node (Bob) and can be responded to', async () => {
-      await page.goto(`${BobHost}/queries`, { waitUntil: 'networkidle' })
-      const queryRow = page.getByRole('table').getByRole('row', { name: 'DIGITAL CATAPULT' })
+      await page.goto(`${bobE2E.url}/queries`, { waitUntil: 'networkidle' })
+      const queryRow = page.getByRole('table').getByRole('row', { name: aliceE2E.companyName })
       const button = queryRow.getByText('Respond to Query')
 
       await expect(button).toBeVisible()
@@ -88,20 +85,20 @@ test.describe('New query request', () => {
   })
 
   test('creates a Beneficiary Account Validation (BAV) query (Alice)', async () => {
-    await test.step('creates a new query request for total BAV', async () => {
-      await page.goto(`${AliceHost}/queries`, { waitUntil: 'networkidle' })
-      await page.click('text=Query Request', { delay: 100 })
+    await test.step('creates a new query request from queries page', async () => {
+      await page.goto(`${aliceE2E.url}/queries`, { waitUntil: 'networkidle' })
+      await page.click('text=Query Request', { delay: 50 })
       await page.waitForLoadState('networkidle')
 
       const bavCard = page.locator('a[href="/queries/new?type=beneficiary_account_validation"]')
       await expect(bavCard).toContainText(`a query to verify a company's financial details`)
-      await bavCard.click({ delay: 100 })
+      await bavCard.click({ delay: 50 })
       await page.waitForLoadState('networkidle')
     })
 
     await test.step('selects company from already established connections', async () => {
       const aliceConnections = page.locator('#search-results')
-      await expect(aliceConnections).toContainText('OFFSHORE RENEWABLE ENERGY CATAPULT')
+      await expect(aliceConnections).toContainText(bobE2E.companyName)
 
       const checkbox = page.getByRole('checkbox')
       await expect(checkbox).toBeVisible()
@@ -109,17 +106,16 @@ test.describe('New query request', () => {
       await checkbox.check()
       await expect(checkbox).toBeChecked()
 
-      await page.getByRole('button', { name: 'Next' }).click({ delay: 100 })
+      await page.getByRole('button', { name: 'Next' }).click({ delay: 50 })
       await page.waitForLoadState('networkidle')
       await expect(page.getByRole('heading', { name: 'Beneficiary Account Validation Query' })).toBeVisible()
     })
 
     await test.step('submits a new BAV query request', async () => {
-      await expect(page.locator('#content-main')).toContainText('OFFSHORE RENEWABLE ENERGY CATAPULT')
+      await expect(page.locator('#content-main')).toContainText(bobE2E.companyName)
 
       await page.getByPlaceholder('01/01/2025, 00:00 am').fill(expiresAt)
-      await page.getByRole('button', { name: 'Submit Query' }).click({ delay: 100 })
-      await page.waitForLoadState('networkidle')
+      await page.getByRole('button', { name: 'Submit Query' }).click({ delay: 50 })
 
       const successModal = page.locator('#new-query-confirmation-text')
       await expect(successModal).toBeVisible()
@@ -127,8 +123,8 @@ test.describe('New query request', () => {
     })
 
     await test.step('new query is visible on other node (Bob) and can be responded to', async () => {
-      await page.goto(`${BobHost}/queries`, { waitUntil: 'networkidle' })
-      const queryRow = page.getByRole('table').getByRole('row', { name: 'DIGITAL CATAPULT' })
+      await page.goto(`${bobE2E.url}/queries`, { waitUntil: 'networkidle' })
+      const queryRow = page.getByRole('table').getByRole('row', { name: aliceE2E.companyName })
       const button = queryRow.getByText('Respond to Query')
 
       await expect(button).toBeVisible()
@@ -136,46 +132,6 @@ test.describe('New query request', () => {
       await expect(queryRow.getByText('Beneficiary Account Validation')).toBeVisible()
       await expect(queryRow.getByText('Received')).toBeVisible()
       await expect(queryRow.getByText('Pending Your Input')).toHaveClass('list-item-status')
-    })
-  })
-
-  test('requests a new query from queries page (Alice)', async () => {
-    await test.step('creates a new query request from connections', async () => {
-      await page.goto(`${AliceHost}/queries`, { waitUntil: 'networkidle' })
-      await page.waitForLoadState('networkidle')
-
-      // Click the Query Request button
-      const queryRequestButton = page.locator('a.button[href="/queries/choose"][data-variant="filled"]')
-      await expect(queryRequestButton).toBeVisible()
-      await queryRequestButton.click({ delay: 100 })
-      await page.waitForLoadState('networkidle')
-
-      const bavCard = page.locator('a[href^="/queries/new?type=beneficiary_account_validation"]')
-      await expect(bavCard).toBeVisible()
-      await bavCard.click({ delay: 100 })
-      await page.waitForLoadState('networkidle')
-    })
-
-    await test.step('connection select page skipped - submits a new BAV query request', async () => {
-      const aliceConnections = page.locator('#search-results')
-      await expect(aliceConnections).toContainText('OFFSHORE RENEWABLE ENERGY CATAPULT')
-
-      const checkbox = page.getByRole('checkbox')
-      await expect(checkbox).toBeVisible()
-      await expect(checkbox).not.toBeDisabled()
-      await checkbox.check()
-      await expect(checkbox).toBeChecked()
-
-      await page.getByRole('button', { name: 'Next' }).click({ delay: 100 })
-      await page.waitForLoadState('networkidle')
-      await expect(page.locator('#content-main')).toContainText('OFFSHORE RENEWABLE ENERGY CATAPULT')
-
-      await page.getByPlaceholder('01/01/2025, 00:00 am').fill(expiresAt)
-      await page.getByRole('button', { name: 'Submit Query' }).click({ delay: 100 })
-
-      const successModal = page.locator('#new-query-confirmation-text')
-      await expect(successModal).toBeVisible()
-      await expect(successModal.getByRole('heading')).toContainText('Your Query has been sent!')
     })
   })
 })

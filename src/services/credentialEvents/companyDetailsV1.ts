@@ -86,15 +86,16 @@ export default class CompanyDetailsV1Handler implements CredentialEventHandler<'
       return
     }
 
-    // check the pin number provided is valid
+    // check the pin number provided is valid - should only allow PIN entry after DID exchange (ie OOB marked as used)
     const pinInvites = await this.db.get('connection_invite', {
       connection_id: connection.id,
-      validity: 'valid',
+      validity: 'used',
     })
 
     const isPinValid = (
       await Promise.all(
         pinInvites.map(async ({ pin_hash, expires_at, id }) => {
+          // TODO: we shouldn't be expiring OOB invitations during PIN checking - this should happen during DID exchange
           if (expires_at < new Date()) {
             await this.db.update('connection_invite', { id }, { validity: 'expired' })
             return false
@@ -194,16 +195,28 @@ export default class CompanyDetailsV1Handler implements CredentialEventHandler<'
       }
 
       let newState: typeof connection.status | null = null
-      if (connection.status === 'unverified') {
-        newState = credential.role === 'holder' ? 'verified_us' : 'verified_them'
-      }
-
-      if (connection.status === 'verified_them' && credential.role === 'holder') {
-        newState = 'verified_both'
-      }
-
-      if (connection.status === 'verified_us' && credential.role === 'issuer') {
-        newState = 'verified_both'
+      switch (connection.status) {
+        case 'unverified':
+          newState = credential.role === 'holder' ? 'verified_us' : 'verified_them'
+          break
+        case 'verified_them':
+          if (credential.role === 'holder') {
+            newState = 'verified_both'
+          }
+          break
+        case 'verified_us':
+          if (credential.role === 'issuer') {
+            newState = 'verified_both'
+          }
+          break
+        case 'verified_both':
+          this.logger.warn('PIN event when already verified_both')
+          return
+        case 'disconnected':
+          this.logger.warn('PIN event from disconnected peer %s', connection.id)
+          return
+        default:
+          break
       }
 
       if (newState === null) {
@@ -212,9 +225,9 @@ export default class CompanyDetailsV1Handler implements CredentialEventHandler<'
 
       await db.update('connection', { id: connection.id }, { status: newState })
 
-      if (credential.role === 'issuer') {
-        await db.update('connection_invite', { connection_id: connection.id, validity: 'valid' }, { validity: 'used' })
-      }
+      this.logger.trace('credential role is %s', credential.role)
+      this.logger.debug('connection state was %s', connection.status)
+      this.logger.debug('new connection state is %s', newState)
     })
   }
 }

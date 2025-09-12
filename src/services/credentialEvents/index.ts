@@ -131,6 +131,7 @@ export default class CredentialEvents {
       return
     }
 
+    // TODO: this is being triggered during PIN exchange
     this.logger.debug('Ignoring event on credential %s with state %s as role %s', record.id, record.state, record.role)
     return
   }

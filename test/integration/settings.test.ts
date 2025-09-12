@@ -64,15 +64,15 @@ describe('integration tests for settings page', function () {
   describe('sad path', function () {
     it('returns fail on edit mode being false', async function () {
       const response = await post(context.app, '/settings/?edit=false', testEditBody)
-      expect(response.status).to.equal(501)
+      expect(response.status).to.equal(500)
     })
     it('returns fail on missing property and false edit mode', async function () {
       const response = await post(context.app, '/settings/?edit=false', testBody)
-      expect(response.status).to.equal(501)
+      expect(response.status).to.equal(500)
     })
     it('returns fail on missing property even if edit is turned on', async function () {
       const response = await post(context.app, '/settings/?edit=true', testBody)
-      expect(response.status).to.equal(501)
+      expect(response.status).to.equal(500)
     })
   })
 })

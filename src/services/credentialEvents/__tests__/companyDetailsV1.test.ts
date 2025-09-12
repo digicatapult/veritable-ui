@@ -50,7 +50,7 @@ describe('companyDetailsV1', function () {
       expect(dbMock.get.firstCall.args).deep.equal(['connection', { agent_connection_id: 'agent-connection-id' }])
       expect(dbMock.get.secondCall.args).deep.equal([
         'connection_invite',
-        { connection_id: 'connection-id', validity: 'valid' },
+        { connection_id: 'connection-id', validity: 'used' },
       ])
       expect(dbMock.increment.callCount).to.equal(1)
       expect(dbMock.increment.firstCall.args).to.deep.equal([
@@ -123,7 +123,7 @@ describe('companyDetailsV1', function () {
       expect(dbMock.get.firstCall.args).deep.equal(['connection', { agent_connection_id: 'agent-connection-id' }])
       expect(dbMock.get.secondCall.args).deep.equal([
         'connection_invite',
-        { connection_id: 'connection-id', validity: 'valid' },
+        { connection_id: 'connection-id', validity: 'used' },
       ])
       expect(dbMock.increment.callCount).to.equal(1)
       expect(dbMock.increment.firstCall.args).to.deep.equal([
@@ -994,13 +994,8 @@ describe('companyDetailsV1', function () {
       })
 
       const stub = dbTransactionMock.update
-      expect(stub.callCount).to.equal(2)
+      expect(stub.callCount).to.equal(1)
       expect(stub.firstCall.args).to.deep.equal(['connection', { id: `connection-id` }, { status: 'verified_them' }])
-      expect(stub.secondCall.args).to.deep.equal([
-        'connection_invite',
-        { connection_id: `connection-id`, validity: 'valid' },
-        { validity: 'used' },
-      ])
     })
 
     test('happy path verified_them as holder', async function () {
@@ -1041,13 +1036,8 @@ describe('companyDetailsV1', function () {
       })
 
       const stub = dbTransactionMock.update
-      expect(stub.callCount).to.equal(2)
+      expect(stub.callCount).to.equal(1)
       expect(stub.firstCall.args).to.deep.equal(['connection', { id: `connection-id` }, { status: 'verified_both' }])
-      expect(stub.secondCall.args).to.deep.equal([
-        'connection_invite',
-        { connection_id: `connection-id`, validity: 'valid' },
-        { validity: 'used' },
-      ])
     })
 
     test('verified_both as holder', async function () {
