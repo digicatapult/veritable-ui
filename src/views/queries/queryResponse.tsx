@@ -163,6 +163,7 @@ export default class QueryResponseTemplates {
                   class="input-with-label"
                   type="text"
                   required={true}
+                  hx-preserve="true"
                 />
               </div>
               <div class="input-container">
@@ -174,7 +175,7 @@ export default class QueryResponseTemplates {
                     hx-trigger="changed, click"
                     hx-target="#partial-query"
                     hx-get={`/queries/${query.id}/partial`}
-                    id="partial-response-input"
+                    id="partial-response-input-yes"
                     name="partialQuery"
                     type="radio"
                     checked={partial}
@@ -184,7 +185,8 @@ export default class QueryResponseTemplates {
                     hx-trigger="changed, click"
                     hx-target="#partial-query"
                     hx-get={`/queries/${query.id}/partial`}
-                    id="partial-response-input"
+                    id="partial-response-input-no"
+                    name="partialQuery"
                     type="radio"
                     checked={partial !== undefined && !partial}
                   />
