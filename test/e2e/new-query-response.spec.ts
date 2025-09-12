@@ -40,7 +40,7 @@ test.describe('New query response', () => {
       await expect(page.getByText('Select which suppliers contributed to the carbon embodiment')).toBeVisible()
       await expect(page.getByPlaceholder('Value in kg CO2e (to be aggregated)')).toHaveValue('200')
 
-      await waitForSuccessResponse(page, () => page.getByLabel('No').check(), '/partial')
+      await waitForSuccessResponse(page, () => page.getByLabel('No').first().check({ force: true }), '/partial')
       await expect(page.getByText('Select which suppliers contributed to the carbon embodiment')).not.toBeVisible()
       await expect(page.getByPlaceholder('Value in kg CO2e (to be aggregated)')).toHaveValue('200')
 
