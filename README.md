@@ -187,6 +187,12 @@ Integration tests can be run locally using Testcontainers (it is recommended to 
 npm run test:integration
 ```
 
+Run integration tests without tearing down all containers on completion. UI containers are always rebuilt:
+
+```sh
+npm run test:integration:reuse
+```
+
 ### e2e Testing
 
 End-to-end tests are located in [`test/e2e`](test/e2e/). They run by default in a Testcontainers environment.
