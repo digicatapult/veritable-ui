@@ -1,12 +1,11 @@
 import * as fs from 'node:fs'
 import path from 'path'
-import { GenericContainer, Network, StartedTestContainer, Wait } from 'testcontainers'
+import { GenericContainer, getContainerRuntimeClient, StartedNetwork, StartedTestContainer, Wait } from 'testcontainers'
 import { fileURLToPath } from 'url'
 import { parse } from 'yaml'
 
-//============ Start Network ============
-
-const network = await new Network().start()
+const containerRuntimeClient = await getContainerRuntimeClient()
+const networkName = 'veritable-shared'
 
 //============ Image Version Control ============
 
@@ -18,6 +17,21 @@ const cloudagentVersion = parsed.services['veritable-cloudagent-alice'].image
 const kuboVersion = parsed.services.ipfs.image
 const smtp4devVersion = parsed.services.smtp4dev.image
 const wireMockVersion = parsed.services['wiremock'].image
+
+//============ Start Network ============
+export const network = await startNetwork()
+
+async function startNetwork() {
+  const network = containerRuntimeClient.network.getById(networkName)
+  // only way to check network exists + running is to try to inspect it
+  try {
+    await network.inspect()
+  } catch {
+    await containerRuntimeClient.network.create({ Name: networkName })
+  }
+
+  return new StartedNetwork(containerRuntimeClient, networkName, network)
+}
 
 //============ Veritable UI Container ============
 
@@ -77,7 +91,6 @@ export async function bringUpVeritableUIContainer(
     .withCommand(['sh', '-c', 'node ./node_modules/.bin/knex migrate:latest; npm start'])
     .withWaitStrategy(Wait.forListeningPorts())
     .withNetwork(network)
-    .withReuse()
     .start()
   return [veritableUIContainer]
 }
@@ -230,6 +243,7 @@ export async function wireMockContainer(): Promise<StartedTestContainer> {
     ])
     .withWaitStrategy(Wait.forLogMessage('response-template,webhook'))
     .withNetwork(network)
+    .withReuse()
     .start()
   return container
 }
