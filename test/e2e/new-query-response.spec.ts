@@ -23,7 +23,7 @@ test.describe('New query response', () => {
     await context.close()
   })
 
-  test.only('responds to a total carbon embodiment (CO2) query (Bob)', async () => {
+  test('responds to a total carbon embodiment (CO2) query (Bob)', async () => {
     await withCarbonQueryRequest(aliceE2E.url)
 
     await test.step('visits queries page and clicks on "respond to query" (Bob)', async () => {
