@@ -179,6 +179,7 @@ export default class QueryResponseTemplates {
                     name="partialQuery"
                     type="radio"
                     checked={partial}
+                    value="Yes"
                   />
                   <label for="partial-response-input">Yes</label>
                   <input
@@ -189,6 +190,7 @@ export default class QueryResponseTemplates {
                     name="partialQuery"
                     type="radio"
                     checked={partial !== undefined && !partial}
+                    value="No"
                   />
                   <label for="partial-response-input">No</label>
                 </div>
@@ -205,7 +207,7 @@ export default class QueryResponseTemplates {
                         <th>{Html.escapeHtml(name)}</th>
                       ))}
                     </thead>
-                    <tbody hx-swap-oob="true">
+                    <tbody>
                       {connections.length == 0 ? (
                         <tr>
                           <td>No Connections found</td>

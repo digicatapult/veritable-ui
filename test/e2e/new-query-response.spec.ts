@@ -2,7 +2,7 @@ import { expect, Page, test } from '@playwright/test'
 import { withBavQueryRequest, withCarbonQueryRequest } from '../helpers/query.js'
 import { cleanup, CustomBrowserContext, withLoggedInUser, withRegisteredAccount } from '../helpers/registerLogIn.js'
 import { aliceE2E, bobE2E, withConnection } from '../helpers/setupConnection.js'
-import { waitForSuccessResponse } from '../helpers/waitForHelper.js'
+import { waitForHTMXSuccessResponse } from '../helpers/waitForHelper.js'
 
 test.describe('New query response', () => {
   let context: CustomBrowserContext
@@ -23,7 +23,7 @@ test.describe('New query response', () => {
     await context.close()
   })
 
-  test('responds to a total carbon embodiment (CO2) query (Bob)', async () => {
+  test.only('responds to a total carbon embodiment (CO2) query (Bob)', async () => {
     await withCarbonQueryRequest(aliceE2E.url)
 
     await test.step('visits queries page and clicks on "respond to query" (Bob)', async () => {
@@ -36,19 +36,11 @@ test.describe('New query response', () => {
     await test.step('enters emissions and submits a query response', async () => {
       await page.fill('#co2-embodiment-input', '200')
 
-      await waitForSuccessResponse(
-        page,
-        () => page.locator('#partial-response-input-yes').click({ delay: 20 }),
-        '/partial'
-      )
+      await waitForHTMXSuccessResponse(page, () => page.locator('#partial-response-input-yes').click(), '/partial')
       await expect(page.getByText('Select which suppliers contributed to the carbon embodiment')).toBeVisible()
       await expect(page.getByPlaceholder('Value in kg CO2e (to be aggregated)')).toHaveValue('200')
 
-      await waitForSuccessResponse(
-        page,
-        () => page.locator('#partial-response-input-no').click({ delay: 20 }),
-        '/partial'
-      )
+      await waitForHTMXSuccessResponse(page, () => page.locator('#partial-response-input-no').click(), '/partial')
       await expect(page.getByText('Select which suppliers contributed to the carbon embodiment')).not.toBeVisible()
       await expect(page.getByPlaceholder('Value in kg CO2e (to be aggregated)')).toHaveValue('200')
 

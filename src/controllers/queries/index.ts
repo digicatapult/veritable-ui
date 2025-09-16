@@ -244,7 +244,7 @@ export class QueriesController extends HTMLController {
   public async cO2Partial(
     @Request() req: express.Request,
     @Path() queryId: UUID,
-    @Query() partialQuery?: 'on'
+    @Query() partialQuery?: 'Yes' | 'No'
   ): Promise<HTML> {
     req.log.info('partial query response requested %s', queryId)
     const query = await this.getQuery(queryId)
@@ -258,7 +258,7 @@ export class QueriesController extends HTMLController {
       this.responseTemplates.queryResponsePage({
         connection,
         query,
-        partial: partialQuery === 'on' ? true : false,
+        partial: partialQuery === 'Yes' ? true : false,
         connections: connections.filter(({ id }: ConnectionRow) => id !== query.connection_id),
         formStage: 'form',
         type: query.type,
@@ -309,7 +309,7 @@ export class QueriesController extends HTMLController {
     body: {
       companyId: UUID
       emissions: number
-      partialQuery?: 'on'[] // TODO: remove
+      partialQuery?: 'Yes' | 'No'
       partialSelect?: 'on'[] // TODO: remove
       connectionIds?: UUID[]
       productIds?: string[]
@@ -329,7 +329,7 @@ export class QueriesController extends HTMLController {
       throw new InvalidInputError(`Missing response_id to respond to.`)
     }
 
-    if (!partialQuery) {
+    if (partialQuery === 'No' || !partialQuery) {
       const response: CarbonEmbodimentRes = {
         id: queryRow.response_id,
         type: 'https://github.com/digicatapult/veritable-documentation/tree/main/schemas/veritable_messaging/query_types/total_carbon_embodiment/response/0.1',

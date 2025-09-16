@@ -1,5 +1,27 @@
 import { Page } from '@playwright/test'
 
+export const waitForHTMXSettle = async (page: Page) => {
+  await page.evaluate(() => {
+    return new Promise<void>((resolve) => {
+      const handler = () => {
+        document.body.removeEventListener('htmx:afterSettle', handler)
+        resolve()
+      }
+      document.body.addEventListener('htmx:afterSettle', handler, { once: true })
+    })
+  })
+}
+
+export const waitForHTMXSuccessResponse = async <T>(page: Page, action: () => Promise<T>, includeRoute: string) => {
+  const [resp] = await Promise.all([
+    page.waitForResponse((resp) => resp.url().includes(includeRoute) && [200, 204, 302, 304].includes(resp.status())),
+    action(),
+  ])
+  await waitForHTMXSettle(page)
+
+  return resp
+}
+
 export const waitForSuccessResponse = async <T>(page: Page, action: () => Promise<T>, includeRoute: string) => {
   const response = page.waitForResponse((resp) => {
     const acceptableStatuses = new Set([200, 204, 302, 304])
