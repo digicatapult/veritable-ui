@@ -131,7 +131,7 @@ test.describe('New query request', () => {
     await test.step('Charlie responds to the query', async () => {
       // TODO: The 'No' radio button is currently disabled due to a known issue (https://digicatapult.atlassian.net/browse/VR-487)
       // Re-enable this line when the issue is resolved
-      // await page.getByRole('radio', { name: 'No' }).check()
+      await waitForHTMXSuccessResponse(page, () => page.locator('#partial-response-input-no').click(), '/partial')
       await page.locator('#co2-embodiment-input').fill(String(charlieCO2))
 
       const button = page.getByRole('button', { name: 'Submit Response' })

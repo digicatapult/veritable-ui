@@ -181,7 +181,7 @@ export default class QueryResponseTemplates {
                     checked={partial}
                     value="Yes"
                   />
-                  <label for="partial-response-input">Yes</label>
+                  <label for="partial-response-input-yes">Yes</label>
                   <input
                     hx-trigger="changed, click"
                     hx-target="#partial-query"
@@ -192,7 +192,7 @@ export default class QueryResponseTemplates {
                     checked={partial !== undefined && !partial}
                     value="No"
                   />
-                  <label for="partial-response-input">No</label>
+                  <label for="partial-response-input-no">No</label>
                 </div>
               </div>
               {partial && connections ? (
