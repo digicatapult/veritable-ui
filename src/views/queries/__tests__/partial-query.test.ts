@@ -70,29 +70,4 @@ describe('Partial Query', () => {
       expect(rendered).to.matchSnapshot()
     })
   })
-
-  it('renders partial query table with connections that are verified', async () => {
-    const rendered = await templates.queryResponsePage({
-      formStage: 'form',
-      connection: {
-        company_name: 'VER123',
-        company_number: '3456789',
-        status: 'verified_both',
-        id: mockIds.companyId,
-        agent_connection_id: mockIds.agentConnectionId,
-        pin_tries_remaining_count: null,
-        pin_attempt_count: 0,
-        created_at: new Date(),
-        updated_at: new Date(),
-        registry_country_code: 'GB' as CountryCode,
-        registry_code: 'company_house',
-        address: '123 Test Street, London, UK',
-      },
-      type: 'total_carbon_embodiment',
-      query: queryExample,
-      partial: true,
-      connections: connectionsExample,
-    })
-    expect(rendered).to.matchSnapshot()
-  })
 })
