@@ -26,6 +26,7 @@ export default defineConfig({
     trace: 'on-first-retry',
     /* workaround for Webkit's strict cookie handling preventing cross-origin POST */
     ignoreHTTPSErrors: true,
+    headless: !!process.env.CI,
   },
   expect: {
     timeout: 10 * 1000,

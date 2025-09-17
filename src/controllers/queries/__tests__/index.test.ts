@@ -287,7 +287,7 @@ describe('QueriesController', () => {
         .cO2Partial(
           req,
           mockIds.queryId, // url param
-          'on' // partialSelect query string param
+          'Yes' // partialSelect query string param
         )
         .then(toHTMLString)
     })
@@ -347,7 +347,7 @@ describe('QueriesController', () => {
         result = await controller
           .carbonEmbodimentResponseSubmit(req, mockIds.queryId, {
             companyId: 'cccccccc-0001-4000-8000-d8ae0805059e',
-            partialQuery: ['on'],
+            partialQuery: 'Yes',
             partialSelect: ['on'],
             productIds: ['partial-product-id'],
             quantities: [10],
@@ -456,7 +456,7 @@ describe('QueriesController', () => {
         const result = await controller
           .carbonEmbodimentResponseSubmit(req, 'query-partial-id-test', {
             companyId: 'some-company-id',
-            partialQuery: ['on'],
+            partialQuery: 'Yes',
             emissions: 10,
             partialSelect: ['on', 'on'],
             connectionIds: ['conn-id-1', 'conn-id-2'],
@@ -527,7 +527,7 @@ describe('QueriesController', () => {
           try {
             await controller.carbonEmbodimentResponseSubmit(req, 'query-partial-id-test', {
               companyId: 'some-company-id',
-              partialQuery: ['on'],
+              partialQuery: 'Yes',
               productIds: ['product-1', 'product-2'],
               quantities: [10, 20],
               emissions: 10,
@@ -548,7 +548,7 @@ describe('QueriesController', () => {
           try {
             await controller.carbonEmbodimentResponseSubmit(req, 'query-partial-id-test', {
               companyId: 'some-company-id',
-              partialQuery: ['on'],
+              partialQuery: 'Yes',
               connectionIds: ['conn-id-1', 'conn-id-2'],
               quantities: [10, 20],
               emissions: 10,
@@ -568,7 +568,7 @@ describe('QueriesController', () => {
           try {
             await controller.carbonEmbodimentResponseSubmit(req, 'query-partial-id-test', {
               companyId: 'some-company-id',
-              partialQuery: ['on'],
+              partialQuery: 'Yes',
               connectionIds: ['conn-id-1', 'conn-id-2'],
               emissions: 10,
             })
@@ -614,7 +614,7 @@ describe('QueriesController', () => {
           try {
             await controller.carbonEmbodimentResponseSubmit(req, 'query-partial-id-test', {
               companyId: 'some-company-id',
-              partialQuery: ['on'],
+              partialQuery: 'Yes',
               productIds: ['product-id-1'],
               quantities: [1, 2, 3],
               connectionIds: ['conn-id-1', 'conn-id-2'],

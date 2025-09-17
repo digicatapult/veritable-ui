@@ -163,6 +163,7 @@ export default class QueryResponseTemplates {
                   class="input-with-label"
                   type="text"
                   required={true}
+                  hx-preserve="true"
                 />
               </div>
               <div class="input-container">
@@ -174,21 +175,24 @@ export default class QueryResponseTemplates {
                     hx-trigger="changed, click"
                     hx-target="#partial-query"
                     hx-get={`/queries/${query.id}/partial`}
-                    id="partial-response-input"
+                    id="partial-response-input-yes"
                     name="partialQuery"
                     type="radio"
                     checked={partial}
+                    value="Yes"
                   />
-                  <label for="partial-response-input">Yes</label>
+                  <label for="partial-response-input-yes">Yes</label>
                   <input
                     hx-trigger="changed, click"
                     hx-target="#partial-query"
                     hx-get={`/queries/${query.id}/partial`}
-                    id="partial-response-input"
+                    id="partial-response-input-no"
+                    name="partialQuery"
                     type="radio"
                     checked={partial !== undefined && !partial}
+                    value="No"
                   />
-                  <label for="partial-response-input">No</label>
+                  <label for="partial-response-input-no">No</label>
                 </div>
               </div>
               {partial && connections ? (
@@ -203,7 +207,7 @@ export default class QueryResponseTemplates {
                         <th>{Html.escapeHtml(name)}</th>
                       ))}
                     </thead>
-                    <tbody hx-swap-oob="true">
+                    <tbody>
                       {connections.length == 0 ? (
                         <tr>
                           <td>No Connections found</td>

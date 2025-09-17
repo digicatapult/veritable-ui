@@ -39,7 +39,7 @@ describe('partial query aggregation', function () {
       await fetchPost(`http://localhost:3001/queries/${queryId}/response/carbon-embodiment`, {
         companyId: withAlice.id,
         emissions: '200',
-        partialQuery: ['on'],
+        partialQuery: 'Yes',
         partialSelect: ['on'],
         productIds: ['heating-el-001(BobReq)'],
         quantities: [10],
@@ -157,6 +157,7 @@ describe('partial query aggregation', function () {
         await fetchPost(`http://localhost:3002/queries/${queryId}/response/carbon-embodiment`, {
           companyId: context.charliesConnections.withBob.id,
           emissions: '500',
+          partialQuery: 'No',
         })
       })
 

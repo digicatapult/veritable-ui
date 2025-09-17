@@ -2,6 +2,7 @@ import { expect, Page, test } from '@playwright/test'
 import { expiresAt } from '../helpers/query.js'
 import { cleanup, CustomBrowserContext, withLoggedInUser, withRegisteredAccount } from '../helpers/registerLogIn.js'
 import { aliceE2E, bobE2E, charlieE2E, withConnection } from '../helpers/setupConnection.js'
+import { waitForHTMXSuccessResponse } from '../helpers/waitForHelper.js'
 
 test.describe('New query request', () => {
   let context: CustomBrowserContext
@@ -97,7 +98,7 @@ test.describe('New query request', () => {
     })
 
     await test.step('Bob sends a partial query to Charlie in his supply chain', async () => {
-      await page.getByRole('radio', { name: 'Yes' }).check()
+      await waitForHTMXSuccessResponse(page, () => page.locator('#partial-response-input-yes').click(), '/partial')
       await page.getByRole('checkbox', { name: 'select partial query' }).check()
       await page.getByRole('textbox', { name: 'Product ID' }).fill('E2E-Product-id-partial')
       await page.getByPlaceholder('Quantity').fill(String(bobToCharlieQuantity))
@@ -128,9 +129,7 @@ test.describe('New query request', () => {
     })
 
     await test.step('Charlie responds to the query', async () => {
-      // TODO: The 'No' radio button is currently disabled due to a known issue (https://digicatapult.atlassian.net/browse/VR-487)
-      // Re-enable this line when the issue is resolved
-      // await page.getByRole('radio', { name: 'No' }).check()
+      await waitForHTMXSuccessResponse(page, () => page.locator('#partial-response-input-no').click(), '/partial')
       await page.locator('#co2-embodiment-input').fill(String(charlieCO2))
 
       const button = page.getByRole('button', { name: 'Submit Response' })
