@@ -84,7 +84,7 @@ services:
     ports:
       - 5432:5432
     volumes:
-      - postgres-veritable-ui-alice:/var/lib/postgresql/data
+      - postgres-veritable-ui-alice:/var/lib/postgresql
     environment:
       - POSTGRES_PASSWORD=postgres
       - POSTGRES_USER=postgres
@@ -94,7 +94,7 @@ services:
     image: postgres:18.0-alpine
     restart: on-failure
     volumes:
-      - postgres-veritable-cloudagent-alice:/var/lib/postgresql/data
+      - postgres-veritable-cloudagent-alice:/var/lib/postgresql
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
@@ -182,7 +182,7 @@ services:
     ports:
       - 5433:5432
     volumes:
-      - postgres-veritable-ui-bob:/var/lib/postgresql/data
+      - postgres-veritable-ui-bob:/var/lib/postgresql
     environment:
       - POSTGRES_PASSWORD=postgres
       - POSTGRES_USER=postgres
@@ -192,7 +192,7 @@ services:
     image: postgres:18.0-alpine
     restart: on-failure
     volumes:
-      - postgres-veritable-cloudagent-bob:/var/lib/postgresql/data
+      - postgres-veritable-cloudagent-bob:/var/lib/postgresql
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
@@ -280,7 +280,7 @@ services:
     ports:
       - 5434:5432
     volumes:
-      - postgres-veritable-ui-charlie:/var/lib/postgresql/data
+      - postgres-veritable-ui-charlie:/var/lib/postgresql
     environment:
       - POSTGRES_PASSWORD=postgres
       - POSTGRES_USER=postgres
@@ -290,7 +290,7 @@ services:
     image: postgres:18.0-alpine
     restart: on-failure
     volumes:
-      - postgres-veritable-cloudagent-charlie:/var/lib/postgresql/data
+      - postgres-veritable-cloudagent-charlie:/var/lib/postgresql
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
