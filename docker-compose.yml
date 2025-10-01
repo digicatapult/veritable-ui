@@ -79,22 +79,22 @@ services:
       - OPEN_CORPORATES_API_URL=http://wiremock:8080
       - OPEN_CORPORATES_API_KEY=${OPEN_CORPORATES_API_KEY}
   postgres-veritable-ui-alice:
-    image: postgres:17.6-alpine
+    image: postgres:18.0-alpine
     container_name: postgres-veritable-ui-alice
     ports:
       - 5432:5432
     volumes:
-      - postgres-veritable-ui-alice:/var/lib/postgresql/data
+      - postgres-veritable-ui-alice:/var/lib/postgresql
     environment:
       - POSTGRES_PASSWORD=postgres
       - POSTGRES_USER=postgres
       - POSTGRES_DB=veritable-ui
   postgres-veritable-cloudagent-alice:
     container_name: postgres-veritable-cloudagent-alice
-    image: postgres:17.6-alpine
+    image: postgres:18.0-alpine
     restart: on-failure
     volumes:
-      - postgres-veritable-cloudagent-alice:/var/lib/postgresql/data
+      - postgres-veritable-cloudagent-alice:/var/lib/postgresql
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
@@ -177,22 +177,22 @@ services:
       - LOCAL_REGISTRY_COUNTRY_CODE=GB
 
   postgres-veritable-ui-bob:
-    image: postgres:17.6-alpine
+    image: postgres:18.0-alpine
     container_name: postgres-veritable-ui-bob
     ports:
       - 5433:5432
     volumes:
-      - postgres-veritable-ui-bob:/var/lib/postgresql/data
+      - postgres-veritable-ui-bob:/var/lib/postgresql
     environment:
       - POSTGRES_PASSWORD=postgres
       - POSTGRES_USER=postgres
       - POSTGRES_DB=veritable-ui
   postgres-veritable-cloudagent-bob:
     container_name: postgres-veritable-cloudagent-bob
-    image: postgres:17.6-alpine
+    image: postgres:18.0-alpine
     restart: on-failure
     volumes:
-      - postgres-veritable-cloudagent-bob:/var/lib/postgresql/data
+      - postgres-veritable-cloudagent-bob:/var/lib/postgresql
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
@@ -275,22 +275,22 @@ services:
       - OPEN_CORPORATES_API_KEY=${OPEN_CORPORATES_API_KEY}
 
   postgres-veritable-ui-charlie:
-    image: postgres:17.6-alpine
+    image: postgres:18.0-alpine
     container_name: postgres-veritable-ui-charlie
     ports:
       - 5434:5432
     volumes:
-      - postgres-veritable-ui-charlie:/var/lib/postgresql/data
+      - postgres-veritable-ui-charlie:/var/lib/postgresql
     environment:
       - POSTGRES_PASSWORD=postgres
       - POSTGRES_USER=postgres
       - POSTGRES_DB=veritable-ui
   postgres-veritable-cloudagent-charlie:
     container_name: postgres-veritable-cloudagent-charlie
-    image: postgres:17.6-alpine
+    image: postgres:18.0-alpine
     restart: on-failure
     volumes:
-      - postgres-veritable-cloudagent-charlie:/var/lib/postgresql/data
+      - postgres-veritable-cloudagent-charlie:/var/lib/postgresql
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
