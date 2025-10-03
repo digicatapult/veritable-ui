@@ -1,6 +1,6 @@
 {
   "name": "veritable-ui",
-  "version": "0.20.35",
+  "version": "0.20.36",
   "description": "UI for Veritable",
   "main": "src/index.ts",
   "type": "module",
@@ -52,7 +52,7 @@
     "knex": "^3.1.0",
     "nodemailer": "^7.0.6",
     "pg": "^8.16.3",
-    "pino": "^9.11.0",
+    "pino": "^10.0.0",
     "pino-http": "^10.5.0",
     "swagger-ui-express": "^5.0.1",
     "tsoa": "^6.6.0",
