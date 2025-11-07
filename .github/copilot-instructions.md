@@ -4,7 +4,7 @@
 - **Purpose:** Frontend UI for Veritable SSI platform, managing supply chain connections, credential issuance, and queries. Integrates with veritable-cloudagent, Keycloak, IPFS, and external registries (Companies House, NY State, OpenCorporates, iPiD).
 - **Type:** Node.js/TypeScript web application, TSOA REST API, HTMX, JSX templates, Dockerized, with Playwright, Mocha, Chai, Sinon for testing.
 - **Size:** Medium-large, ~20 top-level folders, extensive source, test, and infra files.
-- **Languages/Frameworks:** TypeScript, Node.js (>=22), TSOA, Express, HTMX, @kitajs/html, SWC, Knex, Playwright, Mocha, ESLint, Prettier.
+- **Languages/Frameworks:** TypeScript, Node.js (>=24), TSOA, Express, HTMX, @kitajs/html, SWC, Knex, Playwright, Mocha, ESLint, Prettier.
 
 ## Build, Test, and Validation Instructions
 - **Always run `npm install` before building.**
@@ -78,7 +78,7 @@ You are reviewing as a **critical software engineering peer**. Read the PR descr
   - Explanations, review notes, and internal documentation: use British English spelling.
 
 ### Repository guard-rails & constraints
-- Language/stack standards: TypeScript, Node.js (>=22), TSOA, HTMX, @kitajs/html, SWC. See `/README.md`, `/package.json`.
+- Language/stack standards: TypeScript, Node.js (>=24), TSOA, HTMX, @kitajs/html, SWC. See `/README.md`, `/package.json`.
 - Style/lint rules: enforced by CI (`npm run lint`, ESLint, Prettier, TypeScript checks). Treat violations as issues.
 - Security baseline: OWASP Top 10, secret scanning, dependency updates must be pinned & reviewed. See `.github/workflows/test.yml`, Dockerfile, and SOPS for secrets.
 - Testing thresholds: **unit/integration/e2e tests required**; regression below current coverage is a **Must-Fix**. See `test/unit/`, `test/integration/`, `test/e2e/`, CI coverage artefacts.
