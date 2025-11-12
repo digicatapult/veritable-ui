@@ -31,7 +31,7 @@ veritable-ui depends on a few external services:
 
 - docker v28.1.1 (later versions currently have [issues](https://github.com/docker/for-mac/issues/7693))
 - npm 11.0.0+
-- node 22.0.0+
+- node 24.0.0+
 - postgresql 17.5+
 
 ## Getting started
