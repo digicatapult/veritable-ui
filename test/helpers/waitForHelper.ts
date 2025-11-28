@@ -1,7 +1,7 @@
 import { Page } from '@playwright/test'
 
 export const waitForHTMXSettle = async (page: Page) => {
-  await page.evaluate(() => {
+  return page.evaluate(() => {
     return new Promise<void>((resolve) => {
       const handler = () => {
         document.body.removeEventListener('htmx:afterSettle', handler)
@@ -13,11 +13,14 @@ export const waitForHTMXSettle = async (page: Page) => {
 }
 
 export const waitForHTMXSuccessResponse = async <T>(page: Page, action: () => Promise<T>, includeRoute: string) => {
+  const settlePromise = waitForHTMXSettle(page)
+
   const [resp] = await Promise.all([
     page.waitForResponse((resp) => resp.url().includes(includeRoute) && [200, 204, 302, 304].includes(resp.status())),
     action(),
   ])
-  await waitForHTMXSettle(page)
+
+  await settlePromise
 
   return resp
 }
