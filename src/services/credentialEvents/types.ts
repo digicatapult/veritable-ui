@@ -8,8 +8,10 @@ export interface CredentialEventHandlerBase {
   handleDone(credential: Credential, formatData: CredentialFormatData): Promise<void>
 }
 
-export interface CredentialEventHandler<EventName extends string, EventVersion extends string>
-  extends CredentialEventHandlerBase {
+export interface CredentialEventHandler<
+  EventName extends string,
+  EventVersion extends string,
+> extends CredentialEventHandlerBase {
   get schemaName(): EventName
   get schemaVersion(): EventVersion
 }
