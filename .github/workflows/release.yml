@@ -48,7 +48,9 @@ jobs:
       DOCKERHUB_TOKEN: ${{ secrets.SQNC_DOCKERHUB_TOKEN }}
       DOCKERHUB_USERNAME: ${{ secrets.SQNC_DOCKERHUB_USERNAME }}
   release-github:
-    needs: [build-docker]
+    needs:
+      - build-docker
+      - generate-sbom-npm
     uses: digicatapult/shared-workflows/.github/workflows/release-github.yml@main
     with:
       get_sbom: true
