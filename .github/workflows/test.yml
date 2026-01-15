@@ -26,6 +26,9 @@ jobs:
       enable_check_version: true
       enable_dtrack_project: true
       sbom_output_file: ${{ github.event.repository.name }}.cdx.json
+    secrets:
+      DTRACK_APIKEY: ${{ secrets.DTRACK_APIKEY }}
+      DTRACK_HOSTNAME: ${{ secrets.DTRACK_HOSTNAME }}
   build-docker:
     uses: digicatapult/shared-workflows/.github/workflows/build-docker.yml@main
     permissions:
