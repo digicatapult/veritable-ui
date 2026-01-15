@@ -8,7 +8,7 @@ jobs:
     with:
       matrix_commands: '["lint", "depcheck", "check", "xss-scan"]'
   tests-npm:
-    uses: digicatapult/shared-workflows/.github/workflows/tests-npm.yml@main
+    uses: digicatapult/shared-workflows/.github/workflows/tests-npm.yml@test/verify_e2e_permissions
     with:
       docker_compose_file: ''
       npm_build_command: 'npm run tsoa:build'
