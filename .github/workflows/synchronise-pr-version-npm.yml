@@ -2,12 +2,9 @@ name: Synchronise Version
 on:
   pull_request:
     types: [labeled, unlabeled, opened, reopened, synchronize]
-permissions:
-  contents: write
-  pull-requests: write
 jobs:
   synchronise-pr-version-npm:
-    uses: digicatapult/shared-workflows/.github/workflows/synchronise-pr-version-npm.yml@main
+    uses: digicatapult/shared-workflows/.github/workflows/synchronise-pr-version-npm.yml@test/verify_e2e_permissions
     with:
       pr-number: ${{ github.event.pull_request.number }}
       trunk-branch: 'main'

@@ -1,13 +1,10 @@
 name: Synchronise all PR versions
 on:
   push:
-    branches: "main"
-permissions:
-  contents: write
-  pull-requests: write
+    branches: ["main"]
 jobs:
   synchronise-trunk-version-npm:
-    uses: digicatapult/shared-workflows/.github/workflows/synchronise-trunk-version-npm.yml@main
+    uses: digicatapult/shared-workflows/.github/workflows/synchronise-trunk-version-npm.yml@test/verify_e2e_permissions
     with:
       trunk-branch: "main"
     secrets:
