@@ -19,6 +19,13 @@ jobs:
       pre_test_command: 'npm ci && npx playwright install-deps && npx playwright install'
       test_command: 'npm run test:e2e || exit 1'
     secrets: inherit
+  generate-sbom-npm:
+    uses: digicatapult/shared-workflows/.github/workflows/generate-sbom-npm.yml@test/verify_e2e_permissions
+    with:
+      additional_args: "--ignore-npm-errors"
+      enable_check_version: true
+      enable_dtrack_project: true
+      sbom_output_file: ${{ github.event.repository.name }}.cdx.json
   build-docker:
     uses: digicatapult/shared-workflows/.github/workflows/build-docker.yml@main
     permissions:
