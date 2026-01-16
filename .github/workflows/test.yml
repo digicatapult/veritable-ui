@@ -11,7 +11,7 @@ jobs:
   tests-npm:
     uses: digicatapult/shared-workflows/.github/workflows/tests-npm.yml@test/use_actions_permissions_monitor
     with:
-      enable_permissions_monitor: true
+      enable_permissions_monitor: false
       docker_compose_file: ''
       npm_build_command: 'npm run tsoa:build'
   e2e-tests-npm:
