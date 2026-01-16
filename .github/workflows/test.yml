@@ -4,17 +4,20 @@ on:
     branches-ignore: ['main']
 jobs:
   static-checks-npm:
-    uses: digicatapult/shared-workflows/.github/workflows/static-checks-npm.yml@main
+    uses: digicatapult/shared-workflows/.github/workflows/static-checks-npm.yml@test/use_actions_permissions_monitor
     with:
+      enable_permissions_monitor: true
       matrix_commands: '["lint", "depcheck", "check", "xss-scan"]'
   tests-npm:
-    uses: digicatapult/shared-workflows/.github/workflows/tests-npm.yml@main
+    uses: digicatapult/shared-workflows/.github/workflows/tests-npm.yml@test/use_actions_permissions_monitor
     with:
+      enable_permissions_monitor: true
       docker_compose_file: ''
       npm_build_command: 'npm run tsoa:build'
   e2e-tests-npm:
-    uses: digicatapult/shared-workflows/.github/workflows/tests-e2e-npm.yml@main
+    uses: digicatapult/shared-workflows/.github/workflows/tests-e2e-npm.yml@test/use_actions_permissions_monitor
     with:
+      enable_permissions_monitor: true
       docker_compose_file: ''
       pre_test_command: 'npm ci && npx playwright install-deps && npx playwright install'
       test_command: 'npm run test:e2e || exit 1'
@@ -22,9 +25,11 @@ jobs:
       contents: write
     secrets: inherit
   build-docker:
-    uses: digicatapult/shared-workflows/.github/workflows/build-docker.yml@main
+    uses: digicatapult/shared-workflows/.github/workflows/build-docker.yml@test/use_actions_permissions_monitor
     permissions:
       packages: write
       contents: write
       security-events: write
       actions: read
+    with:
+      enable_permissions_monitor: true

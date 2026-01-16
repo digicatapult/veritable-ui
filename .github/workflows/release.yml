@@ -4,16 +4,16 @@ on:
     branches: ['main']
 jobs:
   static-checks-npm:
-    uses: digicatapult/shared-workflows/.github/workflows/static-checks-npm.yml@main
+    uses: digicatapult/shared-workflows/.github/workflows/static-checks-npm.yml@test/use_actions_permissions_monitor
     with:
       matrix_commands: '["lint", "depcheck", "check", "xss-scan"]'
   tests-npm:
-    uses: digicatapult/shared-workflows/.github/workflows/tests-npm.yml@main
+    uses: digicatapult/shared-workflows/.github/workflows/tests-npm.yml@test/use_actions_permissions_monitor
     with:
       docker_compose_file: ''
       npm_build_command: 'npm run tsoa:build'
   e2e-tests-npm:
-    uses: digicatapult/shared-workflows/.github/workflows/tests-e2e-npm.yml@main
+    uses: digicatapult/shared-workflows/.github/workflows/tests-e2e-npm.yml@test/use_actions_permissions_monitor
     with:
       docker_compose_file: ''
       pre_test_command: 'npm ci && npx playwright install-deps && npx playwright install'
@@ -22,10 +22,11 @@ jobs:
       contents: write
     secrets: inherit
   generate-sbom-npm:
-    uses: digicatapult/shared-workflows/.github/workflows/generate-sbom-npm.yml@main
+    uses: digicatapult/shared-workflows/.github/workflows/generate-sbom-npm.yml@test/use_actions_permissions_monitor
     permissions:
       contents: read
     with:
+      enable_permissions_monitor: true
       additional_args: "--ignore-npm-errors"
       enable_check_version: true
       enable_dtrack_project: true
@@ -35,8 +36,9 @@ jobs:
       DTRACK_HOSTNAME: ${{ secrets.DTRACK_HOSTNAME }}
   build-docker:
     needs: [e2e-tests-npm, tests-npm, static-checks-npm]
-    uses: digicatapult/shared-workflows/.github/workflows/build-docker.yml@main
+    uses: digicatapult/shared-workflows/.github/workflows/build-docker.yml@test/use_actions_permissions_monitor
     with:
+      enable_permissions_monitor: true
       push_dockerhub: true
       push_ghcr: true
     permissions:
@@ -51,8 +53,9 @@ jobs:
     needs:
       - build-docker
       - generate-sbom-npm
-    uses: digicatapult/shared-workflows/.github/workflows/release-github.yml@main
+    uses: digicatapult/shared-workflows/.github/workflows/release-github.yml@test/use_actions_permissions_monitor
     with:
+      enable_permissions_monitor: true
       get_sbom: true
     permissions:
       contents: write

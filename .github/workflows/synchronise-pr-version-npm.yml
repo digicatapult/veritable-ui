@@ -7,8 +7,9 @@ permissions:
   pull-requests: write
 jobs:
   synchronise-pr-version-npm:
-    uses: digicatapult/shared-workflows/.github/workflows/synchronise-pr-version-npm.yml@main
+    uses: digicatapult/shared-workflows/.github/workflows/synchronise-pr-version-npm.yml@test/use_actions_permissions_monitor
     with:
+      enable_permissions_monitor: true
       pr-number: ${{ github.event.pull_request.number }}
       trunk-branch: 'main'
     secrets:
