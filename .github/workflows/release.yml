@@ -5,26 +5,28 @@ on:
 jobs:
   static-checks-npm:
     uses: digicatapult/shared-workflows/.github/workflows/static-checks-npm.yml@main
+    permissions:
+      security-events: write
     with:
       matrix_commands: '["lint", "depcheck", "check", "xss-scan"]'
   tests-npm:
     uses: digicatapult/shared-workflows/.github/workflows/tests-npm.yml@main
+    permissions:
+      pull-requests: write
     with:
       docker_compose_file: ''
       npm_build_command: 'npm run tsoa:build'
   e2e-tests-npm:
     uses: digicatapult/shared-workflows/.github/workflows/tests-e2e-npm.yml@main
+    permissions: {}
     with:
       docker_compose_file: ''
       pre_test_command: 'npm ci && npx playwright install-deps && npx playwright install'
       test_command: 'npm run test:e2e || exit 1'
-    permissions:
-      contents: write
     secrets: inherit
   generate-sbom-npm:
     uses: digicatapult/shared-workflows/.github/workflows/generate-sbom-npm.yml@main
-    permissions:
-      contents: read
+    permissions: {}
     with:
       additional_args: "--ignore-npm-errors"
       enable_check_version: true
@@ -36,14 +38,13 @@ jobs:
   build-docker:
     needs: [e2e-tests-npm, tests-npm, static-checks-npm]
     uses: digicatapult/shared-workflows/.github/workflows/build-docker.yml@main
+    permissions:
+      contents: read
+      packages: write
+      security-events: write
     with:
       push_dockerhub: true
       push_ghcr: true
-    permissions:
-      packages: write
-      contents: write
-      security-events: write
-      actions: read
     secrets:
       DOCKERHUB_TOKEN: ${{ secrets.SQNC_DOCKERHUB_TOKEN }}
       DOCKERHUB_USERNAME: ${{ secrets.SQNC_DOCKERHUB_USERNAME }}
@@ -52,9 +53,9 @@ jobs:
       - build-docker
       - generate-sbom-npm
     uses: digicatapult/shared-workflows/.github/workflows/release-github.yml@main
-    with:
-      get_sbom: true
     permissions:
       contents: write
       pull-requests: read
+    with:
+      get_sbom: true
     secrets: inherit
