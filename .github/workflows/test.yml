@@ -5,26 +5,28 @@ on:
 jobs:
   static-checks-npm:
     uses: digicatapult/shared-workflows/.github/workflows/static-checks-npm.yml@main
+    permissions:
+      security-events: write
     with:
       matrix_commands: '["lint", "depcheck", "check", "xss-scan"]'
   tests-npm:
     uses: digicatapult/shared-workflows/.github/workflows/tests-npm.yml@main
+    permissions:
+      pull-requests: write
     with:
       docker_compose_file: ''
       npm_build_command: 'npm run tsoa:build'
   e2e-tests-npm:
     uses: digicatapult/shared-workflows/.github/workflows/tests-e2e-npm.yml@main
+    permissions: {}
     with:
       docker_compose_file: ''
       pre_test_command: 'npm ci && npx playwright install-deps && npx playwright install'
       test_command: 'npm run test:e2e || exit 1'
-    permissions:
-      contents: write
     secrets: inherit
   build-docker:
     uses: digicatapult/shared-workflows/.github/workflows/build-docker.yml@main
     permissions:
+      contents: read
       packages: write
-      contents: write
       security-events: write
-      actions: read
