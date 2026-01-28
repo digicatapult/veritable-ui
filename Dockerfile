@@ -1,4 +1,4 @@
-# syntax=docker/dockerfile:1.20
+# syntax=docker/dockerfile:1.21
 FROM node:24-alpine AS builder
 
 WORKDIR /veritable-ui
