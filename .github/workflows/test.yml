@@ -7,12 +7,16 @@ jobs:
     uses: digicatapult/shared-workflows/.github/workflows/static-checks-npm.yml@main
     permissions:
       security-events: write
+      contents: read
+      actions: read
     with:
       matrix_commands: '["lint", "depcheck", "check", "xss-scan"]'
   tests-npm:
     uses: digicatapult/shared-workflows/.github/workflows/tests-npm.yml@main
     permissions:
       pull-requests: write
+      contents: read
+      packages: read
     with:
       docker_compose_file: ''
       npm_build_command: 'npm run tsoa:build'
