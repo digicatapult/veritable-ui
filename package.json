@@ -1,6 +1,6 @@
 {
   "name": "veritable-ui",
-  "version": "0.21.87",
+  "version": "0.21.88",
   "description": "UI for Veritable",
   "main": "src/index.ts",
   "type": "module",
@@ -50,7 +50,7 @@
     "htmx.org": "^2.0.10",
     "i18n-iso-countries": "^7.14.0",
     "knex": "^3.2.9",
-    "nodemailer": "^8.0.5",
+    "nodemailer": "^8.0.6",
     "pg": "^8.20.0",
     "pino": "^10.3.1",
     "pino-http": "^11.0.0",
