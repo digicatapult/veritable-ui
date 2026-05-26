@@ -1,5 +1,5 @@
 import { inject, injectable, singleton } from 'tsyringe'
-import { fetch } from 'undici'
+import { fetch, type Response } from 'undici'
 import { Env } from '../env/index.js'
 
 import { z } from 'zod'
