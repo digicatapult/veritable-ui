@@ -31,8 +31,8 @@ const eventParser = z.discriminatedUnion('type', [
     }),
   }),
   z.object({
-    type: z.literal('CredentialStateChanged'),
-    payload: z.object({ credentialRecord: credentialParser }),
+    type: z.literal('DidCommCredentialStateChanged'),
+    payload: z.object({ credentialExchangeRecord: credentialParser }),
   }),
   z.object({ type: z.literal('BasicMessageStateChanged'), payload: z.object({}) }),
   z.object({ type: z.literal('RevocationNotificationReceived'), payload: z.object({}) }),
@@ -140,8 +140,8 @@ export default class VeritableCloudagentEvents extends IndexedAsyncEventEmitter<
             id = data.payload.connectionRecord.id
             this.logger.trace('DID rotation event on connection %s', id)
             break
-          case 'CredentialStateChanged':
-            id = data.payload.credentialRecord.id
+          case 'DidCommCredentialStateChanged':
+            id = data.payload.credentialExchangeRecord.id
             credentialSeen.add(id)
             break
           case 'DrpcRequestStateChanged':
@@ -170,9 +170,9 @@ export default class VeritableCloudagentEvents extends IndexedAsyncEventEmitter<
 
       for (const credential of await this.veritable.getCredentials()) {
         if (!credentialSeen.has(credential.id)) {
-          this.emitIndexed('CredentialStateChanged', credential.id, {
-            type: 'CredentialStateChanged',
-            payload: { credentialRecord: credential },
+          this.emitIndexed('DidCommCredentialStateChanged', credential.id, {
+            type: 'DidCommCredentialStateChanged',
+            payload: { credentialExchangeRecord: credential },
           })
         }
       }

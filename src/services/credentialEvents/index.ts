@@ -32,11 +32,11 @@ export default class CredentialEvents {
   }
 
   public start() {
-    this.events.on('CredentialStateChanged', this.credentialStateChangedHandler)
+    this.events.on('DidCommCredentialStateChanged', this.credentialStateChangedHandler)
   }
 
-  private credentialStateChangedHandler: eventData<'CredentialStateChanged'> = async (event) => {
-    const record = event.payload.credentialRecord
+  private credentialStateChangedHandler: eventData<'DidCommCredentialStateChanged'> = async (event) => {
+    const record = event.payload.credentialExchangeRecord
     const formatData = await this.cloudagent.getCredentialFormatData(record.id)
     const maybeSchema = formatData.offer?.anoncreds.schema_id
       ? await this.cloudagent.getSchemaById(formatData.offer.anoncreds.schema_id)

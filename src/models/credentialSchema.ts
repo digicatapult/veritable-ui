@@ -41,7 +41,7 @@ export class CredentialSchema {
     }
 
     if (policy === 'CREATE_NEW' || policy === 'EXISTING_OR_NEW') {
-      const result = await this.cloudagent.createDid('key', { keyType: 'ed25519' })
+      const result = await this.cloudagent.createDid('key', { createKey: { type: { kty: 'OKP', crv: 'Ed25519' } } })
       return result.id
     }
 
