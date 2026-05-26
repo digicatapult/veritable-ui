@@ -16,6 +16,7 @@ export function withNYStateMock() {
   beforeEach(function () {
     originalDispatcher = getGlobalDispatcher()
     agent = new MockAgent()
+    agent.disableNetConnect()
     setGlobalDispatcher(agent)
 
     const client = agent.get(env.get('NY_STATE_API_URL'))
@@ -41,7 +42,8 @@ export function withNYStateMock() {
       })
       .reply(500, {})
   })
-  afterEach(function () {
+  afterEach(async function () {
     setGlobalDispatcher(originalDispatcher)
+    await agent.close()
   })
 }

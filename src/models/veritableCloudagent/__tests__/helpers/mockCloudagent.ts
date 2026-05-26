@@ -16,6 +16,7 @@ export function withCloudagentMock(
   beforeEach(function () {
     originalDispatcher = getGlobalDispatcher()
     agent = new MockAgent()
+    agent.disableNetConnect()
     setGlobalDispatcher(agent)
 
     const client = agent.get(env.get('CLOUDAGENT_ADMIN_ORIGIN'))
@@ -26,7 +27,8 @@ export function withCloudagentMock(
       })
       .reply(code, responseBody)
   })
-  afterEach(function () {
+  afterEach(async function () {
     setGlobalDispatcher(originalDispatcher)
+    await agent.close()
   })
 }

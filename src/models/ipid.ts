@@ -1,5 +1,6 @@
 import { Logger } from 'pino'
 import { container, injectable } from 'tsyringe'
+import { fetch } from 'undici'
 import { Env } from '../env/index.js'
 import { IBav } from './bav.js'
 import { BavResFields } from './drpc.js'

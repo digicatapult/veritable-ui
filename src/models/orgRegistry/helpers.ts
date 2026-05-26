@@ -1,3 +1,4 @@
+import { fetch } from 'undici'
 import z from 'zod'
 import { InternalError } from '../../errors.js'
 import { ILogger } from '../../logger.js'
