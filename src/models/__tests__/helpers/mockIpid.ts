@@ -20,6 +20,7 @@ export function withIpidMock(finalResponse: ValidateResponse = validateResponse)
   beforeEach(function () {
     originalDispatcher = getGlobalDispatcher()
     agent = new MockAgent()
+    agent.disableNetConnect()
     setGlobalDispatcher(agent)
 
     const client = agent.get(env.get('IPID_API_URL'))
@@ -57,7 +58,8 @@ export function withIpidMock(finalResponse: ValidateResponse = validateResponse)
       .persist()
   })
 
-  afterEach(function () {
+  afterEach(async function () {
     setGlobalDispatcher(originalDispatcher)
+    await agent.close()
   })
 }

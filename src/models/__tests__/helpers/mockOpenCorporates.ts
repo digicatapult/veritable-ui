@@ -17,6 +17,7 @@ export function withOpenCorporatesMock() {
   beforeEach(function () {
     originalDispatcher = getGlobalDispatcher()
     agent = new MockAgent()
+    agent.disableNetConnect()
     setGlobalDispatcher(agent)
     const client = agent.get(env.get('OPEN_CORPORATES_API_URL'))
     client
@@ -41,7 +42,8 @@ export function withOpenCorporatesMock() {
       })
       .reply(404, {})
   })
-  afterEach(function () {
+  afterEach(async function () {
     setGlobalDispatcher(originalDispatcher)
+    await agent.close()
   })
 }
