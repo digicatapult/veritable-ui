@@ -37,6 +37,7 @@ const mockTokenResponse = {
 describe('IDPService', () => {
   const originalDispatcher = getGlobalDispatcher()
   const mockAgent = new MockAgent()
+  mockAgent.disableNetConnect()
   const mockOidc = mockAgent.get(`http://internal.example.com`)
   beforeEach(function () {
     setGlobalDispatcher(mockAgent)

@@ -1,3 +1,4 @@
+import { fetch, type Response } from 'undici'
 import { z } from 'zod'
 
 import { type PartialEnv } from '../../env/index.js'

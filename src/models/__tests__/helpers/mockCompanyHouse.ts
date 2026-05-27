@@ -18,6 +18,7 @@ export function withCompanyHouseMock() {
   beforeEach(function () {
     originalDispatcher = getGlobalDispatcher()
     agent = new MockAgent()
+    agent.disableNetConnect()
     setGlobalDispatcher(agent)
 
     const client = agent.get(env.get('COMPANY_HOUSE_API_URL'))
@@ -51,7 +52,8 @@ export function withCompanyHouseMock() {
       })
       .reply(500, {})
   })
-  afterEach(function () {
+  afterEach(async function () {
     setGlobalDispatcher(originalDispatcher)
+    await agent.close()
   })
 }
