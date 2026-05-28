@@ -33,9 +33,9 @@ describe('credentialEvents', function () {
     const credentialEvents = new CredentialEvents(...deps.args)
     credentialEvents.start()
 
-    deps.eventMock.emit('CredentialStateChanged', {
+    deps.eventMock.emit('DidCommCredentialStateChanged', {
       payload: {
-        credentialRecord,
+        credentialExchangeRecord: credentialRecord,
       },
     })
 

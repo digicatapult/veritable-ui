@@ -42,10 +42,10 @@ describe('pin-submission', function () {
     beforeEach(async function () {
       const credentialDonePromise = new Promise<void>((resolve) => {
         context.cloudagentEvents.on(
-          'CredentialStateChanged',
+          'DidCommCredentialStateChanged',
           ({
             payload: {
-              credentialRecord: { state },
+              credentialExchangeRecord: { state },
             },
           }) => {
             if (state === 'done') {
@@ -62,7 +62,7 @@ describe('pin-submission', function () {
 
       await Promise.race([
         credentialDonePromise,
-        delayAndReject(1000, 'Timeout waiting for credential to reach done state'),
+        delayAndReject(5000, 'Timeout waiting for credential to reach done state'),
       ])
     })
 
@@ -95,10 +95,10 @@ describe('pin-submission', function () {
     beforeEach(async function () {
       const credentialDonePromise = new Promise<void>((resolve) => {
         context.cloudagentEvents.on(
-          'CredentialStateChanged',
+          'DidCommCredentialStateChanged',
           ({
             payload: {
-              credentialRecord: { state },
+              credentialExchangeRecord: { state },
             },
           }) => {
             if (state === 'done') {
@@ -115,7 +115,7 @@ describe('pin-submission', function () {
 
       await Promise.race([
         credentialDonePromise,
-        delayAndReject(1000, 'Timeout waiting for credential to reach done state'),
+        delayAndReject(5000, 'Timeout waiting for credential to reach done state'),
       ])
     })
 

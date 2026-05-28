@@ -158,7 +158,6 @@ export async function cloudagentContainer(name: string, hostPort: number): Promi
       POSTGRES_PORT: '5432',
       POSTGRES_USERNAME: 'postgres',
       POSTGRES_PASSWORD: 'postgres',
-      LABEL: 'veritable-cloudagent',
     })
     .withWaitStrategy(Wait.forListeningPorts())
     .withNetwork(network)

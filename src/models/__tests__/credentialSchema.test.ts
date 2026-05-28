@@ -27,7 +27,7 @@ describe('credentialSchema', function () {
         })
         expect(getCreatedDids.callCount).to.equal(0)
         expect(createDid.callCount).to.equal(1)
-        expect(createDid.firstCall.args).deep.equal(['key', { keyType: 'ed25519' }])
+        expect(createDid.firstCall.args).deep.equal(['key', { createKey: { type: { kty: 'OKP', crv: 'Ed25519' } } }])
       })
 
       test('policy = CREATE_NEW, has existing = true', async function () {
@@ -50,7 +50,7 @@ describe('credentialSchema', function () {
         })
         expect(getCreatedDids.callCount).to.equal(0)
         expect(createDid.callCount).to.equal(1)
-        expect(createDid.firstCall.args).deep.equal(['key', { keyType: 'ed25519' }])
+        expect(createDid.firstCall.args).deep.equal(['key', { createKey: { type: { kty: 'OKP', crv: 'Ed25519' } } }])
       })
 
       test('policy = FIND_EXISTING, has existing = false', async function () {
@@ -140,7 +140,7 @@ describe('credentialSchema', function () {
         expect(getCreatedDids.callCount).to.equal(1)
         expect(getCreatedDids.firstCall.args).deep.equal([{ method: 'key' }])
         expect(createDid.callCount).to.equal(1)
-        expect(createDid.firstCall.args).deep.equal(['key', { keyType: 'ed25519' }])
+        expect(createDid.firstCall.args).deep.equal(['key', { createKey: { type: { kty: 'OKP', crv: 'Ed25519' } } }])
       })
     })
 
