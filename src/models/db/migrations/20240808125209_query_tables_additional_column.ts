@@ -20,4 +20,6 @@ export async function down(knex: Knex): Promise<void> {
     def.dropColumn('query_response')
     def.dropColumn('role')
   })
+  // Native enum type is not removed by dropping the column that used it.
+  await knex.raw('DROP TYPE query_role')
 }
