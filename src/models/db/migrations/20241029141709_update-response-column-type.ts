@@ -23,8 +23,8 @@ export async function down(knex: Knex): Promise<void> {
   await knex.schema.alterTable('query', (def) => {
     def.dropColumn('response')
     def.dropColumn('type')
+    def.string('query_type').notNullable()
     def.string('query_response').nullable()
-    def.string('query_response').notNullable()
   })
 
   await knex.raw('DROP TYPE query_type')

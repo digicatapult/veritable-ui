@@ -64,6 +64,9 @@ export async function down(knex: Knex): Promise<void> {
   await knex.raw('DROP TYPE query_status_old')
 
   await knex.schema.dropTable('query_rpc')
+  // Native enum types are not removed by dropping the table that used them.
+  await knex.raw('DROP TYPE query_rpc_method')
+  await knex.raw('DROP TYPE query_rpc_role')
 
   await knex.schema.alterTable('query', (def) => {
     def.string('details').notNullable().alter()

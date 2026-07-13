@@ -35,8 +35,17 @@ jobs:
     secrets:
       DTRACK_APIKEY: ${{ secrets.DTRACK_APIKEY }}
       DTRACK_HOSTNAME: ${{ secrets.DTRACK_HOSTNAME }}
+  migration-checks:
+    uses: digicatapult/shared-workflows/.github/workflows/migration-checks-npm.yml@main
+    permissions:
+      contents: read
+    with:
+      migrations_dir: src/models/db/migrations
+      postgres_image: postgres:18.4-alpine
+      db_name: veritable-ui
+
   build-docker:
-    needs: [e2e-tests-npm, tests-npm, static-checks-npm]
+    needs: [e2e-tests-npm, tests-npm, static-checks-npm, migration-checks]
     uses: digicatapult/shared-workflows/.github/workflows/build-docker.yml@main
     permissions:
       contents: read
