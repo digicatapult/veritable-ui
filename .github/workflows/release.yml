@@ -43,7 +43,6 @@ jobs:
       migrations_dir: src/models/db/migrations
       postgres_image: postgres:18.4-alpine
       db_name: veritable-ui
-      seed_command: 'npm run db:seed'
 
   build-docker:
     needs: [e2e-tests-npm, tests-npm, static-checks-npm, migration-checks]

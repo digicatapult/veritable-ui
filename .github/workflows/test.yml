@@ -11,7 +11,6 @@ jobs:
       migrations_dir: src/models/db/migrations
       postgres_image: postgres:18.4-alpine
       db_name: veritable-ui
-      seed_command: 'npm run db:seed'
 
   static-checks-npm:
     uses: digicatapult/shared-workflows/.github/workflows/static-checks-npm.yml@main
