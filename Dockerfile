@@ -1,6 +1,8 @@
 # syntax=docker/dockerfile:1.25
 FROM node:24-alpine AS builder
 
+RUN npm install -g npm@12.0.1
+
 WORKDIR /veritable-ui
 
 COPY package*.json ./
@@ -12,6 +14,8 @@ RUN npm run build
 
 # Service
 FROM node:24-alpine AS service
+
+RUN npm install -g npm@12.0.1
 
 WORKDIR /veritable-ui
 
