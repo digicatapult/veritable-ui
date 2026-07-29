@@ -13,6 +13,8 @@ RUN npm run build
 # Service
 FROM node:24-alpine AS service
 
+RUN npm install -g npm@12.0.1
+
 WORKDIR /veritable-ui
 
 RUN apk add --no-cache coreutils curl
