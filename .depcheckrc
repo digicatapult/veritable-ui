@@ -10,4 +10,5 @@ ignores: [
   'reflect-metadata',
   'pg',
   'playwright-ctrf-json-reporter',
+  'tsc-native'
 ]
