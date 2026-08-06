@@ -41,6 +41,7 @@ jobs:
     permissions:
       contents: read
     with:
+      node_version: 24.19.0
       migrations_dir: src/models/db/migrations
       postgres_image: postgres:18.4-alpine
       db_name: veritable-ui
