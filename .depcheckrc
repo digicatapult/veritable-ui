@@ -9,6 +9,5 @@ ignores: [
   'prettier-plugin-organize-imports',
   'reflect-metadata',
   'pg',
-  'playwright-ctrf-json-reporter',
-  'tsc-native'
+  'playwright-ctrf-json-reporter'
 ]

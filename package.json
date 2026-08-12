@@ -17,7 +17,7 @@
     "test:integration:reuse": "REUSE=true NODE_OPTIONS='--no-experimental-strip-types' NODE_ENV=test ./node_modules/.bin/mocha --config ./test/mocharc.json --file ./test/init.ts ./test/**/*.test.ts",
     "test:e2e": "playwright test --trace on --max-failures=1",
     "test:playwright": "NODE_ENV=test playwright test --ui",
-    "check": "npm run tsoa:build && node_modules/tsc-native/bin/tsc --noEmit",
+    "check": "npm run tsoa:build && node_modules/@typescript/native/bin/tsc --noEmit",
     "build": "npm run tsoa:build && swc ./src -d ./build --strip-leading-paths --copy-files",
     "tsoa:build": "tsoa spec-and-routes",
     "tsoa:watch": "node --watch-path=./src ./node_modules/.bin/tsoa spec-and-routes",
@@ -105,8 +105,17 @@
     "sinon": "^22.0.0",
     "supertest": "^7.2.2",
     "testcontainers": "^12.0.2",
-    "tsc-native": "npm:typescript@^7.0.2",
+    "@typescript/native": "npm:typescript@^7.0.2",
     "typescript": "npm:@typescript/typescript6@^6.0.2",
     "yaml": "^2.9.0"
+  },
+  "allowScripts": {
+    "ssh2@1.17.0": true,
+    "protobufjs@7.6.5": true,
+    "fsevents@2.3.2": true,
+    "cpu-features@0.0.10": true,
+    "@scarf/scarf@1.4.0": true,
+    "@swc/core@1.15.47": true,
+    "argon2@0.44.0": true
   }
 }
