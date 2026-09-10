@@ -451,6 +451,15 @@ export default class VeritableCloudagentInt<Config extends CloudagentConfig = De
 
   /*--------------------------- Shared Methods ---------------------------------*/
 
+  private async describeErrorResponse(response: Response): Promise<string> {
+    try {
+      const body = await response.text()
+      return body ? ` - ${body}` : ''
+    } catch {
+      return ''
+    }
+  }
+
   private async getRequest<O>(path: string, parse: parserFn<O>): Promise<O> {
     return this.noBodyRequest('GET', path, parse)
   }
@@ -467,13 +476,15 @@ export default class VeritableCloudagentInt<Config extends CloudagentConfig = De
     })
 
     if (!response.ok) {
+      const detail = await this.describeErrorResponse(response)
+      this.logger.warn('cloudagent request %s %s failed with status %d%s', method, path, response.status, detail)
       if (response.status === 400) {
-        throw new BadRequestError(`${method} ${path}`)
+        throw new BadRequestError(`${method} ${path}${detail}`)
       }
       if (response.status === 404) {
-        throw new NotFoundError(`${method} ${path}`)
+        throw new NotFoundError(`${method} ${path}${detail}`)
       }
-      throw new InternalError(`Unexpected error calling ${method} ${path}: ${response.statusText}`)
+      throw new InternalError(`Unexpected error calling ${method} ${path}: ${response.statusText}${detail}`)
     }
 
     try {
@@ -507,13 +518,15 @@ export default class VeritableCloudagentInt<Config extends CloudagentConfig = De
     })
 
     if (!response.ok) {
+      const detail = await this.describeErrorResponse(response)
+      this.logger.warn('cloudagent request %s %s failed with status %d%s', method, path, response.status, detail)
       if (response.status === 400) {
-        throw new BadRequestError(`${method} ${path}`)
+        throw new BadRequestError(`${method} ${path}${detail}`)
       }
       if (response.status === 404) {
-        throw new NotFoundError(`${method} ${path}`)
+        throw new NotFoundError(`${method} ${path}${detail}`)
       }
-      throw new InternalError(`Unexpected error calling ${method} ${path}: ${response.statusText}`)
+      throw new InternalError(`Unexpected error calling ${method} ${path}: ${response.statusText}${detail}`)
     }
 
     try {
