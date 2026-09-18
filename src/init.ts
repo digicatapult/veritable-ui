@@ -20,5 +20,15 @@ const logger: ILogger = pino(
 )
 const cloudagent = new VeritableCloudagent(env, logger)
 const init = new CredentialSchema(env, logger, cloudagent)
-const details = await init.assertIssuanceRecords()
-logger.info(details, 'Asserted credential issuance records with: %o', details)
+
+try {
+  const details = await init.assertIssuanceRecords()
+  logger.info(details, 'Asserted credential issuance records with: %o', details)
+} catch (err) {
+  logger.error(
+    { err: err instanceof Error ? { name: err.name, message: err.message, stack: err.stack } : err },
+    'Failed to assert credential issuance records'
+  )
+  process.exitCode = 1
+  throw err
+}
