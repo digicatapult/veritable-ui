@@ -1,4 +1,4 @@
-import nodemailer, { SendMailOptions } from 'nodemailer'
+import nodemailer, { type SendMailOptions, type Transporter } from 'nodemailer'
 
 import { Env, SmtpEnv } from '../../env/index.js'
 import { type ILogger } from '../../logger.js'
@@ -7,7 +7,7 @@ import Templates, { templateHandlers, templateName, templateParams } from './tem
 
 export class EmailServiceInt {
   private templates: templateHandlers
-  private transportSendMail: nodemailer.Transporter['sendMail']
+  private transportSendMail: Transporter['sendMail']
 
   constructor(
     private env: Env,
@@ -88,7 +88,7 @@ export class EmailServiceInt {
         info.envelope.from.toString(),
         info.envelope.to
       )
-      logger.trace('email contents %s: %s', info.messageId, info.response.toString())
+      logger.trace('email contents %s: %s', info.messageId, info.response?.toString() ?? '')
 
       return info
     }.bind(transport)
