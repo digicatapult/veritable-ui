@@ -4,7 +4,7 @@ import { describe } from 'mocha'
 import pino from 'pino'
 import sinon from 'sinon'
 
-import nodemailer from 'nodemailer'
+import nodemailer, { type Transporter } from 'nodemailer'
 
 import type { ILogger } from '../../../logger.js'
 import EmailService from '../../emailService/index.js'
@@ -54,7 +54,7 @@ describe('EmailService', () => {
       sinon.stub(nodemailer, 'createTransport').returns({
         sendMail: sendMailStub,
         verify: sinon.stub().yields(null, true), // Simulate a successful SMTP connection
-      } as unknown as nodemailer.Transporter)
+      } as unknown as Transporter)
     })
     afterEach(() => {
       sinon.restore()
