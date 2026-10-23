@@ -1,6 +1,6 @@
 {
   "name": "veritable-ui",
-  "version": "0.21.141",
+  "version": "0.21.142",
   "description": "UI for Veritable",
   "main": "src/index.ts",
   "type": "module",
@@ -62,7 +62,7 @@
     "swagger-ui-express": "^5.0.1",
     "tsoa": "^6.6.0",
     "tsyringe": "^4.10.0",
-    "undici": "^8.12.2",
+    "undici": "^8.12.3",
     "ws": "^8.22.0",
     "zod": "^4.6.7"
   },
@@ -85,8 +85,8 @@
     "@types/supertest": "^7.2.1",
     "@types/swagger-ui-express": "^4.1.8",
     "@types/ws": "^8.18.2",
-    "@typescript-eslint/eslint-plugin": "^8.71.2",
-    "@typescript-eslint/parser": "^8.71.2",
+    "@typescript-eslint/eslint-plugin": "^8.72.0",
+    "@typescript-eslint/parser": "^8.72.0",
     "chai": "^6.3.0",
     "chai-as-promised": "8.0.2",
     "chai-jest-snapshot": "^2.0.0",
