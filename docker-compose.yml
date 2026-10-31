@@ -1,7 +1,7 @@
 services:
   # -------------------- shared -------------------------------#
   keycloak:
-    image: quay.io/keycloak/keycloak:26.8.1
+    image: quay.io/keycloak/keycloak:26.8.1@sha256:a78d6b79572168cb25886b80a8b5b8d4ed4390743e3eecb810538683e209dd6b
     container_name: keycloak
     environment:
       - KC_BOOTSTRAP_ADMIN_USERNAME=admin
@@ -13,7 +13,7 @@ services:
     command: start-dev --import-realm
   ipfs:
     container_name: ipfs
-    image: ipfs/kubo:release
+    image: ipfs/kubo:release@sha256:b293923d66e490e70ced64df42ea7a6cf7eac2740e3fb29101df18070fa7be48
     volumes:
       - ipfs:/data/ipfs
 
@@ -79,7 +79,7 @@ services:
       - OPEN_CORPORATES_API_URL=http://wiremock:8080
       - OPEN_CORPORATES_API_KEY=${OPEN_CORPORATES_API_KEY}
   postgres-veritable-ui-alice:
-    image: postgres:18.6-alpine
+    image: postgres:18.6-alpine@sha256:10a5c69a83035ab5239f5620d708520e8b28f5aa1f2b20143e6024532edadfb5
     container_name: postgres-veritable-ui-alice
     ports:
       - 5432:5432
@@ -91,7 +91,7 @@ services:
       - POSTGRES_DB=veritable-ui
   postgres-veritable-cloudagent-alice:
     container_name: postgres-veritable-cloudagent-alice
-    image: postgres:18.6-alpine
+    image: postgres:18.6-alpine@sha256:10a5c69a83035ab5239f5620d708520e8b28f5aa1f2b20143e6024532edadfb5
     restart: on-failure
     volumes:
       - postgres-veritable-cloudagent-alice:/var/lib/postgresql
@@ -100,7 +100,7 @@ services:
       - POSTGRES_PASSWORD=postgres
       - POSTGRES_DB=postgres-veritable-cloudagent
   veritable-cloudagent-alice:
-    image: digicatapult/veritable-cloudagent:v0.20.65
+    image: digicatapult/veritable-cloudagent:v0.20.68@sha256:f1ecbba2878974b0fb0038abd622e4d4ddeccf306e162a5161ef80de9a94c9aa
     container_name: veritable-cloudagent-alice
     restart: always
     depends_on:
@@ -177,7 +177,7 @@ services:
       - LOCAL_REGISTRY_COUNTRY_CODE=GB
 
   postgres-veritable-ui-bob:
-    image: postgres:18.6-alpine
+    image: postgres:18.6-alpine@sha256:10a5c69a83035ab5239f5620d708520e8b28f5aa1f2b20143e6024532edadfb5
     container_name: postgres-veritable-ui-bob
     ports:
       - 5433:5432
@@ -189,7 +189,7 @@ services:
       - POSTGRES_DB=veritable-ui
   postgres-veritable-cloudagent-bob:
     container_name: postgres-veritable-cloudagent-bob
-    image: postgres:18.6-alpine
+    image: postgres:18.6-alpine@sha256:10a5c69a83035ab5239f5620d708520e8b28f5aa1f2b20143e6024532edadfb5
     restart: on-failure
     volumes:
       - postgres-veritable-cloudagent-bob:/var/lib/postgresql
@@ -198,7 +198,7 @@ services:
       - POSTGRES_PASSWORD=postgres
       - POSTGRES_DB=postgres-veritable-cloudagent
   veritable-cloudagent-bob:
-    image: digicatapult/veritable-cloudagent:v0.20.65
+    image: digicatapult/veritable-cloudagent:v0.20.68@sha256:f1ecbba2878974b0fb0038abd622e4d4ddeccf306e162a5161ef80de9a94c9aa
     container_name: veritable-cloudagent-bob
     restart: always
     depends_on:
@@ -275,7 +275,7 @@ services:
       - OPEN_CORPORATES_API_KEY=${OPEN_CORPORATES_API_KEY}
 
   postgres-veritable-ui-charlie:
-    image: postgres:18.6-alpine
+    image: postgres:18.6-alpine@sha256:10a5c69a83035ab5239f5620d708520e8b28f5aa1f2b20143e6024532edadfb5
     container_name: postgres-veritable-ui-charlie
     ports:
       - 5434:5432
@@ -287,7 +287,7 @@ services:
       - POSTGRES_DB=veritable-ui
   postgres-veritable-cloudagent-charlie:
     container_name: postgres-veritable-cloudagent-charlie
-    image: postgres:18.6-alpine
+    image: postgres:18.6-alpine@sha256:10a5c69a83035ab5239f5620d708520e8b28f5aa1f2b20143e6024532edadfb5
     restart: on-failure
     volumes:
       - postgres-veritable-cloudagent-charlie:/var/lib/postgresql
@@ -296,7 +296,7 @@ services:
       - POSTGRES_PASSWORD=postgres
       - POSTGRES_DB=postgres-veritable-cloudagent
   veritable-cloudagent-charlie:
-    image: digicatapult/veritable-cloudagent:v0.20.65
+    image: digicatapult/veritable-cloudagent:v0.20.68@sha256:f1ecbba2878974b0fb0038abd622e4d4ddeccf306e162a5161ef80de9a94c9aa
     container_name: veritable-cloudagent-charlie
     restart: always
     depends_on:
@@ -314,7 +314,7 @@ services:
 
   # -------------------- email -------------------------------#
   smtp4dev:
-    image: rnwood/smtp4dev:3.15.0
+    image: rnwood/smtp4dev:3.15.0@sha256:25c434c1900a9c5b61e17ead0a774d9e81b80554d05cf64719d69e5ea8c66537
     container_name: smtp4dev
     ports:
       - "5001:80" # Port for accessing smtp4dev's web interface
@@ -324,7 +324,7 @@ services:
   # -------------------- wiremock ----------------------------#
 
   wiremock:
-    image: wiremock/wiremock:3.13.2
+    image: wiremock/wiremock:3.13.2@sha256:0d4ecb3e4dc8213fd7a4d37d6a78f6e6b553a6d2e15bd51b0999781282ac61b3
     container_name: wiremock
     # scale: 0 // TODO: remove this, only for dev
     ports:
