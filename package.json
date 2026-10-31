@@ -1,6 +1,6 @@
 {
   "name": "veritable-ui",
-  "version": "0.21.146",
+  "version": "0.21.147",
   "description": "UI for Veritable",
   "main": "src/index.ts",
   "type": "module",
@@ -48,7 +48,7 @@
     "compression": "^1.8.2",
     "cookie-parser": "^1.4.7",
     "dotenv": "^18.0.9",
-    "envalid": "^8.2.0",
+    "envalid": "^9.0.0",
     "express": "^5.3.0",
     "htmx-ext-json-enc": "^2.0.3",
     "htmx-ext-response-targets": "^2.0.4",
