@@ -1,7 +1,7 @@
 services:
   # -------------------- shared -------------------------------#
   keycloak:
-    image: quay.io/keycloak/keycloak:26.8.1@sha256:a78d6b79572168cb25886b80a8b5b8d4ed4390743e3eecb810538683e209dd6b
+    image: quay.io/keycloak/keycloak:26.8.1@sha256:3f3c5f8e03c614774b4bd9173b88391fefa4153bfc010d8012d59ad825377332
     container_name: keycloak
     environment:
       - KC_BOOTSTRAP_ADMIN_USERNAME=admin
@@ -100,7 +100,7 @@ services:
       - POSTGRES_PASSWORD=postgres
       - POSTGRES_DB=postgres-veritable-cloudagent
   veritable-cloudagent-alice:
-    image: digicatapult/veritable-cloudagent:v0.20.68@sha256:f1ecbba2878974b0fb0038abd622e4d4ddeccf306e162a5161ef80de9a94c9aa
+    image: digicatapult/veritable-cloudagent:v0.20.69@sha256:480a4e4d7821d78517578f43fb51e8f60ba31f189d4386806a10e38713598d25
     container_name: veritable-cloudagent-alice
     restart: always
     depends_on:
@@ -198,7 +198,7 @@ services:
       - POSTGRES_PASSWORD=postgres
       - POSTGRES_DB=postgres-veritable-cloudagent
   veritable-cloudagent-bob:
-    image: digicatapult/veritable-cloudagent:v0.20.68@sha256:f1ecbba2878974b0fb0038abd622e4d4ddeccf306e162a5161ef80de9a94c9aa
+    image: digicatapult/veritable-cloudagent:v0.20.69@sha256:480a4e4d7821d78517578f43fb51e8f60ba31f189d4386806a10e38713598d25
     container_name: veritable-cloudagent-bob
     restart: always
     depends_on:
@@ -296,7 +296,7 @@ services:
       - POSTGRES_PASSWORD=postgres
       - POSTGRES_DB=postgres-veritable-cloudagent
   veritable-cloudagent-charlie:
-    image: digicatapult/veritable-cloudagent:v0.20.68@sha256:f1ecbba2878974b0fb0038abd622e4d4ddeccf306e162a5161ef80de9a94c9aa
+    image: digicatapult/veritable-cloudagent:v0.20.69@sha256:480a4e4d7821d78517578f43fb51e8f60ba31f189d4386806a10e38713598d25
     container_name: veritable-cloudagent-charlie
     restart: always
     depends_on:
