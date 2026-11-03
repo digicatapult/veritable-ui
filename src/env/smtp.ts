@@ -7,8 +7,8 @@ const smtpConfig = {
   SMTP_HOST: str({ devDefault: 'localhost' }),
   SMTP_PORT: port({ devDefault: 2525 }),
   SMTP_SECURE: bool({ devDefault: false, default: true }), // smtp4dev does not use TLS by default so false in dev mode
-  SMTP_USER: str({ devDefault: '' }), // no auth required by default for smtp4dev
-  SMTP_PASS: str({ devDefault: '' }),
+  SMTP_USER: str({ default: undefined }),
+  SMTP_PASS: str({ default: undefined }),
 }
 
 type SMTP_CONFIG = typeof smtpConfig
