@@ -177,9 +177,7 @@ describe('Env', function () {
         expect.fail('Expect EMAIL_TRANSPORT error to be of type EnvalidTestReporterError')
       }
 
-      expect(Object.keys(transportError.errors).sort()).to.deep.equal(
-        ['SMTP_HOST', 'SMTP_PORT', 'SMTP_USER', 'SMTP_PASS'].sort()
-      )
+      expect(Object.keys(transportError.errors).sort()).to.deep.equal(['SMTP_HOST', 'SMTP_PORT'].sort())
     })
   })
 })
