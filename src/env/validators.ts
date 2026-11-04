@@ -1,9 +1,9 @@
-import envalid from 'envalid'
+import { makeValidator } from 'envalid'
 import { container } from 'tsyringe'
 
 import { SmtpEnv } from './smtp.js'
 
-export const strArrayValidator = envalid.makeValidator((input) => {
+export const strArrayValidator = makeValidator((input) => {
   const arr = input
     .split(',')
     .map((s) => s.trim())
@@ -17,7 +17,7 @@ export const strArrayValidator = envalid.makeValidator((input) => {
   return res
 })
 
-export const issuanceRecordValidator = envalid.makeValidator((input) => {
+export const issuanceRecordValidator = makeValidator((input) => {
   if (input === 'CREATE_NEW') {
     return 'CREATE_NEW' as const
   }
@@ -40,7 +40,7 @@ export const issuanceRecordValidator = envalid.makeValidator((input) => {
   throw new Error('must supply a valid issuance policy')
 })
 
-export const pinSecretValidator = envalid.makeValidator((input) => {
+export const pinSecretValidator = makeValidator((input) => {
   if (!input) {
     throw new Error('Invalid pin secret value')
   }
@@ -48,7 +48,7 @@ export const pinSecretValidator = envalid.makeValidator((input) => {
   return Buffer.from(input, 'utf8')
 })
 
-export const emailTransportValidator = envalid.makeValidator((input: string) => {
+export const emailTransportValidator = makeValidator((input: string) => {
   if (input === 'STREAM') {
     return {
       type: 'STREAM' as const,

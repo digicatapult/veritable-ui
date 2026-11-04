@@ -1,5 +1,5 @@
 import dotenv from 'dotenv'
-import envalid from 'envalid'
+import { bool, CleanedEnv, cleanEnv, email, host, num, port, str, url } from 'envalid'
 
 import { container } from 'tsyringe'
 import { registryTypes } from '../models/db/types.js'
@@ -12,69 +12,69 @@ import {
 } from './validators.js'
 
 export const defaultConfig = {
-  PORT: envalid.port({ default: 3000 }),
-  LOG_LEVEL: envalid.str({ default: 'info', devDefault: 'debug' }),
-  DB_HOST: envalid.host({ devDefault: 'localhost' }),
-  DB_NAME: envalid.str({ default: 'veritable-ui' }),
-  DB_USERNAME: envalid.str({ devDefault: 'postgres' }),
-  DB_PASSWORD: envalid.str({ devDefault: 'postgres' }),
-  DB_PORT: envalid.port({ default: 5432 }),
+  PORT: port({ default: 3000 }),
+  LOG_LEVEL: str({ default: 'info', devDefault: 'debug' }),
+  DB_HOST: host({ devDefault: 'localhost' }),
+  DB_NAME: str({ default: 'veritable-ui' }),
+  DB_USERNAME: str({ devDefault: 'postgres' }),
+  DB_PASSWORD: str({ devDefault: 'postgres' }),
+  DB_PORT: port({ default: 5432 }),
   COOKIE_SESSION_KEYS: strArrayValidator({ devDefault: ['secret'] }),
-  PUBLIC_URL: envalid.url({ devDefault: 'http://localhost:3000' }),
-  API_SWAGGER_BG_COLOR: envalid.str({ devDefault: '#38b6ff', default: '#ffffff' }),
-  API_SWAGGER_TITLE: envalid.str({ devDefault: 'Alice', default: 'veritable' }),
-  API_SWAGGER_HEADING: envalid.str({ default: 'Veritable' }),
-  IDP_CLIENT_ID: envalid.str({ devDefault: 'veritable-ui' }),
-  IDP_PUBLIC_URL_PREFIX: envalid.url({
+  PUBLIC_URL: url({ devDefault: 'http://localhost:3000' }),
+  API_SWAGGER_BG_COLOR: str({ devDefault: '#38b6ff', default: '#ffffff' }),
+  API_SWAGGER_TITLE: str({ devDefault: 'Alice', default: 'veritable' }),
+  API_SWAGGER_HEADING: str({ default: 'Veritable' }),
+  IDP_CLIENT_ID: str({ devDefault: 'veritable-ui' }),
+  IDP_PUBLIC_URL_PREFIX: url({
     devDefault: 'http://localhost:3080/realms/veritable/protocol/openid-connect',
   }),
-  IDP_INTERNAL_URL_PREFIX: envalid.url({
+  IDP_INTERNAL_URL_PREFIX: url({
     devDefault: 'http://localhost:3080/realms/veritable/protocol/openid-connect',
   }),
-  IDP_AUTH_PATH: envalid.str({
+  IDP_AUTH_PATH: str({
     default: '/auth',
   }),
-  IDP_TOKEN_PATH: envalid.str({
+  IDP_TOKEN_PATH: str({
     default: '/token',
   }),
-  IDP_JWKS_PATH: envalid.str({
+  IDP_JWKS_PATH: str({
     default: '/certs',
   }),
-  COMPANY_HOUSE_API_URL: envalid.str({ default: 'https://api.company-information.service.gov.uk' }), // TODO: all registries will need this
-  COMPANY_PROFILE_API_KEY: envalid.str(), // TODO: keep this as we may have more registries configured at the same time
+  COMPANY_HOUSE_API_URL: str({ default: 'https://api.company-information.service.gov.uk' }), // TODO: all registries will need this
+  COMPANY_PROFILE_API_KEY: str(), // TODO: keep this as we may have more registries configured at the same time
   // TODO: add other registries here will need some sort of validator if we have all the envs for the configured registries or will these be in db?
   EMAIL_TRANSPORT: emailTransportValidator({ default: { type: 'STREAM' } }),
-  EMAIL_FROM_ADDRESS: envalid.email({ default: 'hello@veritable.com' }),
-  EMAIL_ADMIN_ADDRESS: envalid.email({ default: 'admin@veritable.com' }),
-  CLOUDAGENT_ADMIN_ORIGIN: envalid.url({ devDefault: 'http://localhost:3100' }),
-  CLOUDAGENT_ADMIN_WS_ORIGIN: envalid.url({ devDefault: 'ws://localhost:3100' }),
-  CLOUDAGENT_ADMIN_PING_TIMEOUT_MS: envalid.num({ default: 30000 }),
+  EMAIL_FROM_ADDRESS: email({ default: 'hello@veritable.com' }),
+  EMAIL_ADMIN_ADDRESS: email({ default: 'admin@veritable.com' }),
+  CLOUDAGENT_ADMIN_ORIGIN: url({ devDefault: 'http://localhost:3100' }),
+  CLOUDAGENT_ADMIN_WS_ORIGIN: url({ devDefault: 'ws://localhost:3100' }),
+  CLOUDAGENT_ADMIN_PING_TIMEOUT_MS: num({ default: 30000 }),
   INVITATION_PIN_SECRET: pinSecretValidator({ devDefault: Buffer.from('secret', 'utf8') }),
-  INVITATION_PIN_ATTEMPT_LIMIT: envalid.num({ default: 5 }),
-  INVITATION_FROM_COMPANY_NUMBER: envalid.str({ devDefault: '07964699' }), // TODO: change to LOCAL_COMPANY_NUMBER ??
+  INVITATION_PIN_ATTEMPT_LIMIT: num({ default: 5 }),
+  INVITATION_FROM_COMPANY_NUMBER: str({ devDefault: '07964699' }), // TODO: change to LOCAL_COMPANY_NUMBER ??
   ISSUANCE_DID_POLICY: issuanceRecordValidator({ devDefault: 'EXISTING_OR_NEW' }),
   ISSUANCE_SCHEMA_POLICY: issuanceRecordValidator({ devDefault: 'EXISTING_OR_NEW' }),
   ISSUANCE_CRED_DEF_POLICY: issuanceRecordValidator({ devDefault: 'EXISTING_OR_NEW' }),
-  DEMO_MODE: envalid.bool({ devDefault: true, default: false }),
-  NY_STATE_API_URL: envalid.str({ default: 'https://data.ny.gov/resource/p66s-i79p.json' }),
-  LOCAL_REGISTRY_TO_USE: envalid.str({
+  DEMO_MODE: bool({ devDefault: true, default: false }),
+  NY_STATE_API_URL: str({ default: 'https://data.ny.gov/resource/p66s-i79p.json' }),
+  LOCAL_REGISTRY_TO_USE: str({
     default: 'company_house',
     devDefault: 'company_house',
     choices: registryTypes,
   }),
-  LOCAL_REGISTRY_COUNTRY_CODE: envalid.str({
+  LOCAL_REGISTRY_COUNTRY_CODE: str({
     default: 'GB',
     devDefault: 'GB',
     choices: countryCodes,
   }),
-  OPEN_CORPORATES_API_URL: envalid.str({
+  OPEN_CORPORATES_API_URL: str({
     devDefault: 'http://localhost:8443',
     default: 'https://api.opencorporates.com/v0.4',
   }),
-  OPEN_CORPORATES_API_KEY: envalid.str({ devDefault: 'test-key' }),
-  IPID_API_URL: envalid.str({ default: 'https://sandbox.ipid.works' }),
-  IPID_API_KEY: envalid.str(),
-  IPID_CUSTOMER_ID: envalid.str({ default: 'digicatapult-uat' }),
+  OPEN_CORPORATES_API_KEY: str({ devDefault: 'test-key' }),
+  IPID_API_URL: str({ default: 'https://sandbox.ipid.works' }),
+  IPID_API_KEY: str(),
+  IPID_CUSTOMER_ID: str({ default: 'digicatapult-uat' }),
 }
 
 // we mainly separate out the raw environment loading so we can override it safely in tests
@@ -106,11 +106,11 @@ container.register(RAW_ENV_TOKEN, {
 })
 
 export const loadEnvAndOptions = () => {
-  return container.resolve<{ env: NodeJS.ProcessEnv; options: Parameters<typeof envalid.cleanEnv>['2'] }>(RAW_ENV_TOKEN)
+  return container.resolve<{ env: NodeJS.ProcessEnv; options: Parameters<typeof cleanEnv>['2'] }>(RAW_ENV_TOKEN)
 }
 
 export type DEFAULT_CONFIG = typeof defaultConfig
 export type DEFAULT_KEYS = keyof DEFAULT_CONFIG
 export interface PartialEnv<KS extends DEFAULT_KEYS = DEFAULT_KEYS> {
-  get<K extends KS>(key: K): Pick<envalid.CleanedEnv<DEFAULT_CONFIG>, KS>[K]
+  get<K extends KS>(key: K): Pick<CleanedEnv<DEFAULT_CONFIG>, KS>[K]
 }

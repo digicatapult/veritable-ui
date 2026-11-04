@@ -1,25 +1,25 @@
-import envalid from 'envalid'
+import { CleanedEnv, bool, cleanEnv, port, str } from 'envalid'
 import { singleton } from 'tsyringe'
 
 import { loadEnvAndOptions } from './common.js'
 
 const smtpConfig = {
-  SMTP_HOST: envalid.str({ devDefault: 'localhost' }),
-  SMTP_PORT: envalid.port({ devDefault: 2525 }),
-  SMTP_SECURE: envalid.bool({ devDefault: false, default: true }), // smtp4dev does not use TLS by default so false in dev mode
-  SMTP_USER: envalid.str({ devDefault: '' }), // no auth required by default for smtp4dev
-  SMTP_PASS: envalid.str({ devDefault: '' }),
+  SMTP_HOST: str({ devDefault: 'localhost' }),
+  SMTP_PORT: port({ devDefault: 2525 }),
+  SMTP_SECURE: bool({ devDefault: false, default: true }), // smtp4dev does not use TLS by default so false in dev mode
+  SMTP_USER: str({ default: undefined }),
+  SMTP_PASS: str({ default: undefined }),
 }
 
 type SMTP_CONFIG = typeof smtpConfig
 type SMTP_KEYS = keyof SMTP_CONFIG
 @singleton()
 export class SmtpEnv {
-  private vals: Pick<envalid.CleanedEnv<SMTP_CONFIG>, SMTP_KEYS>
+  private vals: Pick<CleanedEnv<SMTP_CONFIG>, SMTP_KEYS>
 
   constructor() {
     const { env, options } = loadEnvAndOptions()
-    this.vals = envalid.cleanEnv(
+    this.vals = cleanEnv(
       env,
       {
         SMTP_HOST: smtpConfig.SMTP_HOST,

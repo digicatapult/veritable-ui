@@ -1,4 +1,4 @@
-import envalid from 'envalid'
+import { CleanedEnv, cleanEnv } from 'envalid'
 import { singleton } from 'tsyringe'
 
 import { DEFAULT_CONFIG, defaultConfig, loadEnvAndOptions, PartialEnv } from './common.js'
@@ -12,12 +12,12 @@ type INIT_ENV_KEYS =
 
 @singleton()
 export class InitEnv implements PartialEnv<INIT_ENV_KEYS> {
-  private values: Pick<envalid.CleanedEnv<DEFAULT_CONFIG>, INIT_ENV_KEYS>
+  private values: Pick<CleanedEnv<DEFAULT_CONFIG>, INIT_ENV_KEYS>
 
   constructor() {
     loadEnvAndOptions()
     const { env, options } = loadEnvAndOptions()
-    this.values = envalid.cleanEnv(
+    this.values = cleanEnv(
       env,
       {
         CLOUDAGENT_ADMIN_ORIGIN: defaultConfig.CLOUDAGENT_ADMIN_ORIGIN,
