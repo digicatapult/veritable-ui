@@ -6,7 +6,7 @@ import VeritableCloudagentEvents from '../veritableCloudagentEvents.js'
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 declare const CloudagentOn: VeritableCloudagentEvents['on']
-type eventData<T> = Parameters<typeof CloudagentOn<T>>[1]
+type eventData<T extends string | symbol> = Parameters<typeof CloudagentOn<T>>[1]
 
 @singleton()
 @injectable()
