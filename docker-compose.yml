@@ -312,7 +312,7 @@ services:
 
   # -------------------- email -------------------------------#
   smtp4dev:
-    image: rnwood/smtp4dev:3.15.0@sha256:25c434c1900a9c5b61e17ead0a774d9e81b80554d05cf64719d69e5ea8c66537
+    image: rnwood/smtp4dev:3.16.1@sha256:211a60c1a4f51ff7ace4a35de055797348994b0e84ab36734991235f90f9ac75
     container_name: smtp4dev
     ports:
       - "5001:80" # Port for accessing smtp4dev's web interface
