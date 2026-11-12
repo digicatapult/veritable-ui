@@ -60,7 +60,7 @@ type WebSocketEventNames = WebSocketEvent['type']
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 declare const CloudagentOn: VeritableCloudagentEvents['on']
-export type eventData<T> = Parameters<typeof CloudagentOn<T>>[1]
+export type eventData<T extends string | symbol> = Parameters<typeof CloudagentOn<T>>[1]
 export type DrpcRequest = z.infer<typeof drpcRequestParser>
 
 @singleton()
