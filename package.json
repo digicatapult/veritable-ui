@@ -1,13 +1,13 @@
 {
   "name": "veritable-ui",
-  "version": "0.21.151",
+  "version": "0.21.152",
   "description": "UI for Veritable",
   "main": "src/index.ts",
   "type": "module",
   "author": "Digital Catapult",
   "license": "Apache-2.0",
   "engines": {
-    "node": "24.x",
+    "node": "26.x",
     "npm": "12.x"
   },
   "scripts": {
@@ -79,7 +79,7 @@
     "@types/cookie-parser": "^1.4.10",
     "@types/express": "^5.0.6",
     "@types/mocha": "^10.0.10",
-    "@types/node": "^20.19.43",
+    "@types/node": "^26.6.6",
     "@types/nodemailer": "^8.0.2",
     "@types/sinon": "^22.0.2",
     "@types/supertest": "^7.2.1",
