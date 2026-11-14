@@ -1,6 +1,6 @@
 {
   "name": "veritable-ui",
-  "version": "0.21.152",
+  "version": "0.21.153",
   "description": "UI for Veritable",
   "main": "src/index.ts",
   "type": "module",
@@ -39,7 +39,7 @@
     }
   },
   "dependencies": {
-    "@digicatapult/tsoa-oauth-express": "^2.0.89",
+    "@digicatapult/tsoa-oauth-express": "^2.0.90",
     "@kitajs/html": "^4.2.13",
     "@kitajs/ts-html-plugin": "^4.1.4",
     "@tsoa/runtime": "^6.6.0",
@@ -100,7 +100,7 @@
     "pino-pretty": "^13.2.0",
     "playwright": "^1.65.0",
     "playwright-ctrf-json-reporter": "^0.2.0",
-    "prettier": "^3.9.10",
+    "prettier": "^3.10.0",
     "prettier-plugin-organize-imports": "^4.3.0",
     "sinon": "^22.1.0",
     "supertest": "^7.3.2",
