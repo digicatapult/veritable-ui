@@ -1,6 +1,6 @@
 {
   "name": "veritable-ui",
-  "version": "0.21.153",
+  "version": "0.21.154",
   "description": "UI for Veritable",
   "main": "src/index.ts",
   "type": "module",
@@ -63,7 +63,7 @@
     "tsoa": "^6.6.0",
     "tsyringe": "^4.10.0",
     "undici": "^8.12.4",
-    "ws": "^8.22.2",
+    "ws": "^8.23.0",
     "zod": "^4.6.7"
   },
   "devDependencies": {
@@ -100,7 +100,7 @@
     "pino-pretty": "^13.2.0",
     "playwright": "^1.65.0",
     "playwright-ctrf-json-reporter": "^0.2.0",
-    "prettier": "^3.10.0",
+    "prettier": "^3.10.1",
     "prettier-plugin-organize-imports": "^4.3.0",
     "sinon": "^22.1.0",
     "supertest": "^7.3.2",
