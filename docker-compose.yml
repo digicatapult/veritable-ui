@@ -1,7 +1,7 @@
 services:
   # -------------------- shared -------------------------------#
   keycloak:
-    image: quay.io/keycloak/keycloak:26.8.2@sha256:c68e286cacd87b942ac1939a0a1481461109d6acd3a57dc496969a319a76bbf0
+    image: quay.io/keycloak/keycloak:26.8.2@sha256:7e66a96e4739239070aeaf72e4c5decf0f7f682cfc725b9f7ea2b336eaba38b3
     container_name: keycloak
     environment:
       - KC_BOOTSTRAP_ADMIN_USERNAME=admin
@@ -77,7 +77,7 @@ services:
       - OPEN_CORPORATES_API_URL=http://wiremock:8080
       - OPEN_CORPORATES_API_KEY=${OPEN_CORPORATES_API_KEY}
   postgres-veritable-ui-alice:
-    image: postgres:18.7-alpine@sha256:b6972e1115a4ff8eba5d7f7d19184926d1e16d7d1136ae1e1a7ebf286da0f015
+    image: postgres:18.7-alpine@sha256:ff64c9e3bdf8e2120107d3559de8db314e8305f7e38c5105903c6295876738ff
     container_name: postgres-veritable-ui-alice
     ports:
       - 5432:5432
@@ -89,7 +89,7 @@ services:
       - POSTGRES_DB=veritable-ui
   postgres-veritable-cloudagent-alice:
     container_name: postgres-veritable-cloudagent-alice
-    image: postgres:18.7-alpine@sha256:b6972e1115a4ff8eba5d7f7d19184926d1e16d7d1136ae1e1a7ebf286da0f015
+    image: postgres:18.7-alpine@sha256:ff64c9e3bdf8e2120107d3559de8db314e8305f7e38c5105903c6295876738ff
     restart: on-failure
     volumes:
       - postgres-veritable-cloudagent-alice:/var/lib/postgresql
@@ -175,7 +175,7 @@ services:
       - LOCAL_REGISTRY_COUNTRY_CODE=GB
 
   postgres-veritable-ui-bob:
-    image: postgres:18.7-alpine@sha256:b6972e1115a4ff8eba5d7f7d19184926d1e16d7d1136ae1e1a7ebf286da0f015
+    image: postgres:18.7-alpine@sha256:ff64c9e3bdf8e2120107d3559de8db314e8305f7e38c5105903c6295876738ff
     container_name: postgres-veritable-ui-bob
     ports:
       - 5433:5432
@@ -187,7 +187,7 @@ services:
       - POSTGRES_DB=veritable-ui
   postgres-veritable-cloudagent-bob:
     container_name: postgres-veritable-cloudagent-bob
-    image: postgres:18.7-alpine@sha256:b6972e1115a4ff8eba5d7f7d19184926d1e16d7d1136ae1e1a7ebf286da0f015
+    image: postgres:18.7-alpine@sha256:ff64c9e3bdf8e2120107d3559de8db314e8305f7e38c5105903c6295876738ff
     restart: on-failure
     volumes:
       - postgres-veritable-cloudagent-bob:/var/lib/postgresql
@@ -273,7 +273,7 @@ services:
       - OPEN_CORPORATES_API_KEY=${OPEN_CORPORATES_API_KEY}
 
   postgres-veritable-ui-charlie:
-    image: postgres:18.7-alpine@sha256:b6972e1115a4ff8eba5d7f7d19184926d1e16d7d1136ae1e1a7ebf286da0f015
+    image: postgres:18.7-alpine@sha256:ff64c9e3bdf8e2120107d3559de8db314e8305f7e38c5105903c6295876738ff
     container_name: postgres-veritable-ui-charlie
     ports:
       - 5434:5432
@@ -285,7 +285,7 @@ services:
       - POSTGRES_DB=veritable-ui
   postgres-veritable-cloudagent-charlie:
     container_name: postgres-veritable-cloudagent-charlie
-    image: postgres:18.7-alpine@sha256:b6972e1115a4ff8eba5d7f7d19184926d1e16d7d1136ae1e1a7ebf286da0f015
+    image: postgres:18.7-alpine@sha256:ff64c9e3bdf8e2120107d3559de8db314e8305f7e38c5105903c6295876738ff
     restart: on-failure
     volumes:
       - postgres-veritable-cloudagent-charlie:/var/lib/postgresql
