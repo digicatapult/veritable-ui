@@ -1,6 +1,6 @@
 {
   "name": "veritable-ui",
-  "version": "0.21.156",
+  "version": "0.21.157",
   "description": "UI for Veritable",
   "main": "src/index.ts",
   "type": "module",
@@ -39,7 +39,7 @@
     }
   },
   "dependencies": {
-    "@digicatapult/tsoa-oauth-express": "^2.0.90",
+    "@digicatapult/tsoa-oauth-express": "^2.0.91",
     "@kitajs/html": "^4.2.13",
     "@kitajs/ts-html-plugin": "^4.1.4",
     "@tsoa/runtime": "^6.6.0",
@@ -55,7 +55,7 @@
     "htmx.org": "^2.0.11",
     "i18n-iso-countries": "^7.14.0",
     "knex": "^3.3.0",
-    "nodemailer": "^10.5.0",
+    "nodemailer": "^10.6.0",
     "pg": "^8.23.1",
     "pino": "^10.4.0",
     "pino-http": "^11.0.0",
