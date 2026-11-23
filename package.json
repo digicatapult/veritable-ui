@@ -1,6 +1,6 @@
 {
   "name": "veritable-ui",
-  "version": "0.21.158",
+  "version": "0.21.159",
   "description": "UI for Veritable",
   "main": "src/index.ts",
   "type": "module",
@@ -55,14 +55,14 @@
     "htmx.org": "^2.0.11",
     "i18n-iso-countries": "^7.14.0",
     "knex": "^3.3.0",
-    "nodemailer": "^10.6.0",
+    "nodemailer": "^10.6.1",
     "pg": "^8.23.1",
     "pino": "^10.4.0",
     "pino-http": "^11.0.0",
     "swagger-ui-express": "^5.0.1",
     "tsoa": "^6.6.0",
     "tsyringe": "^4.10.0",
-    "undici": "^8.12.4",
+    "undici": "^8.13.0",
     "ws": "^8.23.0",
     "zod": "^4.6.7"
   },
@@ -104,7 +104,7 @@
     "prettier-plugin-organize-imports": "^4.3.0",
     "sinon": "^22.1.0",
     "supertest": "^7.3.2",
-    "testcontainers": "^12.2.1",
+    "testcontainers": "^12.2.2",
     "@typescript/native": "npm:typescript@^7.0.2",
     "typescript": "npm:@typescript/typescript6@^6.0.2",
     "yaml": "^2.9.1"
